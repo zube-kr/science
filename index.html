@@ -2,55 +2,56 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>아화중학교 과학시간</title>
 
 <style>
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    overflow:hidden;
-    background:linear-gradient(180deg,#00172d,#003b70,#000814);
-    font-family:'Malgun Gothic',sans-serif;
+overflow:hidden;
+background:#000;
+font-family:Segoe UI,sans-serif;
 }
 
 canvas{
-    position:fixed;
-    left:0;
-    top:0;
+position:fixed;
+left:0;
+top:0;
 }
 
 .message{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    text-align:center;
-    color:white;
-    z-index:10;
-    background:rgba(0,0,0,0.35);
-    padding:30px 50px;
-    border-radius:20px;
-    backdrop-filter:blur(8px);
-    box-shadow:0 0 30px rgba(255,255,255,.2);
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(12px);
+padding:40px 60px;
+border-radius:25px;
+border:1px solid rgba(255,255,255,.15);
+color:white;
+z-index:10;
 }
 
 .message h1{
-    font-size:48px;
-    margin-bottom:20px;
-    color:#7ef9ff;
-    text-shadow:0 0 15px cyan;
+font-size:52px;
+font-weight:300;
+letter-spacing:3px;
+margin-bottom:20px;
 }
 
 .message p{
-    font-size:28px;
-    line-height:1.8;
+font-size:24px;
+line-height:1.8;
+color:#ddd;
 }
 </style>
+
 </head>
 
 <body>
@@ -58,12 +59,15 @@ canvas{
 <canvas id="canvas"></canvas>
 
 <div class="message">
-<h1>🔬 과학시간</h1>
+<h1>SCIENCE</h1>
+
 <p>
-안녕하세요.<br><br>
-아화중학교 과학시간 입니다.<br><br>
-여러분들 화이팅 하세요! 🚀
+안녕하세요.<br>
+아화중학교 과학시간입니다.<br><br>
+
+여러분들 화이팅 하세요!
 </p>
+
 </div>
 
 <script>
@@ -72,132 +76,321 @@ const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
 function resize(){
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
 }
 resize();
+
 window.onresize=resize;
 
 
+//---------------------------
 // 별
-let stars=[];
+//---------------------------
 
-for(let i=0;i<150;i++){
-    stars.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        r:Math.random()*2,
-        s:Math.random()*0.5+0.2
-    });
+const stars=[];
+
+for(let i=0;i<250;i++){
+
+stars.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2+0.5,
+a:Math.random(),
+speed:Math.random()*0.01
+
+});
+
 }
 
-// 분자
-let molecules=[];
 
-for(let i=0;i<20;i++){
-    molecules.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        dx:(Math.random()-0.5)*1.5,
-        dy:(Math.random()-0.5)*1.5,
-        r:12+Math.random()*10
-    });
+//---------------------------
+// 성운
+//---------------------------
+
+const nebula=[];
+
+for(let i=0;i<8;i++){
+
+nebula.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:200+Math.random()*120,
+dx:(Math.random()-0.5)*0.15,
+dy:(Math.random()-0.5)*0.15
+
+});
+
 }
 
-let angle=0;
+
+//---------------------------
+// 별똥별
+//---------------------------
+
+const meteors=[];
+
+function createMeteor(){
+
+meteors.push({
+
+x:Math.random()*canvas.width,
+y:-100,
+vx:-7,
+vy:7,
+life:120
+
+});
+
+}
+
+setInterval(createMeteor,2500);
+
+
+//---------------------------
+// 오리온자리
+//---------------------------
+
+const orion=[
+
+[0.50,0.18],
+[0.47,0.33],
+[0.50,0.48],
+[0.53,0.63],
+
+[0.44,0.44],
+[0.50,0.44],
+[0.56,0.44],
+
+[0.39,0.25],
+[0.61,0.25]
+
+];
+
+const lines=[
+
+[0,1],
+[1,2],
+[2,3],
+
+[1,4],
+[1,5],
+[1,6],
+
+[7,1],
+[8,1]
+
+];
+
+
+//---------------------------
+// 실루엣
+//---------------------------
+
+function drawHunter(){
+
+ctx.save();
+
+ctx.translate(canvas.width*0.75,
+canvas.height*0.55);
+
+ctx.scale(1.2,1.2);
+
+ctx.fillStyle="rgba(255,255,255,0.05)";
+
+ctx.beginPath();
+
+ctx.arc(0,-120,30,0,Math.PI*2);
+
+ctx.fill();
+
+ctx.fillRect(-18,-90,36,120);
+
+ctx.beginPath();
+ctx.moveTo(-15,-60);
+ctx.lineTo(-70,20);
+ctx.lineTo(-55,28);
+ctx.lineTo(-8,-40);
+ctx.fill();
+
+ctx.beginPath();
+ctx.moveTo(15,-60);
+ctx.lineTo(90,-15);
+ctx.lineTo(98,0);
+ctx.lineTo(18,-35);
+ctx.fill();
+
+ctx.beginPath();
+ctx.moveTo(-10,30);
+ctx.lineTo(-55,120);
+ctx.lineTo(-40,126);
+ctx.lineTo(0,50);
+ctx.fill();
+
+ctx.beginPath();
+ctx.moveTo(10,30);
+ctx.lineTo(55,120);
+ctx.lineTo(40,126);
+ctx.lineTo(0,50);
+ctx.fill();
+
+ctx.restore();
+
+}
+
+
+
+//---------------------------
+// 그리기
+//---------------------------
 
 function draw(){
 
 ctx.clearRect(0,0,canvas.width,canvas.height);
 
 
+// 성운
+
+nebula.forEach(n=>{
+
+let g=ctx.createRadialGradient(
+n.x,n.y,10,
+n.x,n.y,n.r
+);
+
+g.addColorStop(0,"rgba(70,90,255,.08)");
+g.addColorStop(.5,"rgba(100,0,255,.03)");
+g.addColorStop(1,"rgba(0,0,0,0)");
+
+ctx.fillStyle=g;
+
+ctx.beginPath();
+ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+ctx.fill();
+
+n.x+=n.dx;
+n.y+=n.dy;
+
+if(n.x<-150)n.x=canvas.width+150;
+if(n.x>canvas.width+150)n.x=-150;
+
+if(n.y<-150)n.y=canvas.height+150;
+if(n.y>canvas.height+150)n.y=-150;
+
+});
+    //---------------------------
 // 별
-ctx.fillStyle="white";
+//---------------------------
 
 stars.forEach(s=>{
+
+    s.a+=s.speed;
+
+    let alpha=0.5+Math.sin(s.a)*0.5;
+
     ctx.beginPath();
+    ctx.fillStyle="rgba(255,220,120,"+alpha+")";
     ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
     ctx.fill();
 
-    s.y+=s.s;
+});
 
-    if(s.y>canvas.height){
-        s.y=0;
-        s.x=Math.random()*canvas.width;
+
+//---------------------------
+// 오리온자리
+//---------------------------
+
+ctx.strokeStyle="rgba(255,220,120,.45)";
+ctx.lineWidth=1.2;
+
+lines.forEach(l=>{
+
+    let p1=orion[l[0]];
+    let p2=orion[l[1]];
+
+    ctx.beginPath();
+    ctx.moveTo(
+        p1[0]*canvas.width,
+        p1[1]*canvas.height
+    );
+
+    ctx.lineTo(
+        p2[0]*canvas.width,
+        p2[1]*canvas.height
+    );
+
+    ctx.stroke();
+
+});
+
+
+orion.forEach(p=>{
+
+    let x=p[0]*canvas.width;
+    let y=p[1]*canvas.height;
+
+    ctx.beginPath();
+
+    ctx.fillStyle="#ffe27a";
+
+    ctx.shadowColor="#ffd84a";
+    ctx.shadowBlur=15;
+
+    ctx.arc(x,y,3.8,0,Math.PI*2);
+
+    ctx.fill();
+
+});
+
+ctx.shadowBlur=0;
+
+
+//---------------------------
+// 별똥별
+//---------------------------
+
+for(let i=meteors.length-1;i>=0;i--){
+
+    let m=meteors[i];
+
+    ctx.strokeStyle="rgba(255,240,180,.9)";
+    ctx.lineWidth=2;
+
+    ctx.beginPath();
+    ctx.moveTo(m.x,m.y);
+    ctx.lineTo(m.x+70,m.y-70);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.fillStyle="#fff4c7";
+    ctx.arc(m.x,m.y,2.5,0,Math.PI*2);
+    ctx.fill();
+
+    m.x+=m.vx;
+    m.y+=m.vy;
+    m.life--;
+
+    if(m.life<=0){
+        meteors.splice(i,1);
     }
-});
-
-
-// 원자
-let cx=canvas.width/2;
-let cy=canvas.height/2;
-
-ctx.strokeStyle="rgba(0,255,255,.4)";
-ctx.lineWidth=2;
-
-for(let r=70;r<=130;r+=30){
-
-ctx.beginPath();
-ctx.ellipse(cx,cy,r,r*0.45,angle,0,Math.PI*2);
-ctx.stroke();
 
 }
 
-ctx.fillStyle="#00ffff";
-ctx.beginPath();
-ctx.arc(cx,cy,12,0,Math.PI*2);
-ctx.fill();
 
-for(let i=0;i<3;i++){
+//---------------------------
+// 오리온 실루엣
+//---------------------------
 
-let a=angle+i*Math.PI*2/3;
-
-let ex=cx+Math.cos(a)*110;
-let ey=cy+Math.sin(a)*50;
-
-ctx.fillStyle="yellow";
-ctx.beginPath();
-ctx.arc(ex,ey,6,0,Math.PI*2);
-ctx.fill();
-
-}
-
-angle+=0.02;
+drawHunter();
 
 
-// 분자
-molecules.forEach(m=>{
-
-m.x+=m.dx;
-m.y+=m.dy;
-
-if(m.x<0||m.x>canvas.width)m.dx*=-1;
-if(m.y<0||m.y>canvas.height)m.dy*=-1;
-
-ctx.strokeStyle="rgba(100,255,255,.4)";
-ctx.fillStyle="#66ddff";
-
-ctx.beginPath();
-ctx.arc(m.x,m.y,m.r,0,Math.PI*2);
-ctx.fill();
-
-for(let i=0;i<3;i++){
-
-let xx=m.x+Math.cos(i*2*Math.PI/3)*25;
-let yy=m.y+Math.sin(i*2*Math.PI/3)*25;
-
-ctx.beginPath();
-ctx.moveTo(m.x,m.y);
-ctx.lineTo(xx,yy);
-ctx.stroke();
-
-ctx.beginPath();
-ctx.arc(xx,yy,6,0,Math.PI*2);
-ctx.fill();
-
-}
-
-});
+//---------------------------
+// 다음 프레임
+//---------------------------
 
 requestAnimationFrame(draw);
 
