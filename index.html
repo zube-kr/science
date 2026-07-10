@@ -1,177 +1,868 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+
 <meta charset="UTF-8">
-<title>아화중학교 과학시간</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>아화중학교 과학</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
 }
 
-body{
+html,body{
+
+width:100%;
+height:100%;
 overflow:hidden;
-background:#000;
-font-family:Segoe UI,sans-serif;
+font-family:"Malgun Gothic",sans-serif;
+background:#02040a;
+
 }
 
-canvas{
+body{
+
+display:flex;
+
+}
+
+/*==============================
+배경(Canvas)
+==============================*/
+
+#space{
+
 position:fixed;
 left:0;
 top:0;
+width:100%;
+height:100%;
+z-index:-5;
+
 }
 
-.message{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-text-align:center;
-background:rgba(255,255,255,.08);
-backdrop-filter:blur(12px);
-padding:40px 60px;
-border-radius:25px;
-border:1px solid rgba(255,255,255,.15);
+/*==============================
+왼쪽 메뉴
+==============================*/
+
+.sidebar{
+
+width:330px;
+height:100vh;
+
+background:rgba(10,15,28,.72);
+
+backdrop-filter:blur(18px);
+
+border-right:1px solid rgba(255,255,255,.08);
+
+overflow-y:auto;
+
+padding:25px;
+
 color:white;
-z-index:10;
+
 }
 
-.message h1{
-font-size:52px;
+/* 스크롤 */
+
+.sidebar::-webkit-scrollbar{
+
+width:8px;
+
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+
+background:#444;
+border-radius:10px;
+
+}
+
+.logo{
+
+font-size:30px;
 font-weight:300;
-letter-spacing:3px;
-margin-bottom:20px;
+letter-spacing:2px;
+text-align:center;
+margin-bottom:25px;
+color:#ffe17c;
+
 }
 
-.message p{
-font-size:24px;
-line-height:1.8;
-color:#ddd;
+.school{
+
+font-size:14px;
+text-align:center;
+color:#999;
+margin-bottom:30px;
+
 }
+
+.grade{
+
+margin-bottom:18px;
+
+}
+
+.grade summary{
+
+cursor:pointer;
+font-size:20px;
+padding:10px;
+border-radius:8px;
+
+transition:.3s;
+
+list-style:none;
+
+}
+
+.grade summary:hover{
+
+background:rgba(255,255,255,.08);
+
+}
+
+.grade ul{
+
+list-style:none;
+padding-left:15px;
+
+}
+
+.grade li{
+
+padding:8px;
+margin-top:4px;
+border-radius:6px;
+cursor:pointer;
+
+transition:.25s;
+
+font-size:15px;
+
+}
+
+.grade li:hover{
+
+background:rgba(255,255,255,.08);
+
+padding-left:18px;
+
+color:#ffe17c;
+
+}
+
+/*==============================
+오른쪽
+==============================*/
+
+.content{
+
+flex:1;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+position:relative;
+
+}
+
+/*==============================
+Glass 카드
+==============================*/
+
+.card{
+
+width:760px;
+
+background:rgba(255,255,255,.08);
+
+border:1px solid rgba(255,255,255,.15);
+
+backdrop-filter:blur(18px);
+
+border-radius:30px;
+
+padding:45px;
+
+text-align:center;
+
+color:white;
+
+box-shadow:0 0 80px rgba(0,0,0,.45);
+
+}
+
+.card h1{
+
+font-size:54px;
+
+font-weight:300;
+
+letter-spacing:8px;
+
+margin-bottom:25px;
+
+color:#ffe07d;
+
+}
+
+.card h2{
+
+font-size:28px;
+
+font-weight:400;
+
+margin-bottom:30px;
+
+}
+
+.card p{
+
+font-size:20px;
+
+line-height:2.1;
+
+color:#ddd;
+
+}
+
+.info{
+
+margin-top:40px;
+
+display:flex;
+
+justify-content:center;
+
+gap:20px;
+
+}
+
+.btn{
+
+padding:12px 24px;
+
+background:rgba(255,255,255,.08);
+
+border:1px solid rgba(255,255,255,.15);
+
+border-radius:30px;
+
+color:white;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+.btn:hover{
+
+background:rgba(255,255,255,.15);
+
+}
+
+footer{
+
+position:absolute;
+
+bottom:20px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+color:#999;
+
+font-size:13px;
+
+letter-spacing:2px;
+
+}
+
 </style>
 
 </head>
 
 <body>
 
-<canvas id="canvas"></canvas>
+<canvas id="space"></canvas>
 
-<div class="message">
-<h1>SCIENCE</h1>
+<!-- =======================
+왼쪽 메뉴
+======================== -->
+
+<div class="sidebar">
+
+<div class="logo">
+
+🔬 SCIENCE
+
+</div>
+
+<div class="school">
+
+아화중학교 과학수업
+
+</div>
+
+<details class="grade" open>
+
+<summary>📘 중학교 1학년</summary>
+
+<ul>
+
+<li>① 과학과 인류</li>
+
+<li>② 생물의 다양성</li>
+
+<li>③ 열과 우리 생활</li>
+
+<li>④ 물질의 상태 변화</li>
+
+<li>⑤ 힘의 작용</li>
+
+<li>⑥ 기체의 성질</li>
+
+<li>⑦ 태양계</li>
+
+</ul>
+
+</details>
+
+<details class="grade">
+
+<summary>📗 중학교 2학년</summary>
+
+<ul>
+
+<li>① 물질의 특성</li>
+
+<li>② 전기와 자기</li>
+
+<li>③ 태양계와 별</li>
+
+<li>④ 식물과 에너지</li>
+
+<li>⑤ 동물과 에너지</li>
+
+<li>⑥ 소화와 순환</li>
+
+<li>⑦ 별과 우주</li>
+
+</ul>
+
+</details>
+
+<details class="grade">
+
+<summary>📕 중학교 3학년</summary>
+
+<ul>
+
+<li>① 화학 반응</li>
+
+<li>② 기권과 날씨</li>
+
+<li>③ 운동과 에너지</li>
+
+<li>④ 자극과 반응</li>
+
+<li>⑤ 생식과 유전</li>
+
+<li>⑥ 에너지 전환</li>
+
+<li>⑦ 우주 탐사</li>
+
+</ul>
+
+</details>
+
+</div>
+
+<!-- =======================
+오른쪽
+======================== -->
+
+<div class="content">
+
+<div class="card">
+
+<h1>
+
+SCIENCE
+
+</h1>
+
+<h2>
+
+안녕하세요.<br>
+
+아화중학교 과학시간입니다.
+
+</h2>
 
 <p>
-안녕하세요.<br>
-아화중학교 과학시간입니다.<br><br>
 
-여러분들 화이팅 하세요!
+여러분들의 과학적 호기심이<br>
+
+세상을 바꾸는 첫걸음입니다.<br><br>
+
+오늘도 즐겁게 탐구해 봅시다.
+
 </p>
+
+<div class="info">
+
+<div class="btn">
+
+중1
+
+</div>
+
+<div class="btn">
+
+중2
+
+</div>
+
+<div class="btn">
+
+중3
+
+</div>
+
+<div class="btn">
+
+별자리
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+
+AHWA MIDDLE SCHOOL SCIENCE
+
+</footer>
 
 </div>
 
 <script>
 
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+// JavaScript는 다음 편부터 작성됩니다.
+
+</script>
+
+</body>
+
+</html>
+// ==========================
+// Canvas 설정
+// ==========================
+
+const canvas = document.getElementById("space");
+const ctx = canvas.getContext("2d");
 
 function resize(){
 
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
 }
+
 resize();
 
-window.onresize=resize;
+window.addEventListener("resize",resize);
 
-
-//---------------------------
-// 별
-//---------------------------
+// ==========================
+// 별 생성
+// ==========================
 
 const stars=[];
 
-for(let i=0;i<250;i++){
+const STAR_COUNT=320;
 
-stars.push({
+for(let i=0;i<STAR_COUNT;i++){
 
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*2+0.5,
-a:Math.random(),
-speed:Math.random()*0.01
+    stars.push({
 
-});
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+
+        r:Math.random()*2.2+0.4,
+
+        alpha:Math.random(),
+
+        speed:0.003+Math.random()*0.02
+
+    });
 
 }
 
-
-//---------------------------
-// 성운
-//---------------------------
+// ==========================
+// 성운 생성
+// ==========================
 
 const nebula=[];
 
-for(let i=0;i<8;i++){
+for(let i=0;i<7;i++){
 
-nebula.push({
+    nebula.push({
 
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:200+Math.random()*120,
-dx:(Math.random()-0.5)*0.15,
-dy:(Math.random()-0.5)*0.15
+        x:Math.random()*canvas.width,
 
-});
+        y:Math.random()*canvas.height,
+
+        r:220+Math.random()*220,
+
+        dx:(Math.random()-0.5)*0.15,
+
+        dy:(Math.random()-0.5)*0.15,
+
+        color:
+
+        Math.random()>0.5 ?
+
+        "70,120,255"
+
+        :
+
+        "120,60,255"
+
+    });
 
 }
 
+// ==========================
+// 은하수 먼지
+// ==========================
 
-//---------------------------
+const dust=[];
+
+for(let i=0;i<180;i++){
+
+    dust.push({
+
+        x:Math.random()*canvas.width,
+
+        y:Math.random()*canvas.height,
+
+        r:Math.random()*1.4,
+
+        alpha:Math.random()*0.4
+
+    });
+
+}
+
+// ==========================
+// 별 그리기
+// ==========================
+
+function drawStars(){
+
+    stars.forEach(s=>{
+
+        s.alpha+=s.speed;
+
+        let a=.45+Math.sin(s.alpha)*.55;
+
+        ctx.beginPath();
+
+        ctx.fillStyle=
+
+        `rgba(255,225,120,${a})`;
+
+        ctx.arc(
+
+            s.x,
+
+            s.y,
+
+            s.r,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fill();
+
+    });
+
+}
+
+// ==========================
+// 성운
+// ==========================
+
+function drawNebula(){
+
+    nebula.forEach(n=>{
+
+        const g=
+
+        ctx.createRadialGradient(
+
+            n.x,
+
+            n.y,
+
+            0,
+
+            n.x,
+
+            n.y,
+
+            n.r
+
+        );
+
+        g.addColorStop(
+
+            0,
+
+            `rgba(${n.color},0.12)`
+
+        );
+
+        g.addColorStop(
+
+            .45,
+
+            `rgba(${n.color},0.05)`
+
+        );
+
+        g.addColorStop(
+
+            1,
+
+            "rgba(0,0,0,0)"
+
+        );
+
+        ctx.fillStyle=g;
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            n.x,
+
+            n.y,
+
+            n.r,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fill();
+
+        n.x+=n.dx;
+
+        n.y+=n.dy;
+
+        if(n.x<-300)n.x=canvas.width+300;
+
+        if(n.x>canvas.width+300)n.x=-300;
+
+        if(n.y<-300)n.y=canvas.height+300;
+
+        if(n.y>canvas.height+300)n.y=-300;
+
+    });
+
+}
+
+// ==========================
+// 은하수 먼지
+// ==========================
+
+function drawDust(){
+
+    dust.forEach(d=>{
+
+        ctx.beginPath();
+
+        ctx.fillStyle=
+
+        `rgba(255,255,255,${d.alpha})`;
+
+        ctx.arc(
+
+            d.x,
+
+            d.y,
+
+            d.r,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fill();
+
+    });
+
+}
+
+// ==========================
+// 메인 루프
+// ==========================
+
+function animate(){
+
+    ctx.clearRect(
+
+        0,
+
+        0,
+
+        canvas.width,
+
+        canvas.height
+
+    );
+
+    drawNebula();
+
+    drawDust();
+
+    drawStars();
+
+    requestAnimationFrame(animate);
+
+}
+
+animate();
+            // ==========================
 // 별똥별
-//---------------------------
+// ==========================
 
 const meteors=[];
 
 function createMeteor(){
 
-meteors.push({
+    meteors.push({
 
-x:Math.random()*canvas.width,
-y:-100,
-vx:-7,
-vy:7,
-life:120
+        x:canvas.width+100,
 
-});
+        y:Math.random()*canvas.height*0.4,
+
+        vx:-14,
+
+        vy:8,
+
+        life:90
+
+    });
 
 }
 
-setInterval(createMeteor,2500);
+// 10초마다 1개
+setInterval(createMeteor,10000);
 
+function drawMeteors(){
 
-//---------------------------
+    for(let i=meteors.length-1;i>=0;i--){
+
+        const m=meteors[i];
+
+        ctx.beginPath();
+
+        const g=ctx.createLinearGradient(
+
+            m.x,
+
+            m.y,
+
+            m.x+120,
+
+            m.y-70
+
+        );
+
+        g.addColorStop(0,"rgba(255,255,220,.95)");
+
+        g.addColorStop(1,"rgba(255,255,220,0)");
+
+        ctx.strokeStyle=g;
+
+        ctx.lineWidth=2;
+
+        ctx.moveTo(m.x,m.y);
+
+        ctx.lineTo(m.x+120,m.y-70);
+
+        ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.fillStyle="#fff6b0";
+
+        ctx.arc(m.x,m.y,2.5,0,Math.PI*2);
+
+        ctx.fill();
+
+        m.x+=m.vx;
+
+        m.y+=m.vy;
+
+        m.life--;
+
+        if(m.life<=0){
+
+            meteors.splice(i,1);
+
+        }
+
+    }
+
+}
+
+            // ==========================
 // 오리온자리
-//---------------------------
+// ==========================
 
 const orion=[
 
-[0.50,0.18],
-[0.47,0.33],
-[0.50,0.48],
-[0.53,0.63],
+[0.54,0.15],
+[0.49,0.28],
+[0.52,0.43],
+[0.57,0.58],
 
-[0.44,0.44],
-[0.50,0.44],
-[0.56,0.44],
+[0.45,0.40],
+[0.51,0.40],
+[0.57,0.40],
 
-[0.39,0.25],
-[0.61,0.25]
+[0.42,0.22],
+[0.63,0.24]
 
 ];
 
-const lines=[
+const orionLine=[
 
 [0,1],
 [1,2],
@@ -186,219 +877,179 @@ const lines=[
 
 ];
 
+let twinkle=0;
 
-//---------------------------
-// 실루엣
-//---------------------------
+function drawOrion(){
 
-function drawHunter(){
+    twinkle+=0.03;
 
-ctx.save();
+    ctx.lineWidth=1.2;
 
-ctx.translate(canvas.width*0.75,
-canvas.height*0.55);
+    ctx.strokeStyle="rgba(255,220,120,.35)";
 
-ctx.scale(1.2,1.2);
+    orionLine.forEach(line=>{
 
-ctx.fillStyle="rgba(255,255,255,0.05)";
+        const a=orion[line[0]];
+        const b=orion[line[1]];
 
-ctx.beginPath();
+        ctx.beginPath();
 
-ctx.arc(0,-120,30,0,Math.PI*2);
+        ctx.moveTo(
 
-ctx.fill();
+            a[0]*canvas.width,
 
-ctx.fillRect(-18,-90,36,120);
+            a[1]*canvas.height
 
-ctx.beginPath();
-ctx.moveTo(-15,-60);
-ctx.lineTo(-70,20);
-ctx.lineTo(-55,28);
-ctx.lineTo(-8,-40);
-ctx.fill();
+        );
 
-ctx.beginPath();
-ctx.moveTo(15,-60);
-ctx.lineTo(90,-15);
-ctx.lineTo(98,0);
-ctx.lineTo(18,-35);
-ctx.fill();
+        ctx.lineTo(
 
-ctx.beginPath();
-ctx.moveTo(-10,30);
-ctx.lineTo(-55,120);
-ctx.lineTo(-40,126);
-ctx.lineTo(0,50);
-ctx.fill();
+            b[0]*canvas.width,
 
-ctx.beginPath();
-ctx.moveTo(10,30);
-ctx.lineTo(55,120);
-ctx.lineTo(40,126);
-ctx.lineTo(0,50);
-ctx.fill();
+            b[1]*canvas.height
 
-ctx.restore();
+        );
+
+        ctx.stroke();
+
+    });
+
+    orion.forEach((p,i)=>{
+
+        const alpha=
+
+        .55+
+
+        Math.sin(
+
+            twinkle+i
+
+        )*.45;
+
+        ctx.beginPath();
+
+        ctx.fillStyle=
+
+        `rgba(255,225,120,${alpha})`;
+
+        ctx.shadowColor="#ffd34d";
+
+        ctx.shadowBlur=18;
+
+        ctx.arc(
+
+            p[0]*canvas.width,
+
+            p[1]*canvas.height,
+
+            3.5,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fill();
+
+    });
+
+    ctx.shadowBlur=0;
 
 }
 
+            // ==========================
+// 북두칠성
+// ==========================
 
+const dipper=[
 
-//---------------------------
-// 그리기
-//---------------------------
+[0.12,0.15],
+[0.17,0.18],
+[0.21,0.24],
+[0.27,0.29],
+[0.34,0.25],
+[0.40,0.19],
+[0.46,0.14]
 
-function draw(){
+];
 
-ctx.clearRect(0,0,canvas.width,canvas.height);
+function drawDipper(){
 
+    ctx.strokeStyle="rgba(255,220,120,.3)";
 
-// 성운
+    ctx.lineWidth=1;
 
-nebula.forEach(n=>{
+    for(let i=0;i<dipper.length-1;i++){
 
-let g=ctx.createRadialGradient(
-n.x,n.y,10,
-n.x,n.y,n.r
-);
+        ctx.beginPath();
 
-g.addColorStop(0,"rgba(70,90,255,.08)");
-g.addColorStop(.5,"rgba(100,0,255,.03)");
-g.addColorStop(1,"rgba(0,0,0,0)");
+        ctx.moveTo(
 
-ctx.fillStyle=g;
+            dipper[i][0]*canvas.width,
 
-ctx.beginPath();
-ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
-ctx.fill();
+            dipper[i][1]*canvas.height
 
-n.x+=n.dx;
-n.y+=n.dy;
+        );
 
-if(n.x<-150)n.x=canvas.width+150;
-if(n.x>canvas.width+150)n.x=-150;
+        ctx.lineTo(
 
-if(n.y<-150)n.y=canvas.height+150;
-if(n.y>canvas.height+150)n.y=-150;
+            dipper[i+1][0]*canvas.width,
 
-});
-    //---------------------------
-// 별
-//---------------------------
+            dipper[i+1][1]*canvas.height
 
-stars.forEach(s=>{
+        );
 
-    s.a+=s.speed;
+        ctx.stroke();
 
-    let alpha=0.5+Math.sin(s.a)*0.5;
-
-    ctx.beginPath();
-    ctx.fillStyle="rgba(255,220,120,"+alpha+")";
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fill();
-
-});
-
-
-//---------------------------
-// 오리온자리
-//---------------------------
-
-ctx.strokeStyle="rgba(255,220,120,.45)";
-ctx.lineWidth=1.2;
-
-lines.forEach(l=>{
-
-    let p1=orion[l[0]];
-    let p2=orion[l[1]];
-
-    ctx.beginPath();
-    ctx.moveTo(
-        p1[0]*canvas.width,
-        p1[1]*canvas.height
-    );
-
-    ctx.lineTo(
-        p2[0]*canvas.width,
-        p2[1]*canvas.height
-    );
-
-    ctx.stroke();
-
-});
-
-
-orion.forEach(p=>{
-
-    let x=p[0]*canvas.width;
-    let y=p[1]*canvas.height;
-
-    ctx.beginPath();
-
-    ctx.fillStyle="#ffe27a";
-
-    ctx.shadowColor="#ffd84a";
-    ctx.shadowBlur=15;
-
-    ctx.arc(x,y,3.8,0,Math.PI*2);
-
-    ctx.fill();
-
-});
-
-ctx.shadowBlur=0;
-
-
-//---------------------------
-// 별똥별
-//---------------------------
-
-for(let i=meteors.length-1;i>=0;i--){
-
-    let m=meteors[i];
-
-    ctx.strokeStyle="rgba(255,240,180,.9)";
-    ctx.lineWidth=2;
-
-    ctx.beginPath();
-    ctx.moveTo(m.x,m.y);
-    ctx.lineTo(m.x+70,m.y-70);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.fillStyle="#fff4c7";
-    ctx.arc(m.x,m.y,2.5,0,Math.PI*2);
-    ctx.fill();
-
-    m.x+=m.vx;
-    m.y+=m.vy;
-    m.life--;
-
-    if(m.life<=0){
-        meteors.splice(i,1);
     }
 
+    dipper.forEach((p,i)=>{
+
+        ctx.beginPath();
+
+        ctx.fillStyle=
+
+        `rgba(255,220,120,${
+        .6+Math.sin(twinkle+i)*.4
+        })`;
+
+        ctx.shadowColor="#ffe279";
+
+        ctx.shadowBlur=15;
+
+        ctx.arc(
+
+            p[0]*canvas.width,
+
+            p[1]*canvas.height,
+
+            3,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fill();
+
+    });
+
+    ctx.shadowBlur=0;
+
 }
+        drawNebula();
 
+drawDust();
 
-//---------------------------
-// 오리온 실루엣
-//---------------------------
+drawStars();
 
-drawHunter();
+drawOrion();
 
+drawDipper();
 
-//---------------------------
-// 다음 프레임
-//---------------------------
+drawMeteors();
 
-requestAnimationFrame(draw);
-
-}
-
-draw();
-
-</script>
-
-</body>
-</html>
+requestAnimationFrame(animate);
+        
