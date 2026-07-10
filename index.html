@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아화중학교 과학시간</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    background:linear-gradient(180deg,#00172d,#003b70,#000814);
+    font-family:'Malgun Gothic',sans-serif;
+}
+
+canvas{
+    position:fixed;
+    left:0;
+    top:0;
+}
+
+.message{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    color:white;
+    z-index:10;
+    background:rgba(0,0,0,0.35);
+    padding:30px 50px;
+    border-radius:20px;
+    backdrop-filter:blur(8px);
+    box-shadow:0 0 30px rgba(255,255,255,.2);
+}
+
+.message h1{
+    font-size:48px;
+    margin-bottom:20px;
+    color:#7ef9ff;
+    text-shadow:0 0 15px cyan;
+}
+
+.message p{
+    font-size:28px;
+    line-height:1.8;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="message">
+<h1>🔬 과학시간</h1>
+<p>
+안녕하세요.<br><br>
+아화중학교 과학시간 입니다.<br><br>
+여러분들 화이팅 하세요! 🚀
+</p>
+</div>
+
+<script>
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+}
+resize();
+window.onresize=resize;
+
+
+// 별
+let stars=[];
+
+for(let i=0;i<150;i++){
+    stars.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2,
+        s:Math.random()*0.5+0.2
+    });
+}
+
+// 분자
+let molecules=[];
+
+for(let i=0;i<20;i++){
+    molecules.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        dx:(Math.random()-0.5)*1.5,
+        dy:(Math.random()-0.5)*1.5,
+        r:12+Math.random()*10
+    });
+}
+
+let angle=0;
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+
+// 별
+ctx.fillStyle="white";
+
+stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+
+    s.y+=s.s;
+
+    if(s.y>canvas.height){
+        s.y=0;
+        s.x=Math.random()*canvas.width;
+    }
+});
+
+
+// 원자
+let cx=canvas.width/2;
+let cy=canvas.height/2;
+
+ctx.strokeStyle="rgba(0,255,255,.4)";
+ctx.lineWidth=2;
+
+for(let r=70;r<=130;r+=30){
+
+ctx.beginPath();
+ctx.ellipse(cx,cy,r,r*0.45,angle,0,Math.PI*2);
+ctx.stroke();
+
+}
+
+ctx.fillStyle="#00ffff";
+ctx.beginPath();
+ctx.arc(cx,cy,12,0,Math.PI*2);
+ctx.fill();
+
+for(let i=0;i<3;i++){
+
+let a=angle+i*Math.PI*2/3;
+
+let ex=cx+Math.cos(a)*110;
+let ey=cy+Math.sin(a)*50;
+
+ctx.fillStyle="yellow";
+ctx.beginPath();
+ctx.arc(ex,ey,6,0,Math.PI*2);
+ctx.fill();
+
+}
+
+angle+=0.02;
+
+
+// 분자
+molecules.forEach(m=>{
+
+m.x+=m.dx;
+m.y+=m.dy;
+
+if(m.x<0||m.x>canvas.width)m.dx*=-1;
+if(m.y<0||m.y>canvas.height)m.dy*=-1;
+
+ctx.strokeStyle="rgba(100,255,255,.4)";
+ctx.fillStyle="#66ddff";
+
+ctx.beginPath();
+ctx.arc(m.x,m.y,m.r,0,Math.PI*2);
+ctx.fill();
+
+for(let i=0;i<3;i++){
+
+let xx=m.x+Math.cos(i*2*Math.PI/3)*25;
+let yy=m.y+Math.sin(i*2*Math.PI/3)*25;
+
+ctx.beginPath();
+ctx.moveTo(m.x,m.y);
+ctx.lineTo(xx,yy);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.arc(xx,yy,6,0,Math.PI*2);
+ctx.fill();
+
+}
+
+});
+
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+</script>
+
+</body>
+</html>
