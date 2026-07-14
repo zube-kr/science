@@ -370,12 +370,13 @@ footer{
     <summary>📗 중학교 2학년</summary>
     <ul>
       <li onclick="openSubject('mul-teukseong')">① 물질의 특성</li>
-      <li onclick="openSubject('jeongi-jagi')">② 전기와 자기</li>
-      <li onclick="openSubject('taeyangye-byeol')">③ 태양계와 별</li>
-      <li onclick="openSubject('sikmul-energy')">④ 식물과 에너지</li>
-      <li onclick="openSubject('dongmul-energy')">⑤ 동물과 에너지</li>
-      <li onclick="openSubject('sohwa-sunhwan')">⑥ 소화와 순환</li>
-      <li onclick="openSubject('byeol-uju')">⑦ 별과 우주</li>
+      <li onclick="openSubject('jigwon-byeonhwa')">② 지권의 변화</li>
+      <li onclick="openSubject('bit-pado')">③ 빛과 파동</li>
+      <li onclick="openSubject('mul-guseong')">④ 물질의 구성</li>
+      <li onclick="openSubject('sikmul-energy')">⑤ 식물과 에너지</li>
+      <li onclick="openSubject('dongmul-energy')">⑥ 동물과 에너지</li>
+      <li onclick="openSubject('jeongi-jagi')">⑦ 전기와 자기</li>
+      <li onclick="openSubject('byeol-uju')">⑧ 별과 우주</li>
     </ul>
   </details>
 
@@ -857,22 +858,29 @@ const topicsData = {
   "mul-teukseong": {
     title: "① 물질의 특성",
     posts: [
+      { title: "물질의 세 가지 상태", desc: "고체·액체·기체의 특징을 알아봅니다.", ready: false },
+      { title: "밀도와 용해도", desc: "물질을 구별하는 특성값을 배웁니다.", ready: false }
+    ]
+  },
+  "jigwon-byeonhwa": { title: "② 지권의 변화", posts: [ { title: "지권의 변화 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "bit-pado": { title: "③ 빛과 파동", posts: [ { title: "빛과 파동 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "mul-guseong": {
+    title: "④ 물질의 구성",
+    posts: [
       {
         title: "원소 기호 규칙",
         desc: "원소 이름과 기호를 짝지어 보는 드래그 앤 드롭 학습 게임입니다.",
         url: ELEMENTS_URL,
         ready: true
       },
-      { title: "물질의 세 가지 상태", desc: "고체·액체·기체의 특징을 알아봅니다.", ready: false },
-      { title: "밀도와 용해도", desc: "물질을 구별하는 특성값을 배웁니다.", ready: false }
+      { title: "원자와 분자", desc: "물질을 이루는 기본 입자를 배웁니다.", ready: false },
+      { title: "이온과 이온식", desc: "이온이 만들어지는 과정을 알아봅니다.", ready: false }
     ]
   },
-  "jeongi-jagi": { title: "② 전기와 자기", posts: [ { title: "전기와 자기 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
-  "taeyangye-byeol": { title: "③ 태양계와 별", posts: [ { title: "태양계와 별 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
-  "sikmul-energy": { title: "④ 식물과 에너지", posts: [ { title: "식물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
-  "dongmul-energy": { title: "⑤ 동물과 에너지", posts: [ { title: "동물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
-  "sohwa-sunhwan": { title: "⑥ 소화와 순환", posts: [ { title: "소화와 순환 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
-  "byeol-uju": { title: "⑦ 별과 우주", posts: [ { title: "별과 우주 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] }
+  "sikmul-energy": { title: "⑤ 식물과 에너지", posts: [ { title: "식물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "dongmul-energy": { title: "⑥ 동물과 에너지", posts: [ { title: "동물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "jeongi-jagi": { title: "⑦ 전기와 자기", posts: [ { title: "전기와 자기 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "byeol-uju": { title: "⑧ 별과 우주", posts: [ { title: "별과 우주 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] }
 };
 
 const viewHome = document.getElementById("view-home");
