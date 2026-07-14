@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://sciencej1.cafe24.com/html5/sci2/elementsymbol.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- 모바일 기기에서 화면 배율을 고정하고 터치에 최적화하기 위한 뷰포트 설정 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>원소 기호 규칙</title>
+    <style>
+        /* 기본 리셋 및 폰트 설정 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none; /* 텍스트 선택 방지 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        body {
+            background-color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+        }
+
+        /* 900x500 고정 크기의 캔버스 컨테이너 */
+        #canvas-container {
+            width: 900px;
+            height: 500px;
+            background-color: #fdfbf7;
+            background-image: linear-gradient(to bottom, #ffffff, #fdfbf7);
+            position: absolute;
+            transform-origin: top left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* 상단 헤더 영역 */
+        #header {
+            width: 100%;
+            height: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid #e0e0e0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        #title {
+            font-size: 12px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        #header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #copyright {
+            font-size: 8px;
+            color: #aaa;
+        }
+
+        #fullscreen-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        #fullscreen-btn:hover { opacity: 1; }
+        #fullscreen-btn svg { width: 100%; height: 100%; fill: #333; }
+
+        /* 게임 메인 영역 */
+        #game-area {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 460px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 문제 안내 텍스트 */
+        #instruction {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+            background-color: #fff0f5;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 2px dashed #ffb6c1;
+            font-weight: bold;
+        }
+
+        /* 여러 행을 담을 컨테이너 */
+        #rows-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            padding: 0 40px;
+            margin-top: 15px;
+        }
+
+        /* 개별 문제(원소) 행 디자인 */
+        .problem-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* 원소 한글/영어 이름 텍스트 */
+        .element-ko-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #2c3e50;
+            width: 250px;
+            text-align: left;
+            cursor: pointer; /* 클릭 가능함을 표시 */
+            transition: color 0.2s, transform 0.1s;
+        }
+
+        .element-ko-name:hover {
+            color: #e83e8c; /* 마우스 오버 시 색상 변경 */
+        }
+        
+        .element-ko-name:active {
+            transform: scale(0.97); /* 클릭 시 살짝 눌리는 효과 */
+        }
+
+        /* 드래그 영역과 드롭 영역을 감싸는 우측 래퍼 */
+        .interaction-area {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* 영문 이름 타일 컨테이너 */
+        .source-word {
+            display: flex;
+            gap: 3px;
+            position: relative;
+            height: 45px;
+            align-items: center;
+        }
+
+        /* 화살표 */
+        .arrow {
+            font-size: 28px;
+            color: #ffb6c1;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        /* 정답 빈칸 컨테이너 */
+        .target-area {
+            display: flex;
+            gap: 8px;
+            width: 120px; /* 두 글자 기준 넉넉한 공간 */
+            justify-content: flex-start;
+        }
+
+        /* 개별 드롭 박스 */
+        .drop-box {
+            width: 45px;
+            height: 55px;
+            border: 3px dashed #ccc;
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #e0e0e0;
+            position: relative;
+        }
+        
+        .drop-box.active {
+            border-color: #ff69b4;
+            background-color: rgba(255, 105, 180, 0.1);
+        }
+
+        /* 개별 알파벳 조각 */
+        .letter-tile {
+            width: 35px;
+            height: 45px;
+            background-color: white;
+            border: 2px solid #555;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            cursor: grab;
+            position: absolute; /* .source-word 내부에서 위치 배정을 위해 절대 좌표 사용 */
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+            z-index: 20;
+        }
+
+        .letter-tile:active {
+            cursor: grabbing;
+        }
+
+        .letter-tile.dragging {
+            z-index: 100;
+            box-shadow: 5px 10px 20px rgba(0,0,0,0.3);
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+
+        .letter-tile.locked {
+            cursor: default;
+            border-color: #ff69b4;
+            color: #ff1493;
+            box-shadow: none;
+            background-color: transparent;
+            border: none;
+            font-size: 42px; 
+        }
+
+        /* 다음 그룹 버튼 */
+        #next-btn {
+            position: absolute;
+            bottom: 50px;
+            right: 30px;
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+            display: none; 
+            z-index: 30;
+        }
+
+        #next-btn:hover { background-color: #45a049; }
+
+        /* 커스텀 알림창 */
+        #custom-alert {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 200;
+        }
+
+        #custom-alert.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* 하단 원소 진행상황 트래커 */
+        #element-tracker {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .tracker-item {
+            font-size: 11px;
+            color: #95a5a6;
+            background-color: #ecf0f1;
+            padding: 3px 8px;
+            border-radius: 12px;
+            border: 1px solid #bdc3c7;
+            transition: all 0.3s;
+            cursor: pointer; /* 클릭 가능한 마우스 포인터 표시 */
+        }
+
+        .tracker-item:hover {
+            background-color: #dcdde1;
+            transform: scale(1.05);
+            color: #2c3e50;
+        }
+
+        /* 성공 시 테두리와 색상 변경 (동그라미 기호 제외) */
+        .tracker-item.completed {
+            background-color: #fff0f5;
+            color: #e83e8c;
+            border-color: #ff69b4;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(255, 105, 180, 0.4);
+        }
+
+        /* 드래그 시 원래 자리에 남는 희미한 유령 타일 */
+        .ghost-tile {
+            opacity: 0.3 !important;
+            border-style: dashed !important;
+            background-color: transparent !important;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 오답 시 발생하는 X 마크 애니메이션 */
+        .error-x-mark {
+            position: absolute;
+            font-size: 50px;
+            z-index: 200;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            animation: popFade 0.6s ease-out forwards;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        @keyframes popFade {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            40% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* 규칙 모달창 */
+        #rules-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+        #rules-modal.show { display: flex; }
+        #rules-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 550px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: left;
+        }
+        #rules-close {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 28px; cursor: pointer; color: #777;
+        }
+        #rules-btn {
+            background-color: #ffb6c1;
+            color: #333;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #rules-btn:hover { background-color: #ff69b4; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container" style="transform: scale(1.854); left: 125.7px; top: 0px;">
+        <!-- 헤더 영역 -->
+        <div id="header">
+            <div id="title">원소 기호 규칙</div>
+            <div id="header-right">
+                <button id="rules-btn" onclick="openRules()">기호 규칙</button>
+                <div id="copyright">Copyright by sciencelove.com</div>
+                <button id="fullscreen-btn" onclick="toggleFullscreen()" title="전체화면 전환">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 게임 메인 영역 -->
+        <div id="game-area">
+            <div id="instruction">원래 이름의 알파벳을 오른쪽 빈칸으로 드래그하여 기호를 완성하세요!</div>
+            
+            <!-- 같은 시작 글자를 가진 원소들이 동적으로 담길 공간 -->
+            <div id="rows-container"><div class="problem-row"><div class="element-ko-name" title="클릭하여 영어 발음 듣기">수소 (Hydrogen) <span style="font-size: 16px; opacity: 0.8;">🔊</span></div><div class="interaction-area"><div class="source-word" style="width: 301px;"><div class="letter-tile" data-char="H" data-row-id="0" style="left: 0px; top: 0px;">H</div><div class="letter-tile" data-char="y" data-row-id="0" style="left: 38px; top: 0px;">y</div><div class="letter-tile" data-char="d" data-row-id="0" style="left: 76px; top: 0px;">d</div><div class="letter-tile" data-char="r" data-row-id="0" style="left: 114px; top: 0px;">r</div><div class="letter-tile" data-char="o" data-row-id="0" style="left: 152px; top: 0px;">o</div><div class="letter-tile" data-char="g" data-row-id="0" style="left: 190px; top: 0px;">g</div><div class="letter-tile" data-char="e" data-row-id="0" style="left: 228px; top: 0px;">e</div><div class="letter-tile" data-char="n" data-row-id="0" style="left: 266px; top: 0px;">n</div></div><div class="arrow">➔</div><div class="target-area"><div class="drop-box" data-target-char="H" data-slot-index="0" data-row-id="0"></div></div></div></div><div class="problem-row"><div class="element-ko-name" title="클릭하여 영어 발음 듣기">헬륨 (Helium) <span style="font-size: 16px; opacity: 0.8;">🔊</span></div><div class="interaction-area"><div class="source-word" style="width: 225px;"><div class="letter-tile" data-char="H" data-row-id="1" style="left: 0px; top: 0px;">H</div><div class="letter-tile" data-char="e" data-row-id="1" style="left: 38px; top: 0px;">e</div><div class="letter-tile" data-char="l" data-row-id="1" style="left: 76px; top: 0px;">l</div><div class="letter-tile" data-char="i" data-row-id="1" style="left: 114px; top: 0px;">i</div><div class="letter-tile" data-char="u" data-row-id="1" style="left: 152px; top: 0px;">u</div><div class="letter-tile" data-char="m" data-row-id="1" style="left: 190px; top: 0px;">m</div></div><div class="arrow">➔</div><div class="target-area"><div class="drop-box" data-target-char="H" data-slot-index="0" data-row-id="1"></div><div class="drop-box" data-target-char="e" data-slot-index="1" data-row-id="1"></div></div></div></div></div>
+
+            <button id="next-btn" onclick="loadNextProblem()" style="display: none;">다음 그룹 ➔</button>
+            
+            <!-- 진행 상황 트래커 -->
+            <div id="element-tracker"><span class="tracker-item" id="tracker-수소" title="클릭하여 해당 문제로 이동">수소</span><span class="tracker-item" id="tracker-헬륨" title="클릭하여 해당 문제로 이동">헬륨</span><span class="tracker-item" id="tracker-탄소" title="클릭하여 해당 문제로 이동">탄소</span><span class="tracker-item" id="tracker-염소" title="클릭하여 해당 문제로 이동">염소</span><span class="tracker-item" id="tracker-칼슘" title="클릭하여 해당 문제로 이동">칼슘</span><span class="tracker-item" id="tracker-구리" title="클릭하여 해당 문제로 이동">구리</span><span class="tracker-item" id="tracker-리튬" title="클릭하여 해당 문제로 이동">리튬</span><span class="tracker-item" id="tracker-규소" title="클릭하여 해당 문제로 이동">규소</span><span class="tracker-item" id="tracker-황" title="클릭하여 해당 문제로 이동">황</span><span class="tracker-item" id="tracker-질소" title="클릭하여 해당 문제로 이동">질소</span><span class="tracker-item" id="tracker-네온" title="클릭하여 해당 문제로 이동">네온</span><span class="tracker-item" id="tracker-나트륨" title="클릭하여 해당 문제로 이동">나트륨</span><span class="tracker-item" id="tracker-마그네슘" title="클릭하여 해당 문제로 이동">마그네슘</span><span class="tracker-item" id="tracker-알루미늄" title="클릭하여 해당 문제로 이동">알루미늄</span><span class="tracker-item" id="tracker-철" title="클릭하여 해당 문제로 이동">철</span><span class="tracker-item" id="tracker-플루오린" title="클릭하여 해당 문제로 이동">플루오린</span></div>
+        </div>
+
+        <div id="custom-alert">정답입니다! 🎉</div>
+        
+        <!-- 원소 기호 규칙 모달창 -->
+        <div id="rules-modal">
+            <div id="rules-content">
+                <span id="rules-close" onclick="closeRules()">×</span>
+                <h3 style="color:#008b8b; margin-bottom:15px; font-size: 20px;"># 원소 기호 규칙</h3>
+                <p style="font-size:15px; margin-bottom:20px; color:#444; line-height:1.5;">원소를 나타낼 때 사용하는 기호를 <strong>원소 기호</strong>라고 한다. 스웨덴의 과학자 베르셀리우스가 제안한 것을 바탕으로 다음과 같은 규칙에 따라 나타낸다.</p>
+                <div style="background:#fff0f5; padding:20px; border-radius:12px; margin-bottom:15px;">
+                    <p style="font-size:16px; margin:0 0 10px 0; color:#333;">❶ 라틴어나 영어로 된 원소 이름의 첫 글자를 알파벳의 <strong>대문자</strong>로 나타낸다.</p>
+                    <p style="text-align:center; font-size:22px; margin:0; color:#e83e8c;">수소 <strong style="font-size:26px;">H</strong>ydrogen ➔ <strong style="font-size:26px;">H</strong></p>
+                </div>
+                <div style="background:#fff0f5; padding:20px; border-radius:12px;">
+                    <p style="font-size:16px; margin:0 0 10px 0; color:#333;">❷ 첫 글자가 같을 때는 중간 글자를 택하여 첫 글자 다음에 <strong>소문자</strong>로 나타낸다.</p>
+                    <!-- 헬륨 예시에서 H와 e 가 강조되도록 수정 -->
+                    <p style="text-align:center; font-size:22px; margin:0; color:#e83e8c;">헬륨 <strong style="font-size:26px;">H</strong><strong style="font-size:26px;">e</strong>lium ➔ <strong style="font-size:26px;">He</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 전역 변수 선언
+        // ==========================================
+        let currentScale = 1;
+        let currentProblemGroupIndex = 0; // 그룹화된 문제 배열의 인덱스
+        
+        // 드래그 관련 상태 변수
+        let isDragging = false;
+        let draggedElement = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let originalLeft = 0;
+        let originalTop = 0;
+        
+        let solvedSlots = 0; // 현재 그룹 내에서 맞춘 슬롯 개수
+        let totalSlotsToSolve = 0; // 현재 화면 전체 그룹이 요구하는 정답 빈칸 개수
+        let rowSolvedCounts = []; // 현재 그룹의 각 행(원소)별 맞춘 빈칸 개수 추적
+
+        let audioCtx; // 오디오 컨텍스트 (에러 효과음용)
+
+        // 원소 데이터 배열 (규칙을 잘 보여주기 위해 질소(N), 플루오린(F) 추가)
+        const elementsData = [
+            { ko: "수소", en: "Hydrogen", symbol: "H" },
+            { ko: "헬륨", en: "Helium", symbol: "He" },
+            { ko: "탄소", en: "Carbon", symbol: "C" },
+            { ko: "염소", en: "Chlorine", symbol: "Cl" },
+            { ko: "칼슘", en: "Calcium", symbol: "Ca" },
+            { ko: "구리", en: "Cuprum", symbol: "Cu" },
+            { ko: "리튬", en: "Lithium", symbol: "Li" },
+            { ko: "규소", en: "Silicon", symbol: "Si" },
+            { ko: "황",   en: "Sulfur", symbol: "S" },
+            { ko: "질소", en: "Nitrogen", symbol: "N" },
+            { ko: "네온", en: "Neon", symbol: "Ne" },
+            { ko: "나트륨", en: "Natrium", symbol: "Na" },
+            { ko: "마그네슘", en: "Magnesium", symbol: "Mg" },
+            { ko: "알루미늄", en: "Aluminium", symbol: "Al" },
+            { ko: "철",   en: "Ferrum", symbol: "Fe" },
+            { ko: "플루오린", en: "Fluorine", symbol: "F" }
+        ];
+
+        // 동적으로 묶인 문제 그룹 배열을 저장할 변수
+        let problemGroups = [];
+
+        // DOM 요소 캐싱
+        const canvasContainer = document.getElementById('canvas-container');
+        const rowsContainer = document.getElementById('rows-container');
+        const nextBtn = document.getElementById('next-btn');
+        const customAlert = document.getElementById('custom-alert');
+        const elementTracker = document.getElementById('element-tracker');
+        const rulesModal = document.getElementById('rules-modal');
+
+        // ==========================================
+        // 시스템 초기화 및 데이터 그룹화
+        // ==========================================
+
+        /**
+         * 첫 번째 글자 기준으로 원소 데이터를 그룹화하고 정렬합니다.
+         */
+        function prepareGroups() {
+            const grouped = {};
+            
+            // 1. 원소 기호의 첫 글자를 대문자로 추출하여 그룹화
+            elementsData.forEach(el => {
+                const firstLetter = el.symbol[0].toUpperCase();
+                if (!grouped[firstLetter]) grouped[firstLetter] = [];
+                grouped[firstLetter].push(el);
+            });
+
+            // 2. 각 그룹 내에서 첫 글자만 쓰는 원소(길이 1)가 최상단에 오도록 정렬
+            problemGroups = Object.values(grouped).map(group => {
+                return group.sort((a, b) => {
+                    // 기호 길이 기준 오름차순 (1글자 -> 2글자)
+                    if (a.symbol.length !== b.symbol.length) {
+                        return a.symbol.length - b.symbol.length;
+                    }
+                    // 길이가 같으면 알파벳 순서 정렬
+                    return a.symbol.localeCompare(b.symbol);
+                });
+            });
+        }
+
+        /**
+         * 화면 비율 조정 로직 (900x500 캔버스 유지)
+         */
+        function resizeCanvas() {
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            const canvasWidth = 900;
+            const canvasHeight = 500;
+
+            currentScale = Math.min(winWidth / canvasWidth, winHeight / canvasHeight);
+            canvasContainer.style.transform = `scale(${currentScale})`;
+
+            const leftOffset = (winWidth - (canvasWidth * currentScale)) / 2;
+            const topOffset = (winHeight - (canvasHeight * currentScale)) / 2;
+            canvasContainer.style.left = `${leftOffset}px`;
+            canvasContainer.style.top = `${topOffset}px`;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function showCustomAlert(message, duration = 2000) {
+            customAlert.innerText = message;
+            customAlert.classList.add('show');
+            setTimeout(() => { customAlert.classList.remove('show'); }, duration);
+        }
+        
+        function initTracker() {
+            elementTracker.innerHTML = '';
+            elementsData.forEach(el => {
+                const span = document.createElement('span');
+                span.className = 'tracker-item';
+                span.id = `tracker-${el.ko}`;
+                span.innerText = el.ko;
+                span.title = "클릭하여 해당 문제로 이동";
+                
+                // 클릭 시 해당 원소가 포함된 그룹으로 이동하는 기능 추가
+                span.addEventListener('click', () => {
+                    let targetGroupIndex = -1;
+                    for (let i = 0; i < problemGroups.length; i++) {
+                        if (problemGroups[i].some(item => item.ko === el.ko)) {
+                            targetGroupIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (targetGroupIndex !== -1 && targetGroupIndex !== currentProblemGroupIndex) {
+                        currentProblemGroupIndex = targetGroupIndex;
+                        loadProblemGroup(currentProblemGroupIndex);
+                    }
+                });
+
+                elementTracker.appendChild(span);
+            });
+        }
+
+        function resetTracker() {
+            const items = document.querySelectorAll('.tracker-item');
+            items.forEach(item => item.classList.remove('completed'));
+        }
+
+        // 전역 객체(window)에 closeRules 함수를 등록하여 인라인 onclick 이벤트에서 호출 가능하게 함
+        window.openRules = function() { rulesModal.classList.add('show'); }
+        window.closeRules = function() { rulesModal.classList.remove('show'); }
+
+        // ==========================================
+        // 오답 피드백 (효과음 및 X 마크)
+        // ==========================================
+        function playErrorSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                // '삑' 소리 (경고음 느낌)
+                oscillator.type = 'triangle'; 
+                oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+                
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {
+                console.error("Audio not supported", e);
+            }
+        }
+
+        function showWrongMark(dropTargetBox) {
+            const boxRect = dropTargetBox.getBoundingClientRect();
+            const canvasRect = canvasContainer.getBoundingClientRect();
+            
+            // 캔버스 기준 타겟 박스의 정중앙 좌표 계산
+            const centerX = (boxRect.left - canvasRect.left + boxRect.width / 2) / currentScale;
+            const centerY = (boxRect.top - canvasRect.top + boxRect.height / 2) / currentScale;
+            
+            const xMark = document.createElement('div');
+            xMark.innerText = '❌';
+            xMark.className = 'error-x-mark';
+            xMark.style.left = `${centerX}px`;
+            xMark.style.top = `${centerY}px`;
+            
+            canvasContainer.appendChild(xMark);
+            
+            setTimeout(() => xMark.remove(), 600);
+        }
+
+        // ==========================================
+        // 시뮬레이션 핵심 로직
+        // ==========================================
+
+        /**
+         * 특정 그룹(같은 첫 글자를 공유하는 배열)을 로드하여 화면에 렌더링합니다.
+         */
+        function loadProblemGroup(groupIndex) {
+            if (groupIndex >= problemGroups.length) {
+                showCustomAlert("모든 학습을 완료했습니다! 처음으로 돌아갑니다.", 3000);
+                currentProblemGroupIndex = 0;
+                groupIndex = 0;
+            }
+
+            const currentGroup = problemGroups[groupIndex];
+            
+            // 상태 초기화
+            solvedSlots = 0;
+            // 현재 화면에서 맞추어야 할 총 빈칸 개수 계산
+            totalSlotsToSolve = currentGroup.reduce((sum, el) => sum + el.symbol.length, 0);
+            rowSolvedCounts = new Array(currentGroup.length).fill(0);
+            
+            nextBtn.style.display = 'none';
+            rowsContainer.innerHTML = '';
+
+            // 각 그룹 내의 원소들에 대해 행(Row) 생성
+            currentGroup.forEach((data, rowIndex) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'problem-row';
+
+                // 1. 이름 표기 영역
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'element-ko-name';
+                nameDiv.innerHTML = `${data.ko} (${data.en}) <span style="font-size: 16px; opacity: 0.8;">🔊</span>`;
+                nameDiv.title = "클릭하여 영어 발음 듣기";
+                
+                // 클릭 시 영어 이름 읽어주기 (Web Speech API)
+                nameDiv.addEventListener('click', () => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel(); // 이전 발음이 재생 중이면 취소
+                        const utterance = new SpeechSynthesisUtterance(data.en);
+                        utterance.lang = 'en-US'; // 미국식 영어
+                        utterance.rate = 0.85; // 듣기 편하도록 살짝 느리게 발음
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
+
+                const interactionDiv = document.createElement('div');
+                interactionDiv.className = 'interaction-area';
+
+                // 2. 소스 알파벳 영역
+                const sourceDiv = document.createElement('div');
+                sourceDiv.className = 'source-word';
+                
+                const arrowDiv = document.createElement('div');
+                arrowDiv.className = 'arrow';
+                arrowDiv.innerText = '➔';
+
+                // 3. 타겟(빈칸) 영역
+                const targetDiv = document.createElement('div');
+                targetDiv.className = 'target-area';
+
+                // 빈칸(Drop Box) 요소 생성
+                for (let i = 0; i < data.symbol.length; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'drop-box';
+                    const targetChar = i === 0 ? data.symbol[i].toUpperCase() : data.symbol[i].toLowerCase();
+                    box.dataset.targetChar = targetChar;
+                    box.dataset.slotIndex = i;
+                    // 다른 줄에 있는 같은 알파벳 칸에 들어가는 것을 방지하기 위해 행 ID 부여
+                    box.dataset.rowId = rowIndex; 
+                    targetDiv.appendChild(box);
+                }
+
+                // 알파벳 타일(Drag 요소) 생성
+                const letters = data.en.split('');
+                const tileWidth = 35;
+                const tileGap = 3;
+                const totalWidth = (letters.length * tileWidth) + ((letters.length - 1) * tileGap);
+                
+                // 타일들이 겹치지 않게 상대 위치를 확보
+                sourceDiv.style.width = `${totalWidth}px`; 
+
+                letters.forEach((char, i) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'letter-tile';
+                    
+                    const displayChar = i === 0 ? char.toUpperCase() : char.toLowerCase();
+                    tile.innerText = displayChar;
+                    tile.dataset.char = displayChar; 
+                    tile.dataset.rowId = rowIndex; // 자신의 줄(Row) 기록
+                    
+                    const leftPos = i * (tileWidth + tileGap);
+                    tile.style.left = `${leftPos}px`;
+                    tile.style.top = `0px`; 
+                    
+                    tile.addEventListener('pointerdown', onPointerDown);
+                    sourceDiv.appendChild(tile);
+                });
+
+                interactionDiv.appendChild(sourceDiv);
+                interactionDiv.appendChild(arrowDiv);
+                interactionDiv.appendChild(targetDiv);
+
+                rowDiv.appendChild(nameDiv);
+                rowDiv.appendChild(interactionDiv);
+                
+                rowsContainer.appendChild(rowDiv);
+            });
+        }
+
+        function loadNextProblem() {
+            if (currentProblemGroupIndex >= problemGroups.length - 1) {
+                // 모두 완료 후 다시하기
+                currentProblemGroupIndex = 0;
+                resetTracker();
+                loadProblemGroup(currentProblemGroupIndex);
+            } else {
+                currentProblemGroupIndex++;
+                loadProblemGroup(currentProblemGroupIndex);
+            }
+        }
+
+        // ==========================================
+        // 드래그 앤 드롭 구현 로직 (Pointer Event 활용)
+        // ==========================================
+
+        function onPointerDown(e) {
+            if (e.target.classList.contains('locked')) return;
+
+            isDragging = true;
+            draggedElement = e.target;
+            
+            // 돌아갈 원래 부모와 좌표를 캐싱
+            draggedElement.originalParentNode = draggedElement.parentElement;
+            originalLeft = parseFloat(draggedElement.style.left) || 0;
+            originalTop = parseFloat(draggedElement.style.top) || 0;
+
+            // --- 원본 위치에 희미한 유령 타일 남기기 ---
+            const ghost = draggedElement.cloneNode(true);
+            ghost.classList.add('ghost-tile');
+            draggedElement.originalParentNode.appendChild(ghost);
+            draggedElement.ghostElement = ghost; // 드래그 객체에 참조 저장
+            // ----------------------------------------
+
+            const elRect = draggedElement.getBoundingClientRect();
+            const canvasRect = canvasContainer.getBoundingClientRect();
+            
+            // 드래그 중 다른 요소에 가려지지 않도록 최상단(canvas-container)의 자식으로 일시 이동
+            const startLeft = (elRect.left - canvasRect.left) / currentScale;
+            const startTop = (elRect.top - canvasRect.top) / currentScale;
+
+            dragOffsetX = (e.clientX - elRect.left) / currentScale;
+            dragOffsetY = (e.clientY - elRect.top) / currentScale;
+
+            canvasContainer.appendChild(draggedElement);
+            draggedElement.style.left = `${startLeft}px`;
+            draggedElement.style.top = `${startTop}px`;
+
+            draggedElement.classList.add('dragging');
+            draggedElement.setPointerCapture(e.pointerId);
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging || !draggedElement) return;
+
+            const canvasRect = canvasContainer.getBoundingClientRect();
+            
+            // 캔버스 컨테이너 기준 새로운 절대 좌표 계산
+            const newX = (e.clientX - canvasRect.left) / currentScale - dragOffsetX;
+            const newY = (e.clientY - canvasRect.top) / currentScale - dragOffsetY;
+
+            draggedElement.style.left = `${newX}px`;
+            draggedElement.style.top = `${newY}px`;
+        }
+
+        function onPointerUp(e) {
+            if (!isDragging || !draggedElement) return;
+
+            isDragging = false;
+            draggedElement.classList.remove('dragging');
+            draggedElement.releasePointerCapture(e.pointerId);
+
+            const dropBoxes = document.querySelectorAll('.drop-box');
+            let isDropped = false;
+            let isWrongDrop = false; // 오답 위치 드롭 여부 확인 플래그
+            let targetErrorBox = null; // 오답 표시를 띄울 타겟 박스
+
+            const elRect = draggedElement.getBoundingClientRect();
+            const elCenterX = elRect.left + (elRect.width / 2);
+            const elCenterY = elRect.top + (elRect.height / 2);
+
+            for (let box of dropBoxes) {
+                if (isDropped) continue; // 이미 정답 처리되었으면 패스
+
+                const boxRect = box.getBoundingClientRect();
+
+                // 중심점 충돌 체크
+                if (elCenterX >= boxRect.left && elCenterX <= boxRect.right &&
+                    elCenterY >= boxRect.top && elCenterY <= boxRect.bottom) {
+                    
+                    // 1. 이미 채워진 칸에 놓으려 한 경우
+                    if (box.classList.contains('filled')) {
+                        isWrongDrop = true;
+                        targetErrorBox = box;
+                        continue;
+                    }
+
+                    // 2. 다른 원소(다른 줄)의 빈칸에 놓으려 한 경우
+                    if (box.dataset.rowId !== draggedElement.dataset.rowId) {
+                        isWrongDrop = true;
+                        targetErrorBox = box;
+                        continue;
+                    }
+                    
+                    const targetChar = box.dataset.targetChar;
+                    const draggedChar = draggedElement.dataset.char;
+                    const slotIndex = parseInt(box.dataset.slotIndex);
+                    
+                    let isValid = false;
+                    if (slotIndex === 0 && draggedChar.toUpperCase() === targetChar) {
+                        isValid = true;
+                        draggedElement.innerText = targetChar;
+                    } else if (slotIndex === 1 && draggedChar.toLowerCase() === targetChar) {
+                        isValid = true;
+                        draggedElement.innerText = targetChar;
+                    }
+
+                    if (isValid) {
+                        // 정답 처리
+                        isDropped = true;
+                        box.classList.add('filled');
+                        box.classList.add('active');
+                        
+                        // 타일을 박스 내부로 영구 이동
+                        box.appendChild(draggedElement);
+                        
+                        draggedElement.classList.add('locked');
+                        draggedElement.style.position = 'static';
+                        draggedElement.style.left = 'auto';
+                        draggedElement.style.top = 'auto';
+                        draggedElement.removeEventListener('pointerdown', onPointerDown);
+                        
+                        // 정답 시 유령 타일과 연결 해제 (원래 자리에 남겨둠)
+                        draggedElement.ghostElement = null;
+
+                        solvedSlots++;
+                        rowSolvedCounts[box.dataset.rowId]++;
+                        
+                        // 현재 원소(행)의 모든 빈칸을 채웠는지 확인하여 트래커 업데이트
+                        const currentElement = problemGroups[currentProblemGroupIndex][box.dataset.rowId];
+                        if (rowSolvedCounts[box.dataset.rowId] === currentElement.symbol.length) {
+                            const trackerItem = document.getElementById(`tracker-${currentElement.ko}`);
+                            if (trackerItem) trackerItem.classList.add('completed');
+                        }
+                        
+                        // 현재 화면의 모든 빈칸을 다 맞췄는지 확인
+                        if (solvedSlots === totalSlotsToSolve) {
+                            showCustomAlert('정답입니다! 🎉', 1500);
+                            
+                            if (currentProblemGroupIndex >= problemGroups.length - 1) {
+                                nextBtn.innerText = "다시하기 ↺";
+                            } else {
+                                nextBtn.innerText = "다음 그룹 ➔";
+                            }
+                            
+                            nextBtn.style.display = 'block';
+                        }
+                    } else {
+                        // 자리는 맞지만 글자가 틀린 경우
+                        isWrongDrop = true;
+                        targetErrorBox = box;
+                    }
+                }
+            }
+
+            // 잘못된 드롭 처리 (효과음 및 X 표시)
+            if (isWrongDrop && !isDropped && targetErrorBox) {
+                playErrorSound();
+                showWrongMark(targetErrorBox);
+            }
+
+            // 정답이 아니거나 바깥에 드롭한 경우 원래 있던 줄(Row)의 위치로 복귀
+            if (!isDropped) {
+                draggedElement.originalParentNode.appendChild(draggedElement);
+                draggedElement.style.transition = 'left 0.3s, top 0.3s';
+                draggedElement.style.left = `${originalLeft}px`;
+                draggedElement.style.top = `${originalTop}px`;
+                
+                const ghostToRemove = draggedElement.ghostElement;
+                
+                setTimeout(() => {
+                    if (draggedElement) draggedElement.style.transition = 'transform 0.1s';
+                    // 애니메이션이 끝나고 원래 자리로 돌아가면 유령 타일 삭제
+                    if (ghostToRemove) ghostToRemove.remove();
+                }, 300);
+                
+                draggedElement.ghostElement = null;
+            }
+        }
+
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+
+
+        // ==========================================
+        // 애플리케이션 시작
+        // ==========================================
+        function init() {
+            resizeCanvas();
+            initTracker(); // 하단 진행상황 트래커 생성
+            prepareGroups(); // 데이터 그룹화 진행
+            loadProblemGroup(currentProblemGroupIndex); // 첫 번째 그룹 로드
+        }
+
+        window.onload = init;
+
+    </script>
+
+</body><whale-quicksearch translate="no" style="visibility: visible;"><template shadowrootmode="closed"><style></style><div class="anchor"></div><div class="quicksearch" data-version="dabecb51"></div></template></whale-quicksearch></html>
