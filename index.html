@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>아화중학교 과학</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
 <style>
 *{
   margin:0;
@@ -12,11 +16,23 @@
   box-sizing:border-box;
 }
 
+:root{
+  --cyan:#6ee7ff;
+  --violet:#a78bfa;
+  --gold:#ffe17c;
+  --ink:#eef2ff;
+  --muted:#8b93a8;
+  --panel:rgba(9,14,27,.55);
+  --panel-border:rgba(140,180,255,.16);
+  --font-display:"Space Grotesk","Pretendard Variable",sans-serif;
+  --font-kr:"Pretendard Variable","Malgun Gothic",sans-serif;
+}
+
 html,body{
   width:100%;
   height:100%;
   overflow:hidden;
-  font-family:"Malgun Gothic",sans-serif;
+  font-family:var(--font-kr);
   background:#02040a;
 }
 
@@ -127,58 +143,151 @@ body{
 }
 
 /*==============================
-Glass 카드
+Glass 카드 (HUD 패널)
 ==============================*/
 .card{
-  width:760px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  backdrop-filter:blur(18px);
-  border-radius:30px;
-  padding:45px;
+  position:relative;
+  width:720px;
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  backdrop-filter:blur(20px);
+  border-radius:22px;
+  padding:48px 50px 44px;
   text-align:center;
-  color:white;
-  box-shadow:0 0 80px rgba(0,0,0,.45);
+  color:var(--ink);
+  box-shadow:0 0 90px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden;
+}
+
+/* 미세한 격자 텍스처 */
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(140,180,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140,180,255,.05) 1px, transparent 1px);
+  background-size:28px 28px;
+  mask-image:radial-gradient(ellipse at center, black 0%, transparent 75%);
+  pointer-events:none;
+}
+
+.eyebrow{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  font-family:var(--font-display);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:2.5px;
+  color:var(--cyan);
+  text-transform:uppercase;
+  margin-bottom:34px;
+}
+
+.eyebrow .dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 8px 1px var(--cyan);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot{
+  0%,100%{opacity:1;}
+  50%{opacity:.35;}
+}
+
+.wordmark{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  margin-bottom:22px;
+}
+
+.atom-icon{
+  width:56px;
+  height:56px;
+  flex-shrink:0;
+}
+.atom-icon .orbit{
+  fill:none;
+  stroke:url(#atomGrad);
+  stroke-width:1.1;
+  opacity:.55;
+}
+.atom-icon .nucleus{
+  fill:url(#atomGrad);
+  filter:drop-shadow(0 0 6px rgba(110,231,255,.8));
+}
+.atom-icon .electron{
+  fill:#fff;
+  filter:drop-shadow(0 0 4px rgba(255,255,255,.9));
 }
 
 .card h1{
-  font-size:54px;
-  font-weight:300;
-  letter-spacing:8px;
-  margin-bottom:25px;
-  color:#ffe07d;
+  position:relative;
+  font-family:var(--font-display);
+  font-size:44px;
+  font-weight:600;
+  letter-spacing:6px;
+  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%, var(--gold));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
 }
 
 .card h2{
-  font-size:28px;
-  font-weight:400;
-  margin-bottom:30px;
+  position:relative;
+  font-family:var(--font-kr);
+  font-size:26px;
+  font-weight:700;
+  letter-spacing:-.3px;
+  margin-bottom:18px;
+  color:var(--ink);
 }
 
 .card p{
-  font-size:20px;
-  line-height:2.1;
-  color:#ddd;
+  position:relative;
+  font-size:15.5px;
+  font-weight:400;
+  line-height:1.9;
+  color:var(--muted);
+  margin-bottom:38px;
 }
 
 .info{
-  margin-top:40px;
+  position:relative;
   display:flex;
   justify-content:center;
-  gap:20px;
+  gap:14px;
+  flex-wrap:wrap;
 }
 
 .btn{
-  padding:12px 24px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:30px;
-  color:white;
+  position:relative;
+  padding:13px 26px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--panel-border);
+  border-radius:14px;
+  color:var(--ink);
+  font-family:var(--font-kr);
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.3px;
   cursor:pointer;
   transition:.3s;
 }
 .btn:hover{
-  background:rgba(255,255,255,.15);
+  background:rgba(110,231,255,.08);
+  border-color:rgba(110,231,255,.5);
+  color:var(--cyan);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(110,231,255,.15);
 }
 
 footer{
@@ -417,12 +526,47 @@ footer{
   <!-- 홈 화면 -->
   <div id="view-home" class="view active">
     <div class="card">
-      <h1>SCIENCE</h1>
-      <h2>안녕하세요.<br>아화중학교 과학시간입니다.</h2>
+
+      <div class="eyebrow"><span class="dot"></span>AHWA MIDDLE SCHOOL · SCIENCE LAB</div>
+
+      <div class="wordmark">
+        <svg class="atom-icon" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="atomGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6ee7ff"/>
+              <stop offset="100%" stop-color="#a78bfa"/>
+            </linearGradient>
+          </defs>
+
+          <g transform="rotate(0 50 50)">
+            <ellipse class="orbit" cx="50" cy="50" rx="44" ry="17"/>
+            <circle class="electron" r="3">
+              <animateMotion dur="5s" repeatCount="indefinite" path="M6,50 A44,17 0 1 1 94,50 A44,17 0 1 1 6,50"/>
+            </circle>
+          </g>
+          <g transform="rotate(60 50 50)">
+            <ellipse class="orbit" cx="50" cy="50" rx="44" ry="17"/>
+            <circle class="electron" r="3">
+              <animateMotion dur="4s" repeatCount="indefinite" path="M6,50 A44,17 0 1 1 94,50 A44,17 0 1 1 6,50"/>
+            </circle>
+          </g>
+          <g transform="rotate(120 50 50)">
+            <ellipse class="orbit" cx="50" cy="50" rx="44" ry="17"/>
+            <circle class="electron" r="3">
+              <animateMotion dur="6s" repeatCount="indefinite" path="M6,50 A44,17 0 1 1 94,50 A44,17 0 1 1 6,50"/>
+            </circle>
+          </g>
+
+          <circle class="nucleus" cx="50" cy="50" r="6"/>
+        </svg>
+
+        <h1>SCIENCE</h1>
+      </div>
+
+      <h2>과학으로 세상을 읽다</h2>
       <p>
-        여러분들의 과학적 호기심이<br>
-        세상을 바꾸는 첫걸음입니다.<br><br>
-        오늘도 즐겁게 탐구해 봅시다.
+        작은 질문 하나가 우주를 향한 첫 걸음이 됩니다.<br>
+        오늘의 궁금증을, 오늘의 원리로 바꿔봅시다.
       </p>
 
       <div class="info">
