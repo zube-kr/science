@@ -90,6 +90,24 @@ body{
   margin-bottom:30px;
 }
 
+.chat-entry{
+  cursor:pointer;
+  text-align:center;
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  background:rgba(140,180,255,.1);
+  border:1px solid var(--panel-border);
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:24px;
+  transition:background .15s ease;
+}
+
+.chat-entry:hover{
+  background:rgba(140,180,255,.2);
+}
+
 .grade{
   margin-bottom:18px;
 }
@@ -447,6 +465,114 @@ footer{
   box-shadow:0 0 60px rgba(0,0,0,.5);
   background:#2c3e50;
 }
+
+/*==============================
+학생 메시지함
+==============================*/
+.chatview{
+  width:640px;
+  max-width:94%;
+  height:82vh;
+  display:flex;
+  flex-direction:column;
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  backdrop-filter:blur(20px);
+  border-radius:22px;
+  overflow:hidden;
+}
+
+.chatview-header{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px 20px;
+  border-bottom:1px solid var(--panel-border);
+}
+
+.chatview-header select{
+  flex:1;
+  background:rgba(255,255,255,.06);
+  color:var(--ink);
+  border:1px solid var(--panel-border);
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:15px;
+  font-family:var(--font-kr);
+}
+
+.chat-messages{
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.chat-bubble{
+  max-width:75%;
+  padding:10px 14px;
+  border-radius:14px;
+  font-size:14.5px;
+  line-height:1.5;
+  word-break:break-word;
+}
+
+.chat-bubble.teacher{
+  align-self:flex-end;
+  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
+  color:#0a0f1a;
+}
+
+.chat-bubble.student{
+  align-self:flex-start;
+  background:rgba(255,255,255,.08);
+  color:var(--ink);
+}
+
+.chat-bubble .chat-meta{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  opacity:.6;
+}
+
+.chat-empty{
+  color:var(--muted);
+  text-align:center;
+  margin-top:40px;
+  font-size:14px;
+}
+
+.chat-input-row{
+  display:flex;
+  gap:10px;
+  padding:16px 20px;
+  border-top:1px solid var(--panel-border);
+}
+
+.chat-input-row input{
+  flex:1;
+  background:rgba(255,255,255,.06);
+  color:var(--ink);
+  border:1px solid var(--panel-border);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:14.5px;
+  font-family:var(--font-kr);
+}
+
+.chat-input-row button{
+  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
+  color:#0a0f1a;
+  border:none;
+  border-radius:10px;
+  padding:0 18px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:var(--font-kr);
+}
 </style>
 </head>
 
@@ -461,6 +587,8 @@ footer{
 
   <div class="logo" onclick="goHome()" style="cursor:pointer;">🔬 SCIENCE</div>
   <div class="school">아화중학교 과학수업</div>
+
+  <div class="chat-entry" onclick="openChat()">💬 학생 메시지함</div>
 
   <details class="grade" open>
     <summary>📘 중학교 1학년</summary>
@@ -586,9 +714,49 @@ footer{
     </div>
   </div>
 
+  <!-- 학생 메시지함 화면 -->
+  <div id="view-chat" class="view">
+    <div class="chatview">
+      <div class="chatview-header">
+        <button class="back-btn" onclick="goHome()">← 홈</button>
+        <select id="chat-student-select" onchange="switchChatStudent(this.value)"></select>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <form class="chat-input-row" id="chat-input-row">
+        <input type="text" id="chat-input" placeholder="메시지를 입력하세요" autocomplete="off">
+        <button type="submit">보내기</button>
+      </form>
+    </div>
+  </div>
+
   <footer>AHWA MIDDLE SCHOOL SCIENCE</footer>
 
 </div>
+
+<!-- ==========================
+학생 메시지함용 Firebase (Firestore)
+아래 6개 값을 Firebase 콘솔 > 프로젝트 설정 > 내 앱 에서 복사해 넣어주세요.
+=========================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC0r8Qz_wGGW-TUKUC7RWZ8tyHgBG3kyFk",
+  authDomain: "ahwa-science-chat.firebaseapp.com",
+  projectId: "ahwa-science-chat",
+  storageBucket: "ahwa-science-chat.firebasestorage.app",
+  messagingSenderId: "547072324299",
+  appId: "1:547072324299:web:76a9a58948f8f1251e214e"
+};
+
+let db = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}catch(e){
+  console.warn("Firebase 설정이 아직 입력되지 않았습니다.", e);
+}
+</script>
 
 <script>
 
@@ -1040,6 +1208,7 @@ const topicsData = {
 const viewHome = document.getElementById("view-home");
 const viewList = document.getElementById("view-list");
 const viewFrame = document.getElementById("view-frame");
+const viewChat = document.getElementById("view-chat");
 const postlistTitle = document.getElementById("postlist-title");
 const postlistItems = document.getElementById("postlist-items");
 const frameTitle = document.getElementById("frame-title");
@@ -1048,7 +1217,7 @@ const contentFrame = document.getElementById("content-frame");
 let lastSubjectKey = null;
 
 function showView(view){
-  [viewHome, viewList, viewFrame].forEach(v => v.classList.remove("active"));
+  [viewHome, viewList, viewFrame, viewChat].forEach(v => v.classList.remove("active"));
   view.classList.add("active");
 }
 
@@ -1105,6 +1274,115 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
   } else {
     showView(viewList);
   }
+});
+
+// ==========================================
+// 학생 메시지함 (Firestore 실시간 채팅)
+// ==========================================
+const STUDENTS = [
+  { id: "yuminseok",    name: "유민석 (1학년)" },
+  { id: "leewongeun",   name: "이원근 (1학년)" },
+  { id: "leeyein",      name: "이예인 (1학년)" },
+  { id: "kimminji",     name: "김민지 (2학년)" },
+  { id: "kimsuhyun",    name: "김수현 (2학년)" },
+  { id: "kimjinyoung",  name: "김진영 (2학년)" },
+  { id: "parkjemin",    name: "박제민 (2학년)" },
+  { id: "seokangho",    name: "서강호 (2학년)" },
+  { id: "sonhyunjeong", name: "손현정 (2학년)" },
+  { id: "leejaekyung",  name: "이재경 (2학년)" },
+  { id: "jeonara",      name: "전아라 (2학년)" }
+];
+
+const chatStudentSelect = document.getElementById("chat-student-select");
+const chatMessages = document.getElementById("chat-messages");
+const chatInputRow = document.getElementById("chat-input-row");
+const chatInput = document.getElementById("chat-input");
+
+let currentChatStudent = null;
+let chatUnsubscribe = null;
+
+STUDENTS.forEach(s => {
+  const opt = document.createElement("option");
+  opt.value = s.id;
+  opt.textContent = s.name;
+  chatStudentSelect.appendChild(opt);
+});
+
+function openChat(){
+  if(!db){
+    alert("아직 채팅 기능이 연결되지 않았어요. Firebase 설정을 먼저 완료해주세요.");
+    return;
+  }
+  showView(viewChat);
+  if(!currentChatStudent){
+    switchChatStudent(STUDENTS[0].id);
+  }
+}
+
+function switchChatStudent(studentId){
+  currentChatStudent = studentId;
+  chatStudentSelect.value = studentId;
+  chatMessages.innerHTML = "";
+
+  if(chatUnsubscribe){
+    chatUnsubscribe();
+    chatUnsubscribe = null;
+  }
+
+  if(!db) return;
+
+  chatUnsubscribe = db.collection("messages")
+    .where("studentId", "==", studentId)
+    .orderBy("createdAt", "asc")
+    .onSnapshot(snapshot => {
+      chatMessages.innerHTML = "";
+
+      if(snapshot.empty){
+        const empty = document.createElement("div");
+        empty.className = "chat-empty";
+        empty.textContent = "아직 메시지가 없어요. 첫 메시지를 보내보세요!";
+        chatMessages.appendChild(empty);
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const msg = doc.data();
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble " + (msg.sender === "teacher" ? "teacher" : "student");
+
+        const time = msg.createdAt && msg.createdAt.toDate
+          ? msg.createdAt.toDate().toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })
+          : "";
+
+        bubble.innerHTML = `${escapeHtml(msg.text)}<span class="chat-meta">${msg.sender === "teacher" ? "선생님" : "학생"} · ${time}</span>`;
+        chatMessages.appendChild(bubble);
+      });
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, err => {
+      console.error("채팅 로드 오류:", err);
+    });
+}
+
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+chatInputRow.addEventListener("submit", e => {
+  e.preventDefault();
+  const text = chatInput.value.trim();
+  if(!text || !currentChatStudent || !db) return;
+
+  db.collection("messages").add({
+    studentId: currentChatStudent,
+    sender: "teacher",
+    text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  chatInput.value = "";
 });
 
 </script>
