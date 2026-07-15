@@ -501,6 +501,12 @@ footer{
   font-family:var(--font-kr);
 }
 
+.chatview-title{
+  font-size:16px;
+  font-weight:600;
+  color:#ffe17c;
+}
+
 .chat-messages{
   flex:1;
   overflow-y:auto;
@@ -714,12 +720,12 @@ footer{
     </div>
   </div>
 
-  <!-- 학생 메시지함 화면 -->
+  <!-- 학생 메시지함 화면 (전체 공용 채팅방) -->
   <div id="view-chat" class="view">
     <div class="chatview">
       <div class="chatview-header">
         <button class="back-btn" onclick="goHome()">← 홈</button>
-        <select id="chat-student-select" onchange="switchChatStudent(this.value)"></select>
+        <div class="chatview-title">💬 우리 반 채팅방</div>
       </div>
       <div class="chat-messages" id="chat-messages"></div>
       <form class="chat-input-row" id="chat-input-row">
@@ -1277,36 +1283,14 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
 });
 
 // ==========================================
-// 학생 메시지함 (Firestore 실시간 채팅)
+// 학생 메시지함 (Firestore 실시간 공용 채팅방)
 // ==========================================
-const STUDENTS = [
-  { id: "yuminseok",    name: "유민석 (1학년)" },
-  { id: "leewongeun",   name: "이원근 (1학년)" },
-  { id: "leeyein",      name: "이예인 (1학년)" },
-  { id: "kimminji",     name: "김민지 (2학년)" },
-  { id: "kimsuhyun",    name: "김수현 (2학년)" },
-  { id: "kimjinyoung",  name: "김진영 (2학년)" },
-  { id: "parkjemin",    name: "박제민 (2학년)" },
-  { id: "seokangho",    name: "서강호 (2학년)" },
-  { id: "sonhyunjeong", name: "손현정 (2학년)" },
-  { id: "leejaekyung",  name: "이재경 (2학년)" },
-  { id: "jeonara",      name: "전아라 (2학년)" }
-];
-
-const chatStudentSelect = document.getElementById("chat-student-select");
 const chatMessages = document.getElementById("chat-messages");
 const chatInputRow = document.getElementById("chat-input-row");
 const chatInput = document.getElementById("chat-input");
 
-let currentChatStudent = null;
 let chatUnsubscribe = null;
-
-STUDENTS.forEach(s => {
-  const opt = document.createElement("option");
-  opt.value = s.id;
-  opt.textContent = s.name;
-  chatStudentSelect.appendChild(opt);
-});
+let chatStarted = false;
 
 function openChat(){
   if(!db){
@@ -1314,25 +1298,16 @@ function openChat(){
     return;
   }
   showView(viewChat);
-  if(!currentChatStudent){
-    switchChatStudent(STUDENTS[0].id);
+  if(!chatStarted){
+    startChatRoom();
+    chatStarted = true;
   }
 }
 
-function switchChatStudent(studentId){
-  currentChatStudent = studentId;
-  chatStudentSelect.value = studentId;
-  chatMessages.innerHTML = "";
-
-  if(chatUnsubscribe){
-    chatUnsubscribe();
-    chatUnsubscribe = null;
-  }
-
-  if(!db) return;
+function startChatRoom(){
+  if(chatUnsubscribe) return;
 
   chatUnsubscribe = db.collection("messages")
-    .where("studentId", "==", studentId)
     .orderBy("createdAt", "asc")
     .onSnapshot(snapshot => {
       chatMessages.innerHTML = "";
@@ -1347,14 +1322,17 @@ function switchChatStudent(studentId){
 
       snapshot.forEach(doc => {
         const msg = doc.data();
+        const isTeacher = msg.sender === "teacher";
         const bubble = document.createElement("div");
-        bubble.className = "chat-bubble " + (msg.sender === "teacher" ? "teacher" : "student");
+        bubble.className = "chat-bubble " + (isTeacher ? "teacher" : "student");
 
         const time = msg.createdAt && msg.createdAt.toDate
           ? msg.createdAt.toDate().toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })
           : "";
 
-        bubble.innerHTML = `${escapeHtml(msg.text)}<span class="chat-meta">${msg.sender === "teacher" ? "선생님" : "학생"} · ${time}</span>`;
+        const senderLabel = isTeacher ? "선생님" : (msg.senderName || "학생");
+
+        bubble.innerHTML = `${escapeHtml(msg.text)}<span class="chat-meta">${senderLabel} · ${time}</span>`;
         chatMessages.appendChild(bubble);
       });
 
@@ -1373,11 +1351,11 @@ function escapeHtml(str){
 chatInputRow.addEventListener("submit", e => {
   e.preventDefault();
   const text = chatInput.value.trim();
-  if(!text || !currentChatStudent || !db) return;
+  if(!text || !db) return;
 
   db.collection("messages").add({
-    studentId: currentChatStudent,
     sender: "teacher",
+    senderName: "선생님",
     text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
