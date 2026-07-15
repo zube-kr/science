@@ -172,25 +172,6 @@ Glass 카드 (HUD 패널)
   pointer-events:none;
 }
 
-.card-stars{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  pointer-events:none;
-}
-
-.card-stars .dot-star{
-  position:absolute;
-  border-radius:50%;
-  background:#fff;
-  animation:twinkleStar 3s ease-in-out infinite;
-}
-
-@keyframes twinkleStar{
-  0%,100%{ opacity:.15; }
-  50%{ opacity:1; }
-}
-
 .eyebrow{
   position:relative;
   display:inline-flex;
@@ -506,6 +487,7 @@ footer{
       <li onclick="openSubject('dongmul-energy')">⑥ 동물과 에너지</li>
       <li onclick="openSubject('jeongi-jagi')">⑦ 전기와 자기</li>
       <li onclick="openSubject('byeol-uju')">⑧ 별과 우주</li>
+      <li onclick="openSubject('j2-student-home')">★ 2학년 학생홈페이지</li>
     </ul>
   </details>
 
@@ -522,20 +504,6 @@ footer{
     </ul>
   </details>
 
-  <details class="grade">
-    <summary>🌐 2학년 학생 홈페이지</summary>
-    <ul>
-      <li><a href="https://science0418.vercel.app/" target="_blank">1. 김민지</a></li>
-      <li><a href="https://science0917.vercel.app/" target="_blank">2. 김수현</a></li>
-      <li><a href="https://science-jinramen.vercel.app/" target="_blank">3. 김진영</a></li>
-      <li><a href="https://science0703.vercel.app/" target="_blank">4. 박제민</a></li>
-      <li><a href="#" target="_blank">5. 서강호</a></li>
-      <li><a href="https://science0210.vercel.app/" target="_blank">6. 손현정</a></li>
-      <li><a href="https://science1015.vercel.app/" target="_blank">7. 이재경</a></li>
-      <li><a href="https://science0303.vercel.app/" target="_blank">8. 전아라</a></li>
-    </ul>
-  </details>
-
 </div>
 
 <!-- =======================
@@ -546,8 +514,6 @@ footer{
   <!-- 홈 화면 -->
   <div id="view-home" class="view active">
     <div class="card">
-      <div class="card-stars" id="card-stars"></div>
-
       <div class="eyebrow"><span class="dot"></span>AHWA MIDDLE SCHOOL · SCIENCE LAB</div>
 
       <div class="wordmark">
@@ -943,19 +909,83 @@ const topicsData = {
         title: "유민석",
         desc: "유민석 학생의 과학 홈페이지로 이동합니다.",
         url: "https://science-minseok.vercel.app/",
-        ready: true
+        ready: true,
+        external: true
       },
       {
         title: "이원근",
         desc: "이원근 학생의 과학 홈페이지로 이동합니다.",
         url: "https://1234214125.vercel.app/",
-        ready: true
+        ready: true,
+        external: true
       },
       {
         title: "이예인",
         desc: "이예인 학생의 과학 홈페이지로 이동합니다.",
         url: "https://science-yein.vercel.app/main.html",
-        ready: true
+        ready: true,
+        external: true
+      }
+    ]
+  },
+  "j2-student-home": {
+    title: "★ 2학년 학생홈페이지",
+    posts: [
+      {
+        title: "김민지",
+        desc: "김민지 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science0418.vercel.app/",
+        ready: true,
+        external: true
+      },
+      {
+        title: "김수현",
+        desc: "김수현 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science0917.vercel.app/",
+        ready: true,
+        external: true
+      },
+      {
+        title: "김진영",
+        desc: "김진영 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science-jinramen.vercel.app/",
+        ready: true,
+        external: true
+      },
+      {
+        title: "박제민",
+        desc: "박제민 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science0703.vercel.app/",
+        ready: true,
+        external: true
+      },
+      {
+        title: "서강호",
+        desc: "서강호 학생의 과학 홈페이지는 아직 준비 중입니다.",
+        url: "#",
+        ready: false,
+        external: true
+      },
+      {
+        title: "손현정",
+        desc: "손현정 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science0210.vercel.app/",
+        ready: true,
+        external: true
+      },
+      {
+        title: "이재경",
+        desc: "이재경 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science1015.vercel.app/",
+        ready: true,
+        external: true
+      },
+      {
+        title: "전아라",
+        desc: "전아라 학생의 과학 홈페이지로 이동합니다.",
+        url: "https://science0303.vercel.app/",
+        ready: true,
+        external: true
       }
     ]
   },
@@ -1054,6 +1084,10 @@ function openSubject(key){
 }
 
 function openPost(post){
+  if(post.external){
+    window.open(post.url, "_blank");
+    return;
+  }
   frameTitle.textContent = post.title;
   contentFrame.src = post.url;
   showView(viewFrame);
@@ -1063,27 +1097,6 @@ function goHome(){
   contentFrame.src = "";
   showView(viewHome);
 }
-
-// ==========================
-// 카드(과학으로 세상을 읽다 박스) 안 별 반짝임
-// ==========================
-(function initCardStars(){
-  const box = document.getElementById("card-stars");
-  if(!box) return;
-  const COUNT = 30;
-  for(let i = 0; i < COUNT; i++){
-    const dot = document.createElement("div");
-    dot.className = "dot-star";
-    const size = (Math.random() * 2 + 1).toFixed(1);
-    dot.style.width = size + "px";
-    dot.style.height = size + "px";
-    dot.style.left = (Math.random() * 100).toFixed(1) + "%";
-    dot.style.top = (Math.random() * 100).toFixed(1) + "%";
-    dot.style.animationDuration = (2 + Math.random() * 3).toFixed(2) + "s";
-    dot.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
-    box.appendChild(dot);
-  }
-})();
 
 document.getElementById("frame-back-btn").addEventListener("click", () => {
   contentFrame.src = "";
