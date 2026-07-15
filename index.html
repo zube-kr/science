@@ -468,7 +468,7 @@ footer{
       <li>① 과학과 인류</li>
       <li>② 생물의 다양성</li>
       <li>③ 열과 우리 생활</li>
-      <li>④ 물질의 상태 변화</li>
+      <li onclick="openSubject('mul-sangtae-byeonhwa')">④ 물질의 상태 변화</li>
       <li>⑤ 힘의 작용</li>
       <li>⑥ 기체의 성질</li>
       <li>⑦ 태양계</li>
@@ -1002,6 +1002,17 @@ const ELEMENTS_URL = "elements.html";
 const BRAIN_URL = "brain.html";
 
 const topicsData = {
+  "mul-sangtae-byeonhwa": {
+    title: "④ 물질의 상태 변화",
+    posts: [
+      {
+        title: "사라진 손소독제",
+        desc: "손소독제가 시간이 지나면 사라지는 까닭, 증발 현상을 알아보는 학습 자료입니다.",
+        url: "https://sciencej1.cafe24.com/html5/sci1/evaporation.html",
+        ready: true
+      }
+    ]
+  },
   "mul-teukseong": {
     title: "① 물질의 특성",
     posts: [
