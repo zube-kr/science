@@ -33,7 +33,7 @@ html,body{
   height:100%;
   overflow:hidden;
   font-family:var(--font-kr);
-  background:#02040a;
+  background:#1a2733;
 }
 
 body{
@@ -648,6 +648,61 @@ for (let i = 0; i < STAR_COUNT; i++) {
 }
 
 // ==========================
+// 컬러 스파클 (다이아몬드 반짝임)
+// ==========================
+const SPARKLE_COLORS = ["#ff8b7a","#ffd166","#c792ea","#6ee7ff","#ff6f9c","#8de3c4"];
+const sparkles = [];
+const SPARKLE_COUNT = 55;
+
+for (let i = 0; i < SPARKLE_COUNT; i++) {
+  sparkles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 5 + 3,
+    color: SPARKLE_COLORS[Math.floor(Math.random() * SPARKLE_COLORS.length)],
+    filled: Math.random() > 0.4,
+    alpha: Math.random(),
+    speed: 0.01 + Math.random() * 0.02,
+    rotate: Math.random() * Math.PI
+  });
+}
+
+function drawDiamond(x, y, size, color, filled){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.beginPath();
+  ctx.moveTo(0, -size);
+  ctx.lineTo(size * 0.55, 0);
+  ctx.lineTo(0, size);
+  ctx.lineTo(-size * 0.55, 0);
+  ctx.closePath();
+
+  if (filled) {
+    ctx.fillStyle = color;
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawSparkles(){
+  sparkles.forEach(s => {
+    s.alpha += s.speed;
+    const a = 0.35 + Math.sin(s.alpha) * 0.35 + 0.3;
+
+    ctx.globalAlpha = Math.max(0, Math.min(1, a));
+    ctx.shadowColor = s.color;
+    ctx.shadowBlur = s.filled ? 6 : 0;
+    drawDiamond(s.x, s.y, s.size, s.color, s.filled);
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+  });
+}
+
+// ==========================
 // 성운 생성
 // ==========================
 const nebula = [];
@@ -980,6 +1035,7 @@ function animate(){
   drawNebula();
   drawDust();
   drawStars();
+  drawSparkles();
   drawOrion();
   drawDipper();
   drawMeteors();
@@ -1009,6 +1065,12 @@ const topicsData = {
         title: "사라진 손소독제",
         desc: "손소독제가 시간이 지나면 사라지는 까닭, 증발 현상을 알아보는 학습 자료입니다.",
         url: "https://sciencej1.cafe24.com/html5/sci1/evaporation.html",
+        ready: true
+      },
+      {
+        title: "2. 물질의 상태 변화",
+        desc: "물질의 상태 변화(융해, 응고, 기화, 액화, 승화)를 알아보는 학습 자료입니다.",
+        url: "https://sciencej1.cafe24.com/html5/changeofstate/changeofstate.html",
         ready: true
       }
     ]
