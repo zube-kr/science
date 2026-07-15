@@ -492,13 +492,13 @@ footer{
   <details class="grade">
     <summary>📕 중학교 3학년</summary>
     <ul>
-      <li>① 화학 반응</li>
-      <li>② 기권과 날씨</li>
-      <li>③ 운동과 에너지</li>
-      <li>④ 자극과 반응</li>
-      <li>⑤ 생식과 유전</li>
-      <li>⑥ 에너지 전환</li>
-      <li>⑦ 우주 탐사</li>
+      <li onclick="openSubject('hwahak-banung')">① 화학 반응</li>
+      <li onclick="openSubject('gigwon-nalssi')">② 기권과 날씨</li>
+      <li onclick="openSubject('undong-energy')">③ 운동과 에너지</li>
+      <li onclick="openSubject('jageuk-banung')">④ 자극과 반응</li>
+      <li onclick="openSubject('saengsik-yujeon')">⑤ 생식과 유전</li>
+      <li onclick="openSubject('energy-jeonhwan')">⑥ 에너지 전환</li>
+      <li onclick="openSubject('uju-tamsa')">⑦ 우주 탐사</li>
     </ul>
   </details>
 
@@ -998,6 +998,9 @@ animate();
 // 예) "https://아이디.github.io/저장소이름/elements.html"
 const ELEMENTS_URL = "elements.html";
 
+// ⚠️ brain.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const BRAIN_URL = "brain.html";
+
 const topicsData = {
   "mul-teukseong": {
     title: "① 물질의 특성",
@@ -1024,7 +1027,27 @@ const topicsData = {
   "sikmul-energy": { title: "⑤ 식물과 에너지", posts: [ { title: "식물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
   "dongmul-energy": { title: "⑥ 동물과 에너지", posts: [ { title: "동물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
   "jeongi-jagi": { title: "⑦ 전기와 자기", posts: [ { title: "전기와 자기 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
-  "byeol-uju": { title: "⑧ 별과 우주", posts: [ { title: "별과 우주 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] }
+  "byeol-uju": { title: "⑧ 별과 우주", posts: [ { title: "별과 우주 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+
+  "hwahak-banung": { title: "① 화학 반응", posts: [ { title: "화학 반응 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "gigwon-nalssi": { title: "② 기권과 날씨", posts: [ { title: "기권과 날씨 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "undong-energy": { title: "③ 운동과 에너지", posts: [ { title: "운동과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "jageuk-banung": {
+    title: "④ 자극과 반응",
+    posts: [
+      {
+        title: "뇌의 구조",
+        desc: "대뇌·간뇌·중뇌·소뇌·연수·척수를 클릭해서 각 부위의 기능을 알아보는 인터랙티브 자료입니다.",
+        url: BRAIN_URL,
+        ready: true
+      },
+      { title: "뉴런과 신경계", desc: "준비 중인 콘텐츠입니다.", ready: false },
+      { title: "자극의 전달 경로", desc: "준비 중인 콘텐츠입니다.", ready: false }
+    ]
+  },
+  "saengsik-yujeon": { title: "⑤ 생식과 유전", posts: [ { title: "생식과 유전 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "energy-jeonhwan": { title: "⑥ 에너지 전환", posts: [ { title: "에너지 전환 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "uju-tamsa": { title: "⑦ 우주 탐사", posts: [ { title: "우주 탐사 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] }
 };
 
 const viewHome = document.getElementById("view-home");
