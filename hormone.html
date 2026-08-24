@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>항상성 유지에 비유할 수 있는 장치 찾아보기</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Pretendard", "Noto Sans KR", Arial, sans-serif;
+        background: #f3f6fb;
+        color: #1f2937;
+        line-height: 1.7;
+    }
+
+    .container {
+        width: min(1100px, 94%);
+        margin: 30px auto 60px;
+    }
+
+    /* 상단 헤더 */
+    .hero {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: white;
+        border-radius: 24px;
+        padding: 35px 40px;
+        box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
+        margin-bottom: 22px;
+    }
+
+    .hero .small-title {
+        font-size: 15px;
+        opacity: 0.85;
+        margin-bottom: 5px;
+    }
+
+    .hero h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 38px);
+        letter-spacing: -1px;
+    }
+
+    .hero p {
+        margin: 12px 0 0;
+        opacity: 0.95;
+    }
+
+    /* 학생 정보 */
+    .info-card {
+        background: white;
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        margin-bottom: 20px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.5fr;
+        gap: 15px;
+    }
+
+    label {
+        font-weight: 700;
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    input,
+    textarea,
+    select {
+        width: 100%;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        font-family: inherit;
+        outline: none;
+        transition: 0.2s;
+        background: #fff;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 4px rgba(79,70,229,0.1);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    /* 활동 카드 */
+    .section {
+        background: white;
+        border-radius: 20px;
+        margin-bottom: 22px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+
+    .section-title {
+        padding: 20px 25px;
+        background: #eef2ff;
+        border-bottom: 1px solid #e0e7ff;
+    }
+
+    .section-title h2 {
+        margin: 0;
+        color: #3730a3;
+        font-size: 22px;
+    }
+
+    .section-title p {
+        margin: 5px 0 0;
+        color: #4b5563;
+        font-size: 14px;
+    }
+
+    .section-content {
+        padding: 25px;
+    }
+
+    /* 핵심역량 */
+    .competency {
+        border-left: 5px solid #4f46e5;
+        background: #f8faff;
+        padding: 18px 20px;
+        border-radius: 12px;
+        margin-bottom: 22px;
+    }
+
+    .competency strong {
+        color: #3730a3;
+    }
+
+    /* 개념 입력 */
+    .concept-box {
+        margin-bottom: 20px;
+    }
+
+    .concept-number {
+        display: inline-flex;
+        width: 32px;
+        height: 32px;
+        justify-content: center;
+        align-items: center;
+        background: #4f46e5;
+        color: white;
+        border-radius: 50%;
+        margin-right: 8px;
+        font-weight: 700;
+    }
+
+    /* 예시 */
+    .example {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 15px;
+        padding: 18px;
+        margin: 20px 0;
+    }
+
+    .example-title {
+        color: #047857;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .example-text {
+        color: #064e3b;
+    }
+
+    /* 장치 찾기 */
+    .device-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .device-card {
+        background: #fafafa;
+        border: 2px dashed #c7d2fe;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+
+    .device-card h3 {
+        margin-top: 0;
+        color: #4338ca;
+    }
+
+    /* 질문 */
+    .question {
+        margin-bottom: 25px;
+    }
+
+    .question-title {
+        font-weight: 800;
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    /* 버튼 */
+    .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    button {
+        border: none;
+        border-radius: 12px;
+        padding: 13px 20px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+    }
+
+    .btn-green {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-gray {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-red {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    /* 저장 상태 */
+    .save-status {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #111827;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 30px;
+        font-size: 13px;
+        opacity: 0.9;
+        z-index: 100;
+    }
+
+    /* 진행률 */
+    .progress-area {
+        background: white;
+        border-radius: 16px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .progress-top {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .progress-bar {
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #4f46e5, #2563eb);
+        transition: width 0.3s;
+    }
+
+    /* 제출 미리보기 */
+    .preview {
+        display: none;
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 25px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .preview h2 {
+        color: #3730a3;
+    }
+
+    .preview-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .preview-label {
+        font-weight: 800;
+        color: #4f46e5;
+    }
+
+    /* 모바일 */
+    @media (max-width: 700px) {
+
+        .hero {
+            padding: 25px;
+        }
+
+        .info-grid,
+        .device-header {
+            grid-template-columns: 1fr;
+        }
+
+        .section-content {
+            padding: 18px;
+        }
+
+        .actions button {
+            width: 100%;
+        }
+    }
+
+    /* 인쇄 */
+    @media print {
+
+        body {
+            background: white;
+        }
+
+        .hero {
+            color: black;
+            background: white;
+            box-shadow: none;
+            border: 2px solid #ddd;
+        }
+
+        .actions,
+        .save-status,
+        .progress-area {
+            display: none !important;
+        }
+
+        .section {
+            box-shadow: none;
+            border: 1px solid #ddd;
+            break-inside: avoid;
+        }
+
+        input,
+        textarea {
+            border: 1px solid #999;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 제목 -->
+    <div class="hero">
+        <div class="small-title">Ⅳ-2. 신경계와 호르몬 · 자유학기제 활동</div>
+        <h1>항상성 유지에 비유할 수 있는<br>장치 찾아보기</h1>
+        <p>
+            우리 몸의 항상성 유지와 비슷한 원리로 작동하는 장치를 찾아보고
+            그 장치의 입장에서 작동 과정을 설명해 봅시다.
+        </p>
+    </div>
+
+    <!-- 학생 정보 -->
+    <div class="info-card">
+
+        <div class="info-grid">
+
+            <div>
+                <label for="date">날짜</label>
+                <input type="date" id="date">
+            </div>
+
+            <div>
+                <label for="group">모둠 이름</label>
+                <input type="text" id="group" placeholder="예: 항상성 탐구단">
+            </div>
+
+            <div>
+                <label for="student">이름</label>
+                <input type="text" id="student" placeholder="이름을 입력하세요">
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 진행률 -->
+    <div class="progress-area">
+
+        <div class="progress-top">
+            <span>학습 활동 진행률</span>
+            <span id="progressText">0%</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+    </div>
+
+
+    <!-- 핵심역량 -->
+    <div class="section">
+
+        <div class="section-title">
+            <h2>🔎 핵심역량 키우기</h2>
+            <p>과학적 문제 해결력</p>
+        </div>
+
+        <div class="section-content">
+
+            <div class="competency">
+
+                <strong>과학적 문제 해결력</strong>
+
+                <p>
+                    우리 몸에서 항상성이 유지되는 것과 같이
+                    특정 조건을 일정하게 유지하는 장치를 주변에서 찾아보고,
+                    그 장치의 입장에서 작동 과정을 설명하는 대사를 써 봅시다.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 1번 개념 -->
+    <div class="section">
+
+        <div class="section-title">
+            <h2>🧠 1. 교과 개념 확인하기</h2>
+            <p>활동과 관계된 과학 개념을 정리해 봅시다.</p>
+        </div>
+
+        <div class="section-content">
+
+            <div class="concept-box">
+
+                <label>
+                    <span class="concept-number">①</span>
+                    항상성이란?
+                </label>
+
+                <textarea
+                    id="homeostasis"
+                    placeholder="항상성의 의미를 자신의 말로 설명해 보세요."
+                ></textarea>
+
+            </div>
+
+
+            <div class="concept-box">
+
+                <label>
+                    <span class="concept-number">②</span>
+                    체온 조절 과정
+                </label>
+
+                <textarea
+                    id="temperature"
+                    placeholder="체온이 높아졌을 때와 낮아졌을 때를 중심으로 정리해 보세요."
+                ></textarea>
+
+            </div>
+
+
+            <div class="concept-box">
+
+                <label>
+                    <span class="concept-number">③</span>
+                    혈당량 조절 과정
+                </label>
+
+                <textarea
+                    id="bloodSugar"
+                    placeholder="혈당량이 높아졌을 때와 낮아졌을 때를 중심으로 정리해 보세요."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 예시 -->
+    <div class="section">
+
+        <div class="section-title">
+            <h2>💡 예시 살펴보기</h2>
+            <p>장치의 입장에서 작동 과정을 표현해 봅시다.</p>
+        </div>
+
+        <div class="section-content">
+
+            <div class="example">
+
+                <div class="example-title">
+                    예시 — 에어컨
+                </div>
+
+                <div class="example-text">
+
+                    안녕, 나는 에어컨이야.
+                    나는 실내 온도가 설정한 온도보다 높아지면
+                    차가운 공기를 내보내고,
+                    실내 온도가 설정한 온도보다 낮아지면 작동을 멈춰서
+                    실내 온도를 설정한 온도로 유지하는 기능을 해.
+
+                </div>
+
+            </div>
+
+            <p>
+                <strong>💭 생각해 보기</strong><br>
+                에어컨은 어떤 조건을 감지하고, 어떤 행동을 하여
+                일정한 상태를 유지하고 있을까요?
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- 2번 장치 찾기 -->
+    <div class="section">
+
+        <div class="section-title">
+            <h2>🔧 2. 항상성을 유지하는 장치 찾아보기</h2>
+            <p>주변에서 특정 조건을 일정하게 유지하는 장치를 찾아봅시다.</p>
+        </div>
+
+        <div class="section-content">
+
+            <div class="device-header">
+
+                <div>
+                    <label for="device">내가 찾은 장치</label>
+
+                    <input
+                        type="text"
+                        id="device"
+                        placeholder="예: 냉장고, 전기밥솥, 보일러..."
+                    >
+                </div>
+
+                <div>
+                    <label for="condition">일정하게 유지하는 조건</label>
+
+                    <input
+                        type="text"
+                        id="condition"
+                        placeholder="예: 온도, 습도, 밝기..."
+                    >
+                </div>
+
+            </div>
+
+
+            <div class="device-card">
+
+                <h3>🔍 장치의 작동 원리 분석</h3>
+
+                <div class="question">
+
+                    <div class="question-title">
+                        ① 이 장치는 어떤 조건을 감지하나요?
+                    </div>
+
+                    <textarea
+                        id="detect"
+                        placeholder="장치가 감지하거나 확인하는 조건을 적어보세요."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="question">
+
+                    <div class="question-title">
+                        ② 조건이 기준보다 높거나 낮아지면 어떻게 작동하나요?
+                    </div>
+
+                    <textarea
+                        id="action"
+                        placeholder="조건의 변화에 따라 장치가 어떤 행동을 하는지 적어보세요."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="question">
+
+                    <div class="question-title">
+                        ③ 결과적으로 무엇을 일정하게 유지하나요?
+                    </div>
+
+                    <textarea
+                        id="result"
+                        placeholder="장치가 최종적으로 일정하게 유지하는 상태를 적어보세요."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 대사 작성 -->
+    <div class="section">
+
+        <div class="section-title">
+            <h2>🎭 장치가 되어 말해 보기</h2>
+            <p>찾은 장치의 입장에서 작동 과정을 대사로 표현해 봅시다.</p>
+        </div>
+
+        <div class="section-content">
+
+            <div class="competency">
+
+                <strong>작성 방법</strong>
+
+                <p>
+                    "안녕, 나는 ○○야."로 시작해도 좋습니다.
+                    <br>
+                    <strong>조건 변화 → 장치의 반응 → 일정한 상태 유지</strong>
+                    가 드러나도록 작성해 보세요.
+                </p>
+
+            </div>
+
+            <textarea
+                id="dialogue"
+                style="min-height:220px;"
+                placeholder="안녕, 나는 __________야.
+
+나는 ________________________________.
+
+만약 ________________________________하면,
+
+나는 ________________________________.
+
+그래서 ________________________________을/를 일정하게 유지해."
+            ></textarea>
+
+        </div>
+
+    </div>
+
+
+    <!-- 추가 생각 -->
+    <div class="section">
+
+        <div class="section-title">
+            <h2>💬 나의 생각 정리하기</h2>
+            <p>이번 활동을 통해 알게 된 점을 정리해 봅시다.</p>
+        </div>
+
+        <div class="section-content">
+
+            <div class="question">
+
+                <div class="question-title">
+                    이번 활동에서 새롭게 알게 된 점
+                </div>
+
+                <textarea
+                    id="learned"
+                    placeholder="새롭게 알게 된 점을 자유롭게 작성하세요."
+                ></textarea>
+
+            </div>
+
+
+            <div class="question">
+
+                <div class="question-title">
+                    우리 몸의 항상성과 장치의 공통점은 무엇일까요?
+                </div>
+
+                <textarea
+                    id="similarity"
+                    placeholder="두 가지의 공통점을 자신의 말로 설명해 보세요."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 버튼 -->
+    <div class="actions">
+
+        <button
+            class="btn-primary"
+            onclick="showPreview()">
+            📋 작성 내용 확인
+        </button>
+
+        <button
+            class="btn-green"
+            onclick="window.print()">
+            🖨️ 워크시트 인쇄 / PDF
+        </button>
+
+        <button
+            class="btn-gray"
+            onclick="saveData()">
+            💾 지금 저장
+        </button>
+
+        <button
+            class="btn-red"
+            onclick="resetForm()">
+            🔄 처음부터 다시 작성
+        </button>
+
+    </div>
+
+
+    <!-- 미리보기 -->
+    <div
+        class="preview"
+        id="preview">
+
+        <h2>📋 나의 활동지</h2>
+
+        <div class="preview-item">
+            <div class="preview-label">이름</div>
+            <div id="pStudent"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">모둠</div>
+            <div id="pGroup"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">항상성이란</div>
+            <div id="pHomeostasis"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">체온 조절 과정</div>
+            <div id="pTemperature"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">혈당량 조절 과정</div>
+            <div id="pBloodSugar"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">찾은 장치</div>
+            <div id="pDevice"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">일정하게 유지하는 조건</div>
+            <div id="pCondition"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">감지하는 조건</div>
+            <div id="pDetect"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">장치의 반응</div>
+            <div id="pAction"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">일정하게 유지되는 것</div>
+            <div id="pResult"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">장치의 대사</div>
+            <div id="pDialogue"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">새롭게 알게 된 점</div>
+            <div id="pLearned"></div>
+        </div>
+
+        <div class="preview-item">
+            <div class="preview-label">항상성과 장치의 공통점</div>
+            <div id="pSimilarity"></div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="save-status" id="saveStatus">
+    자동 저장 준비됨
+</div>
+
+
+<script>
+
+const fields = [
+    "date",
+    "group",
+    "student",
+    "homeostasis",
+    "temperature",
+    "bloodSugar",
+    "device",
+    "condition",
+    "detect",
+    "action",
+    "result",
+    "dialogue",
+    "learned",
+    "similarity"
+];
+
+
+/* -----------------------------
+   자동 저장
+----------------------------- */
+
+function saveData() {
+
+    const data = {};
+
+    fields.forEach(id => {
+
+        const element = document.getElementById(id);
+
+        if (element) {
+            data[id] = element.value;
+        }
+
+    });
+
+    localStorage.setItem(
+        "homeostasisWorksheet",
+        JSON.stringify(data)
+    );
+
+    showSaved();
+
+    updateProgress();
+}
+
+
+/* -----------------------------
+   저장된 내용 불러오기
+----------------------------- */
+
+function loadData() {
+
+    const saved =
+        localStorage.getItem("homeostasisWorksheet");
+
+    if (!saved) return;
+
+    try {
+
+        const data = JSON.parse(saved);
+
+        fields.forEach(id => {
+
+            const element = document.getElementById(id);
+
+            if (element && data[id] !== undefined) {
+                element.value = data[id];
+            }
+
+        });
+
+        showSaved("저장된 내용을 불러왔어요.");
+
+    } catch(error) {
+
+        console.log("저장 데이터 불러오기 오류");
+
+    }
+
+}
+
+
+/* -----------------------------
+   저장 표시
+----------------------------- */
+
+function showSaved(message = "자동 저장되었습니다.") {
+
+    const status =
+        document.getElementById("saveStatus");
+
+    status.textContent = message;
+
+    setTimeout(() => {
+
+        status.textContent = "자동 저장 중...";
+
+    }, 1500);
+
+}
+
+
+/* -----------------------------
+   입력할 때 자동 저장
+----------------------------- */
+
+fields.forEach(id => {
+
+    const element =
+        document.getElementById(id);
+
+    if (element) {
+
+        element.addEventListener("input", () => {
+
+            saveData();
+
+        });
+
+    }
+
+});
+
+
+/* -----------------------------
+   진행률 계산
+----------------------------- */
+
+function updateProgress() {
+
+    let completed = 0;
+
+    fields.forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (
+            element &&
+            element.value.trim().length > 0
+        ) {
+            completed++;
+        }
+
+    });
+
+    const percent =
+        Math.round(
+            completed / fields.length * 100
+        );
+
+    document.getElementById("progressText")
+        .textContent = percent + "%";
+
+    document.getElementById("progressFill")
+        .style.width = percent + "%";
+}
+
+
+/* -----------------------------
+   미리보기
+----------------------------- */
+
+function showPreview() {
+
+    const map = {
+
+        student: "pStudent",
+        group: "pGroup",
+        homeostasis: "pHomeostasis",
+        temperature: "pTemperature",
+        bloodSugar: "pBloodSugar",
+        device: "pDevice",
+        condition: "pCondition",
+        detect: "pDetect",
+        action: "pAction",
+        result: "pResult",
+        dialogue: "pDialogue",
+        learned: "pLearned",
+        similarity: "pSimilarity"
+
+    };
+
+    Object.keys(map).forEach(sourceId => {
+
+        const source =
+            document.getElementById(sourceId);
+
+        const target =
+            document.getElementById(map[sourceId]);
+
+        if (source && target) {
+
+            target.textContent =
+                source.value || "작성하지 않았습니다.";
+
+        }
+
+    });
+
+    const preview =
+        document.getElementById("preview");
+
+    preview.style.display = "block";
+
+    preview.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+/* -----------------------------
+   전체 초기화
+----------------------------- */
+
+function resetForm() {
+
+    const answer =
+        confirm(
+            "작성한 내용을 모두 삭제하고 처음부터 다시 작성할까요?"
+        );
+
+    if (!answer) return;
+
+    localStorage.removeItem(
+        "homeostasisWorksheet"
+    );
+
+    fields.forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+            element.value = "";
+        }
+
+    });
+
+    updateProgress();
+
+    document.getElementById("preview")
+        .style.display = "none";
+
+    showSaved("새 활동지를 시작합니다.");
+
+}
+
+
+/* -----------------------------
+   시작
+----------------------------- */
+
+window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadData();
+
+        updateProgress();
+
+        // 오늘 날짜 자동 입력
+        const date =
+            document.getElementById("date");
+
+        if (!date.value) {
+
+            const today =
+                new Date();
+
+            const yyyy =
+                today.getFullYear();
+
+            const mm =
+                String(
+                    today.getMonth() + 1
+                ).padStart(2, "0");
+
+            const dd =
+                String(
+                    today.getDate()
+                ).padStart(2, "0");
+
+            date.value =
+                `${yyyy}-${mm}-${dd}`;
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
