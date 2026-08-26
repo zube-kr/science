@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중단원 마무리 — 상태 변화와 열에너지</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --solid:#4C7EDB;
+    --solid-soft:#E8EEFB;
+    --liquid:#2FB6A3;
+    --liquid-soft:#E4F6F2;
+    --gas:#FF7A45;
+    --gas-soft:#FFEFE6;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1200px 600px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1240px; margin:0 auto; display:flex; flex-direction:column; gap:18px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:2px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--solid),var(--gas)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:760px; }
+
+  .layout{ display:grid; grid-template-columns:1.05fr 0.95fr; gap:18px; align-items:start; }
+  @media (max-width:880px){ .layout{ grid-template-columns:1fr; } }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:12px; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+
+  /* ---------- 왼쪽: 확인 문제 카드 ---------- */
+  .item{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:13px 12px; border-radius:14px; border:1px solid var(--line);
+    margin-bottom:10px; background:#FBFAF6;
+  }
+  .item-icon{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+    background:var(--solid-soft);
+  }
+  .item-text{ font-size:13.5px; line-height:1.8; flex:1; }
+  .item-feedback{ display:block; margin-top:4px; font-size:12px; font-weight:700; min-height:16px; }
+  .item-feedback.ok{ color:var(--ok); }
+  .item-feedback.bad{ color:var(--bad); }
+
+  .blank-input{
+    display:inline-block; width:92px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13px; padding:1px 4px; background:transparent;
+  }
+
+  /* ---------- 오른쪽: 중단원 질문 ---------- */
+  .big-question{
+    background:#FFF7DE; border:1px solid #EEDDA0; border-radius:14px;
+    padding:14px 16px; margin-bottom:16px;
+  }
+  .big-question .kicker{ font-size:11.5px; color:#8a7228; font-weight:700; margin-bottom:4px; }
+  .big-question .q{ font-size:15px; font-weight:800; color:#5B4A1E; line-height:1.5; }
+
+  .step{
+    border:1px solid var(--line); border-radius:14px; padding:14px 15px;
+    margin-bottom:12px; background:#FBFAF6;
+  }
+  .step-head{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+  .step-num{
+    width:26px; height:26px; border-radius:50%; background:var(--solid); color:#fff;
+    font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .step-title{ font-size:13.5px; font-weight:800; }
+  .step-body{ font-size:13.5px; line-height:1.8; color:var(--ink); }
+
+  .graph-choices{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px; }
+  .graph-choice{
+    border:1.5px solid var(--line); border-radius:12px; background:#fff; cursor:pointer;
+    padding:8px 6px 10px; text-align:center; transition:.15s;
+  }
+  .graph-choice:hover{ border-color:var(--solid); }
+  .graph-choice.picked{ border-color:var(--solid); background:var(--solid-soft); }
+  .graph-choice svg{ width:100%; height:60px; display:block; }
+  .graph-choice .g-label{ font-size:10.5px; font-weight:800; margin-top:4px; color:var(--ink-soft); }
+  .graph-choice.picked .g-label{ color:var(--solid); }
+
+  /* ---------- 공용: 학생 정보 / 제출 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+
+  footer{ max-width:1240px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅳ. 물질의 상태 변화 · 중단원 마무리</div>
+    <h1><span>상태 변화와 열에너지</span> — 배운 내용 정리하기</h1>
+    <p class="sub">왼쪽 확인 문제와 오른쪽 3단계 질문을 모두 풀고 나면, 아래 <b>제출하고 채점받기</b> 버튼으로 한 번에 채점하고 선생님 스프레드시트에도 자동으로 기록할 수 있어요.</p>
+  </header>
+
+  <div class="layout">
+    <!-- 왼쪽: 핵심 개념 확인 -->
+    <section class="card">
+      <div class="card-title"><span class="badge">확인 문제</span>빈칸을 채워 개념을 정리해요</div>
+
+      <div class="item">
+        <div class="item-icon" style="background:var(--gas-soft)">🔥</div>
+        <div class="item-text">
+          <input type="text" class="blank-input" data-key="i1" data-answer="열에너지" placeholder="무엇?">
+          : 상태 변화가 일어날 때 흡수하거나 방출하는 것.
+          <span class="item-feedback" data-fb="i1"></span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon">💨</div>
+        <div class="item-text">
+          기화는 열에너지를
+          <input type="text" class="blank-input" data-key="i2" data-answer="흡수" placeholder="흡수/방출">
+          하는 상태 변화이다.
+          <span class="item-feedback" data-fb="i2"></span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon" style="background:var(--liquid-soft)">🧊</div>
+        <div class="item-text">
+          응고는 열에너지를
+          <input type="text" class="blank-input" data-key="i3" data-answer="방출" placeholder="흡수/방출">
+          하는 상태 변화이다.
+          <span class="item-feedback" data-fb="i3"></span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon">↔️</div>
+        <div class="item-text">
+          열에너지를 흡수하는 상태 변화가 일어날 때 입자 사이의 거리가
+          <input type="text" class="blank-input" data-key="i4" data-answer="멀어|멀어진다" placeholder="가까워/멀어">
+          진다.
+          <span class="item-feedback" data-fb="i4"></span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon">🤏</div>
+        <div class="item-text">
+          열에너지를 방출하는 상태 변화가 일어날 때 입자 사이의 거리가
+          <input type="text" class="blank-input" data-key="i5" data-answer="가까워|가까워진다" placeholder="가까워/멀어">
+          진다.
+          <span class="item-feedback" data-fb="i5"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 오른쪽: 중단원 질문 -->
+    <section class="card">
+      <div class="card-title"><span class="badge" style="background:var(--gas)">중단원 질문</span>단계별로 정리하며 질문을 해결해요</div>
+
+      <div class="big-question">
+        <div class="kicker">각 단계를 정리하며 중단원 질문을 해결해 보자</div>
+        <div class="q">어떻게 여름에도 석빙고에 얼음을 보관했을까?</div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">1</div><div class="step-title">얼음이 녹을 때 얼음 주위의 온도는 어떻게 될까?</div></div>
+        <div class="step-body">
+          얼음이 녹을 때 얼음 주위의 온도는
+          <input type="text" class="blank-input" data-key="s1" data-answer="낮아|낮아진다" placeholder="높아/낮아">
+          진다.
+          <span class="item-feedback" data-fb="s1"></span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">2</div><div class="step-title">얼음이 녹아 물이 될 때, 시간에 따른 온도 변화를 예상해 보자</div></div>
+        <div class="step-body">아래 세 그래프 중 알맞은 것을 골라보세요.</div>
+        <div class="graph-choices" data-answer="C">
+          <div class="graph-choice" data-value="A">
+            <svg viewBox="0 0 100 60"><polyline points="8,30 92,30" fill="none" stroke="#B84B3C" stroke-width="3"/></svg>
+            <div class="g-label">A. 계속 일정</div>
+          </div>
+          <div class="graph-choice" data-value="B">
+            <svg viewBox="0 0 100 60"><polyline points="8,50 92,10" fill="none" stroke="#B84B3C" stroke-width="3"/></svg>
+            <div class="g-label">B. 계속 상승</div>
+          </div>
+          <div class="graph-choice" data-value="C">
+            <svg viewBox="0 0 100 60"><polyline points="8,50 35,25 65,25 92,10" fill="none" stroke="#B84B3C" stroke-width="3"/></svg>
+            <div class="g-label">C. 상승-일정-상승</div>
+          </div>
+        </div>
+        <span class="item-feedback" data-fb="s2"></span>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">3</div><div class="step-title">어떻게 여름에도 석빙고에 얼음을 보관했을까?</div></div>
+        <div class="step-body">
+          석빙고에 저장한 얼음의 일부가 물로
+          <input type="text" class="blank-input" data-key="s3a" data-answer="융해" placeholder="융해/응고">
+          할 때 주위의 열에너지를
+          <input type="text" class="blank-input" data-key="s3b" data-answer="흡수" placeholder="흡수/방출">
+          하기 때문에 석빙고 안의 온도가 낮게 유지되어 여름에도 얼음을 보관할 수 있었다.
+          <span class="item-feedback" data-fb="s3"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--liquid)">제출</span>학생 정보를 입력하고 채점받기</div>
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 중단원 마무리 — 상태 변화와 열에너지</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+  state-change-energy.html 에 있는 안내와 같은 방식입니다. 같은 웹 앱
+  주소(SPREADSHEET_WEBHOOK_URL)를 그대로 써도 되고, 이 워크시트 전용
+  주소를 새로 만들어 아래 값에 넣어도 됩니다. Apps Script 예시는
+  state-change-energy.html 상단 주석을 참고하세요. (d.worksheet 값으로
+  시트 탭이 자동으로 나뉩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "";
+</script>
+
+<script>
+document.querySelectorAll(".graph-choice").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const group = btn.parentElement;
+    group.querySelectorAll(".graph-choice").forEach(b => b.classList.remove("picked"));
+    btn.classList.add("picked");
+  });
+});
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+function checkBlank(input){
+  const answers = input.dataset.answer.split("|").map(normalize);
+  return answers.includes(normalize(input.value));
+}
+
+function setFeedback(key, ok, correctText){
+  const el = document.querySelector(`[data-fb="${key}"]`);
+  if(!el) return;
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "item-feedback " + (ok ? "ok" : "bad");
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const blanks = Array.from(document.querySelectorAll(".blank-input"));
+  const graphGroup = document.querySelector(".graph-choices");
+  const graphPicked = graphGroup.querySelector(".graph-choice.picked");
+
+  if(blanks.some(b => !b.value.trim()) || !graphPicked){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  let correctCount = 0;
+  const total = blanks.length + 1;
+  const payload = {
+    worksheet: "4_중단원마무리",
+    grade, classNum, number, name
+  };
+
+  const blankResults = {};
+  blanks.forEach(b => {
+    const ok = checkBlank(b);
+    if(ok) correctCount++;
+    blankResults[b.dataset.key] = ok;
+    payload[b.dataset.key] = b.value;
+  });
+
+  ["i1","i2","i3","i4","i5","s1"].forEach(key => {
+    const input = document.querySelector(`[data-key="${key}"]`);
+    setFeedback(key, blankResults[key], input.dataset.answer.split("|")[0]);
+  });
+  setFeedback("s3", blankResults.s3a && blankResults.s3b, "융해 / 흡수");
+
+  const graphOk = graphPicked.dataset.value === graphGroup.dataset.answer;
+  if(graphOk) correctCount++;
+  setFeedback("s2", graphOk, "C. 상승-일정-상승");
+  payload.s2_choice = graphPicked.dataset.value;
+
+  wsResult.textContent = `${correctCount} / ${total} 개 정답`;
+  wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
+  payload.score = String(correctCount);
+  payload.total = String(total);
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(b => b.value = "");
+  document.querySelectorAll(".graph-choice.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".item-feedback").forEach(f => { f.textContent = ""; f.className = "item-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
