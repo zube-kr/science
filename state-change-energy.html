@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상태 변화와 에너지 출입</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --solid:#4C7EDB;
+    --solid-soft:#E8EEFB;
+    --liquid:#2FB6A3;
+    --liquid-soft:#E4F6F2;
+    --gas:#FF7A45;
+    --gas-soft:#FFEFE6;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--solid),var(--gas)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:680px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 그래프 ---------- */
+  .graph-area{ display:flex; flex-direction:column; gap:10px; }
+  .graph-svg-wrap{ position:relative; width:100%; }
+  svg.graph{ width:100%; height:auto; display:block; }
+  .seg-hit{ fill:transparent; cursor:pointer; }
+  .seg-hit:hover{ fill:rgba(76,126,219,0.06); }
+  .graph-line{ fill:none; stroke:#B84B3C; stroke-width:3; stroke-linejoin:round; }
+  .seg-label{ font-size:11px; fill:var(--ink-soft); text-anchor:middle; font-weight:700; }
+  .axis-label{ font-size:10.5px; fill:var(--ink-soft); }
+
+  .callout{
+    min-height:38px;
+    background:#FFF7DE;
+    border:1px solid #EEDDA0;
+    border-radius:12px;
+    padding:9px 13px;
+    font-size:12.5px;
+    line-height:1.55;
+    color:#5B4A1E;
+  }
+
+  .particle-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:6px; }
+  .stage{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:8px 4px 10px; border-radius:12px; border:1px solid transparent;
+    cursor:pointer; transition:border-color .15s ease, background .15s ease;
+  }
+  .stage:hover{ background:#FAF8F2; }
+  .stage.active{ border-color:var(--line); background:#FAF8F2; }
+  .stage canvas{ width:100%; max-width:120px; aspect-ratio:1/1; display:block; }
+  .stage-name{ font-size:11.5px; font-weight:800; }
+  .stage-hint{ font-size:9.5px; color:var(--ink-soft); }
+
+  /* ---------- 워크시트 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{
+    border-top:1px dashed var(--line);
+    padding:16px 2px 4px;
+  }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--solid); color:var(--solid); background:var(--solid-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  footer{ max-width:980px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅳ. 물질의 상태 변화 · 3. 상태 변화와 에너지 출입</div>
+    <h1>그래프를 눌러 <span>입자의 움직임</span>을 확인해요</h1>
+    <p class="sub">가열 곡선·냉각 곡선의 각 구간을 클릭하면 그 구간에서 입자가 어떻게 움직이는지 애니메이션으로 보여줍니다. 아래 워크시트를 풀면 채점 후 자동으로 선생님 스프레드시트에 기록돼요.</p>
+  </header>
+
+  <!-- 가열 곡선 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">그림 Ⅳ-14</span>물질을 가열할 때 — 온도 변화와 입자 모형</div>
+    <div class="card-hint">구간을 클릭해 보세요. <b>고체·액체·기체</b> 구간은 바로 재생되고, <b>상태 변화 구간(고체+액체, 액체+기체)</b>은 직접 클릭해서 입자 모형을 확인해요.</div>
+
+    <div class="graph-area">
+      <div class="graph-svg-wrap">
+        <svg class="graph" viewBox="0 0 500 260" data-graph="heating">
+          <polyline class="graph-line" points="0,240 100,180 200,180 300,120 400,120 500,40"></polyline>
+          <text class="axis-label" x="4" y="14">온도(℃)</text>
+          <text class="axis-label" x="496" y="14" text-anchor="end">가열 시간(분) →</text>
+          <rect class="seg-hit" data-seg="0" x="0" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="1" x="100" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="2" x="200" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="3" x="300" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="4" x="400" y="0" width="100" height="260"></rect>
+          <text class="seg-label" x="50" y="252">고체</text>
+          <text class="seg-label" x="150" y="252">고체+액체</text>
+          <text class="seg-label" x="250" y="252">액체</text>
+          <text class="seg-label" x="350" y="252">액체+기체</text>
+          <text class="seg-label" x="450" y="252">기체</text>
+        </svg>
+      </div>
+
+      <div class="callout" id="heating-callout">그래프의 구간을 클릭하면 이 자리에 설명이 나타나요.</div>
+
+      <div class="particle-row" id="heating-stages">
+        <div class="stage" data-graph="heating" data-seg="0" data-phase="solid"><canvas></canvas><div class="stage-name">고체</div><div class="stage-hint">클릭해서 재생</div></div>
+        <div class="stage" data-graph="heating" data-seg="1" data-phase="solid-liquid"><canvas></canvas><div class="stage-name">고체+액체</div><div class="stage-hint">직접 클릭해 보기</div></div>
+        <div class="stage" data-graph="heating" data-seg="2" data-phase="liquid"><canvas></canvas><div class="stage-name">액체</div><div class="stage-hint">클릭해서 재생</div></div>
+        <div class="stage" data-graph="heating" data-seg="3" data-phase="liquid-gas"><canvas></canvas><div class="stage-name">액체+기체</div><div class="stage-hint">직접 클릭해 보기</div></div>
+        <div class="stage" data-graph="heating" data-seg="4" data-phase="gas"><canvas></canvas><div class="stage-name">기체</div><div class="stage-hint">클릭해서 재생</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 냉각 곡선 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">그림 Ⅳ-15</span>물질을 냉각할 때 — 온도 변화와 입자 모형</div>
+    <div class="card-hint">냉각할 때는 물질이 열에너지를 <b>방출</b>합니다. 구간을 클릭해서 입자 운동이 어떻게 둔해지는지 살펴보세요.</div>
+
+    <div class="graph-area">
+      <div class="graph-svg-wrap">
+        <svg class="graph" viewBox="0 0 500 260" data-graph="cooling">
+          <polyline class="graph-line" points="0,40 100,120 200,120 300,180 400,180 500,240"></polyline>
+          <text class="axis-label" x="4" y="14">온도(℃)</text>
+          <text class="axis-label" x="496" y="14" text-anchor="end">냉각 시간(분) →</text>
+          <rect class="seg-hit" data-seg="0" x="0" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="1" x="100" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="2" x="200" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="3" x="300" y="0" width="100" height="260"></rect>
+          <rect class="seg-hit" data-seg="4" x="400" y="0" width="100" height="260"></rect>
+          <text class="seg-label" x="50" y="252">기체</text>
+          <text class="seg-label" x="150" y="252">기체+액체</text>
+          <text class="seg-label" x="250" y="252">액체</text>
+          <text class="seg-label" x="350" y="252">액체+고체</text>
+          <text class="seg-label" x="450" y="252">고체</text>
+        </svg>
+      </div>
+
+      <div class="callout" id="cooling-callout">그래프의 구간을 클릭하면 이 자리에 설명이 나타나요.</div>
+
+      <div class="particle-row" id="cooling-stages">
+        <div class="stage" data-graph="cooling" data-seg="0" data-phase="gas"><canvas></canvas><div class="stage-name">기체</div><div class="stage-hint">클릭해서 재생</div></div>
+        <div class="stage" data-graph="cooling" data-seg="1" data-phase="liquid-gas"><canvas></canvas><div class="stage-name">기체+액체</div><div class="stage-hint">직접 클릭해 보기</div></div>
+        <div class="stage" data-graph="cooling" data-seg="2" data-phase="liquid"><canvas></canvas><div class="stage-name">액체</div><div class="stage-hint">클릭해서 재생</div></div>
+        <div class="stage" data-graph="cooling" data-seg="3" data-phase="solid-liquid"><canvas></canvas><div class="stage-name">액체+고체</div><div class="stage-hint">직접 클릭해 보기</div></div>
+        <div class="stage" data-graph="cooling" data-seg="4" data-phase="solid"><canvas></canvas><div class="stage-name">고체</div><div class="stage-hint">클릭해서 재생</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 스스로 확인 워크시트 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--gas)">워크시트</span>스스로 확인</div>
+    <div class="card-hint">정답을 입력하고 <b>제출하고 채점받기</b>를 누르면 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록됩니다.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        물질을 냉각할 때 상태 변화가 일어나는 동안에는
+        <input type="text" class="blank-input" id="q1-blank" placeholder="무엇을?">
+        를
+        <span class="choice-group" data-answer="방출">
+          <button type="button" class="choice-btn" data-value="흡수">흡수</button>
+          <button type="button" class="choice-btn" data-value="방출">방출</button>
+        </span>
+        하기 때문에 물질의 온도가 일정하게 유지된다.
+      </div>
+      <span class="q-feedback" id="q1-feedback"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        물질이 열에너지를 흡수하여 상태 변화가 일어나면, 입자 운동이
+        <span class="choice-group" data-answer="활발해지고">
+          <button type="button" class="choice-btn" data-value="활발해지고">활발해지고</button>
+          <button type="button" class="choice-btn" data-value="둔해지고">둔해지고</button>
+        </span>
+        입자 사이의 거리는
+        <span class="choice-group" data-answer="멀어지며">
+          <button type="button" class="choice-btn" data-value="가까워지며">가까워지며</button>
+          <button type="button" class="choice-btn" data-value="멀어지며">멀어지며</button>
+        </span>
+        입자 배열은
+        <span class="choice-group" data-answer="불규칙적으로">
+          <button type="button" class="choice-btn" data-value="규칙적으로">규칙적으로</button>
+          <button type="button" class="choice-btn" data-value="불규칙적으로">불규칙적으로</button>
+        </span>
+        변한다.
+      </div>
+      <span class="q-feedback" id="q2-feedback"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 물질의 상태 변화와 에너지 출입</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+
+  1) 구글 스프레드시트를 새로 만들고, 확장 프로그램 → Apps Script 를 엽니다.
+  2) 아래 코드를 붙여넣고 저장합니다.
+
+     function doPost(e){
+       var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("응답")
+                   || SpreadsheetApp.getActiveSpreadsheet().insertSheet("응답");
+       var d = e.parameter;
+       sheet.appendRow([
+         new Date(), d.grade, d.classNum, d.number, d.name,
+         d.q1_blank, d.q1_choice, d.q2_choice1, d.q2_choice2, d.q2_choice3,
+         d.score, d.total
+       ]);
+       return ContentService.createTextOutput("OK");
+     }
+
+  3) 배포 → 새 배포 → 유형: 웹 앱
+     - 실행 대상: 나
+     - 액세스 권한이 있는 사용자: 모든 사용자
+     로 설정하고 배포한 뒤, 발급된 웹 앱 URL을 복사합니다.
+  4) 아래 SPREADSHEET_WEBHOOK_URL 값에 그 주소를 붙여넣으세요.
+     (비워두면 학생 화면에서 채점만 되고 스프레드시트 전송은 생략됩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "";
+</script>
+
+<script>
+/* ==========================================================
+   입자 애니메이션
+=========================================================== */
+const PHASE_CONFIG = {
+  solid:        { fixedCount:16, freeSlowCount:0, freeFastCount:0 },
+  "solid-liquid": { fixedCount:8,  freeSlowCount:8, freeFastCount:0 },
+  liquid:       { fixedCount:0,  freeSlowCount:14, freeFastCount:0 },
+  "liquid-gas": { fixedCount:0,  freeSlowCount:6, freeFastCount:6 },
+  gas:          { fixedCount:0,  freeSlowCount:0, freeFastCount:8 }
+};
+
+const COLOR = {
+  fixed:"#4C7EDB",
+  slow:"#2FB6A3",
+  fast:"#FF7A45"
+};
+
+function gridAnchors(radius){
+  const pts = [];
+  const step = radius / 2.2;
+  for(let gx=-1.5; gx<=1.5; gx++){
+    for(let gy=-1.5; gy<=1.5; gy++){
+      const x = gx*step, y = gy*step;
+      if(Math.hypot(x,y) <= radius-8) pts.push([x,y]);
+    }
+  }
+  return pts;
+}
+
+class ParticleStage{
+  constructor(canvas){
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.particles = [];
+    this.t = 0;
+    this.running = false;
+    this.dpr = Math.max(1, window.devicePixelRatio || 1);
+    this._resize();
+  }
+
+  _resize(){
+    const size = this.canvas.clientWidth || 120;
+    this.canvas.width = size * this.dpr;
+    this.canvas.height = size * this.dpr;
+    this.size = size;
+    this.cx = size/2;
+    this.cy = size/2;
+    this.R = size/2 - 6;
+  }
+
+  setPhase(phaseKey){
+    this._resize();
+    const cfg = PHASE_CONFIG[phaseKey];
+    const anchors = gridAnchors(this.R * 0.82);
+    const isMixedUpperFree = phaseKey === "solid-liquid" || phaseKey === "liquid-gas";
+
+    const particles = [];
+    let anchorIdx = 0;
+
+    // 고정(격자 진동) 입자 — solid-liquid 는 아래쪽 절반에만 배치
+    let fixedAnchors = anchors;
+    if(phaseKey === "solid-liquid"){
+      fixedAnchors = anchors.filter(a => a[1] >= -2);
+    }
+    for(let i=0; i<cfg.fixedCount && i<fixedAnchors.length; i++){
+      const [ax,ay] = fixedAnchors[i];
+      particles.push({
+        mode:"fixed",
+        ax: this.cx+ax, ay:this.cy+ay,
+        x:this.cx+ax, y:this.cy+ay,
+        phase:Math.random()*Math.PI*2,
+        color:COLOR.fixed, r:5.2
+      });
+    }
+
+    for(let i=0; i<cfg.freeSlowCount; i++){
+      const ang = Math.random()*Math.PI*2;
+      const rad = Math.random()*this.R*0.6;
+      const y0 = isMixedUpperFree ? this.cy - Math.random()*this.R*0.6 : this.cy + Math.sin(ang)*rad;
+      particles.push({
+        mode:"free", speedCap:0.55,
+        x:this.cx + Math.cos(ang)*rad,
+        y:y0,
+        vx:(Math.random()-0.5), vy:(Math.random()-0.5),
+        color:COLOR.slow, r:5.2
+      });
+    }
+
+    for(let i=0; i<cfg.freeFastCount; i++){
+      const ang = Math.random()*Math.PI*2;
+      const rad = Math.random()*this.R;
+      particles.push({
+        mode:"free", speedCap:2.1,
+        x:this.cx + Math.cos(ang)*rad,
+        y:this.cy + Math.sin(ang)*rad,
+        vx:(Math.random()-0.5)*2, vy:(Math.random()-0.5)*2,
+        color:COLOR.fast, r:4.4
+      });
+    }
+
+    this.particles = particles;
+    if(!this.running){
+      this.running = true;
+      requestAnimationFrame(()=>this._loop());
+    }
+  }
+
+  _loop(){
+    if(!this.running) return;
+    this.t += 0.06;
+    const ctx = this.ctx, dpr = this.dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,this.size,this.size);
+
+    // 경계 원
+    ctx.beginPath();
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle = "rgba(98,106,120,0.35)";
+    ctx.lineWidth = 1;
+    ctx.arc(this.cx, this.cy, this.R, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    this.particles.forEach(p => {
+      if(p.mode === "fixed"){
+        p.x = p.ax + Math.sin(this.t*2 + p.phase) * 2.3;
+        p.y = p.ay + Math.cos(this.t*2.3 + p.phase) * 2.3;
+      } else {
+        p.vx += (Math.random()-0.5) * 0.09;
+        p.vy += (Math.random()-0.5) * 0.09;
+        const spd = Math.hypot(p.vx, p.vy);
+        if(spd > p.speedCap){ p.vx *= p.speedCap/spd; p.vy *= p.speedCap/spd; }
+        p.x += p.vx;
+        p.y += p.vy;
+
+        const dx = p.x - this.cx, dy = p.y - this.cy;
+        const dist = Math.hypot(dx,dy);
+        const limit = this.R - p.r;
+        if(dist > limit){
+          const nx = dx/dist, ny = dy/dist;
+          const dot = p.vx*nx + p.vy*ny;
+          p.vx -= 2*dot*nx;
+          p.vy -= 2*dot*ny;
+          p.x = this.cx + nx*limit;
+          p.y = this.cy + ny*limit;
+        }
+      }
+
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(()=>this._loop());
+  }
+}
+
+/* ---------- 그래프 ↔ 입자 스테이지 연결 ---------- */
+const CALLOUTS = {
+  heating: {
+    0:"고체 상태에서 열에너지를 흡수하면 입자의 진동이 점점 활발해지면서 온도가 올라가요.",
+    1:"녹는점에서는 흡수한 열에너지가 고체 입자의 결합을 끊는 데(융해) 쓰여서 온도가 잠깐 멈춰요.",
+    2:"액체 상태에서 계속 열에너지를 흡수하면 입자 운동이 더 활발해지며 온도가 다시 올라가요.",
+    3:"끓는점에서는 흡수한 열에너지가 액체 입자를 기체로 만드는 데(기화) 쓰여서 온도가 또 멈춰요.",
+    4:"기체 상태에서는 입자가 매우 빠르고 불규칙하게 움직이며, 계속 가열하면 온도가 계속 올라가요."
+  },
+  cooling: {
+    0:"기체 상태에서 열에너지를 방출하면 입자의 움직임이 점점 느려지며 온도가 내려가요.",
+    1:"이 구간에서는 기체가 액체로 변하며(액화) 방출한 열에너지 때문에 온도가 잠깐 멈춰요.",
+    2:"액체 상태에서 계속 열에너지를 방출하면 입자 운동이 더 느려지며 온도가 다시 내려가요.",
+    3:"이 구간에서는 액체가 고체로 변하며(응고) 방출한 열에너지 때문에 온도가 또 멈춰요.",
+    4:"고체 상태에서는 입자가 제자리에서 규칙적으로 진동만 하며, 계속 냉각하면 온도가 계속 내려가요."
+  }
+};
+
+const PHASE_OF_SEG = {
+  heating: ["solid","solid-liquid","liquid","liquid-gas","gas"],
+  cooling: ["gas","liquid-gas","liquid","solid-liquid","solid"]
+};
+
+const stageMap = new Map(); // "graph-seg" -> ParticleStage
+
+document.querySelectorAll(".stage").forEach(stageEl => {
+  const canvas = stageEl.querySelector("canvas");
+  const ps = new ParticleStage(canvas);
+  stageMap.set(stageEl.dataset.graph + "-" + stageEl.dataset.seg, ps);
+
+  stageEl.addEventListener("click", () => activateSegment(stageEl.dataset.graph, stageEl.dataset.seg));
+});
+
+function activateSegment(graph, seg){
+  const phase = PHASE_OF_SEG[graph][+seg];
+  const ps = stageMap.get(graph + "-" + seg);
+  if(ps) ps.setPhase(phase);
+
+  document.querySelectorAll(`.stage[data-graph="${graph}"]`).forEach(el => {
+    el.classList.toggle("active", el.dataset.seg === seg);
+  });
+
+  const callout = document.getElementById(graph + "-callout");
+  if(callout) callout.textContent = CALLOUTS[graph][seg];
+}
+
+document.querySelectorAll("svg.graph").forEach(svg => {
+  const graph = svg.dataset.graph;
+  svg.querySelectorAll(".seg-hit").forEach(rect => {
+    rect.addEventListener("click", () => activateSegment(graph, rect.dataset.seg));
+  });
+});
+
+// 순수 상태(고체·액체·기체) 구간은 처음부터 재생해서 보여주기
+["heating","cooling"].forEach(graph => {
+  [0,2,4].forEach(seg => activateSegment(graph, String(seg)));
+});
+// 콜아웃은 그래프별로 첫 안내 문구로 초기화
+document.getElementById("heating-callout").textContent = "구간을 클릭해 보세요. 고체·액체·기체 입자 모형이 재생 중이에요.";
+document.getElementById("cooling-callout").textContent = "구간을 클릭해 보세요. 기체·액체·고체 입자 모형이 재생 중이에요.";
+document.querySelectorAll(".stage").forEach(el => el.classList.remove("active"));
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+=========================================================== */
+const blankInput = document.getElementById("q1-blank");
+const choiceGroups = document.querySelectorAll(".choice-group");
+
+choiceGroups.forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const q1Blank = blankInput.value;
+  const q1ChoiceGroup = document.querySelector("#q1 .choice-group");
+  const q1Choice = pickedValue(q1ChoiceGroup);
+
+  const q2Groups = document.querySelectorAll("#q2 .choice-group");
+  const q2Choice1 = pickedValue(q2Groups[0]);
+  const q2Choice2 = pickedValue(q2Groups[1]);
+  const q2Choice3 = pickedValue(q2Groups[2]);
+
+  if(!q1Blank.trim() || !q1Choice || !q2Choice1 || !q2Choice2 || !q2Choice3){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  // 채점
+  const q1BlankOk = normalize(q1Blank) === "열에너지" || normalize(q1Blank).includes("열에너지");
+  const q1ChoiceOk = q1Choice === q1ChoiceGroup.dataset.answer;
+  const q1Ok = q1BlankOk && q1ChoiceOk;
+
+  const q2Ok1 = q2Choice1 === q2Groups[0].dataset.answer;
+  const q2Ok2 = q2Choice2 === q2Groups[1].dataset.answer;
+  const q2Ok3 = q2Choice3 === q2Groups[2].dataset.answer;
+  const q2Ok = q2Ok1 && q2Ok2 && q2Ok3;
+
+  const q1Feedback = document.getElementById("q1-feedback");
+  q1Feedback.textContent = q1Ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: 열에너지 / ${q1ChoiceGroup.dataset.answer})`;
+  q1Feedback.className = "q-feedback " + (q1Ok ? "ok" : "bad");
+
+  const q2Feedback = document.getElementById("q2-feedback");
+  q2Feedback.textContent = q2Ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${q2Groups[0].dataset.answer} / ${q2Groups[1].dataset.answer} / ${q2Groups[2].dataset.answer})`;
+  q2Feedback.className = "q-feedback " + (q2Ok ? "ok" : "bad");
+
+  const correctSubCount = [q1BlankOk, q1ChoiceOk, q2Ok1, q2Ok2, q2Ok3].filter(Boolean).length;
+  const total = 5;
+  wsResult.textContent = `${correctSubCount} / ${total} 개 정답`;
+  wsResult.className = "ws-result " + (correctSubCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    grade, classNum, number, name,
+    q1_blank: q1Blank,
+    q1_choice: q1Choice,
+    q2_choice1: q2Choice1,
+    q2_choice2: q2Choice2,
+    q2_choice3: q2Choice3,
+    score: String(correctSubCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  blankInput.value = "";
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
