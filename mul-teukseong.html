@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>물질의 특성 — 밀도·용해도·끓는점 문제</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --water:#4C7EDB;
+    --water-soft:#E8EEFB;
+    --float:#2FB6A3;
+    --float-soft:#E4F6F2;
+    --sink:#B84B3C;
+    --sink-soft:#FBEAE7;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--water),var(--sink)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:680px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 밀도 실험실 ---------- */
+  .density-lab{ display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:start; }
+  @media (max-width:720px){ .density-lab{ grid-template-columns:1fr; } }
+
+  .object-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  @media (max-width:480px){ .object-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .object-card{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:10px 6px 12px; border-radius:12px; border:1.5px solid var(--line);
+    background:#FAF8F2; cursor:pointer; transition:.15s;
+  }
+  .object-card:hover{ border-color:var(--water); }
+  .object-card.active{ border-color:var(--water); background:var(--water-soft); }
+  .object-emoji{ font-size:24px; }
+  .object-name{ font-size:12.5px; font-weight:800; }
+  .object-spec{ font-size:10.5px; color:var(--ink-soft); }
+
+  .beaker-area{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  svg.beaker{ width:150px; height:200px; }
+
+  .water-label{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-soft); font-weight:700; }
+  .water-swatch{ width:14px; height:0; border-top:2px dashed var(--water); display:inline-block; }
+
+  .callout{
+    min-height:64px;
+    background:#FFF7DE;
+    border:1px solid #EEDDA0;
+    border-radius:12px;
+    padding:9px 13px;
+    font-size:12.5px;
+    line-height:1.6;
+    color:#5B4A1E;
+    width:100%;
+  }
+  .callout b{ font-weight:800; }
+
+  /* ---------- 워크시트 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{
+    border-top:1px dashed var(--line);
+    padding:16px 2px 4px;
+  }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:90px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--water); color:var(--water); background:var(--water-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  footer{ max-width:980px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅰ. 물질의 특성 · 순물질과 혼합물 / 밀도와 용해도</div>
+    <h1>물체를 눌러 <span>뜨고 가라앉는 까닭</span>을 확인해요</h1>
+    <p class="sub">물체를 클릭하면 밀도(질량 ÷ 부피)를 계산해서 물의 밀도(1 g/cm³)와 비교해 주고, 실제로 뜨는지 가라앉는지 비커에서 보여줍니다. 아래 워크시트를 풀면 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록돼요.</p>
+  </header>
+
+  <!-- 밀도 실험실 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">실험실</span>물체를 클릭해서 밀도 비교하기</div>
+    <div class="card-hint">같은 부피(10cm³)를 기준으로 질량이 다른 여러 물체를 물에 넣어 봅니다. <b>밀도 = 질량 ÷ 부피</b>가 물보다 작으면 뜨고, 크면 가라앉아요.</div>
+
+    <div class="density-lab">
+      <div class="object-grid" id="object-grid"></div>
+
+      <div class="beaker-area">
+        <svg class="beaker" viewBox="0 0 150 200" aria-hidden="true">
+          <rect x="20" y="10" width="110" height="180" rx="6" fill="none" stroke="#B9B2A0" stroke-width="2"></rect>
+          <rect id="water-fill" x="22" y="70" width="106" height="118" fill="var(--water)" opacity="0.28"></rect>
+          <line x1="20" y1="70" x2="130" y2="70" stroke="var(--water)" stroke-width="1.5" stroke-dasharray="4,3"></line>
+          <circle id="test-object" cx="75" cy="40" r="14" fill="var(--ink-soft)"></circle>
+          <text id="test-object-emoji" x="75" y="45" font-size="16" text-anchor="middle">❔</text>
+        </svg>
+        <div class="water-label"><span class="water-swatch"></span>물의 밀도 (1 g/cm³)</div>
+        <div class="callout" id="density-callout">위에서 물체를 하나 눌러 보세요!</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 스스로 확인 워크시트 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--sink)">워크시트</span>스스로 확인</div>
+    <div class="card-hint">정답을 입력하고 <b>제출하고 채점받기</b>를 누르면 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록됩니다.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        소금물은 소금과 물이 고르게 섞여 있으므로
+        <span class="choice-group" data-answer="혼합물">
+          <button type="button" class="choice-btn" data-value="순물질">순물질</button>
+          <button type="button" class="choice-btn" data-value="혼합물">혼합물</button>
+        </span>
+        이고, 산소 기체는 한 종류의 물질로만 이루어져 있으므로
+        <span class="choice-group" data-answer="순물질">
+          <button type="button" class="choice-btn" data-value="순물질">순물질</button>
+          <button type="button" class="choice-btn" data-value="혼합물">혼합물</button>
+        </span>
+        이다.
+      </div>
+      <span class="q-feedback" id="q1-feedback"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        밀도는 물질의 질량을
+        <input type="text" class="blank-input" id="q2-blank1" placeholder="무엇으로?">
+        (으)로 나눈 값이다. 부피가 15cm³이고 질량이 30g인 물체의 밀도는
+        <input type="text" class="blank-input" id="q2-blank2" placeholder="숫자만">
+        g/cm³이다.
+      </div>
+      <span class="q-feedback" id="q2-feedback"></span>
+    </div>
+
+    <div class="q" id="q3">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        물체의 밀도가 물의 밀도(1 g/cm³)보다
+        <span class="choice-group" data-answer="작으면">
+          <button type="button" class="choice-btn" data-value="크면">크면</button>
+          <button type="button" class="choice-btn" data-value="작으면">작으면</button>
+        </span>
+        물에 뜨고,
+        <span class="choice-group" data-answer="크면">
+          <button type="button" class="choice-btn" data-value="크면">크면</button>
+          <button type="button" class="choice-btn" data-value="작으면">작으면</button>
+        </span>
+        물에 가라앉는다.
+      </div>
+      <span class="q-feedback" id="q3-feedback"></span>
+    </div>
+
+    <div class="q" id="q4">
+      <div class="q-text">
+        <span class="q-num">4</span>
+        순물질은 양(질량)이 달라져도 녹는점과 어는점이
+        <input type="text" class="blank-input" id="q4-blank" placeholder="예: 일정하다">
+        . 이렇게 물질마다 고유하게 나타나는 값을 물질의
+        <span class="choice-group" data-answer="특성">
+          <button type="button" class="choice-btn" data-value="특성">특성</button>
+          <button type="button" class="choice-btn" data-value="양">양</button>
+        </span>
+        (이)라고 한다.
+      </div>
+      <span class="q-feedback" id="q4-feedback"></span>
+    </div>
+
+    <div class="q" id="q5">
+      <div class="q-text">
+        <span class="q-num">5</span>
+        압력밥솥 안에서는 압력이 높아져서 물의 끓는점이
+        <span class="choice-group" data-answer="높아진다">
+          <button type="button" class="choice-btn" data-value="높아진다">높아진다</button>
+          <button type="button" class="choice-btn" data-value="낮아진다">낮아진다</button>
+        </span>
+        . 반대로 높은 산 위에서는 압력이 낮아 물의 끓는점이
+        <span class="choice-group" data-answer="낮아진다">
+          <button type="button" class="choice-btn" data-value="높아진다">높아진다</button>
+          <button type="button" class="choice-btn" data-value="낮아진다">낮아진다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="q5-feedback"></span>
+    </div>
+
+    <div class="q" id="q6">
+      <div class="q-text">
+        <span class="q-num">6</span>
+        순물질을 가열하면 끓는 동안 온도가 일정하게 유지되지만, 혼합물을 가열하면 끓는 동안에도 온도가
+        <span class="choice-group" data-answer="계속 서서히 변한다">
+          <button type="button" class="choice-btn" data-value="일정하게 유지된다">일정하게 유지된다</button>
+          <button type="button" class="choice-btn" data-value="계속 서서히 변한다">계속 서서히 변한다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="q6-feedback"></span>
+    </div>
+
+    <div class="q" id="q7">
+      <div class="q-text">
+        <span class="q-num">7</span>
+        어떤 온도에서 용매 100g에 최대로 녹을 수 있는 용질의 g수를 그 물질의
+        <input type="text" class="blank-input" id="q7-blank" placeholder="OO">
+        (이)라고 한다. 대부분 고체 물질의 이 값은 온도가 높아질수록
+        <span class="choice-group" data-answer="증가한다">
+          <button type="button" class="choice-btn" data-value="증가한다">증가한다</button>
+          <button type="button" class="choice-btn" data-value="감소한다">감소한다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="q7-feedback"></span>
+    </div>
+
+    <div class="q" id="q8">
+      <div class="q-text">
+        <span class="q-num">8</span>
+        온도에 따른 용해도 차이를 이용해 혼합물에서 순물질을 분리하는 방법을
+        <input type="text" class="blank-input" id="q8-blank1" placeholder="OO O">
+        (이)라 하고, 끓는점 차이를 이용해 액체 혼합물을 분리하는 방법을
+        <input type="text" class="blank-input" id="q8-blank2" placeholder="OO">
+        (이)라고 한다.
+      </div>
+      <span class="q-feedback" id="q8-feedback"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 물질의 특성 (밀도·용해도·끓는점)</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+
+  1) 구글 스프레드시트를 새로 만들고, 확장 프로그램 → Apps Script 를 엽니다.
+  2) 아래 코드를 붙여넣고 저장합니다.
+
+     function doPost(e){
+       var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("응답")
+                   || SpreadsheetApp.getActiveSpreadsheet().insertSheet("응답");
+       var d = e.parameter;
+       sheet.appendRow([
+         new Date(), d.grade, d.classNum, d.number, d.name,
+         d.q1_choice1, d.q1_choice2, d.q2_blank1, d.q2_blank2, d.q3_choice1, d.q3_choice2,
+         d.q4_blank, d.q4_choice, d.q5_choice1, d.q5_choice2, d.q6_choice,
+         d.q7_blank, d.q7_choice, d.q8_blank1, d.q8_blank2,
+         d.score, d.total
+       ]);
+       return ContentService.createTextOutput("OK");
+     }
+
+  3) 배포 → 새 배포 → 유형: 웹 앱
+     - 실행 대상: 나
+     - 액세스 권한이 있는 사용자: 모든 사용자
+     로 설정하고 배포한 뒤, 발급된 웹 앱 URL을 복사합니다.
+  4) 아래 SPREADSHEET_WEBHOOK_URL 값에 그 주소를 붙여넣으세요.
+     (비워두면 학생 화면에서 채점만 되고 스프레드시트 전송은 생략됩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "";
+</script>
+
+<script>
+/* ==========================================================
+   밀도 실험실 — 물체 클릭 → 밀도 계산 → 뜨고 가라앉기 표시
+=========================================================== */
+const OBJECTS = [
+  { name:"스타이로폼", emoji:"🧊‍⬜", mass:2,  volume:10 },
+  { name:"나무토막",   emoji:"🪵", mass:8,  volume:10 },
+  { name:"얼음",       emoji:"🧊", mass:9.2,volume:10 },
+  { name:"유리구슬",   emoji:"🔮", mass:25, volume:10 },
+  { name:"알루미늄",   emoji:"🥫", mass:27, volume:10 },
+  { name:"철못",       emoji:"🔩", mass:79, volume:10 }
+];
+// 이모지 조합이 깨질 수 있는 환경을 대비해 단순 이모지로 교체
+OBJECTS[0].emoji = "📦";
+
+const objectGrid = document.getElementById("object-grid");
+const testObject = document.getElementById("test-object");
+const testObjectEmoji = document.getElementById("test-object-emoji");
+const densityCallout = document.getElementById("density-callout");
+
+const FLOAT_Y = 55;   // 물 표면 위, 살짝 뜬 위치
+const SINK_Y = 172;   // 비커 바닥 근처
+
+OBJECTS.forEach((obj, idx) => {
+  const density = obj.mass / obj.volume;
+  const card = document.createElement("div");
+  card.className = "object-card";
+  card.innerHTML = `
+    <div class="object-emoji">${obj.emoji}</div>
+    <div class="object-name">${obj.name}</div>
+    <div class="object-spec">${obj.mass}g / ${obj.volume}cm³</div>
+  `;
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".object-card").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+
+    const floats = density < 1;
+    testObject.setAttribute("cy", floats ? FLOAT_Y : SINK_Y);
+    testObject.setAttribute("cx", 75);
+    testObject.setAttribute("fill", floats ? "var(--float)" : "var(--sink)");
+    testObjectEmoji.setAttribute("y", (floats ? FLOAT_Y : SINK_Y) + 5);
+    testObjectEmoji.textContent = obj.emoji;
+
+    densityCallout.innerHTML =
+      `<b>${obj.name}</b>의 밀도 = ${obj.mass}g ÷ ${obj.volume}cm³ = <b>${density.toFixed(2)} g/cm³</b><br>` +
+      (floats
+        ? `물(1 g/cm³)보다 밀도가 <b>작아서</b> 물 위에 <b>뜬다!</b> 🛟`
+        : `물(1 g/cm³)보다 밀도가 <b>커서</b> 물속으로 <b>가라앉는다!</b> ⬇️`);
+  });
+  objectGrid.appendChild(card);
+});
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+=========================================================== */
+const choiceGroups = document.querySelectorAll(".choice-group");
+
+choiceGroups.forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+function blankMatches(inputVal, ...answers){
+  const v = normalize(inputVal);
+  return answers.some(a => v === normalize(a) || v.includes(normalize(a)));
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  // 값 수집
+  const q1Groups = document.querySelectorAll("#q1 .choice-group");
+  const q1c1 = pickedValue(q1Groups[0]), q1c2 = pickedValue(q1Groups[1]);
+
+  const q2b1 = document.getElementById("q2-blank1").value;
+  const q2b2 = document.getElementById("q2-blank2").value;
+
+  const q3Groups = document.querySelectorAll("#q3 .choice-group");
+  const q3c1 = pickedValue(q3Groups[0]), q3c2 = pickedValue(q3Groups[1]);
+
+  const q4Blank = document.getElementById("q4-blank").value;
+  const q4Choice = pickedValue(document.querySelector("#q4 .choice-group"));
+
+  const q5Groups = document.querySelectorAll("#q5 .choice-group");
+  const q5c1 = pickedValue(q5Groups[0]), q5c2 = pickedValue(q5Groups[1]);
+
+  const q6Choice = pickedValue(document.querySelector("#q6 .choice-group"));
+
+  const q7Blank = document.getElementById("q7-blank").value;
+  const q7Choice = pickedValue(document.querySelector("#q7 .choice-group"));
+
+  const q8b1 = document.getElementById("q8-blank1").value;
+  const q8b2 = document.getElementById("q8-blank2").value;
+
+  const allFilled = [q1c1,q1c2,q2b1,q2b2,q3c1,q3c2,q4Blank,q4Choice,q5c1,q5c2,q6Choice,q7Blank,q7Choice,q8b1,q8b2]
+    .every(v => (v || "").toString().trim() !== "");
+  if(!allFilled){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  // 채점
+  const q1Ok1 = q1c1 === q1Groups[0].dataset.answer;
+  const q1Ok2 = q1c2 === q1Groups[1].dataset.answer;
+  setFeedback("q1-feedback", q1Ok1 && q1Ok2, `${q1Groups[0].dataset.answer} / ${q1Groups[1].dataset.answer}`);
+
+  const q2Ok1 = blankMatches(q2b1, "부피");
+  const q2Ok2 = blankMatches(q2b2, "2", "2.0", "2g/cm3", "2g/cm³");
+  setFeedback("q2-feedback", q2Ok1 && q2Ok2, "부피 / 2");
+
+  const q3Ok1 = q3c1 === q3Groups[0].dataset.answer;
+  const q3Ok2 = q3c2 === q3Groups[1].dataset.answer;
+  setFeedback("q3-feedback", q3Ok1 && q3Ok2, `${q3Groups[0].dataset.answer} / ${q3Groups[1].dataset.answer}`);
+
+  const q4Ok1 = blankMatches(q4Blank, "일정하다", "일정");
+  const q4Ok2 = q4Choice === "특성";
+  setFeedback("q4-feedback", q4Ok1 && q4Ok2, "일정하다 / 특성");
+
+  const q5Ok1 = q5c1 === q5Groups[0].dataset.answer;
+  const q5Ok2 = q5c2 === q5Groups[1].dataset.answer;
+  setFeedback("q5-feedback", q5Ok1 && q5Ok2, `${q5Groups[0].dataset.answer} / ${q5Groups[1].dataset.answer}`);
+
+  const q6Ok = q6Choice === "계속 서서히 변한다";
+  setFeedback("q6-feedback", q6Ok, "계속 서서히 변한다");
+
+  const q7Ok1 = blankMatches(q7Blank, "용해도");
+  const q7Ok2 = q7Choice === "증가한다";
+  setFeedback("q7-feedback", q7Ok1 && q7Ok2, "용해도 / 증가한다");
+
+  const q8Ok1 = blankMatches(q8b1, "재결정");
+  const q8Ok2 = blankMatches(q8b2, "증류");
+  setFeedback("q8-feedback", q8Ok1 && q8Ok2, "재결정 / 증류");
+
+  const results = [q1Ok1,q1Ok2,q2Ok1,q2Ok2,q3Ok1,q3Ok2,q4Ok1,q4Ok2,q5Ok1,q5Ok2,q6Ok,q7Ok1,q7Ok2,q8Ok1,q8Ok2];
+  const correctSubCount = results.filter(Boolean).length;
+  const total = results.length;
+  wsResult.textContent = `${correctSubCount} / ${total} 개 정답`;
+  wsResult.className = "ws-result " + (correctSubCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    grade, classNum, number, name,
+    q1_choice1: q1c1, q1_choice2: q1c2,
+    q2_blank1: q2b1, q2_blank2: q2b2,
+    q3_choice1: q3c1, q3_choice2: q3c2,
+    q4_blank: q4Blank, q4_choice: q4Choice,
+    q5_choice1: q5c1, q5_choice2: q5c2,
+    q6_choice: q6Choice,
+    q7_blank: q7Blank, q7_choice: q7Choice,
+    q8_blank1: q8b1, q8_blank2: q8b2,
+    score: String(correctSubCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(i => i.value = "");
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>

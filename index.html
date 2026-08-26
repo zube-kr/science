@@ -149,6 +149,21 @@ body{
   display:block;
 }
 
+.quick-link{
+  display:inline-block;
+  margin-left:6px;
+  font-size:11px;
+  font-weight:700;
+  color:#02040a;
+  background:#ffe17c;
+  padding:2px 9px;
+  border-radius:10px;
+  vertical-align:middle;
+}
+.quick-link:hover{
+  background:#fff0ab;
+}
+
 /*==============================
 오른쪽
 ==============================*/
@@ -624,7 +639,7 @@ footer{
       <li onclick="openSubject('mul-teukseong')">① 물질의 특성</li>
       <li onclick="openSubject('jigwon-byeonhwa')">② 지권의 변화</li>
       <li onclick="openSubject('bit-pado')">③ 빛과 파동</li>
-      <li onclick="openSubject('mul-guseong')">④ 물질의 구성</li>
+      <li onclick="openSubject('mul-guseong')">④ 물질의 구성 <span class="quick-link" onclick="event.stopPropagation(); openQuickLink('mul-guseong', {title:'주기율표', url: PERIODIC_TABLE_URL, ready:true})">주기율표</span></li>
       <li onclick="openSubject('sikmul-energy')">⑤ 식물과 에너지</li>
       <li onclick="openSubject('dongmul-energy')">⑥ 동물과 에너지</li>
       <li onclick="openSubject('jeongi-jagi')">⑦ 전기와 자기</li>
@@ -1069,6 +1084,12 @@ const BRAIN_URL = "brain.html";
 // ⚠️ state-change-energy.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const STATE_CHANGE_ENERGY_URL = "state-change-energy.html";
 
+// ⚠️ mul-teukseong.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const MUL_TEUKSEONG_URL = "mul-teukseong.html";
+
+// 주기율표 퍼즐 (외부 사이트, 사이드바에서 바로 열기)
+const PERIODIC_TABLE_URL = "https://sciencej1.cafe24.com/html5/periodictablepuzzle/periodictablepuzzle.html";
+
 // ⚠️ state-change-summary.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const STATE_CHANGE_SUMMARY_URL = "state-change-summary.html";
 
@@ -1193,7 +1214,12 @@ const topicsData = {
     title: "① 물질의 특성",
     posts: [
       { title: "물질의 세 가지 상태", desc: "고체·액체·기체의 특징을 알아봅니다.", ready: false },
-      { title: "밀도와 용해도", desc: "물질을 구별하는 특성값을 배웁니다.", ready: false }
+      {
+        title: "밀도·용해도·끓는점 문제",
+        desc: "물체를 클릭해 밀도를 비교해 보고, 순물질·혼합물·밀도·용해도·끓는점 개념을 확인하는 자동 채점 워크시트입니다.",
+        url: MUL_TEUKSEONG_URL,
+        ready: true
+      }
     ]
   },
   "jigwon-byeonhwa": { title: "② 지권의 변화", posts: [ { title: "지권의 변화 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
@@ -1292,6 +1318,12 @@ function openPost(post){
   frameTitle.textContent = post.title;
   contentFrame.src = post.url;
   showView(viewFrame);
+}
+
+// 사이드바에서 목록을 거치지 않고 바로 콘텐츠를 여는 빠른 링크
+function openQuickLink(subjectKey, post){
+  lastSubjectKey = subjectKey;
+  openPost(post);
 }
 
 function goHome(){
