@@ -327,6 +327,13 @@ footer{
 .view.active{
   display:block;
 }
+#view-frame.active{
+  display:flex;
+  width:100%;
+  height:100%;
+  justify-content:center;
+  align-items:center;
+}
 
 .postlist{
   width:820px;
@@ -434,20 +441,21 @@ footer{
 콘텐츠(원소 기호 규칙 등) 임베드 화면
 ==============================*/
 .frameview{
-  width:94%;
-  height:90vh;
+  width:97%;
+  height:94vh;
   display:flex;
   flex-direction:column;
   align-items:center;
 }
 
 .frameview-header{
-  width:900px;
-  max-width:100%;
+  width:100%;
+  max-width:1400px;
   display:flex;
   align-items:center;
   gap:16px;
   margin-bottom:14px;
+  flex-shrink:0;
 }
 
 .frameview-title{
@@ -456,10 +464,10 @@ footer{
 }
 
 .frameview iframe{
-  width:900px;
-  max-width:100%;
-  height:500px;
-  max-height:74vh;
+  width:100%;
+  max-width:1400px;
+  flex:1;
+  min-height:0;
   border:none;
   border-radius:12px;
   box-shadow:0 0 60px rgba(0,0,0,.5);
@@ -1061,6 +1069,9 @@ const BRAIN_URL = "brain.html";
 // ⚠️ state-change-energy.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const STATE_CHANGE_ENERGY_URL = "state-change-energy.html";
 
+// ⚠️ state-change-summary.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const STATE_CHANGE_SUMMARY_URL = "state-change-summary.html";
+
 const topicsData = {
   "mul-sangtae-byeonhwa": {
     title: "④ 물질의 상태 변화",
@@ -1081,6 +1092,12 @@ const topicsData = {
         title: "3. 상태변화와 에너지 출입",
         desc: "가열·냉각 곡선을 클릭해 입자의 움직임을 확인하고, 스스로 확인 워크시트를 풀면 자동으로 채점되는 학습 자료입니다.",
         url: STATE_CHANGE_ENERGY_URL,
+        ready: true
+      },
+      {
+        title: "4. 중단원 마무리 - 상태 변화와 열에너지",
+        desc: "석빙고에 여름에도 얼음을 보관할 수 있었던 까닭을 단계별로 정리하며 배운 내용을 확인하는 마무리 워크시트입니다.",
+        url: STATE_CHANGE_SUMMARY_URL,
         ready: true
       }
     ]
