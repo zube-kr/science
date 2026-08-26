@@ -79,6 +79,9 @@
   .beaker-area{ display:flex; flex-direction:column; align-items:center; gap:10px; }
   svg.beaker{ width:150px; height:200px; }
 
+  .water-label{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-soft); font-weight:700; }
+  .water-swatch{ width:14px; height:0; border-top:2px dashed var(--water); display:inline-block; }
+
   .callout{
     min-height:64px;
     background:#FFF7DE;
@@ -167,10 +170,10 @@
           <rect x="20" y="10" width="110" height="180" rx="6" fill="none" stroke="#B9B2A0" stroke-width="2"></rect>
           <rect id="water-fill" x="22" y="70" width="106" height="118" fill="var(--water)" opacity="0.28"></rect>
           <line x1="20" y1="70" x2="130" y2="70" stroke="var(--water)" stroke-width="1.5" stroke-dasharray="4,3"></line>
-          <text x="133" y="73" font-size="9" fill="var(--ink-soft)">물 (1 g/cm³)</text>
           <circle id="test-object" cx="75" cy="40" r="14" fill="var(--ink-soft)"></circle>
           <text id="test-object-emoji" x="75" y="45" font-size="16" text-anchor="middle">❔</text>
         </svg>
+        <div class="water-label"><span class="water-swatch"></span>물의 밀도 (1 g/cm³)</div>
         <div class="callout" id="density-callout">위에서 물체를 하나 눌러 보세요!</div>
       </div>
     </div>
