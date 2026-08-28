@@ -351,7 +351,7 @@
      (비워두면 학생 화면에서 채점만 되고 스프레드시트 전송은 생략됩니다.)
 =========================================================== -->
 <script>
-const SPREADSHEET_WEBHOOK_URL = "";
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
 </script>
 
 <script>
@@ -529,6 +529,7 @@ submitBtn.addEventListener("click", async () => {
   wsStatus.textContent = "제출 중...";
 
   const payload = {
+    worksheet: "1_mul_teukseong",
     grade, classNum, number, name,
     q1_choice1: q1c1, q1_choice2: q1c2,
     q2_blank1: q2b1, q2_blank2: q2b2,
