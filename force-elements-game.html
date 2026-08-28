@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>힘의 3요소 — 알까기 게임</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+    --accent:#D8493B;
+    --accent-soft:#FDEAE7;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --ok:#2E9E5B;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:16px 20px 20px;
+    overflow-y:auto;
+  }
+  .wrap{ max-width:1180px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+  header{ display:flex; flex-direction:column; gap:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(19px,2.2vw,24px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--accent),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:12.5px; line-height:1.6; max-width:800px; }
+
+  main{ display:grid; grid-template-columns:1fr 300px; gap:16px; flex:1; min-height:0; align-items:start; }
+  @media (max-width:820px){ main{ grid-template-columns:1fr; } }
+
+  .board-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px; box-shadow:0 1px 3px rgba(35,42,53,.05);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+
+  .status-row{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .turn-badge{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800;
+    padding:6px 13px; border-radius:999px; background:var(--accent-soft); color:var(--accent);
+  }
+  .turn-badge.ai{ background:var(--blue-soft); color:var(--blue); }
+  .turn-badge .dot{ width:9px; height:9px; border-radius:50%; background:currentColor; }
+  .score-row{ display:flex; gap:14px; font-size:12.5px; font-weight:700; color:var(--ink-soft); }
+  .score-row b{ color:var(--ink); }
+
+  #board{ touch-action:none; border-radius:10px; box-shadow:0 4px 18px rgba(0,0,0,.18); cursor:grab; max-width:100%; }
+  #board:active{ cursor:grabbing; }
+
+  .board-actions{ display:flex; gap:8px; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:9px 16px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+
+  /* ---------- 사이드바 ---------- */
+  .side-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:16px; box-shadow:0 1px 3px rgba(35,42,53,.05); display:flex; flex-direction:column; gap:14px;
+  }
+  .side-title{ font-size:14px; font-weight:800; display:flex; align-items:center; gap:7px; }
+  .side-title .badge{ font-size:10.5px; font-weight:800; color:#fff; background:var(--accent); padding:2px 8px; border-radius:999px; }
+
+  .legend-item{ display:flex; gap:9px; align-items:flex-start; font-size:12px; line-height:1.6; color:var(--ink-soft); }
+  .legend-swatch{ width:16px; height:16px; border-radius:50%; flex-shrink:0; margin-top:2px; }
+  .legend-swatch.blue{ background:var(--blue); }
+  .legend-swatch.red{ background:var(--accent); }
+  .legend-swatch.size{ background:linear-gradient(90deg,#eee,var(--accent)); border-radius:5px; width:28px; height:8px; margin-top:5px; }
+
+  .aim-readout{
+    background:#FAF8F2; border:1px solid var(--line); border-radius:12px; padding:11px 13px;
+    font-size:12px; line-height:1.9; color:var(--ink-soft); min-height:88px;
+  }
+  .aim-readout b{ color:var(--ink); }
+  .aim-readout .placeholder{ color:var(--ink-soft); font-style:normal; }
+
+  .rules{ font-size:11.5px; line-height:1.8; color:var(--ink-soft); }
+  .rules b{ color:var(--ink); }
+
+  /* ---------- 게임 오버 오버레이 ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,24,32,.55);
+    display:none; align-items:center; justify-content:center; z-index:50;
+  }
+  .overlay.show{ display:flex; }
+  .overlay-card{
+    background:#fff; border-radius:20px; padding:30px 34px; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.35); max-width:340px;
+  }
+  .overlay-card .emoji{ font-size:40px; margin-bottom:8px; }
+  .overlay-card h2{ font-size:19px; font-weight:800; margin-bottom:8px; }
+  .overlay-card p{ font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:18px; }
+
+  footer{ max-width:1180px; margin:4px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 힘의 작용 · 힘의 3요소</div>
+    <h1>빨간 <span>화살표</span>와 파란 <span>작용점</span>을 맞춰 알을 쳐내자</h1>
+    <p class="sub">내 돌(검은 돌)을 눌러서 드래그하면 <b>파란 점(작용점)</b>과 <b>빨간 화살표(힘의 방향·크기)</b>가 나타나요. 손을 떼면 화살표 방향의 반대쪽으로 돌이 튕겨 나갑니다. 작용점을 돌 중심에서 벗어나게 잡으면 돌이 회전하면서 휘어져 나가요 — 이것이 바로 <b>힘의 3요소(크기·방향·작용점)</b>가 운동에 미치는 영향입니다.</p>
+  </header>
+
+  <main>
+    <div class="board-card">
+      <div class="status-row">
+        <div class="turn-badge" id="turn-badge"><span class="dot"></span><span id="turn-text">내 차례 (흑돌)</span></div>
+        <div class="score-row">
+          <span>⚫ 내 돌 <b id="black-count">5</b></span>
+          <span>⚪ 상대 돌 <b id="white-count">5</b></span>
+        </div>
+      </div>
+
+      <canvas id="board" width="600" height="600"></canvas>
+
+      <div class="board-actions">
+        <button class="btn ghost" id="help-btn">💡 도움말</button>
+        <button class="btn primary" id="reset-btn">🔄 초기화</button>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div>
+        <div class="side-title"><span class="badge">힘의 3요소</span></div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
+          <div class="legend-item"><span class="legend-swatch blue"></span><span><b>작용점</b> — 힘이 작용하는 지점. 돌을 잡는 위치(파란 점)예요. 중심을 잡으면 똑바로, 가장자리를 잡으면 돌이 회전하며 휘어져 나가요.</span></div>
+          <div class="legend-item"><span class="legend-swatch red"></span><span><b>방향</b> — 화살표가 가리키는 방향. 화살표는 당긴 반대쪽을 향해요(새총 원리).</span></div>
+          <div class="legend-item"><span class="legend-swatch size"></span><span><b>크기</b> — 화살표 길이. 많이 당길수록 화살표가 길어지고 더 세게 튕겨 나가요.</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="side-title">🎯 조준 정보</div>
+        <div class="aim-readout" id="aim-readout">
+          <span class="placeholder">내 돌을 눌러서 드래그하면<br>여기에 실시간으로 힘의 크기·방향·작용점이 표시돼요.</span>
+        </div>
+      </div>
+
+      <div class="rules">
+        <b>게임 방법</b><br>
+        1) 내 차례에 검은 돌 하나를 클릭한 채로 드래그하세요.<br>
+        2) 파란 점(작용점)과 빨간 화살표(방향·크기)를 확인하고 손을 떼면 발사됩니다.<br>
+        3) 상대 돌을 판 밖으로 쳐내면 점수를 얻어요. 상대 돌을 모두 쳐내면 승리!
+      </div>
+    </div>
+  </main>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 힘의 3요소 알까기 게임</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <div class="emoji" id="overlay-emoji">🎉</div>
+    <h2 id="overlay-title">승리했어요!</h2>
+    <p id="overlay-desc">상대 돌을 모두 판 밖으로 쳐냈어요.</p>
+    <button class="btn primary" id="overlay-restart">다시 시작</button>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   보드 / 물리 상수
+=========================================================== */
+const canvas = document.getElementById("board");
+const ctx = canvas.getContext("2d");
+const SIZE = 600;
+const RIM = 26;                 // 나무 테두리 두께 (이 밖으로 나가면 아웃)
+const STONE_R = 18;
+const GRID_LINES = 9;
+
+const FRICTION = 0.983;
+const ANGULAR_FRICTION = 0.94;
+const MIN_SPEED = 0.04;
+const MAX_DRAG = 130;
+const POWER_SCALE = 0.065;
+const TORQUE_SCALE = 0.0012;
+
+let stones = [];
+let turn = "player";            // player | ai | settling | over
+let settlingFor = "player";
+let aiming = null;              // { stone, grabPoint:{x,y}, current:{x,y} }
+let gameOver = false;
+
+function makeStones(){
+  stones = [];
+  const xs = [];
+  const n = 5;
+  const startX = 150, endX = 450;
+  for(let i=0;i<n;i++) xs.push(startX + (endX-startX) * i/(n-1));
+
+  xs.forEach(x => {
+    stones.push({ id:"b"+x, color:"black", x, y:500, vx:0, vy:0, angle:0, omega:0, r:STONE_R, alive:true, fading:0 });
+  });
+  xs.forEach(x => {
+    stones.push({ id:"w"+x, color:"white", x, y:100, vx:0, vy:0, angle:0, omega:0, r:STONE_R, alive:true, fading:0 });
+  });
+}
+makeStones();
+
+/* ==========================================================
+   그리기
+=========================================================== */
+function drawBoard(){
+  // 나무 배경
+  const grad = ctx.createLinearGradient(0,0,SIZE,SIZE);
+  grad.addColorStop(0, "#E8C088");
+  grad.addColorStop(1, "#D9A868");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,SIZE,SIZE);
+
+  // 테두리(림)
+  ctx.strokeStyle = "rgba(94,58,21,0.55)";
+  ctx.lineWidth = RIM*0.6;
+  ctx.strokeRect(RIM*0.3, RIM*0.3, SIZE-RIM*0.6, SIZE-RIM*0.6);
+
+  // 바둑판 격자
+  const margin = RIM + 20;
+  const step = (SIZE - margin*2) / (GRID_LINES-1);
+  ctx.strokeStyle = "rgba(70,40,10,0.55)";
+  ctx.lineWidth = 1.2;
+  for(let i=0;i<GRID_LINES;i++){
+    const p = margin + i*step;
+    ctx.beginPath(); ctx.moveTo(margin, p); ctx.lineTo(SIZE-margin, p); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p, margin); ctx.lineTo(p, SIZE-margin); ctx.stroke();
+  }
+  // 화점
+  ctx.fillStyle = "rgba(70,40,10,0.6)";
+  [2,4,6].forEach(ix => {
+    [2,4,6].forEach(iy => {
+      const px = margin + ix*step, py = margin + iy*step;
+      ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2); ctx.fill();
+    });
+  });
+
+  // 아웃 경계선(점선)
+  ctx.strokeStyle = "rgba(200,60,40,0.55)";
+  ctx.setLineDash([6,5]);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(RIM, RIM, SIZE-RIM*2, SIZE-RIM*2);
+  ctx.setLineDash([]);
+}
+
+function drawStone(s){
+  if(!s.alive && s.fading <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = s.alive ? 1 : Math.max(0, s.fading);
+  ctx.translate(s.x, s.y);
+  ctx.rotate(s.angle);
+
+  const grad = ctx.createRadialGradient(-s.r*0.35,-s.r*0.35,s.r*0.15, 0,0,s.r);
+  if(s.color === "black"){
+    grad.addColorStop(0, "#5b5f66");
+    grad.addColorStop(1, "#101215");
+  } else {
+    grad.addColorStop(0, "#ffffff");
+    grad.addColorStop(1, "#c9c2b2");
+  }
+  ctx.beginPath();
+  ctx.arc(0,0,s.r,0,Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = s.color === "black" ? "#000" : "rgba(0,0,0,0.25)";
+  ctx.stroke();
+
+  // 회전을 보여주는 작은 표식
+  ctx.beginPath();
+  ctx.arc(s.r*0.55, 0, 2.4, 0, Math.PI*2);
+  ctx.fillStyle = s.color === "black" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)";
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawAim(){
+  if(!aiming) return;
+  const { grabPoint, current, stone } = aiming;
+  const pull = { x: grabPoint.x-current.x, y: grabPoint.y-current.y };
+  const dist = Math.min(Math.hypot(pull.x,pull.y), MAX_DRAG);
+  const dirLen = Math.hypot(pull.x,pull.y) || 1;
+  const dir = { x: pull.x/dirLen, y: pull.y/dirLen };
+  const tip = { x: grabPoint.x + dir.x*dist, y: grabPoint.y + dir.y*dist };
+
+  // 당김선 (점선, 스톤 중심 -> 마우스)
+  ctx.save();
+  ctx.strokeStyle = "rgba(80,80,80,0.4)";
+  ctx.setLineDash([4,4]);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(stone.x, stone.y);
+  ctx.lineTo(current.x, current.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 빨간 화살표 (작용점 -> 발사 방향)
+  ctx.strokeStyle = "#D8493B";
+  ctx.fillStyle = "#D8493B";
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.moveTo(grabPoint.x, grabPoint.y);
+  ctx.lineTo(tip.x, tip.y);
+  ctx.stroke();
+  // 화살촉
+  const ah = 9, aw = 6;
+  const nx = -dir.y, ny = dir.x;
+  ctx.beginPath();
+  ctx.moveTo(tip.x, tip.y);
+  ctx.lineTo(tip.x - dir.x*ah + nx*aw, tip.y - dir.y*ah + ny*aw);
+  ctx.lineTo(tip.x - dir.x*ah - nx*aw, tip.y - dir.y*ah - ny*aw);
+  ctx.closePath();
+  ctx.fill();
+
+  // 파란 작용점
+  ctx.beginPath();
+  ctx.arc(grabPoint.x, grabPoint.y, 6, 0, Math.PI*2);
+  ctx.fillStyle = "#2F6FDB";
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#fff";
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function render(){
+  drawBoard();
+  stones.forEach(drawStone);
+  drawAim();
+}
+
+/* ==========================================================
+   물리 시뮬레이션
+=========================================================== */
+function stepPhysics(){
+  let moving = false;
+
+  stones.forEach(s => {
+    if(!s.alive){
+      if(s.fading > 0){ s.fading -= 0.05; moving = true; }
+      return;
+    }
+    s.x += s.vx;
+    s.y += s.vy;
+    s.angle += s.omega;
+
+    s.vx *= FRICTION; s.vy *= FRICTION; s.omega *= ANGULAR_FRICTION;
+    if(Math.hypot(s.vx,s.vy) < MIN_SPEED){ s.vx = 0; s.vy = 0; }
+    if(Math.abs(s.omega) < 0.001) s.omega = 0;
+    if(s.vx || s.vy || s.omega) moving = true;
+
+    // 경계 아웃 체크
+    if(s.x < RIM || s.x > SIZE-RIM || s.y < RIM || s.y > SIZE-RIM){
+      s.alive = false;
+      s.fading = 1;
+      moving = true;
+    }
+  });
+
+  // 충돌 처리 (단순 등질량 탄성 충돌)
+  const alive = stones.filter(s => s.alive);
+  for(let i=0;i<alive.length;i++){
+    for(let j=i+1;j<alive.length;j++){
+      const a = alive[i], b = alive[j];
+      const dx = b.x-a.x, dy = b.y-a.y;
+      const dist = Math.hypot(dx,dy) || 0.0001;
+      const minDist = a.r+b.r;
+      if(dist < minDist){
+        const nx = dx/dist, ny = dy/dist;
+        const overlap = (minDist-dist)/2;
+        a.x -= nx*overlap; a.y -= ny*overlap;
+        b.x += nx*overlap; b.y += ny*overlap;
+
+        const avn = a.vx*nx + a.vy*ny;
+        const bvn = b.vx*nx + b.vy*ny;
+        if(bvn - avn < 0){
+          const at = { x:a.vx-avn*nx, y:a.vy-avn*ny };
+          const bt = { x:b.vx-bvn*nx, y:b.vy-bvn*ny };
+          a.vx = at.x + bvn*nx; a.vy = at.y + bvn*ny;
+          b.vx = bt.x + avn*nx; b.vy = bt.y + avn*ny;
+        }
+      }
+    }
+  }
+
+  return moving;
+}
+
+let physicsRunning = false;
+let simGeneration = 0;
+function runPhysicsLoop(){
+  if(physicsRunning) return;
+  physicsRunning = true;
+  const myGen = simGeneration;
+  function loop(){
+    if(myGen !== simGeneration) return; // 초기화 등으로 무효화된 이전 루프는 조용히 중단
+    const moving = stepPhysics();
+    render();
+    if(moving){
+      requestAnimationFrame(loop);
+    } else {
+      physicsRunning = false;
+      onSettled();
+    }
+  }
+  requestAnimationFrame(loop);
+}
+
+function onSettled(){
+  checkGameOver();
+  if(gameOver) return;
+
+  if(settlingFor === "player"){
+    turn = "ai";
+    updateStatus();
+    const myGen = simGeneration;
+    setTimeout(() => { if(myGen === simGeneration) aiTurn(); }, 700);
+  } else {
+    turn = "player";
+    updateStatus();
+  }
+}
+
+function checkGameOver(){
+  const blackAlive = stones.filter(s => s.color==="black" && s.alive).length;
+  const whiteAlive = stones.filter(s => s.color==="white" && s.alive).length;
+  updateCounts();
+  if(blackAlive === 0){
+    endGame(false);
+  } else if(whiteAlive === 0){
+    endGame(true);
+  }
+}
+
+function endGame(playerWon){
+  gameOver = true;
+  turn = "over";
+  updateStatus();
+  const overlay = document.getElementById("overlay");
+  document.getElementById("overlay-emoji").textContent = playerWon ? "🎉" : "😢";
+  document.getElementById("overlay-title").textContent = playerWon ? "승리했어요!" : "아쉬워요!";
+  document.getElementById("overlay-desc").textContent = playerWon
+    ? "상대 돌을 모두 판 밖으로 쳐냈어요. 힘의 방향과 작용점을 잘 조절했네요!"
+    : "내 돌이 모두 밖으로 나갔어요. 작용점과 힘의 방향을 다시 연습해 보세요.";
+  overlay.classList.add("show");
+}
+
+/* ==========================================================
+   AI 턴
+=========================================================== */
+function aiTurn(){
+  const whiteStones = stones.filter(s => s.color==="white" && s.alive);
+  const blackStones = stones.filter(s => s.color==="black" && s.alive);
+  if(whiteStones.length === 0 || blackStones.length === 0) return;
+
+  const shooter = whiteStones[Math.floor(Math.random()*whiteStones.length)];
+  // 가장 가까운 검은 돌을 타겟으로
+  let target = blackStones[0], best = Infinity;
+  blackStones.forEach(b => {
+    const d = Math.hypot(b.x-shooter.x, b.y-shooter.y);
+    if(d < best){ best = d; target = b; }
+  });
+
+  const noise = (Math.random()-0.5) * 0.5; // 약간의 오차
+  let dx = target.x - shooter.x, dy = target.y - shooter.y;
+  const len = Math.hypot(dx,dy) || 1;
+  dx/=len; dy/=len;
+  // 방향에 약간의 회전 오차 적용
+  const cosN = Math.cos(noise), sinN = Math.sin(noise);
+  const fdx = dx*cosN - dy*sinN, fdy = dx*sinN + dy*cosN;
+
+  const power = (0.6 + Math.random()*0.4) * MAX_DRAG;
+  shooter.vx = fdx * power * POWER_SCALE;
+  shooter.vy = fdy * power * POWER_SCALE;
+
+  // 가끔 작용점을 살짝 벗어나게 잡아서 회전 효과도 보여줌
+  if(Math.random() < 0.35){
+    shooter.omega = (Math.random()-0.5) * 0.2;
+  }
+
+  settlingFor = "ai";
+  turn = "settling";
+  updateStatus();
+  runPhysicsLoop();
+}
+
+/* ==========================================================
+   입력 처리 (조준 & 발사)
+=========================================================== */
+function toCanvasPoint(evt){
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = SIZE / rect.width;
+  const scaleY = SIZE / rect.height;
+  return {
+    x: (evt.clientX - rect.left) * scaleX,
+    y: (evt.clientY - rect.top) * scaleY
+  };
+}
+
+function findOwnStoneAt(pt){
+  return stones.find(s => s.color==="black" && s.alive &&
+    Math.hypot(s.x-pt.x, s.y-pt.y) <= s.r + 6);
+}
+
+canvas.addEventListener("pointerdown", e => {
+  if(turn !== "player" || gameOver) return;
+  const pt = toCanvasPoint(e);
+  const stone = findOwnStoneAt(pt);
+  if(!stone) return;
+  canvas.setPointerCapture(e.pointerId);
+  aiming = { stone, grabPoint: pt, current: pt };
+  updateAimReadout();
+  render();
+});
+
+canvas.addEventListener("pointermove", e => {
+  if(!aiming) return;
+  aiming.current = toCanvasPoint(e);
+  updateAimReadout();
+  render();
+});
+
+canvas.addEventListener("pointerup", e => {
+  if(!aiming) return;
+  fireStone();
+});
+canvas.addEventListener("pointercancel", () => { aiming = null; updateAimReadout(); render(); });
+
+function fireStone(){
+  const { stone, grabPoint, current } = aiming;
+  const pull = { x: grabPoint.x-current.x, y: grabPoint.y-current.y };
+  const rawDist = Math.hypot(pull.x, pull.y);
+
+  if(rawDist < 12){
+    aiming = null;
+    updateAimReadout();
+    render();
+    return; // 너무 약하면 취소
+  }
+
+  const dist = Math.min(rawDist, MAX_DRAG);
+  const dir = { x: pull.x/rawDist, y: pull.y/rawDist };
+
+  stone.vx = dir.x * dist * POWER_SCALE;
+  stone.vy = dir.y * dist * POWER_SCALE;
+
+  // 작용점 오프셋(회전 = 토크)
+  const offset = { x: grabPoint.x - stone.x, y: grabPoint.y - stone.y };
+  const force = { x: dir.x * dist * POWER_SCALE, y: dir.y * dist * POWER_SCALE };
+  const torque = offset.x*force.y - offset.y*force.x;
+  stone.omega = torque * TORQUE_SCALE;
+
+  aiming = null;
+  updateAimReadout();
+
+  settlingFor = "player";
+  turn = "settling";
+  updateStatus();
+  runPhysicsLoop();
+}
+
+/* ==========================================================
+   UI 업데이트
+=========================================================== */
+function updateStatus(){
+  const badge = document.getElementById("turn-badge");
+  const text = document.getElementById("turn-text");
+  if(turn === "player"){
+    badge.className = "turn-badge";
+    text.textContent = "내 차례 (흑돌)";
+  } else if(turn === "ai"){
+    badge.className = "turn-badge ai";
+    text.textContent = "상대 조준 중... (백돌)";
+  } else if(turn === "settling"){
+    badge.className = "turn-badge" + (settlingFor === "ai" ? " ai" : "");
+    text.textContent = settlingFor === "ai" ? "상대 돌이 움직이는 중..." : "내 돌이 움직이는 중...";
+  } else {
+    badge.className = "turn-badge";
+    text.textContent = "게임 종료";
+  }
+}
+
+function updateCounts(){
+  document.getElementById("black-count").textContent = stones.filter(s => s.color==="black" && s.alive).length;
+  document.getElementById("white-count").textContent = stones.filter(s => s.color==="white" && s.alive).length;
+}
+
+function updateAimReadout(){
+  const el = document.getElementById("aim-readout");
+  if(!aiming){
+    el.innerHTML = '<span class="placeholder">내 돌을 눌러서 드래그하면<br>여기에 실시간으로 힘의 크기·방향·작용점이 표시돼요.</span>';
+    return;
+  }
+  const { stone, grabPoint, current } = aiming;
+  const pull = { x: grabPoint.x-current.x, y: grabPoint.y-current.y };
+  const rawDist = Math.hypot(pull.x, pull.y);
+  const pct = Math.round(Math.min(rawDist, MAX_DRAG) / MAX_DRAG * 100);
+  let angleDeg = Math.round(Math.atan2(pull.y, pull.x) * 180 / Math.PI);
+  if(angleDeg < 0) angleDeg += 360;
+
+  const offset = Math.hypot(grabPoint.x-stone.x, grabPoint.y-stone.y);
+  const offsetRatio = offset / stone.r;
+  let offsetDesc;
+  if(offsetRatio < 0.35) offsetDesc = "중심 (직진 예상)";
+  else if(offsetRatio < 0.75) offsetDesc = "약간 벗어남 (살짝 회전)";
+  else offsetDesc = "가장자리 (많이 회전 · 휘어짐)";
+
+  el.innerHTML = `
+    힘의 크기: <b>${pct}%</b><br>
+    방향: <b>${angleDeg}°</b><br>
+    작용점: <b>${offsetDesc}</b>
+  `;
+}
+
+/* ==========================================================
+   버튼 / 초기화
+=========================================================== */
+document.getElementById("reset-btn").addEventListener("click", resetGame);
+document.getElementById("overlay-restart").addEventListener("click", resetGame);
+document.getElementById("help-btn").addEventListener("click", () => {
+  alert(
+    "🎮 힘의 3요소 알까기\n\n" +
+    "1) 내 차례에 검은 돌을 클릭한 채로 원하는 방향의 반대쪽으로 드래그하세요 (새총처럼 당기기).\n" +
+    "2) 파란 점은 힘이 작용하는 지점(작용점), 빨간 화살표는 힘의 방향과 크기예요.\n" +
+    "3) 돌 중심을 잡고 쏘면 똑바로, 가장자리를 잡고 쏘면 돌이 회전하며 휘어져요.\n" +
+    "4) 상대 돌을 판 밖으로 쳐내면 성공! 상대 돌을 모두 쳐내면 승리합니다."
+  );
+});
+
+function resetGame(){
+  simGeneration++; // 진행 중이던 이전 물리 루프를 모두 무효화
+  gameOver = false;
+  turn = "player";
+  settlingFor = "player";
+  aiming = null;
+  physicsRunning = false;
+  makeStones();
+  document.getElementById("overlay").classList.remove("show");
+  updateStatus();
+  updateCounts();
+  updateAimReadout();
+  render();
+}
+
+render();
+updateStatus();
+updateCounts();
+</script>
+
+</body>
+</html>
