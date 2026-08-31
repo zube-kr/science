@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>힘의 합성과 평형 조건</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --force:#D8493B;
+    --force-soft:#FDEAE7;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --violet:#7A56C9;
+    --violet-soft:#EFE9FA;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--force),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:760px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 교과서 그림 참고 (미니 도식) ---------- */
+  .ref-diagrams{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+  .ref-card{ border:1px solid var(--line); border-radius:12px; padding:8px; background:#FBFAF6; text-align:center; }
+  .ref-card svg{ width:100%; height:70px; display:block; }
+  .ref-card .ref-label{ font-size:11px; font-weight:800; margin-top:4px; }
+  .ref-card .ref-desc{ font-size:10.5px; color:var(--ink-soft); }
+
+  /* ---------- 시뮬레이션 ---------- */
+  #sim-canvas{ width:100%; max-width:100%; height:auto; border-radius:12px; background:#EFEAE0; box-shadow:0 2px 10px rgba(0,0,0,.08); display:block; }
+
+  .sim-readout{
+    display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+    margin:12px 0; padding:11px 14px; border-radius:12px; background:#FAF8F2; border:1px solid var(--line);
+    font-size:13px; font-weight:700; color:var(--ink-soft);
+  }
+  .sim-readout b{ color:var(--ink); font-size:14px; }
+  .status-chip{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 13px; border-radius:999px; font-weight:800; font-size:12.5px;
+    background:var(--blue-soft); color:var(--blue);
+  }
+  .status-chip.balanced{ background:#E4F6EC; color:var(--ok); }
+  .status-chip.moving{ background:var(--force-soft); color:var(--force); }
+
+  .sim-controls{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  @media (max-width:640px){ .sim-controls{ grid-template-columns:1fr; } }
+  .force-control{ border:1px solid var(--line); border-radius:14px; padding:12px 14px; background:#FBFAF6; }
+  .force-control .fc-title{ font-size:13px; font-weight:800; margin-bottom:8px; display:flex; justify-content:space-between; }
+  .force-control .fc-title .fc-value{ color:var(--force); }
+  .force-control input[type="range"]{ width:100%; accent-color:var(--force); margin-bottom:10px; }
+  .dir-toggle{ display:flex; gap:8px; }
+  .dir-btn{
+    flex:1; font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft); border-radius:10px; padding:8px 6px;
+    transition:.15s;
+  }
+  .dir-btn.active{ border-color:var(--force); background:var(--force-soft); color:var(--force); }
+
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:9px 15px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  /* ---------- 워크시트 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .q-feedback.info{ color:var(--blue); }
+
+  textarea{
+    width:100%; min-height:64px; margin-top:8px; font-family:inherit; font-size:13px; line-height:1.6;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+  .q-label{ font-weight:800; font-size:13.5px; margin-bottom:4px; display:block; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+
+  footer{ max-width:980px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 힘의 작용 · 02 힘의 합성과 평형 조건</div>
+    <h1>두 힘을 더하면 <span>합력</span>, 딱 맞으면 <span>평형</span></h1>
+    <p class="sub">슬라이더로 두 힘의 크기와 방향을 바꿔가며 상자에 작용하는 <b>합력</b>을 직접 관찰해 보세요. 두 힘의 크기가 같고 방향이 반대이면 합력이 0이 되어 상자가 움직이지 않는 <b>평형</b> 상태가 됩니다.</p>
+  </header>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">시뮬레이션</span>힘의 합성 실험대</div>
+    <div class="card-hint">교과서 그림 Ⅴ-5~Ⅴ-7을 아래 버튼으로 그대로 재현해 볼 수 있어요. 직접 슬라이더를 움직여서 다른 경우도 만들어 보세요.</div>
+
+    <div class="ref-diagrams">
+      <div class="ref-card">
+        <svg viewBox="0 0 160 70"><line x1="15" y1="20" x2="80" y2="20" stroke="#2F6FDB" stroke-width="3"/><polygon points="80,20 70,15 70,25" fill="#2F6FDB"/>
+          <line x1="15" y1="38" x2="110" y2="38" stroke="#2F6FDB" stroke-width="3"/><polygon points="110,38 100,33 100,43" fill="#2F6FDB"/>
+          <line x1="15" y1="58" x2="140" y2="58" stroke="#7A56C9" stroke-width="4"/><polygon points="140,58 128,52 128,64" fill="#7A56C9"/>
+          <text x="15" y="12" font-size="9" fill="#626A78">3N + 6N</text></svg>
+        <div class="ref-label">그림 Ⅴ-5</div>
+        <div class="ref-desc">같은 방향 → 합력 9N</div>
+      </div>
+      <div class="ref-card">
+        <svg viewBox="0 0 160 70"><line x1="80" y1="20" x2="15" y2="20" stroke="#2F6FDB" stroke-width="3"/><polygon points="15,20 25,15 25,25" fill="#2F6FDB"/>
+          <line x1="15" y1="38" x2="140" y2="38" stroke="#2F6FDB" stroke-width="3"/><polygon points="140,38 128,32 128,44" fill="#2F6FDB"/>
+          <line x1="80" y1="58" x2="140" y2="58" stroke="#7A56C9" stroke-width="4"/><polygon points="140,58 128,52 128,64" fill="#7A56C9"/>
+          <text x="15" y="12" font-size="9" fill="#626A78">6N − 3N</text></svg>
+        <div class="ref-label">그림 Ⅴ-6</div>
+        <div class="ref-desc">반대 방향 → 합력 3N</div>
+      </div>
+      <div class="ref-card">
+        <svg viewBox="0 0 160 70"><line x1="80" y1="35" x2="15" y2="35" stroke="#D8493B" stroke-width="4"/><polygon points="15,35 25,29 25,41" fill="#D8493B"/>
+          <line x1="80" y1="35" x2="145" y2="35" stroke="#D8493B" stroke-width="4"/><polygon points="145,35 135,29 135,41" fill="#D8493B"/>
+          <text x="55" y="20" font-size="9" fill="#626A78">10N</text><text x="90" y="20" font-size="9" fill="#626A78">10N</text></svg>
+        <div class="ref-label">그림 Ⅴ-7</div>
+        <div class="ref-desc">평형 → 합력 0N</div>
+      </div>
+    </div>
+
+    <canvas id="sim-canvas" width="760" height="220"></canvas>
+
+    <div class="sim-readout">
+      <span>합력의 크기: <b id="readout-mag">0</b> N</span>
+      <span>합력의 방향: <b id="readout-dir">없음</b></span>
+      <span class="status-chip balanced" id="status-chip">⚖️ 평형 상태</span>
+    </div>
+
+    <div class="sim-controls">
+      <div class="force-control" data-force="a">
+        <div class="fc-title"><span>힘 A (왼쪽 손)</span><span class="fc-value"><span id="a-val">3</span> N</span></div>
+        <input type="range" id="a-mag" min="0" max="10" step="1" value="3">
+        <div class="dir-toggle">
+          <button class="dir-btn active" data-dir="left">⬅ 왼쪽으로</button>
+          <button class="dir-btn" data-dir="right">오른쪽으로 ➡</button>
+        </div>
+      </div>
+      <div class="force-control" data-force="b">
+        <div class="fc-title"><span>힘 B (오른쪽 손)</span><span class="fc-value"><span id="b-val">6</span> N</span></div>
+        <input type="range" id="b-mag" min="0" max="10" step="1" value="6">
+        <div class="dir-toggle">
+          <button class="dir-btn" data-dir="left">⬅ 왼쪽으로</button>
+          <button class="dir-btn active" data-dir="right">오른쪽으로 ➡</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="preset-row">
+      <button class="btn ghost" id="preset-v5">그림 Ⅴ-5 재현 (3N+6N 같은 방향)</button>
+      <button class="btn ghost" id="preset-v6">그림 Ⅴ-6 재현 (6N-3N 반대 방향)</button>
+      <button class="btn ghost" id="preset-v7">그림 Ⅴ-7 재현 (10N=10N 평형)</button>
+      <button class="btn primary" id="preset-reset">↺ 상자 위치 초기화</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--violet)">워크시트</span>스스로 확인 &amp; 탐구 활동 정리</div>
+    <div class="card-hint">객관식 빈칸은 자동으로 채점되고, 서술형 답변은 선생님이 나중에 확인할 수 있도록 함께 저장돼요. 다 쓰고 <b>제출하고 채점받기</b>를 눌러주세요.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        한 물체에 작용하는 여러 힘을 더한 힘을
+        <input type="text" class="blank-input" id="blank1" placeholder="무엇?">
+        (이)라고 한다.
+      </div>
+      <span class="q-feedback" id="fb1"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        한 물체에 작용하는 두 힘이 평형을 이루기 위해서 힘의 크기는
+        <input type="text" class="blank-input" id="blank2a" placeholder="크기">
+        , 방향이
+        <input type="text" class="blank-input" id="blank2b" placeholder="방향">
+        이며, 같은 직선 위에서 작용해야 한다.
+      </div>
+      <span class="q-feedback" id="fb2"></span>
+    </div>
+
+    <div class="q" id="q3">
+      <span class="q-label">🔬 탐구 활동 정리 1 — 용수철저울 ⓒ을 1N, 3N, 5N으로 각각 당길 때 나무 도막의 움직임을 비교해 보자.</span>
+      <textarea id="inquiry1" placeholder="예: 1N으로 당길 때는 ~, 3N일 때는 ~, 5N일 때는 ~"></textarea>
+    </div>
+
+    <div class="q" id="q4">
+      <span class="q-label">🔬 탐구 활동 정리 2 — 나무 도막이 움직이지 않는 조건을 설명해 보자.</span>
+      <textarea id="inquiry2" placeholder="힘의 크기와 방향, 작용선의 조건을 써 보세요."></textarea>
+      <span class="q-feedback" id="fb4"></span>
+    </div>
+
+    <div class="q" id="q5">
+      <span class="q-label">💡 문제 해결력 — 줄다리기에서 비길 때와 승부가 날 때를, 줄에 작용하는 힘의 합성과 평형으로 설명해 보자.</span>
+      <textarea id="essay" placeholder="두 팀이 당기는 힘과 합력을 이용해서 설명해 보세요."></textarea>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 힘의 합성과 평형 조건</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+  이 저장소 루트의 code.gs(범용 스크립트)를 그대로 배포해서 쓰면 됩니다.
+  이미 다른 워크시트에 배포해 둔 웹 앱 주소가 있다면 그대로 재사용해도
+  되고, 여기서는 이미 사용 중인 주소를 기본값으로 넣어 두었습니다.
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   힘의 합성 시뮬레이션
+=========================================================== */
+const canvas = document.getElementById("sim-canvas");
+const ctx = canvas.getContext("2d");
+const W = 760, H = 220;
+const TRACK_Y = 130;
+const TRACK_LEFT = 60, TRACK_RIGHT = W-60;
+const BOX_W = 70, BOX_H = 50;
+const SPEED_SCALE = 1.6;
+
+let force = {
+  a: { mag: 3, dir: "left" },
+  b: { mag: 6, dir: "right" }
+};
+let boxX = W/2;
+
+function signedForce(f){ return (f.dir === "right" ? 1 : -1) * f.mag; }
+
+function computeNet(){
+  return signedForce(force.a) + signedForce(force.b);
+}
+
+function drawArrow(x1,y,len,color,label){
+  const x2 = x1 + len;
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+  const dir = len >= 0 ? 1 : -1;
+  ctx.beginPath();
+  ctx.moveTo(x2,y);
+  ctx.lineTo(x2-dir*11,y-7);
+  ctx.lineTo(x2-dir*11,y+7);
+  ctx.closePath();
+  ctx.fill();
+  if(label){
+    ctx.font = "bold 13px Pretendard, sans-serif";
+    ctx.fillText(label, Math.min(x1,x2)-2, y-14);
+  }
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+
+  // 트랙
+  ctx.strokeStyle = "#C9C2B2"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(TRACK_LEFT, TRACK_Y+BOX_H/2+18); ctx.lineTo(TRACK_RIGHT, TRACK_Y+BOX_H/2+18); ctx.stroke();
+
+  // 상자
+  ctx.fillStyle = "#A9835A";
+  ctx.fillRect(boxX-BOX_W/2, TRACK_Y-BOX_H/2, BOX_W, BOX_H);
+  ctx.strokeStyle = "#6B4E2E"; ctx.lineWidth = 2;
+  ctx.strokeRect(boxX-BOX_W/2, TRACK_Y-BOX_H/2, BOX_W, BOX_H);
+  ctx.fillStyle = "#fff"; ctx.font = "bold 13px Pretendard, sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("나무 도막", boxX, TRACK_Y+5);
+  ctx.textAlign = "left";
+
+  // 힘 A, B 화살표 (상자 양쪽에서 작용)
+  const aLen = (force.a.dir === "right" ? 1 : -1) * force.a.mag * 8;
+  const bLen = (force.b.dir === "right" ? 1 : -1) * force.b.mag * 8;
+  const aStart = boxX - BOX_W/2 - Math.max(0, -aLen) - (aLen>0? -0 : 0);
+  drawArrow(boxX - BOX_W/2, TRACK_Y - 35, aLen, "#2F6FDB", "A " + force.a.mag + "N");
+  drawArrow(boxX + BOX_W/2, TRACK_Y + 55, bLen, "#D8493B", "B " + force.b.mag + "N");
+
+  // 합력 화살표 (상자 위쪽 중앙)
+  const net = computeNet();
+  if(Math.abs(net) > 0.01){
+    const netLen = Math.sign(net) * Math.min(Math.abs(net) * 9, 220);
+    drawArrow(boxX, TRACK_Y - 70, netLen, "#7A56C9", "합력 " + Math.abs(net).toFixed(0) + "N");
+  }
+}
+
+function stepSim(){
+  const net = computeNet();
+  const v = Math.max(-4, Math.min(4, net * SPEED_SCALE * 0.12));
+  boxX += v;
+  const minX = TRACK_LEFT + BOX_W/2 + 4;
+  const maxX = TRACK_RIGHT - BOX_W/2 - 4;
+  boxX = Math.max(minX, Math.min(maxX, boxX));
+  render();
+  updateReadout(net);
+  requestAnimationFrame(stepSim);
+}
+
+function updateReadout(net){
+  document.getElementById("readout-mag").textContent = Math.abs(net).toFixed(0);
+  const dirText = net > 0.01 ? "오른쪽" : net < -0.01 ? "왼쪽" : "없음";
+  document.getElementById("readout-dir").textContent = dirText;
+
+  const chip = document.getElementById("status-chip");
+  if(Math.abs(net) < 0.01){
+    chip.textContent = "⚖️ 평형 상태 (움직이지 않음)";
+    chip.className = "status-chip balanced";
+  } else {
+    chip.textContent = (net > 0 ? "➡️ 오른쪽으로 이동 중" : "⬅️ 왼쪽으로 이동 중");
+    chip.className = "status-chip moving";
+  }
+}
+
+/* ---------- 컨트롤 ---------- */
+function bindForceControl(key, sliderId, valId){
+  const slider = document.getElementById(sliderId);
+  const val = document.getElementById(valId);
+  slider.addEventListener("input", () => {
+    force[key].mag = Number(slider.value);
+    val.textContent = slider.value;
+  });
+
+  const control = document.querySelector(`.force-control[data-force="${key}"]`);
+  control.querySelectorAll(".dir-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      control.querySelectorAll(".dir-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      force[key].dir = btn.dataset.dir;
+    });
+  });
+}
+bindForceControl("a", "a-mag", "a-val");
+bindForceControl("b", "b-mag", "b-val");
+
+function applyPreset(aMag, aDir, bMag, bDir){
+  force.a = { mag:aMag, dir:aDir };
+  force.b = { mag:bMag, dir:bDir };
+  document.getElementById("a-mag").value = aMag;
+  document.getElementById("b-mag").value = bMag;
+  document.getElementById("a-val").textContent = aMag;
+  document.getElementById("b-val").textContent = bMag;
+  document.querySelectorAll('.force-control[data-force="a"] .dir-btn').forEach(b => b.classList.toggle("active", b.dataset.dir === aDir));
+  document.querySelectorAll('.force-control[data-force="b"] .dir-btn').forEach(b => b.classList.toggle("active", b.dataset.dir === bDir));
+}
+
+document.getElementById("preset-v5").addEventListener("click", () => applyPreset(3,"right",6,"right"));
+document.getElementById("preset-v6").addEventListener("click", () => applyPreset(6,"right",3,"left"));
+document.getElementById("preset-v7").addEventListener("click", () => applyPreset(10,"left",10,"right"));
+document.getElementById("preset-reset").addEventListener("click", () => { boxX = W/2; });
+
+requestAnimationFrame(stepSim);
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+=========================================================== */
+function normalize(str){ return (str || "").trim().replace(/\s+/g, ""); }
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const blank1 = document.getElementById("blank1").value;
+  const blank2a = document.getElementById("blank2a").value;
+  const blank2b = document.getElementById("blank2b").value;
+  const inquiry1 = document.getElementById("inquiry1").value.trim();
+  const inquiry2 = document.getElementById("inquiry2").value.trim();
+  const essay = document.getElementById("essay").value.trim();
+
+  if(!blank1.trim() || !blank2a.trim() || !blank2b.trim() || !inquiry1 || !inquiry2 || !essay){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  const ok1 = normalize(blank1) === "합력";
+  const ok2a = ["같고","같다","같음"].includes(normalize(blank2a));
+  const ok2b = ["반대","반대이다","반대임"].includes(normalize(blank2b));
+
+  document.getElementById("fb1").textContent = ok1 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 합력)";
+  document.getElementById("fb1").className = "q-feedback " + (ok1 ? "ok" : "bad");
+
+  const ok2 = ok2a && ok2b;
+  document.getElementById("fb2").textContent = ok2 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 크기는 같고, 방향은 반대)";
+  document.getElementById("fb2").className = "q-feedback " + (ok2 ? "ok" : "bad");
+
+  document.getElementById("fb4").textContent = "📝 서술형 답변은 선생님이 확인 후 피드백해 줄게요.";
+  document.getElementById("fb4").className = "q-feedback info";
+
+  const correctCount = [ok1, ok2].filter(Boolean).length;
+  const total = 2;
+  wsResult.textContent = `객관식 ${correctCount} / ${total} 개 정답 (서술형은 선생님이 확인해요)`;
+  wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    worksheet: "him-hapseong",
+    grade, classNum, number, name,
+    blank1, blank2a, blank2b,
+    inquiry1, inquiry2, essay,
+    score: String(correctCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  ["blank1","blank2a","blank2b"].forEach(id => document.getElementById(id).value = "");
+  ["inquiry1","inquiry2","essay"].forEach(id => document.getElementById(id).value = "");
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
