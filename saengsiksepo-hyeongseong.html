@@ -33,13 +33,13 @@
     overflow-y:auto;
   }
 
-  .wrap{ max-width:1040px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+  .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
 
   header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
   .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
   h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
   h1 span{ background:linear-gradient(90deg,var(--cell),var(--dye)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:760px; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:780px; }
 
   section.card{
     background:var(--card);
@@ -57,7 +57,7 @@
   .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
 
   /* ---------- 개념 정리 ---------- */
-  .concept-flow{ display:flex; flex-wrap:wrap; align-items:stretch; gap:6px; }
+  .concept-flow{ display:flex; flex-wrap:wrap; align-items:stretch; gap:6px; margin-bottom:12px; }
   .concept-step{
     flex:1; min-width:160px; background:#FBFAF6; border:1px solid var(--line); border-radius:12px;
     padding:10px 12px; font-size:12px; line-height:1.65;
@@ -66,19 +66,25 @@
   .concept-arrow{ display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:16px; flex:0 0 18px; }
   @media (max-width:760px){ .concept-arrow{ display:none; } }
 
+  .term-box{
+    display:flex; align-items:center; gap:14px; background:var(--dye-soft); border:1px solid #EAC3B6;
+    border-radius:12px; padding:11px 14px; font-size:12.5px; line-height:1.7; color:#7A3620;
+  }
+  .term-box svg{ width:56px; height:56px; flex-shrink:0; }
+  .term-box b{ color:var(--dye); }
+
   /* ---------- 표 ---------- */
-  .meiosis-table{ width:100%; border-collapse:collapse; margin-bottom:6px; font-size:12.5px; }
+  .meiosis-table{ width:100%; border-collapse:collapse; margin-bottom:6px; font-size:12.3px; }
   .meiosis-table th, .meiosis-table td{ border:1px solid var(--line); padding:8px 7px; text-align:center; vertical-align:top; }
   .meiosis-table thead th{ background:var(--cell-soft); color:var(--cell); font-weight:800; font-size:12.5px; }
   .meiosis-table thead th.stage-head{ background:#F1EEE5; color:var(--ink); font-size:12px; }
-  .meiosis-table .desc-cell{ text-align:left; line-height:1.6; font-size:11.8px; color:var(--ink-soft); }
+  .meiosis-table .desc-cell{ text-align:left; line-height:1.65; font-size:11.6px; color:var(--ink-soft); }
   .meiosis-table select{
-    font-family:inherit; font-size:11.8px; border:1px solid var(--line); border-radius:6px;
-    padding:2px 3px; background:#fff; color:var(--ink); font-weight:700; max-width:90px;
+    font-family:inherit; font-size:11.6px; border:1px solid var(--cell); border-radius:6px;
+    padding:2px 3px; background:#fff; color:var(--cell); font-weight:700; max-width:100px;
   }
-  .meiosis-table select.blank-select{ color:var(--cell); border-color:var(--cell); }
   .fixed-cell-icon{ padding:4px 0; }
-  .fixed-cell-icon svg{ display:block; width:56px; height:56px; margin:0 auto; }
+  .fixed-cell-icon svg{ display:block; width:58px; height:58px; margin:0 auto; }
   .table-caption{ font-size:12px; font-weight:800; color:var(--ink-soft); margin:14px 0 4px; }
   .table-caption:first-child{ margin-top:0; }
 
@@ -111,9 +117,32 @@
   }
   .photo-toolbar button:hover{ background:#E7E3D6; color:var(--ink); }
 
+  /* ---------- 의의 문항 ---------- */
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:13.5px; line-height:2.1; }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--cell); color:var(--cell); background:var(--cell-soft); }
+
   .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
   .q-feedback.ok{ color:var(--ok); }
   .q-feedback.bad{ color:var(--bad); }
+
+  .example-note{
+    font-size:12px; color:var(--ink-soft); background:#FBFAF6; border:1px solid var(--line);
+    border-radius:12px; padding:11px 13px; line-height:1.7; margin-top:14px;
+  }
+  .example-note b{ color:var(--cell); }
 
   /* ---------- 공용: 학생 정보 / 제출 ---------- */
   .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
@@ -139,41 +168,46 @@
   .ws-result.ok{ color:var(--ok); }
   .ws-status{ font-size:11.5px; color:var(--ink-soft); }
 
-  footer{ max-width:1040px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+  footer{ max-width:1080px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Ⅴ. 생식과 유전 · 1. 생식과 발생</div>
+    <div class="eyebrow">Ⅴ. 생식과 유전 · 1. 생식과 발생 (교과서 그림 V-8, V-9)</div>
     <h1>생식세포 형성 과정 — <span>감수 분열</span></h1>
-    <p class="sub">감수 분열로 생식세포(정자·난자)가 만들어지는 과정을 표로 정리하고, 세포 그림을 알맞은 자리에 배치해 보세요. 마지막에 제출하면 자동으로 채점되어 선생님 스프레드시트에 기록됩니다.</p>
+    <p class="sub">백합 화분의 생식세포 분열(그림 V-8)을 표로 정리하고, 세포 그림을 알맞은 자리에 배치해 보세요. 마지막에 제출하면 자동으로 채점되어 선생님 스프레드시트에 기록됩니다.</p>
   </header>
 
   <!-- 개념 정리 -->
   <section class="card">
-    <div class="card-title"><span class="badge">개념</span>감수 분열이란?</div>
-    <div class="card-hint">감수 분열은 생식세포(정자, 난자)를 만들 때 일어나는 세포 분열이에요. 연속해서 2번 분열(감수 1분열 → 감수 2분열)하기 때문에, 하나의 세포에서 염색체 수가 절반인 딸세포 4개가 만들어집니다.</div>
+    <div class="card-title"><span class="badge">개념</span>생식세포 분열은 체세포 분열과 무엇이 다를까?</div>
+    <div class="card-hint">생식세포 분열은 생식 기관에서 생식세포(정자·난자·꽃가루 등)가 만들어질 때 일어나며, 체세포 분열과 달리 <b>두 번에 걸쳐</b> 연속으로 세포 분열이 일어납니다. 첫 번째 분열을 <b>감수 1분열</b>, 두 번째 분열을 <b>감수 2분열</b>이라고 해요.</div>
+
     <div class="concept-flow">
-      <div class="concept-step"><b>감수 1분열</b>상동 염색체끼리 짝을 지어(2가 염색체) 세포 중앙에 모였다가, 상동 염색체가 분리되어 양쪽으로 나뉜다. → 딸세포 2개</div>
+      <div class="concept-step"><b>간기</b>체세포 분열과 마찬가지로 분열을 준비하며 유전 물질을 복제하여 염색 분체를 형성한다.</div>
       <div class="concept-arrow">→</div>
-      <div class="concept-step"><b>감수 2분열</b>각 딸세포에서 염색 분체가 분리되어 양쪽으로 나뉜다. → 딸세포 4개</div>
+      <div class="concept-step"><b>감수 1분열</b>상동 염색체끼리 쌍을 이루어(2가 염색체) 정렬했다가, 상동 염색체가 분리되어 양극으로 나뉜다. → 염색체 수가 <b>절반</b>인 딸세포 2개</div>
       <div class="concept-arrow">→</div>
-      <div class="concept-step"><b>생식세포 형성</b>만들어진 4개의 딸세포는 각각 정자 또는 난자가 된다.</div>
+      <div class="concept-step"><b>감수 2분열</b>DNA 복제 없이 바로 이어져, 각 딸세포에서 염색 분체가 분리된다. → 딸세포 4개(생식세포)</div>
+    </div>
+
+    <div class="term-box" id="term-box-svg">
+      <div><b>*2가 염색체</b>란, 상동 염색체가 결합한 상태의 염색체를 말해요. 감수 1분열 전기에 상동 염색체끼리 짝을 지어 2가 염색체를 형성하고, 후기에 이 상동 염색체가 다시 분리됩니다. 그래서 감수 1분열을 거치면 염색체 수가 모세포의 절반으로 줄어듭니다.</div>
     </div>
   </section>
 
   <!-- 표 채우기 -->
   <section class="card">
-    <div class="card-title"><span class="badge" style="background:var(--dye)">표 완성</span>생식세포 형성 과정</div>
-    <div class="card-hint">아래 네모칸에서 알맞은 답을 골라 보세요.</div>
+    <div class="card-title"><span class="badge" style="background:var(--dye)">표 완성</span>그림 V-8 · 백합 화분의 생식세포 분열</div>
+    <div class="card-hint">아래 각 칸의 네모 상자에서 알맞은 답을 골라 보세요.</div>
 
-    <div class="table-caption">감수 1분열</div>
+    <div class="table-caption">간기 → 감수 1분열</div>
     <table class="meiosis-table">
       <thead>
         <tr>
-          <th rowspan="2">분열 전</th>
+          <th rowspan="2">간기</th>
           <th colspan="4">감수 1분열</th>
         </tr>
         <tr>
@@ -185,7 +219,7 @@
       </thead>
       <tbody>
         <tr>
-          <td class="fixed-cell-icon" id="icon-before"></td>
+          <td class="fixed-cell-icon" id="icon-interphase"></td>
           <td class="fixed-cell-icon" id="slot-m1-pro-icon"></td>
           <td class="fixed-cell-icon" id="slot-m1-meta-icon"></td>
           <td class="fixed-cell-icon" id="slot-m1-ana-icon"></td>
@@ -193,23 +227,34 @@
         </tr>
         <tr>
           <td class="desc-cell">
-            유전 물질(DNA)이 복제되어 그 양이
-            <select class="blank-select" id="blank1"><option value="">-선택-</option><option value="1배">1배</option><option value="2배">2배</option><option value="4배">4배</option></select>
-            배로 된다.
+            염색체는 염색사 형태로 풀어져 있으며, 유전 물질이 복제되고 세포가 분열할 수 있을 만큼 크기가
+            <select id="blank-interphase"><option value="">-선택-</option><option value="커진다">커진다</option><option value="작아진다">작아진다</option></select>
+            .
           </td>
           <td class="desc-cell">
-            상동 염색체가 붙은
-            <select class="blank-select" id="blank2"><option value="">-선택-</option><option value="2가염색체">2가 염색체</option><option value="4가염색체">4가 염색체</option><option value="염색분체">염색 분체</option></select>
-            가 나타나고, 핵막이 사라진다.
+            핵막이 사라진다. 상동 염색체가 붙은
+            <select id="blank-m1pro"><option value="">-선택-</option><option value="2가염색체">2가 염색체</option><option value="4가염색체">4가 염색체</option><option value="염색분체">염색 분체</option></select>
+            가 형성되며, 방추사가 나타난다.
           </td>
-          <td class="desc-cell">결합한 상동 염색체가 세포 중앙에 배열한다.</td>
-          <td class="desc-cell">상동 염색체가 분리되고 염색체가 세포 양쪽 끝으로 이동한다.</td>
-          <td class="desc-cell">핵막이 나타나고, 세포질이 나누어진다.</td>
+          <td class="desc-cell">
+            2가 염색체가 세포 중앙에 배열되고, 방추사가 각각의
+            <select id="blank-m1meta"><option value="">-선택-</option><option value="상동염색체">상동 염색체</option><option value="염색분체">염색 분체</option><option value="DNA">DNA</option></select>
+            에 붙는다.
+          </td>
+          <td class="desc-cell">
+            <select id="blank-m1ana"><option value="">-선택-</option><option value="상동염색체">상동 염색체</option><option value="염색분체">염색 분체</option><option value="방추사">방추사</option></select>
+            가 각각 방추사에 이끌려 세포의 양쪽 끝으로 이동한다.
+          </td>
+          <td class="desc-cell">
+            두 개의 핵이 형성되며, 세포질이 나누어져 두 개의
+            <select id="blank-m1telo"><option value="">-선택-</option><option value="딸세포">딸세포</option><option value="모세포">모세포</option><option value="생식세포">생식세포</option></select>
+            가 생긴다.
+          </td>
         </tr>
       </tbody>
     </table>
 
-    <div class="table-caption">감수 2분열</div>
+    <div class="table-caption">감수 2분열 → 생식세포 형성</div>
     <table class="meiosis-table">
       <thead>
         <tr>
@@ -233,22 +278,21 @@
         </tr>
         <tr>
           <td class="desc-cell">
-            두 개의
-            <select class="blank-select" id="blank3"><option value="">-선택-</option><option value="염색분체">염색 분체</option><option value="상동염색체">상동 염색체</option><option value="DNA가닥">DNA 가닥</option></select>
-            로 이루어진 염색체가 있고, 핵막이 사라진다.
+            감수 1분열로 생긴 딸세포는
+            <select id="blank-m2pro"><option value="">-선택-</option><option value="DNA복제">DNA 복제</option><option value="세포질분열">세포질 분열</option><option value="핵분열">핵분열</option></select>
+            없이 감수 2분열 전기로 이어져 방추사가 나타나기 시작한다.
           </td>
-          <td class="desc-cell">염색체가 세포 중앙에 배열한다.</td>
+          <td class="desc-cell">염색체가 세포 중앙에 배열되고, 방추사가 각 염색체에 붙는다.</td>
           <td class="desc-cell">
-            염색체의
-            <select class="blank-select" id="blank4"><option value="">-선택-</option><option value="염색분체">염색 분체</option><option value="상동염색체">상동 염색체</option></select>
-            가 분리되어 세포 양쪽 끝으로 이동한다.
+            <select id="blank-m2ana"><option value="">-선택-</option><option value="염색분체">염색 분체</option><option value="상동염색체">상동 염색체</option><option value="2가염색체">2가 염색체</option></select>
+            가 방추사에 이끌려 양쪽 끝으로 이동한다.
           </td>
           <td class="desc-cell">
-            세포질이 나누어지고, 핵막이 나타나고, 딸세포
-            <select class="blank-select" id="blank5"><option value="">-선택-</option><option value="2개">2개</option><option value="4개">4개</option><option value="8개">8개</option></select>
-            를 만든다.
+            핵막이 나타나 핵이 형성되고, 세포질이 나누어져
+            <select id="blank-m2telo"><option value="">-선택-</option><option value="네">네(4)</option><option value="두">두(2)</option><option value="여덟">여덟(8)</option></select>
+            개의 딸세포가 생긴다.
           </td>
-          <td class="desc-cell">딸세포는 정자 또는 난자가 된다.</td>
+          <td class="desc-cell">딸세포는 정자, 난자와 같은 생식세포가 된다.</td>
         </tr>
       </tbody>
     </table>
@@ -262,6 +306,46 @@
     <div class="photo-toolbar"><button type="button" id="photo-shuffle">그림 다시 섞기</button></div>
     <div class="photo-bank" id="photo-bank"></div>
     <span class="q-feedback" id="photo-feedback"></span>
+  </section>
+
+  <!-- 생식세포 분열의 의의 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--dye)">의의</span>생식세포 분열은 왜 중요할까?</div>
+
+    <div class="q" id="q-selfcheck" style="border-top:none; padding-top:0;">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        [자기 점검] 사람의 세포에 들어 있는 염색체 수가 절반으로 줄어드는 생식세포 분열 시기는
+        <span class="choice-group" data-answer="감수1분열">
+          <button type="button" class="choice-btn" data-value="감수1분열">감수 1분열</button>
+          <button type="button" class="choice-btn" data-value="감수2분열">감수 2분열</button>
+        </span>
+        인가?
+      </div>
+      <span class="q-feedback" id="q-selfcheck-feedback"></span>
+    </div>
+
+    <div class="q" id="q-meaning">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        생식세포 분열 결과, 생식세포는 염색체의 수가 모세포의
+        <span class="choice-group" data-answer="절반">
+          <button type="button" class="choice-btn" data-value="절반">절반</button>
+          <button type="button" class="choice-btn" data-value="2배">2배</button>
+        </span>
+        이 되므로, 암수 생식세포가 결합하여 생긴 자손은 부모와
+        <span class="choice-group" data-answer="같은">
+          <button type="button" class="choice-btn" data-value="같은">같은</button>
+          <button type="button" class="choice-btn" data-value="다른">다른</button>
+        </span>
+        수의 염색체를 가지게 된다. 그래서 생물은 세대를 거듭해도 자손의 염색체 수가 변하지 않고 항상 일정하게 유지된다.
+      </div>
+      <span class="q-feedback" id="q-meaning-feedback"></span>
+    </div>
+
+    <div class="example-note">
+      <b>생식세포 분열의 예</b> — 사람의 정자·난자뿐 아니라, 식물의 꽃가루도 그림 V-9처럼 꽃밥 속 꽃가루 모세포가 생식세포 분열을 거쳐 딸세포 4개(꽃가루)를 만듭니다. 사람의 난세포도 동물의 난자와 같은 생식세포예요.
+    </div>
   </section>
 
   <!-- 제출 -->
@@ -294,94 +378,114 @@ const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pO
 
 <script>
 /* ==========================================================
-   세포 그림(SVG) 생성 — 실제 현미경 사진 대신 감수 분열 각 시기의
-   염색체 배치를 도식화해서 표현합니다.
+   세포 그림(SVG) 생성 — 교과서 그림 V-8을 참고해, 상동 염색체 한 쌍을
+   빨강·파랑으로 색을 구분해 감수 분열 각 시기를 도식화합니다.
 =========================================================== */
-function cellWrap(inner, {dashed=false, r=42} = {}){
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="${r}" fill="#FBFAF6" stroke="#B9C4B4" stroke-width="2.4" ${dashed ? 'stroke-dasharray="5 4"' : ''}/>
-    ${inner}
-  </svg>`;
+const RED = "#D6564A";
+const BLUE = "#3B6FC4";
+const PEACH_FILL = "#FCE4CC";
+const PEACH_STROKE = "#E3B27F";
+const ENV_COLOR = "#B9915F";
+
+function cellCircle(cx, cy, r){
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${PEACH_FILL}" stroke="${PEACH_STROKE}" stroke-width="2.2"/>`;
 }
-function twoCellWrap(innerLeft, innerRight){
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="30" cy="50" r="26" fill="#FBFAF6" stroke="#B9C4B4" stroke-width="2.2"/>
-    <circle cx="30" cy="50" r="17" fill="none" stroke="#DCD6C7" stroke-width="1.4"/>
-    <g transform="translate(-20,0)">${innerLeft}</g>
-    <circle cx="70" cy="50" r="26" fill="#FBFAF6" stroke="#B9C4B4" stroke-width="2.2"/>
-    <circle cx="70" cy="50" r="17" fill="none" stroke="#DCD6C7" stroke-width="1.4"/>
-    <g transform="translate(20,0)">${innerRight}</g>
-  </svg>`;
+function nucleusRing(cx, cy, r, dashed){
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${ENV_COLOR}" stroke-width="1.5" ${dashed ? 'stroke-dasharray="3 3"' : ''}/>`;
+}
+function spindleFan(cx, cy, poleY, spread){
+  let s = `<g stroke="${ENV_COLOR}" stroke-width="1" opacity="0.55">`;
+  for(let i = -2; i <= 2; i++){
+    s += `<line x1="${cx}" y1="${poleY}" x2="${cx + i * spread}" y2="${cy}"/>`;
+  }
+  return s + "</g>";
 }
 function xShape(cx, cy, s, color){
-  return `<g stroke="${color}" stroke-width="4" stroke-linecap="round">
+  return `<g stroke="${color}" stroke-width="4.4" stroke-linecap="round">
     <line x1="${cx-s}" y1="${cy-s}" x2="${cx+s}" y2="${cy+s}"/>
     <line x1="${cx-s}" y1="${cy+s}" x2="${cx+s}" y2="${cy-s}"/>
   </g>`;
 }
 function barShape(cx, cy, s, color, rot){
-  return `<g stroke="${color}" stroke-width="4" stroke-linecap="round" transform="rotate(${rot} ${cx} ${cy})">
+  return `<g stroke="${color}" stroke-width="4.4" stroke-linecap="round" transform="rotate(${rot} ${cx} ${cy})">
     <line x1="${cx}" y1="${cy-s}" x2="${cx}" y2="${cy+s}"/>
   </g>`;
 }
-
-const RED = "#C0512F";
-const PURPLE = "#7B5EA7";
+function wrapSvg(inner){
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+function twoCellSvg(innerLeft, innerRight){
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${cellCircle(28,50,25)}${innerLeft}
+    ${cellCircle(72,50,25)}${innerRight}
+  </svg>`;
+}
 
 const STAGE_SVGS = {
-  "before": cellWrap(`
-    <path d="M38,42 q6,-8 12,0 t12,-2 q4,6 -2,10" fill="none" stroke="${PURPLE}" stroke-width="3.4" stroke-linecap="round"/>
-    <path d="M40,58 q8,6 16,0" fill="none" stroke="${PURPLE}" stroke-width="3.4" stroke-linecap="round"/>
+  "interphase": wrapSvg(`
+    ${cellCircle(50,50,42)}
+    ${nucleusRing(50,50,20,false)}
+    <path d="M40,44 q6,-8 10,0 t10,-2" fill="none" stroke="${RED}" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M40,58 q8,6 16,-1" fill="none" stroke="${BLUE}" stroke-width="2.6" stroke-linecap="round"/>
   `),
-  "m1-pro": cellWrap(`
-    ${xShape(38,40,8,RED)}${xShape(48,42,8,RED)}
-    ${xShape(58,60,8,PURPLE)}${xShape(66,58,8,PURPLE)}
-  `, {dashed:true}),
-  "m1-meta": cellWrap(`
-    <line x1="50" y1="14" x2="50" y2="86" stroke="#DCD6C7" stroke-width="1.4" stroke-dasharray="3 3"/>
-    ${xShape(46,32,8,RED)}${xShape(54,32,8,RED)}
-    ${xShape(46,68,8,PURPLE)}${xShape(54,68,8,PURPLE)}
+  "m1-pro": wrapSvg(`
+    ${cellCircle(50,50,42)}
+    ${nucleusRing(50,50,30,true)}
+    ${spindleFan(50,50,10,12)}${spindleFan(50,50,90,12)}
+    ${xShape(45,48,9,RED)}${xShape(56,52,9,BLUE)}
   `),
-  "m1-ana": cellWrap(`
-    ${xShape(42,20,8,RED)}${xShape(58,20,8,PURPLE)}
-    ${xShape(42,80,8,RED)}${xShape(58,80,8,PURPLE)}
+  "m1-meta": wrapSvg(`
+    ${cellCircle(50,50,42)}
+    ${spindleFan(50,50,10,20)}${spindleFan(50,50,90,20)}
+    <line x1="20" y1="50" x2="80" y2="50" stroke="#DCD6C7" stroke-width="1" stroke-dasharray="3 3"/>
+    ${xShape(43,50,9,RED)}${xShape(57,50,9,BLUE)}
   `),
-  "m1-telo": twoCellWrap(
-    `${xShape(-6,-8,7,RED)}${xShape(6,8,7,PURPLE)}`,
-    `${xShape(-6,-8,7,RED)}${xShape(6,8,7,PURPLE)}`
+  "m1-ana": wrapSvg(`
+    ${cellCircle(50,50,42)}
+    ${spindleFan(50,50,10,20)}${spindleFan(50,50,90,20)}
+    ${xShape(50,24,9,RED)}${xShape(50,76,9,BLUE)}
+  `),
+  "m1-telo": twoCellSvg(
+    `${nucleusRing(28,50,15,false)}${xShape(28,50,8,RED)}`,
+    `${nucleusRing(72,50,15,false)}${xShape(72,50,8,BLUE)}`
   ),
-  "m2-pro": cellWrap(`
-    ${xShape(40,42,8,RED)}${xShape(60,58,8,PURPLE)}
-  `, {dashed:true, r:32}),
-  "m2-meta": cellWrap(`
-    <line x1="50" y1="24" x2="50" y2="76" stroke="#DCD6C7" stroke-width="1.4" stroke-dasharray="3 3"/>
-    ${xShape(50,38,8,RED)}${xShape(50,62,8,PURPLE)}
-  `, {r:32}),
-  "m2-ana": cellWrap(`
-    ${barShape(38,22,9,RED,20)}${barShape(62,22,9,PURPLE,-20)}
-    ${barShape(38,78,9,RED,-20)}${barShape(62,78,9,PURPLE,20)}
-  `, {r:32}),
-  "m2-telo": twoCellWrap(
-    `${barShape(0,-10,7,RED,0)}${barShape(0,10,7,PURPLE,0)}`,
-    `${barShape(0,-10,7,RED,0)}${barShape(0,10,7,PURPLE,0)}`
-  ),
-  "gamete": cellWrap(`
-    <circle cx="42" cy="46" r="10" fill="#FBEAE4" stroke="${RED}" stroke-width="2.2"/>
-    <circle cx="42" cy="46" r="4" fill="${RED}"/>
-    <circle cx="66" cy="62" r="4" fill="${PURPLE}"/>
-    <line x1="66" y1="62" x2="78" y2="72" stroke="${PURPLE}" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M78,72 q6,2 8,8" fill="none" stroke="${PURPLE}" stroke-width="2" stroke-linecap="round"/>
-  `, {r:38})
+  "m2-pro": wrapSvg(`
+    ${cellCircle(50,50,36)}
+    ${nucleusRing(50,50,24,true)}
+    ${spindleFan(50,50,16,10)}${spindleFan(50,50,84,10)}
+    ${xShape(50,50,9,RED)}
+  `),
+  "m2-meta": wrapSvg(`
+    ${cellCircle(50,50,36)}
+    ${spindleFan(50,50,16,16)}${spindleFan(50,50,84,16)}
+    <line x1="26" y1="50" x2="74" y2="50" stroke="#DCD6C7" stroke-width="1" stroke-dasharray="3 3"/>
+    ${xShape(50,50,9,RED)}
+  `),
+  "m2-ana": wrapSvg(`
+    ${cellCircle(50,50,36)}
+    ${spindleFan(50,50,16,16)}${spindleFan(50,50,84,16)}
+    ${barShape(50,26,9,RED,0)}${barShape(50,74,9,RED,0)}
+  `),
+  "m2-telo": twoCellSvg(
+    `${nucleusRing(28,50,14,false)}${barShape(28,50,7,RED,0)}`,
+    `${nucleusRing(72,50,14,false)}${barShape(72,50,7,RED,0)}`
+  )
 };
 
-const STAGE_LABELS = {
-  "m1-pro": "감수 1분열 전기", "m1-meta": "감수 1분열 중기", "m1-ana": "감수 1분열 후기", "m1-telo": "감수 1분열 말기",
-  "m2-pro": "감수 2분열 전기", "m2-meta": "감수 2분열 중기", "m2-ana": "감수 2분열 후기", "m2-telo": "감수 2분열 말기"
-};
-
-/* 고정 아이콘(분열 전 / 생식세포 형성)은 바로 표시 */
-document.getElementById("icon-before").innerHTML = STAGE_SVGS["before"];
-document.getElementById("icon-gamete").innerHTML = STAGE_SVGS["gamete"];
+/* 고정 아이콘(간기 / 생식세포 형성)은 바로 표시 */
+document.getElementById("icon-interphase").innerHTML = STAGE_SVGS["interphase"];
+document.getElementById("icon-gamete").innerHTML = wrapSvg(`
+  ${cellCircle(50,50,40)}
+  <circle cx="38" cy="46" r="9" fill="${PEACH_FILL}" stroke="${RED}" stroke-width="2.2"/>
+  <circle cx="38" cy="46" r="3.4" fill="${RED}"/>
+  <circle cx="64" cy="60" r="3.6" fill="${BLUE}"/>
+  <line x1="64" y1="60" x2="76" y2="70" stroke="${BLUE}" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M76,70 q6,2 7,7" fill="none" stroke="${BLUE}" stroke-width="1.8" stroke-linecap="round"/>
+`);
+document.getElementById("term-box-svg").insertAdjacentHTML("afterbegin", wrapSvg(`
+  ${cellCircle(50,50,44)}
+  ${xShape(40,50,11,RED)}${xShape(58,50,11,BLUE)}
+`));
 
 /* ==========================================================
    클릭으로 그림 배치하기
@@ -439,7 +543,6 @@ function renderPhotos(){
     if(!cell) return;
     const placedStage = placements[slotId];
     cell.innerHTML = "";
-    cell.classList.remove("filled");
 
     const slotEl = document.createElement("div");
     slotEl.className = "photo-slot" + (placedStage ? " filled" : "");
@@ -468,6 +571,22 @@ document.getElementById("photo-shuffle").addEventListener("click", resetPhotoSta
 resetPhotoState();
 
 /* ==========================================================
+   선택형(choice-group) 토글
+=========================================================== */
+document.querySelectorAll(".choice-group").forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+/* ==========================================================
    채점 / 제출
 =========================================================== */
 function setFeedback(id, ok, correctText){
@@ -475,6 +594,12 @@ function setFeedback(id, ok, correctText){
   el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
   el.className = "q-feedback " + (ok ? "ok" : "bad");
 }
+
+const BLANK_IDS = ["interphase","m1pro","m1meta","m1ana","m1telo","m2pro","m2ana","m2telo"];
+const BLANK_ANSWERS = {
+  interphase: "커진다", m1pro: "2가염색체", m1meta: "상동염색체", m1ana: "상동염색체",
+  m1telo: "딸세포", m2pro: "DNA복제", m2ana: "염색분체", m2telo: "네"
+};
 
 const submitBtn = document.getElementById("ws-submit");
 const resetBtn = document.getElementById("ws-reset");
@@ -492,16 +617,23 @@ submitBtn.addEventListener("click", async () => {
     return;
   }
 
-  const b1 = document.getElementById("blank1").value;
-  const b2 = document.getElementById("blank2").value;
-  const b3 = document.getElementById("blank3").value;
-  const b4 = document.getElementById("blank4").value;
-  const b5 = document.getElementById("blank5").value;
+  const blankValues = {};
+  BLANK_IDS.forEach(id => { blankValues[id] = document.getElementById("blank-" + id).value; });
+
+  const scChoice = pickedValue(document.querySelector("#q-selfcheck .choice-group"));
+  const meaningGroups = document.querySelectorAll("#q-meaning .choice-group");
+  const meaning1 = pickedValue(meaningGroups[0]);
+  const meaning2 = pickedValue(meaningGroups[1]);
 
   const placedCount = Object.keys(placements).length;
+  const blanksFilled = BLANK_IDS.every(id => blankValues[id] !== "");
 
-  if(!b1 || !b2 || !b3 || !b4 || !b5){
+  if(!blanksFilled){
     alert("표의 빈칸(선택 상자)을 모두 채워 주세요.");
+    return;
+  }
+  if(!scChoice || !meaning1 || !meaning2){
+    alert("생식세포 분열의 의의 문항을 모두 선택해 주세요.");
     return;
   }
   if(placedCount < DRAG_STAGES.length){
@@ -510,15 +642,10 @@ submitBtn.addEventListener("click", async () => {
   }
 
   // 빈칸 채점
-  const b1Ok = b1 === "2배";
-  const b2Ok = b2 === "2가염색체";
-  const b3Ok = b3 === "염색분체";
-  const b4Ok = b4 === "염색분체";
-  const b5Ok = b5 === "4개";
-  const blankResults = [b1Ok,b2Ok,b3Ok,b4Ok,b5Ok];
+  const blankResults = BLANK_IDS.map(id => blankValues[id] === BLANK_ANSWERS[id]);
   const blankCorrect = blankResults.filter(Boolean).length;
   setFeedback("blank-feedback", blankCorrect === blankResults.length,
-    "2배 / 2가 염색체 / 염색 분체 / 염색 분체 / 4개");
+    "커진다 / 2가 염색체 / 상동 염색체 / 상동 염색체 / 딸세포 / DNA 복제 / 염색 분체 / 네(4)");
 
   // 그림 배치 채점
   let photoCorrect = 0;
@@ -537,8 +664,15 @@ submitBtn.addEventListener("click", async () => {
   setFeedback("photo-feedback", photoCorrect === DRAG_STAGES.length,
     "표의 순서(감수1분열 전기→중기→후기→말기, 감수2분열 전기→중기→후기→말기)대로 배치");
 
-  const correctCount = blankCorrect + photoCorrect;
-  const total = blankResults.length + DRAG_STAGES.length;
+  // 의의 문항 채점
+  const scOk = scChoice === "감수1분열";
+  setFeedback("q-selfcheck-feedback", scOk, "감수 1분열");
+
+  const meaningOk = meaning1 === "절반" && meaning2 === "같은";
+  setFeedback("q-meaning-feedback", meaningOk, "절반 / 같은");
+
+  const correctCount = blankCorrect + photoCorrect + (scOk ? 1 : 0) + (meaningOk ? 1 : 0);
+  const total = blankResults.length + DRAG_STAGES.length + 2;
   wsResult.textContent = `${correctCount} / ${total} 개 정답`;
   wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
 
@@ -550,9 +684,13 @@ submitBtn.addEventListener("click", async () => {
   const payload = {
     worksheet: "5_saengsiksepo_hyeongseong",
     grade, classNum, number, name,
-    blank1: b1, blank2: b2, blank3: b3, blank4: b4, blank5: b5,
+    blank_interphase: blankValues.interphase, blank_m1pro: blankValues.m1pro,
+    blank_m1meta: blankValues.m1meta, blank_m1ana: blankValues.m1ana, blank_m1telo: blankValues.m1telo,
+    blank_m2pro: blankValues.m2pro, blank_m2ana: blankValues.m2ana, blank_m2telo: blankValues.m2telo,
     photo_placement: photoAnswer,
     photo_score: String(photoCorrect),
+    selfcheck_choice: scChoice,
+    meaning_choice1: meaning1, meaning_choice2: meaning2,
     score: String(correctCount),
     total: String(total)
   };
@@ -581,6 +719,7 @@ submitBtn.addEventListener("click", async () => {
 
 resetBtn.addEventListener("click", () => {
   document.querySelectorAll(".meiosis-table select").forEach(s => s.value = "");
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
   document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
   wsResult.textContent = "";
   wsResult.className = "ws-result";
