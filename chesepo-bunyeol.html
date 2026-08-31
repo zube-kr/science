@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>체세포 분열 — 하나의 세포가 둘로</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --cell:#2F8F6F;
+    --cell-soft:#E1F3EC;
+    --dye:#C0512F;
+    --dye-soft:#FBEAE4;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--cell),var(--dye)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:720px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 개념 정리(읽기) ---------- */
+  .concept-flow{ display:flex; flex-wrap:wrap; align-items:stretch; gap:6px; margin-bottom:4px; }
+  .concept-step{
+    flex:1; min-width:150px; background:#FBFAF6; border:1px solid var(--line); border-radius:12px;
+    padding:10px 12px; font-size:12px; line-height:1.65;
+  }
+  .concept-step b{ display:block; font-size:12.5px; color:var(--cell); font-weight:800; margin-bottom:3px; }
+  .concept-arrow{ display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:16px; flex:0 0 18px; }
+  @media (max-width:720px){ .concept-arrow{ display:none; } }
+
+  .divide-compare{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  @media (max-width:600px){ .divide-compare{ grid-template-columns:1fr; } }
+  .divide-box{ background:#FBFAF6; border:1px solid var(--line); border-radius:12px; padding:11px 13px; }
+  .divide-box b{ display:block; font-size:12.5px; color:var(--dye); font-weight:800; margin-bottom:4px; }
+  .divide-box p{ font-size:12.5px; line-height:1.7; }
+
+  /* ---------- 문항 공통 ---------- */
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .q-desc{
+    font-size:12.5px; color:var(--ink-soft); background:#FBFAF6; border:1px solid var(--line);
+    border-radius:10px; padding:9px 12px; margin:6px 0 8px; line-height:1.7;
+  }
+  .blank-input{
+    display:inline-block; width:88px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--cell); color:var(--cell); background:var(--cell-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+
+  textarea.long-answer{
+    width:100%; min-height:64px; resize:vertical; font-family:inherit; font-size:13px;
+    border:1px solid var(--line); border-radius:10px; padding:9px 11px; background:#FBFAF6; line-height:1.6;
+  }
+
+  .multi-choice{ display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+  .multi-item{
+    display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1.5px solid var(--line);
+    border-radius:10px; cursor:pointer; font-size:12.5px; line-height:1.6; background:#fff; transition:.15s;
+  }
+  .multi-item:hover{ border-color:var(--cell); }
+  .multi-item.picked{ border-color:var(--cell); background:var(--cell-soft); }
+  .multi-check{
+    flex-shrink:0; width:18px; height:18px; border-radius:5px; border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff;
+    background:#fff; margin-top:1px;
+  }
+  .multi-item.picked .multi-check{ background:var(--cell); border-color:var(--cell); }
+
+  /* ---------- 공용: 학생 정보 / 제출 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  footer{ max-width:980px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 생식과 유전 · 1. 생식과 발생 (교과서 188~189쪽)</div>
+    <h1>체세포 분열 — <span>하나의 세포가 둘로</span></h1>
+    <p class="sub">양파 뿌리 끝의 체세포 분열 과정을 정리하고, 아래 문항을 모두 풀면 자동으로 채점되어 선생님 스프레드시트에 기록됩니다.</p>
+  </header>
+
+  <!-- 개념 정리 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">개념</span>체세포 분열이란?</div>
+    <div class="card-hint">양파 뿌리 끝을 관찰하면 체세포 분열을 하고 있는 세포들을 볼 수 있어요. 체세포 분열은 하나의 핵이 두 개가 되는 <b>핵분열</b>과, 세포질이 나뉘는 <b>세포질 분열</b>로 이루어집니다.</div>
+
+    <div class="concept-flow">
+      <div class="concept-step"><b>간기</b>핵막이 뚜렷하고 염색사 형태로 존재. 세포 크기가 커지고 DNA가 복제되어 분열을 준비한다.</div>
+      <div class="concept-arrow">→</div>
+      <div class="concept-step"><b>핵분열</b>염색사가 염색체로 응축되고, 염색체가 정렬했다가 양극으로 나뉜다. (전기·중기·후기·말기)</div>
+      <div class="concept-arrow">→</div>
+      <div class="concept-step"><b>세포질 분열</b>말기에 시작되어, 하나의 모세포가 두 개의 딸세포로 나뉘며 마무리된다.</div>
+    </div>
+  </section>
+
+  <!-- 핵분열 단계 맞히기 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--dye)">핵분열 단계</span>이 설명은 어떤 시기일까요?</div>
+    <div class="card-hint">아래 설명을 읽고 간기·전기·중기·후기·말기 중 알맞은 시기를 적어 보세요.</div>
+
+    <div class="q" id="s1">
+      <div class="q-desc">핵막이 뚜렷하게 보이며 실처럼 풀어져 있는 염색사 형태로 있다. 유전 물질이 복제되고 세포의 크기가 커진다.</div>
+      <div class="q-text"><span class="q-num">1</span>이 시기는? <input type="text" class="blank-input" id="s1-blank" placeholder="예: 간기"></div>
+      <span class="q-feedback" id="s1-feedback"></span>
+    </div>
+
+    <div class="q" id="s2">
+      <div class="q-desc">염색사가 응축되어 염색체가 되며, 방추사가 형성되고 핵막이 사라진다.</div>
+      <div class="q-text"><span class="q-num">2</span>이 시기는? <input type="text" class="blank-input" id="s2-blank" placeholder="예: 전기"></div>
+      <span class="q-feedback" id="s2-feedback"></span>
+    </div>
+
+    <div class="q" id="s3">
+      <div class="q-desc">방추사가 부착된 염색체가 세포 중앙에 배열된다.</div>
+      <div class="q-text"><span class="q-num">3</span>이 시기는? <input type="text" class="blank-input" id="s3-blank" placeholder="예: 중기"></div>
+      <span class="q-feedback" id="s3-feedback"></span>
+    </div>
+
+    <div class="q" id="s4">
+      <div class="q-desc">방추사에 의해 염색 분체가 분리되어 양극으로 이동한다.</div>
+      <div class="q-text"><span class="q-num">4</span>이 시기는? <input type="text" class="blank-input" id="s4-blank" placeholder="예: 후기"></div>
+      <span class="q-feedback" id="s4-feedback"></span>
+    </div>
+
+    <div class="q" id="s5">
+      <div class="q-desc">염색체가 풀리고 핵막이 다시 나타나 원래와 같은 두 개의 핵이 생긴다. 세포질 분열이 시작된다.</div>
+      <div class="q-text"><span class="q-num">5</span>이 시기는? <input type="text" class="blank-input" id="s5-blank" placeholder="예: 말기"></div>
+      <span class="q-feedback" id="s5-feedback"></span>
+    </div>
+  </section>
+
+  <!-- 세포질 분열 비교 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--cell)">세포질 분열</span>식물 세포와 동물 세포, 나뉘는 모양이 달라요</div>
+    <div class="card-hint">핵분열이 끝나 가는 말기에 세포질 분열이 시작돼요. 식물 세포와 동물 세포는 세포질이 나뉘는 모양이 다릅니다.</div>
+
+    <div class="divide-compare">
+      <div class="divide-box">
+        <b>🌱 식물 세포</b>
+        <p>두 핵 사이에 <input type="text" class="blank-input" id="cyto1-blank" placeholder="예: 세포판" style="width:80px;"> 이 점점 자라면서 두 개의 딸세포로 나누어진다.</p>
+      </div>
+      <div class="divide-box">
+        <b>🐾 동물 세포</b>
+        <p>밖에서 안으로 <input type="text" class="blank-input" id="cyto2-blank" placeholder="예: 세포막" style="width:80px;"> 이 잘록하게 들어가면서(함입) 세포질이 나누어진다.</p>
+      </div>
+    </div>
+    <span class="q-feedback" id="cyto-feedback" style="margin-top:10px;"></span>
+  </section>
+
+  <!-- 체세포 분열의 의의 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--dye)">의의</span>체세포 분열은 왜 일어날까?</div>
+
+    <div class="q" id="dna1" style="border-top:none; padding-top:0;">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        체세포 분열 과정으로 생성된 딸세포는 모세포와
+        <input type="text" class="blank-input" id="dna1-blank" placeholder="예: 같은">
+        유전 정보를 가진다. 대부분의 생물은 생장하거나 상처가 난 곳에서 손상된 세포를 대체할 때, 단세포 생물은 새로운 개체를 만들 때 체세포 분열을 이용한다.
+      </div>
+      <span class="q-feedback" id="dna1-feedback"></span>
+    </div>
+
+    <div class="q" id="ex1">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        다음 중 체세포 분열이 일어나는 경우를 <b>모두</b> 골라 보세요.
+      </div>
+      <div class="multi-choice" id="ex1-choices">
+        <div class="multi-item" data-value="a"><span class="multi-check"></span>식물 조직(뿌리·줄기)의 생장</div>
+        <div class="multi-item" data-value="b"><span class="multi-check"></span>도마뱀 꼬리의 재생</div>
+        <div class="multi-item" data-value="c"><span class="multi-check"></span>아메바 같은 단세포 생물의 번식</div>
+        <div class="multi-item" data-value="d"><span class="multi-check"></span>정자와 난자가 만들어지는 생식세포 분열(감수 분열)</div>
+      </div>
+      <span class="q-feedback" id="ex1-feedback"></span>
+    </div>
+  </section>
+
+  <!-- 스스로 점검 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">스스로 점검</span>교과서 189쪽 확인 문제</div>
+
+    <div class="q" id="s6" style="border-top:none; padding-top:0;">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        세포가 커지면 부피에 대한 표면적이 상대적으로
+        <span class="choice-group" data-answer="작아">
+          <button type="button" class="choice-btn" data-value="커">커</button>
+          <button type="button" class="choice-btn" data-value="작아">작아</button>
+        </span>
+        지므로 물질 교환이
+        <span class="choice-group" data-answer="어려워진다">
+          <button type="button" class="choice-btn" data-value="어려워진다">어려워진다</button>
+          <button type="button" class="choice-btn" data-value="원활해진다">원활해진다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="s6-feedback"></span>
+    </div>
+
+    <div class="q" id="s7">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        체세포 분열에서 핵이 나누어지는 과정은 염색체의 행동에 따라
+        <input type="text" class="blank-input" id="s7-blank1" placeholder="예: 전기">,
+        중기,
+        <input type="text" class="blank-input" id="s7-blank2" placeholder="예: 후기">,
+        말기로 구분한다.
+      </div>
+      <span class="q-feedback" id="s7-feedback"></span>
+    </div>
+
+    <div class="q" id="s8">
+      <div class="q-text"><span class="q-num">3</span>[창의적 사고력] 체세포 분열 결과 만들어진 딸세포가 모세포와 똑같은 유전 정보를 가짐으로써 생물에게 유리한 점은 무엇인지 설명해 보자. (서술형 문항은 선생님이 직접 확인합니다.)</div>
+      <textarea class="long-answer" id="s8-answer" placeholder="예) 딸세포가 모세포와 같은 유전 정보를 가지므로 ..."></textarea>
+    </div>
+  </section>
+
+  <!-- 제출 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">제출</span>학생 정보를 입력하고 채점받기</div>
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · Ⅴ. 생식과 유전 · 체세포 분열</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 아화중 공용 Apps Script(code.gs) 웹 앱 주소를 그대로 사용합니다.
+  다른 워크시트와 마찬가지로 worksheet 값으로 시트 탭이 자동으로 나뉩니다.
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+document.querySelectorAll(".choice-group").forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+document.querySelectorAll(".multi-item").forEach(item => {
+  item.addEventListener("click", () => {
+    item.classList.toggle("picked");
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+function blankMatches(inputVal, ...answers){
+  const v = normalize(inputVal);
+  return answers.some(a => v === normalize(a) || v.includes(normalize(a)));
+}
+
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const s1 = document.getElementById("s1-blank").value;
+  const s2 = document.getElementById("s2-blank").value;
+  const s3 = document.getElementById("s3-blank").value;
+  const s4 = document.getElementById("s4-blank").value;
+  const s5 = document.getElementById("s5-blank").value;
+
+  const cyto1 = document.getElementById("cyto1-blank").value;
+  const cyto2 = document.getElementById("cyto2-blank").value;
+
+  const dna1 = document.getElementById("dna1-blank").value;
+  const ex1Picked = Array.from(document.querySelectorAll("#ex1-choices .multi-item.picked")).map(el => el.dataset.value);
+
+  const s6c1 = pickedValue(document.querySelectorAll("#s6 .choice-group")[0]);
+  const s6c2 = pickedValue(document.querySelectorAll("#s6 .choice-group")[1]);
+  const s7b1 = document.getElementById("s7-blank1").value;
+  const s7b2 = document.getElementById("s7-blank2").value;
+  const s8 = document.getElementById("s8-answer").value.trim();
+
+  const requiredFilled = [s1,s2,s3,s4,s5,cyto1,cyto2,dna1,s6c1,s6c2,s7b1,s7b2,s8]
+    .every(v => (v || "").toString().trim() !== "");
+  if(!requiredFilled || ex1Picked.length === 0){
+    alert("모든 문항에 답해 주세요. (체세포 분열이 일어나는 경우는 옳은 것을 모두 골라주세요)");
+    return;
+  }
+
+  // 채점
+  const s1Ok = blankMatches(s1, "간기");
+  setFeedback("s1-feedback", s1Ok, "간기");
+  const s2Ok = blankMatches(s2, "전기");
+  setFeedback("s2-feedback", s2Ok, "전기");
+  const s3Ok = blankMatches(s3, "중기");
+  setFeedback("s3-feedback", s3Ok, "중기");
+  const s4Ok = blankMatches(s4, "후기");
+  setFeedback("s4-feedback", s4Ok, "후기");
+  const s5Ok = blankMatches(s5, "말기");
+  setFeedback("s5-feedback", s5Ok, "말기");
+
+  const cyto1Ok = blankMatches(cyto1, "세포판");
+  const cyto2Ok = blankMatches(cyto2, "세포막");
+  setFeedback("cyto-feedback", cyto1Ok && cyto2Ok, "세포판 / 세포막");
+
+  const dna1Ok = blankMatches(dna1, "같은", "동일한", "똑같은", "일치하는");
+  setFeedback("dna1-feedback", dna1Ok, "같은(동일한)");
+
+  const ex1Correct = ["a","b","c"];
+  const ex1Ok = ex1Picked.length === ex1Correct.length && ex1Correct.every(v => ex1Picked.includes(v));
+  setFeedback("ex1-feedback", ex1Ok, "식물 조직의 생장 / 도마뱀 꼬리의 재생 / 단세포 생물의 번식");
+
+  const s6Ok = s6c1 === "작아" && s6c2 === "어려워진다";
+  setFeedback("s6-feedback", s6Ok, "작아 / 어려워진다");
+
+  const s7Ok = blankMatches(s7b1, "전기") && blankMatches(s7b2, "후기");
+  setFeedback("s7-feedback", s7Ok, "전기 / 후기");
+
+  const results = [s1Ok,s2Ok,s3Ok,s4Ok,s5Ok,cyto1Ok,cyto2Ok,dna1Ok,ex1Ok,s6Ok,s7Ok];
+  const correctCount = results.filter(Boolean).length;
+  const total = results.length;
+  wsResult.textContent = `${correctCount} / ${total} 개 정답 (서술형 1문항은 선생님이 별도로 확인해요)`;
+  wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    worksheet: "5_chesepo_bunyeol",
+    grade, classNum, number, name,
+    s1, s2, s3, s4, s5,
+    cyto1, cyto2, dna1,
+    ex1_choices: ex1Picked.join(","),
+    s6_choice1: s6c1, s6_choice2: s6c2,
+    s7_blank1: s7b1, s7_blank2: s7b2,
+    s8_answer: s8,
+    score: String(correctCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(i => i.value = "");
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".multi-item.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".long-answer").forEach(t => t.value = "");
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
