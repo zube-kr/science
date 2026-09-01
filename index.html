@@ -1108,6 +1108,9 @@ const CHESEPO_BUNYEOL_URL = "chesepo-bunyeol.html";
 // ⚠️ saengsiksepo-hyeongseong.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SAENGSIKSEPO_HYEONGSEONG_URL = "saengsiksepo-hyeongseong.html";
 
+// ⚠️ sikmul-mulgwan.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const SIKMUL_MULGWAN_URL = "sikmul-mulgwan.html";
+
 const topicsData = {
   "mul-sangtae-byeonhwa": {
     title: "④ 물질의 상태 변화",
@@ -1269,7 +1272,17 @@ const topicsData = {
       { title: "이온과 이온식", desc: "이온이 만들어지는 과정을 알아봅니다.", ready: false }
     ]
   },
-  "sikmul-energy": { title: "⑤ 식물과 에너지", posts: [ { title: "식물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "sikmul-energy": {
+    title: "⑤ 식물과 에너지",
+    posts: [
+      {
+        title: "1. 물관과 소나무재선충병",
+        desc: "쌍떡잎식물·외떡잎식물의 관다발(물관·체관) 배열을 비교하고, 물관이 막혀 나무가 고사하는 소나무재선충병 사례에 적용해 보는 자동 채점 워크시트입니다.",
+        url: SIKMUL_MULGWAN_URL,
+        ready: true
+      }
+    ]
+  },
   "dongmul-energy": { title: "⑥ 동물과 에너지", posts: [ { title: "동물과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
   "jeongi-jagi": { title: "⑦ 전기와 자기", posts: [ { title: "전기와 자기 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
   "byeol-uju": { title: "⑧ 별과 우주", posts: [ { title: "별과 우주 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
