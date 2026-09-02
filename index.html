@@ -439,17 +439,43 @@ footer{
   color:#aaa;
 }
 
+.post-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
+  flex-shrink:0;
+}
+
 .post-tag{
   font-size:11px;
   color:#02040a;
   background:#ffe17c;
   padding:3px 10px;
   border-radius:12px;
-  flex-shrink:0;
 }
 .post-tag.soon{
   background:#555;
   color:#ccc;
+}
+
+.newtab-btn{
+  font-family:inherit;
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--ink);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:12px;
+  padding:3px 10px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:.2s;
+}
+.newtab-btn:hover{
+  background:rgba(110,231,255,.15);
+  border-color:rgba(110,231,255,.5);
+  color:var(--cyan);
 }
 
 /*==============================
@@ -1373,11 +1399,18 @@ function openSubject(key){
         <div class="post-title">${post.title}</div>
         <div class="post-desc">${post.desc}</div>
       </div>
-      <div class="post-tag${post.ready ? "" : " soon"}">${post.ready ? "바로가기" : "준비중"}</div>
+      <div class="post-actions">
+        <div class="post-tag${post.ready ? "" : " soon"}">${post.ready ? "바로가기" : "준비중"}</div>
+        ${post.ready ? `<button type="button" class="newtab-btn">새창열기 ↗</button>` : ""}
+      </div>
     `;
 
     if(post.ready){
       item.addEventListener("click", () => openPost(post));
+      item.querySelector(".newtab-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.open(post.url, "_blank");
+      });
     }
 
     postlistItems.appendChild(item);
