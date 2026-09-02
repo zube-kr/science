@@ -375,7 +375,7 @@
                    || SpreadsheetApp.getActiveSpreadsheet().insertSheet("응답");
        var d = e.parameter;
        sheet.appendRow([
-         new Date(), d.grade, d.classNum, d.number, d.name,
+         new Date(), d.worksheet, d.grade, d.classNum, d.number, d.name,
          d.c1_blank, d.c2_blank, d.c3_blank, d.c4_blank, d.c5_blank,
          d.q1_blank, d.q2_choice, d.q3_choice, d.q4_choice, d.q4_blank,
          d.q5_blank, d.q6_blank,
@@ -390,9 +390,15 @@
      로 설정하고 배포한 뒤, 발급된 웹 앱 URL을 복사합니다.
   4) 아래 SPREADSHEET_WEBHOOK_URL 값에 그 주소를 붙여넣으세요.
      (비워두면 학생 화면에서 채점만 되고 스프레드시트 전송은 생략됩니다.)
+
+  ※ 다른 워크시트(sikmul-mulgwan.html 등)와 같은 웹훅 주소를 그대로 재사용해도 됩니다.
+     이 경우 제출값에 담긴 d.worksheet 값("5_gwanghapseong_jangso")으로 어떤
+     워크시트에서 온 응답인지 구분할 수 있으니, doPost에서 이 값에 따라 다른
+     시트(탭)에 appendRow 하도록 분기해 주세요. 그렇지 않으면 다른 워크시트와
+     같은 "응답" 시트에 필드명이 다른 채로 한 줄씩 쌓이게 됩니다.
 =========================================================== -->
 <script>
-const SPREADSHEET_WEBHOOK_URL = "";
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
 </script>
 
 <script>
@@ -577,6 +583,7 @@ submitBtn.addEventListener("click", async () => {
   wsStatus.textContent = "제출 중...";
 
   const payload = {
+    worksheet: "5_gwanghapseong_jangso",
     grade, classNum, number, name,
     c1_blank: c1, c2_blank: c2, c3_blank: c3, c4_blank: c4, c5_blank: c5,
     q1_blank: q1Blank, q2_choice: q2Choice, q3_choice: q3Choice,
