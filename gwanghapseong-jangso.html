@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>식물과 에너지 — 광합성의 장소와 양분</title>
+<style>
+  :root{
+    --bg:#F4F6EF;
+    --card:#FFFFFF;
+    --ink:#26321F;
+    --ink-soft:#657058;
+    --line:#D9E0C9;
+
+    --leaf:#4B8B3B;
+    --leaf-soft:#E7F2E1;
+    --sun:#E0A62E;
+    --sun-soft:#FBF1DD;
+    --iodine:#5B4B9E;
+    --iodine-soft:#ECE8F7;
+
+    --ok:#2E9E5B;
+    --err:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FAFBF5 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--leaf),var(--sun)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:700px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(38,50,31,.06);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 읽기 자료 ---------- */
+  .source-img{ width:100%; border-radius:12px; border:1px solid var(--line); display:block; }
+  .recap-list{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .recap-item{
+    display:flex; gap:10px; align-items:flex-start;
+    background:var(--leaf-soft); border:1px solid #D3E6C8; border-radius:10px;
+    padding:10px 12px; font-size:12.5px; line-height:1.65;
+  }
+  .recap-item .num{ flex-shrink:0; font-weight:800; color:var(--leaf); }
+  .recap-item b{ color:var(--leaf); font-weight:800; }
+
+  /* ---------- 인터랙티브 실험 ---------- */
+  .exp-area{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:720px){ .exp-area{ grid-template-columns:1fr; } }
+
+  .exp-box{ display:flex; flex-direction:column; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:14px; background:#FBFAF6; }
+  .exp-box h3{ font-size:13px; font-weight:800; }
+  svg.exp-svg{ width:100%; max-width:230px; height:150px; }
+
+  .toggle-row{ display:flex; gap:8px; }
+  .toggle-btn, .action-btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:6px 14px; transition:.15s;
+  }
+  .toggle-btn:hover, .action-btn:hover{ border-color:var(--iodine); }
+  .toggle-btn.active{ border-color:var(--iodine); background:var(--iodine-soft); color:var(--iodine); }
+  .action-btn.fired{ border-color:var(--sun); background:var(--sun-soft); color:#8a5c0f; }
+
+  .exp-callout{
+    min-height:52px; width:100%;
+    background:#FFF7DE; border:1px solid #EEDDA0; border-radius:10px;
+    padding:9px 12px; font-size:12px; line-height:1.6; color:#5B4A1E;
+  }
+  .exp-callout b{ font-weight:800; }
+
+  /* ---------- 개념정리활동지 diagram ---------- */
+  .ref-diagram{ display:block; max-width:420px; width:100%; margin:10px auto 18px; border-radius:10px; border:1px solid var(--line); }
+  .flow-diagram{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; margin:14px 0; padding:16px; background:var(--sun-soft); border:1px dashed #E7CD8E; border-radius:12px; }
+  .flow-box{ font-size:12.5px; font-weight:800; padding:8px 12px; border-radius:10px; background:#fff; border:1.5px solid var(--line); text-align:center; }
+  .flow-box.co2{ color:#5B6A78; }
+  .flow-box.water{ color:#2F6FB6; }
+  .flow-box.glucose{ color:var(--leaf); }
+  .flow-box.oxygen{ color:#B84B3C; }
+  .flow-plus{ font-weight:800; color:var(--ink-soft); }
+  .flow-arrow{ display:flex; flex-direction:column; align-items:center; font-size:10.5px; color:var(--sun); font-weight:800; }
+  .flow-arrow .line{ width:56px; height:2px; background:var(--sun); position:relative; margin:2px 0; }
+  .flow-arrow .line::after{ content:""; position:absolute; right:-1px; top:-3px; border:4px solid transparent; border-left-color:var(--sun); }
+
+  .concept-block{ margin-bottom:18px; }
+  .concept-block:last-child{ margin-bottom:0; }
+  .concept-block-title{
+    display:inline-block; font-size:13px; font-weight:800; color:#fff;
+    background:var(--leaf); padding:4px 12px; border-radius:8px 8px 0 0;
+  }
+  .concept-body{ border:1.5px solid var(--leaf); border-radius:0 12px 12px 12px; padding:14px 16px; }
+  .concept-line{ font-size:13.5px; line-height:2.3; }
+
+  /* ---------- 워크시트 공통 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF3;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--leaf); color:var(--leaf); background:var(--leaf-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--err); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3d4a32; }
+  .btn.ghost{ background:#EFEEE2; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E4E2D2; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  footer{ max-width:980px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 식물과 에너지 · 광합성의 장소와 양분</div>
+    <h1>엽록체에서 무슨 일이 일어날까? — <span>광합성의 장소와 양분</span> 알아보기</h1>
+    <p class="sub">검정말 실험 자료를 보고 광합성이 일어나는 장소, 광합성에 필요한 물질, 광합성으로 만들어지는 양분을 추론해 봅니다. 아래 개념정리활동지와 워크시트를 풀면 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록돼요.</p>
+  </header>
+
+  <!-- 읽기 자료 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">자료 해석</span>광합성의 장소·양분·기체 추론하기</div>
+    <div class="card-hint">교과서 자료를 천천히 읽어 보세요. 검정말잎의 색 변화와 기포 실험 결과가 무엇을 의미하는지 생각하며 살펴봅니다.</div>
+    <img class="source-img" src="gwanghapseong-jaryo.webp" alt="광합성의 장소와 양분, 광합성에서 출입하는 기체 자료 해석 지문">
+
+    <div class="recap-list">
+      <div class="recap-item"><span class="num">①</span><span>빛을 충분히 받은 검정말잎에 <b>아이오딘-아이오딘화 칼륨 용액</b>을 떨어뜨리면 <b>엽록체</b>의 색이 청람색으로 변한다. → 엽록체에서 광합성으로 <b>녹말</b>이 만들어졌음을 알 수 있다.</span></div>
+      <div class="recap-item"><span class="num">②</span><span>식물은 광합성으로 <b>포도당</b> 형태의 양분을 만드는데, 대부분 식물에서 포도당은 곧 <b>녹말</b>로 바뀌어 저장된다.</span></div>
+      <div class="recap-item"><span class="num">③</span><span>검정말에서 발생한 기포를 모아 꺼져 가는 불씨를 가져가면 불씨가 다시 타오른다. → 이 기체가 <b>산소</b>라는 것을 알 수 있다.</span></div>
+    </div>
+  </section>
+
+  <!-- 인터랙티브 실험 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--iodine)">실험</span>버튼을 눌러 실험 결과 확인하기</div>
+    <div class="card-hint">두 실험 상자의 버튼을 눌러 색 변화와 불씨 반응을 직접 확인해 보세요.</div>
+
+    <div class="exp-area">
+      <div class="exp-box">
+        <h3>🔬 아이오딘 반응 실험</h3>
+        <svg class="exp-svg" viewBox="0 0 200 130" aria-hidden="true">
+          <rect x="10" y="10" width="180" height="110" rx="10" fill="#F3F6EE" stroke="var(--line)"></rect>
+          <g id="chloro-dots"></g>
+        </svg>
+        <div class="toggle-row" id="iodine-toggle">
+          <button type="button" class="toggle-btn active" data-state="before">반응 전</button>
+          <button type="button" class="toggle-btn" data-state="after">반응 후</button>
+        </div>
+        <div class="exp-callout" id="iodine-callout"></div>
+      </div>
+
+      <div class="exp-box">
+        <h3>🔥 기체 검출 실험</h3>
+        <svg class="exp-svg" viewBox="0 0 200 130" aria-hidden="true">
+          <rect x="80" y="20" width="40" height="80" rx="6" fill="#EAF3FF" stroke="var(--line)"></rect>
+          <line id="ember-stick" x1="100" y1="100" x2="100" y2="30" stroke="#8a5c2f" stroke-width="4" stroke-linecap="round"></line>
+          <circle id="ember-glow" cx="100" cy="28" r="6" fill="#8a2f1f"></circle>
+        </svg>
+        <div class="toggle-row">
+          <button type="button" class="action-btn" id="ember-btn">불씨 가까이 대보기</button>
+        </div>
+        <div class="exp-callout" id="ember-callout">시험관에 모은 기체 쪽으로 꺼져 가는 불씨를 가져가면 어떻게 될까요? 버튼을 눌러 확인해 보세요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 개념정리활동지 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--sun)">개념정리</span>개념정리활동지</div>
+    <div class="card-hint">위 자료를 참고해서 빈칸을 채워 보세요. (아래는 원본 활동지 참고 그림입니다.)</div>
+    <img class="ref-diagram" src="gwanghapseong-hwaldongji-wonbon.png" alt="광합성이 일어나는 과정과 장소를 나타낸 원본 참고 활동지 그림">
+
+    <div class="concept-block">
+      <div class="concept-block-title">1. 광합성이 일어나는 과정</div>
+      <div class="concept-body">
+        <div class="concept-line">
+          (1) 광합성: 식물이 빛에너지를 이용하여 이산화 탄소와 물을 원료로
+          <input type="text" class="blank-input" id="c1-blank" placeholder="OOO">
+          을(를) 만드는 과정
+        </div>
+
+        <div class="flow-diagram">
+          <div class="flow-box co2">이산화 탄소</div>
+          <span class="flow-plus">+</span>
+          <div class="flow-box water">물</div>
+          <div class="flow-arrow"><span>빛에너지</span><span class="line"></span></div>
+          <div class="flow-box glucose">포도당</div>
+          <span class="flow-plus">+</span>
+          <div class="flow-box oxygen">산소</div>
+        </div>
+
+        <div class="concept-line">(2) 광합성에 필요한 물질: <input type="text" class="blank-input" id="c2-blank" placeholder="OOO OO">, 물</div>
+        <div class="concept-line">(3) 광합성으로 발생하는 기체: <b>산소</b></div>
+        <div class="concept-line">
+          (4) 광합성으로 만들어지는 양분: 포도당(곧 녹말로 바뀐다.) → 식물이 살아가는 데 필요한
+          <input type="text" class="blank-input" id="c3-blank" placeholder="OOO">
+          (으)로 사용된다.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-block">
+      <div class="concept-block-title">2. 광합성이 일어나는 장소와 광합성 산물 확인</div>
+      <div class="concept-body">
+        <div class="concept-line">(1) 광합성이 일어나는 장소: 식물 세포의 <input type="text" class="blank-input" id="c4-blank" placeholder="OOO"></div>
+        <div class="concept-line">
+          (2) 광합성으로 만들어진 양분 확인: 아이오딘-아이오딘화 칼륨 용액을 떨어뜨려 나타나는 색깔 변화를 통해 광합성으로 만들어진
+          <input type="text" class="blank-input" id="c5-blank" placeholder="OO">
+          을(를) 확인할 수 있다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 스스로 확인 워크시트 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--iodine)">워크시트</span>스스로 확인</div>
+    <div class="card-hint">정답을 입력하고 <b>제출하고 채점받기</b>를 누르면 개념정리활동지와 함께 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록됩니다.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        엽록체 안에 있는 초록색 색소를
+        <input type="text" class="blank-input" id="q1-blank" placeholder="OOO">
+        (이)라고 하며, 이 색소가 광합성에 필요한 빛을 흡수한다.
+      </div>
+      <span class="q-feedback" id="q1-feedback"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        아이오딘-아이오딘화 칼륨 용액은
+        <span class="choice-group" data-answer="녹말">
+          <button type="button" class="choice-btn" data-value="포도당">포도당</button>
+          <button type="button" class="choice-btn" data-value="녹말">녹말</button>
+        </span>
+        과(와) 반응하면 청람색으로 변한다.
+      </div>
+      <span class="q-feedback" id="q2-feedback"></span>
+    </div>
+
+    <div class="q" id="q3">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        광합성으로 만들어진 포도당은 대부분 식물체 안에서
+        <span class="choice-group" data-answer="녹말">
+          <button type="button" class="choice-btn" data-value="포도당">포도당</button>
+          <button type="button" class="choice-btn" data-value="녹말">녹말</button>
+        </span>
+        형태로 바뀌어 저장된다.
+      </div>
+      <span class="q-feedback" id="q3-feedback"></span>
+    </div>
+
+    <div class="q" id="q4">
+      <div class="q-text">
+        <span class="q-num">4</span>
+        검정말이 광합성을 할 때 생기는 기포를 모아 꺼져 가는 불씨를 대면 불씨가 다시
+        <span class="choice-group" data-answer="타오른다">
+          <button type="button" class="choice-btn" data-value="타오른다">타오른다</button>
+          <button type="button" class="choice-btn" data-value="꺼진다">꺼진다</button>
+        </span>
+        . 이를 통해 이 기체가
+        <input type="text" class="blank-input" id="q4-blank" placeholder="OO">
+        (이)라는 것을 알 수 있다.
+      </div>
+      <span class="q-feedback" id="q4-feedback"></span>
+    </div>
+
+    <div class="q" id="q5">
+      <div class="q-text">
+        <span class="q-num">5</span>
+        광합성의 원료가 되는 두 가지 물질은 이산화 탄소와
+        <input type="text" class="blank-input" id="q5-blank" placeholder="O">
+        (이)다.
+      </div>
+      <span class="q-feedback" id="q5-feedback"></span>
+    </div>
+
+    <div class="q" id="q6">
+      <div class="q-text">
+        <span class="q-num">6</span>
+        광합성 결과 만들어지는 산물 두 가지는 포도당(녹말)과
+        <input type="text" class="blank-input" id="q6-blank" placeholder="OO">
+        (이)다.
+      </div>
+      <span class="q-feedback" id="q6-feedback"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 식물과 에너지 (광합성의 장소와 양분)</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+
+  1) 구글 스프레드시트를 새로 만들고, 확장 프로그램 → Apps Script 를 엽니다.
+  2) 아래 코드를 붙여넣고 저장합니다.
+
+     function doPost(e){
+       var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("응답")
+                   || SpreadsheetApp.getActiveSpreadsheet().insertSheet("응답");
+       var d = e.parameter;
+       sheet.appendRow([
+         new Date(), d.grade, d.classNum, d.number, d.name,
+         d.c1_blank, d.c2_blank, d.c3_blank, d.c4_blank, d.c5_blank,
+         d.q1_blank, d.q2_choice, d.q3_choice, d.q4_choice, d.q4_blank,
+         d.q5_blank, d.q6_blank,
+         d.score, d.total
+       ]);
+       return ContentService.createTextOutput("OK");
+     }
+
+  3) 배포 → 새 배포 → 유형: 웹 앱
+     - 실행 대상: 나
+     - 액세스 권한이 있는 사용자: 모든 사용자
+     로 설정하고 배포한 뒤, 발급된 웹 앱 URL을 복사합니다.
+  4) 아래 SPREADSHEET_WEBHOOK_URL 값에 그 주소를 붙여넣으세요.
+     (비워두면 학생 화면에서 채점만 되고 스프레드시트 전송은 생략됩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "";
+</script>
+
+<script>
+/* ==========================================================
+   아이오딘 반응 실험 토글
+=========================================================== */
+const chloroDots = document.getElementById("chloro-dots");
+const CHLORO_POS = [
+  [45,35],[70,50],[55,70],[90,40],[110,65],[75,90],[120,85],[145,50],[100,100],[150,95],[35,90],[160,70]
+];
+CHLORO_POS.forEach(([x,y]) => {
+  const c = document.createElementNS("http://www.w3.org/2000/svg","ellipse");
+  c.setAttribute("cx", x);
+  c.setAttribute("cy", y);
+  c.setAttribute("rx", 10);
+  c.setAttribute("ry", 7);
+  c.setAttribute("fill", "#4B8B3B");
+  c.classList.add("chloro-dot");
+  chloroDots.appendChild(c);
+});
+
+const IODINE_INFO = {
+  before: "아직 아이오딘-아이오딘화 칼륨 용액을 떨어뜨리기 전이에요. 엽록체가 초록색을 띠고 있어요.",
+  after: "아이오딘-아이오딘화 칼륨 용액을 떨어뜨렸어요! 엽록체가 <b>청람색</b>으로 변했어요 → 엽록체 안에 <b>녹말</b>이 만들어졌다는 뜻이에요."
+};
+
+const iodineCallout = document.getElementById("iodine-callout");
+document.querySelectorAll("#iodine-toggle .toggle-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#iodine-toggle .toggle-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const isAfter = btn.dataset.state === "after";
+    document.querySelectorAll(".chloro-dot").forEach(dot => {
+      dot.setAttribute("fill", isAfter ? "#3B2F7A" : "#4B8B3B");
+    });
+    iodineCallout.innerHTML = IODINE_INFO[btn.dataset.state];
+  });
+});
+iodineCallout.innerHTML = IODINE_INFO.before;
+
+/* ==========================================================
+   기체 검출(불씨) 실험
+=========================================================== */
+const emberBtn = document.getElementById("ember-btn");
+const emberGlow = document.getElementById("ember-glow");
+const emberCallout = document.getElementById("ember-callout");
+let emberFired = false;
+
+emberBtn.addEventListener("click", () => {
+  emberFired = !emberFired;
+  emberBtn.classList.toggle("fired", emberFired);
+  if(emberFired){
+    emberGlow.setAttribute("fill", "#FF8A3D");
+    emberGlow.setAttribute("r", "11");
+    emberBtn.textContent = "다시 꺼져 가는 상태로";
+    emberCallout.innerHTML = "🔥 불씨가 다시 <b>확 타올랐어요!</b> → 이 기체는 <b>산소</b>예요. 산소는 물질이 타는(연소하는) 것을 돕는 성질이 있어요.";
+  } else {
+    emberGlow.setAttribute("fill", "#8a2f1f");
+    emberGlow.setAttribute("r", "6");
+    emberBtn.textContent = "불씨 가까이 대보기";
+    emberCallout.textContent = "시험관에 모은 기체 쪽으로 꺼져 가는 불씨를 가져가면 어떻게 될까요? 버튼을 눌러 확인해 보세요.";
+  }
+});
+
+/* ==========================================================
+   워크시트(개념정리활동지 + 스스로 확인) 채점 & 스프레드시트 자동 전송
+=========================================================== */
+const choiceGroups = document.querySelectorAll(".choice-group");
+
+choiceGroups.forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+function blankMatches(inputVal, ...answers){
+  const v = normalize(inputVal);
+  return answers.some(a => v === normalize(a) || v.includes(normalize(a)));
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const c1 = document.getElementById("c1-blank").value;
+  const c2 = document.getElementById("c2-blank").value;
+  const c3 = document.getElementById("c3-blank").value;
+  const c4 = document.getElementById("c4-blank").value;
+  const c5 = document.getElementById("c5-blank").value;
+
+  const q1Blank = document.getElementById("q1-blank").value;
+  const q2Choice = pickedValue(document.querySelector("#q2 .choice-group"));
+  const q3Choice = pickedValue(document.querySelector("#q3 .choice-group"));
+  const q4Choice = pickedValue(document.querySelector("#q4 .choice-group"));
+  const q4Blank = document.getElementById("q4-blank").value;
+  const q5Blank = document.getElementById("q5-blank").value;
+  const q6Blank = document.getElementById("q6-blank").value;
+
+  const allFilled = [c1,c2,c3,c4,c5,q1Blank,q2Choice,q3Choice,q4Choice,q4Blank,q5Blank,q6Blank]
+    .every(v => (v || "").toString().trim() !== "");
+  if(!allFilled){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  // 개념정리활동지 채점
+  const results = {};
+
+  results.c1 = blankMatches(c1, "포도당");
+  document.getElementById("c1-blank").style.color = results.c1 ? "" : "var(--err)";
+
+  results.c2 = blankMatches(c2, "이산화탄소", "이산화 탄소");
+  document.getElementById("c2-blank").style.color = results.c2 ? "" : "var(--err)";
+
+  results.c3 = blankMatches(c3, "에너지원", "에너지");
+  document.getElementById("c3-blank").style.color = results.c3 ? "" : "var(--err)";
+
+  results.c4 = blankMatches(c4, "엽록체");
+  document.getElementById("c4-blank").style.color = results.c4 ? "" : "var(--err)";
+
+  results.c5 = blankMatches(c5, "녹말");
+  document.getElementById("c5-blank").style.color = results.c5 ? "" : "var(--err)";
+
+  // 스스로 확인 워크시트 채점
+  results.q1 = blankMatches(q1Blank, "엽록소");
+  setFeedback("q1-feedback", results.q1, "엽록소");
+
+  results.q2 = q2Choice === "녹말";
+  setFeedback("q2-feedback", results.q2, "녹말");
+
+  results.q3 = q3Choice === "녹말";
+  setFeedback("q3-feedback", results.q3, "녹말");
+
+  const q4ChoiceOk = q4Choice === "타오른다";
+  const q4BlankOk = blankMatches(q4Blank, "산소");
+  results.q4 = q4ChoiceOk && q4BlankOk;
+  setFeedback("q4-feedback", results.q4, "타오른다 / 산소");
+
+  results.q5 = blankMatches(q5Blank, "물");
+  setFeedback("q5-feedback", results.q5, "물");
+
+  results.q6 = blankMatches(q6Blank, "산소");
+  setFeedback("q6-feedback", results.q6, "산소");
+
+  const values = Object.values(results);
+  const correctSubCount = values.filter(Boolean).length;
+  const total = values.length;
+  wsResult.textContent = `${correctSubCount} / ${total} 개 정답 (개념정리활동지 5 + 워크시트 ${total - 5})`;
+  wsResult.className = "ws-result " + (correctSubCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    grade, classNum, number, name,
+    c1_blank: c1, c2_blank: c2, c3_blank: c3, c4_blank: c4, c5_blank: c5,
+    q1_blank: q1Blank, q2_choice: q2Choice, q3_choice: q3Choice,
+    q4_choice: q4Choice, q4_blank: q4Blank, q5_blank: q5Blank, q6_blank: q6Blank,
+    score: String(correctSubCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.style.color = ""; });
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
