@@ -682,7 +682,7 @@ submitBtn.addEventListener("click", async () => {
   const photoAnswer = SLOT_IDS.map(slotId => `${slotId.replace("slot-","")}:${placements[slotId] || ""}`).join(",");
 
   const payload = {
-    worksheet: "5_saengsiksepo_hyeongseong",
+    worksheet: "5_생식세포형성",
     grade, classNum, number, name,
     blank_interphase: blankValues.interphase, blank_m1pro: blankValues.m1pro,
     blank_m1meta: blankValues.m1meta, blank_m1ana: blankValues.m1ana, blank_m1telo: blankValues.m1telo,

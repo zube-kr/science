@@ -392,7 +392,7 @@
      (비워두면 학생 화면에서 채점만 되고 스프레드시트 전송은 생략됩니다.)
 
   ※ 다른 워크시트(sikmul-mulgwan.html 등)와 같은 웹훅 주소를 그대로 재사용해도 됩니다.
-     이 경우 제출값에 담긴 d.worksheet 값("5_gwanghapseong_jangso")으로 어떤
+     이 경우 제출값에 담긴 d.worksheet 값("5_광합성장소양분")으로 어떤
      워크시트에서 온 응답인지 구분할 수 있으니, doPost에서 이 값에 따라 다른
      시트(탭)에 appendRow 하도록 분기해 주세요. 그렇지 않으면 다른 워크시트와
      같은 "응답" 시트에 필드명이 다른 채로 한 줄씩 쌓이게 됩니다.
@@ -583,7 +583,7 @@ submitBtn.addEventListener("click", async () => {
   wsStatus.textContent = "제출 중...";
 
   const payload = {
-    worksheet: "5_gwanghapseong_jangso",
+    worksheet: "5_광합성장소양분",
     grade, classNum, number, name,
     c1_blank: c1, c2_blank: c2, c3_blank: c3, c4_blank: c4, c5_blank: c5,
     q1_blank: q1Blank, q2_choice: q2Choice, q3_choice: q3Choice,
