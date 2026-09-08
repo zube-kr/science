@@ -391,7 +391,7 @@
 
   이 워크시트는 다른 워크시트(sikmul-mulgwan.html, gwanghapseong-jangso.html)와
   같은 웹훅 주소를 재사용하도록 미리 연결해 두었습니다. 제출값의 worksheet 필드
-  ("5_gwanghapseong_yoin")로 어떤 워크시트에서 온 응답인지 구분할 수 있으니,
+  ("5_광합성영향요인")로 어떤 워크시트에서 온 응답인지 구분할 수 있으니,
   Apps Script의 doPost에서 이 값에 따라 다른 시트(탭)로 분기해서 저장해 주세요.
   주소를 다른 스프레드시트로 바꾸고 싶다면 아래 SPREADSHEET_WEBHOOK_URL 값만
   바꿔주시면 됩니다. (비워두면 학생 화면에서 채점만 되고 전송은 생략됩니다.)
@@ -609,7 +609,7 @@ submitBtn.addEventListener("click", async () => {
   wsStatus.textContent = "제출 중...";
 
   const payload = {
-    worksheet: "5_gwanghapseong_yoin",
+    worksheet: "5_광합성영향요인",
     grade, classNum, number, name,
     c1_blank: c1, c2_blank: c2, c3_blank: c3, c4_blank: c4, c5_blank: c5, c6_blank: c6,
     q1_choice: q1Choice, q2_choice: q2Choice, q3_blank: q3Blank, q3_choice: q3Choice,
