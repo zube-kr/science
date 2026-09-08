@@ -596,6 +596,13 @@ footer{
   flex-shrink:0;
 }
 
+.guestbook-item .gb-ip{
+  font-size:10.5px;
+  font-family:monospace;
+  color:#ff8b7a;
+  flex-shrink:0;
+}
+
 .guestbook-item .gb-del{
   flex-shrink:0;
   background:none;
@@ -806,6 +813,7 @@ footer{
       <div class="chatview-header">
         <button class="back-btn" onclick="goHome()">← 홈</button>
         <div class="chatview-title">📖 방명록</div>
+        <button class="back-btn" id="admin-toggle-btn" style="margin-left:auto;">🔒 관리자</button>
       </div>
       <div class="chat-messages" id="guestbook-list"></div>
       <form class="guestbook-form" id="guestbook-form">
@@ -1552,57 +1560,108 @@ function getAdminPasswordHash(){
   return adminPasswordHashPromise;
 }
 
+// 등록한 사람의 IP는 목록에 공개로 보여주지 않고, 관리자 모드일 때만 보이게 합니다.
+let isAdminMode = false;
+let lastGuestbookEntries = [];
+const adminToggleBtn = document.getElementById("admin-toggle-btn");
+
+adminToggleBtn.addEventListener("click", async () => {
+  if(isAdminMode){
+    isAdminMode = false;
+    adminToggleBtn.textContent = "🔒 관리자";
+    renderGuestbookEntries(lastGuestbookEntries);
+    return;
+  }
+  const pw = prompt("관리자 비밀번호를 입력하세요.");
+  if(pw === null) return;
+  const hash = await hashPassword(pw);
+  const adminHash = await getAdminPasswordHash();
+  if(hash !== adminHash){
+    alert("관리자 비밀번호가 일치하지 않아요.");
+    return;
+  }
+  isAdminMode = true;
+  adminToggleBtn.textContent = "🔓 관리자 모드(IP 표시 중)";
+  renderGuestbookEntries(lastGuestbookEntries);
+});
+
+// 클라이언트에서 외부 서비스로 공인 IP를 조회합니다. 실패해도 등록 자체는 계속 진행됩니다.
+async function fetchClientIp(){
+  try{
+    const res = await fetch("https://api.ipify.org?format=json");
+    if(!res.ok) throw new Error("IP 조회 실패");
+    const data = await res.json();
+    return data.ip || null;
+  }catch(e){
+    console.warn("IP 조회 실패:", e);
+    return null;
+  }
+}
+
+function renderGuestbookEntries(entries){
+  guestbookList.innerHTML = "";
+
+  if(entries.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "chat-empty";
+    empty.textContent = "아직 남긴 한마디가 없어요. 첫 방명록을 남겨보세요!";
+    guestbookList.appendChild(empty);
+    return;
+  }
+
+  entries.forEach(({ id, entry }) => {
+    const item = document.createElement("div");
+    item.className = "guestbook-item";
+
+    const time = entry.createdAt && entry.createdAt.toDate
+      ? entry.createdAt.toDate().toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })
+      : "";
+
+    const ipHtml = isAdminMode
+      ? `<span class="gb-ip">${escapeHtml(entry.ip || "IP 없음")}</span>`
+      : "";
+
+    item.innerHTML = `
+      <span class="gb-name">${escapeHtml(entry.name || "익명")}</span>
+      <span class="gb-text">${escapeHtml(entry.text || "")}</span>
+      ${ipHtml}
+      <span class="gb-meta">${time}</span>
+      <button type="button" class="gb-del">삭제</button>
+    `;
+
+    item.querySelector(".gb-del").addEventListener("click", async () => {
+      // 관리자 모드에서는 비밀번호를 다시 묻지 않고 바로 삭제합니다.
+      if(!isAdminMode){
+        const pw = prompt("삭제하려면 남길 때 입력한 비밀번호(또는 관리자 비밀번호)를 입력하세요.");
+        if(pw === null) return;
+        const hash = await hashPassword(pw);
+        const adminHash = await getAdminPasswordHash();
+        if(hash !== entry.passwordHash && hash !== adminHash){
+          alert("비밀번호가 일치하지 않아요.");
+          return;
+        }
+      }
+      try{
+        await db.collection("guestbook").doc(id).delete();
+      }catch(err){
+        console.error("방명록 삭제 오류:", err);
+        alert("삭제 중 오류가 발생했어요.");
+      }
+    });
+
+    guestbookList.appendChild(item);
+  });
+}
+
 function startGuestbook(){
   if(guestbookUnsubscribe) return;
 
   guestbookUnsubscribe = db.collection("guestbook")
     .orderBy("createdAt", "desc")
     .onSnapshot(snapshot => {
-      guestbookList.innerHTML = "";
-
-      if(snapshot.empty){
-        const empty = document.createElement("div");
-        empty.className = "chat-empty";
-        empty.textContent = "아직 남긴 한마디가 없어요. 첫 방명록을 남겨보세요!";
-        guestbookList.appendChild(empty);
-        return;
-      }
-
-      snapshot.forEach(doc => {
-        const entry = doc.data();
-        const item = document.createElement("div");
-        item.className = "guestbook-item";
-
-        const time = entry.createdAt && entry.createdAt.toDate
-          ? entry.createdAt.toDate().toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })
-          : "";
-
-        item.innerHTML = `
-          <span class="gb-name">${escapeHtml(entry.name || "익명")}</span>
-          <span class="gb-text">${escapeHtml(entry.text || "")}</span>
-          <span class="gb-meta">${time}</span>
-          <button type="button" class="gb-del">삭제</button>
-        `;
-
-        item.querySelector(".gb-del").addEventListener("click", async () => {
-          const pw = prompt("삭제하려면 남길 때 입력한 비밀번호(또는 관리자 비밀번호)를 입력하세요.");
-          if(pw === null) return;
-          const hash = await hashPassword(pw);
-          const adminHash = await getAdminPasswordHash();
-          if(hash !== entry.passwordHash && hash !== adminHash){
-            alert("비밀번호가 일치하지 않아요.");
-            return;
-          }
-          try{
-            await db.collection("guestbook").doc(doc.id).delete();
-          }catch(err){
-            console.error("방명록 삭제 오류:", err);
-            alert("삭제 중 오류가 발생했어요.");
-          }
-        });
-
-        guestbookList.appendChild(item);
-      });
+      lastGuestbookEntries = [];
+      snapshot.forEach(doc => lastGuestbookEntries.push({ id: doc.id, entry: doc.data() }));
+      renderGuestbookEntries(lastGuestbookEntries);
     }, err => {
       console.error("방명록 로드 오류:", err);
     });
@@ -1620,12 +1679,14 @@ guestbookForm.addEventListener("submit", async e => {
   }
 
   const passwordHash = await hashPassword(password);
+  const ip = await fetchClientIp();
 
   try{
     await db.collection("guestbook").add({
       name,
       text,
       passwordHash,
+      ip,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   }catch(err){
