@@ -516,7 +516,7 @@ footer{
 }
 
 /*==============================
-학생 메시지함
+방명록
 ==============================*/
 .chatview{
   width:640px;
@@ -565,32 +565,51 @@ footer{
   gap:10px;
 }
 
-.chat-bubble{
-  max-width:75%;
-  padding:10px 14px;
-  border-radius:14px;
-  font-size:14.5px;
+.guestbook-item{
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:6px 10px;
+  padding:11px 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+  font-size:14px;
   line-height:1.5;
+}
+
+.guestbook-item .gb-name{
+  font-weight:700;
+  color:#ffe17c;
+  flex-shrink:0;
+}
+
+.guestbook-item .gb-text{
+  flex:1;
+  min-width:120px;
+  color:var(--ink);
   word-break:break-word;
 }
 
-.chat-bubble.teacher{
-  align-self:flex-end;
-  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
-  color:#0a0f1a;
-}
-
-.chat-bubble.student{
-  align-self:flex-start;
-  background:rgba(255,255,255,.08);
-  color:var(--ink);
-}
-
-.chat-bubble .chat-meta{
-  display:block;
-  margin-top:4px;
+.guestbook-item .gb-meta{
   font-size:11px;
-  opacity:.6;
+  color:var(--muted);
+  flex-shrink:0;
+}
+
+.guestbook-item .gb-del{
+  flex-shrink:0;
+  background:none;
+  border:1px solid var(--panel-border);
+  color:var(--muted);
+  border-radius:8px;
+  padding:3px 9px;
+  font-size:11px;
+  cursor:pointer;
+  font-family:var(--font-kr);
+}
+.guestbook-item .gb-del:hover{
+  color:#ff8b7a;
+  border-color:#ff8b7a;
 }
 
 .chat-empty{
@@ -600,14 +619,20 @@ footer{
   font-size:14px;
 }
 
-.chat-input-row{
+.guestbook-form{
   display:flex;
+  flex-direction:column;
   gap:10px;
   padding:16px 20px;
   border-top:1px solid var(--panel-border);
 }
 
-.chat-input-row input{
+.guestbook-row{
+  display:flex;
+  gap:10px;
+}
+
+.guestbook-row input{
   flex:1;
   background:rgba(255,255,255,.06);
   color:var(--ink);
@@ -616,9 +641,14 @@ footer{
   padding:10px 14px;
   font-size:14.5px;
   font-family:var(--font-kr);
+  min-width:0;
 }
 
-.chat-input-row button{
+.guestbook-row input#guestbook-name{
+  flex:0 0 120px;
+}
+
+.guestbook-row button{
   background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
   color:#0a0f1a;
   border:none;
@@ -627,6 +657,7 @@ footer{
   font-weight:600;
   cursor:pointer;
   font-family:var(--font-kr);
+  flex-shrink:0;
 }
 </style>
 </head>
@@ -643,7 +674,7 @@ footer{
   <div class="logo" onclick="goHome()" style="cursor:pointer;">🔬 SCIENCE</div>
   <div class="school">아화중학교 과학수업</div>
 
-  <div class="chat-entry" onclick="openChat()">💬 학생 메시지함</div>
+  <div class="chat-entry" onclick="openChat()">📖 방명록</div>
 
   <details class="grade" open>
     <summary>📘 중학교 1학년</summary>
@@ -769,17 +800,23 @@ footer{
     </div>
   </div>
 
-  <!-- 학생 메시지함 화면 (전체 공용 채팅방) -->
+  <!-- 방명록 화면 (전체 공용 한마디 게시판) -->
   <div id="view-chat" class="view">
     <div class="chatview">
       <div class="chatview-header">
         <button class="back-btn" onclick="goHome()">← 홈</button>
-        <div class="chatview-title">💬 우리 반 채팅방</div>
+        <div class="chatview-title">📖 방명록</div>
       </div>
-      <div class="chat-messages" id="chat-messages"></div>
-      <form class="chat-input-row" id="chat-input-row">
-        <input type="text" id="chat-input" placeholder="메시지를 입력하세요" autocomplete="off">
-        <button type="submit">보내기</button>
+      <div class="chat-messages" id="guestbook-list"></div>
+      <form class="guestbook-form" id="guestbook-form">
+        <div class="guestbook-row">
+          <input type="text" id="guestbook-name" placeholder="이름" maxlength="12" autocomplete="off">
+          <input type="password" id="guestbook-password" placeholder="비밀번호 (삭제할 때 필요해요)" maxlength="20" autocomplete="new-password">
+        </div>
+        <div class="guestbook-row">
+          <input type="text" id="guestbook-text" placeholder="한마디를 남겨보세요" maxlength="120" autocomplete="off">
+          <button type="submit">남기기</button>
+        </div>
       </form>
     </div>
   </div>
@@ -789,7 +826,7 @@ footer{
 </div>
 
 <!-- ==========================
-학생 메시지함용 Firebase (Firestore)
+방명록용 Firebase (Firestore)
 아래 6개 값을 Firebase 콘솔 > 프로젝트 설정 > 내 앱 에서 복사해 넣어주세요.
 =========================== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1459,63 +1496,27 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
 });
 
 // ==========================================
-// 학생 메시지함 (Firestore 실시간 공용 채팅방)
+// 방명록 (Firestore 실시간 공용 한마디 게시판)
 // ==========================================
-const chatMessages = document.getElementById("chat-messages");
-const chatInputRow = document.getElementById("chat-input-row");
-const chatInput = document.getElementById("chat-input");
+const guestbookList = document.getElementById("guestbook-list");
+const guestbookForm = document.getElementById("guestbook-form");
+const guestbookName = document.getElementById("guestbook-name");
+const guestbookPassword = document.getElementById("guestbook-password");
+const guestbookText = document.getElementById("guestbook-text");
 
-let chatUnsubscribe = null;
-let chatStarted = false;
+let guestbookUnsubscribe = null;
+let guestbookStarted = false;
 
 function openChat(){
   if(!db){
-    alert("아직 채팅 기능이 연결되지 않았어요. Firebase 설정을 먼저 완료해주세요.");
+    alert("아직 방명록 기능이 연결되지 않았어요. Firebase 설정을 먼저 완료해주세요.");
     return;
   }
   showView(viewChat);
-  if(!chatStarted){
-    startChatRoom();
-    chatStarted = true;
+  if(!guestbookStarted){
+    startGuestbook();
+    guestbookStarted = true;
   }
-}
-
-function startChatRoom(){
-  if(chatUnsubscribe) return;
-
-  chatUnsubscribe = db.collection("messages")
-    .orderBy("createdAt", "asc")
-    .onSnapshot(snapshot => {
-      chatMessages.innerHTML = "";
-
-      if(snapshot.empty){
-        const empty = document.createElement("div");
-        empty.className = "chat-empty";
-        empty.textContent = "아직 메시지가 없어요. 첫 메시지를 보내보세요!";
-        chatMessages.appendChild(empty);
-        return;
-      }
-
-      snapshot.forEach(doc => {
-        const msg = doc.data();
-        const isTeacher = msg.sender === "teacher";
-        const bubble = document.createElement("div");
-        bubble.className = "chat-bubble " + (isTeacher ? "teacher" : "student");
-
-        const time = msg.createdAt && msg.createdAt.toDate
-          ? msg.createdAt.toDate().toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })
-          : "";
-
-        const senderLabel = isTeacher ? "선생님" : (msg.senderName || "학생");
-
-        bubble.innerHTML = `${escapeHtml(msg.text)}<span class="chat-meta">${senderLabel} · ${time}</span>`;
-        chatMessages.appendChild(bubble);
-      });
-
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, err => {
-      console.error("채팅 로드 오류:", err);
-    });
 }
 
 function escapeHtml(str){
@@ -1524,19 +1525,108 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-chatInputRow.addEventListener("submit", e => {
+// 비밀번호는 평문으로 저장하지 않고 해시로 변환해 저장/대조합니다.
+async function hashPassword(pw){
+  if(window.crypto && window.crypto.subtle){
+    try{
+      const enc = new TextEncoder().encode(pw);
+      const buf = await window.crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }catch(e){
+      // 아래 대체 해시로 진행
+    }
+  }
+  let h = 0;
+  for(let i = 0; i < pw.length; i++){
+    h = (h * 31 + pw.charCodeAt(i)) >>> 0;
+  }
+  return "fnv" + h.toString(16);
+}
+
+function startGuestbook(){
+  if(guestbookUnsubscribe) return;
+
+  guestbookUnsubscribe = db.collection("guestbook")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      guestbookList.innerHTML = "";
+
+      if(snapshot.empty){
+        const empty = document.createElement("div");
+        empty.className = "chat-empty";
+        empty.textContent = "아직 남긴 한마디가 없어요. 첫 방명록을 남겨보세요!";
+        guestbookList.appendChild(empty);
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const entry = doc.data();
+        const item = document.createElement("div");
+        item.className = "guestbook-item";
+
+        const time = entry.createdAt && entry.createdAt.toDate
+          ? entry.createdAt.toDate().toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })
+          : "";
+
+        item.innerHTML = `
+          <span class="gb-name">${escapeHtml(entry.name || "익명")}</span>
+          <span class="gb-text">${escapeHtml(entry.text || "")}</span>
+          <span class="gb-meta">${time}</span>
+          <button type="button" class="gb-del">삭제</button>
+        `;
+
+        item.querySelector(".gb-del").addEventListener("click", async () => {
+          const pw = prompt("삭제하려면 남길 때 입력한 비밀번호를 입력하세요.");
+          if(pw === null) return;
+          const hash = await hashPassword(pw);
+          if(hash !== entry.passwordHash){
+            alert("비밀번호가 일치하지 않아요.");
+            return;
+          }
+          try{
+            await db.collection("guestbook").doc(doc.id).delete();
+          }catch(err){
+            console.error("방명록 삭제 오류:", err);
+            alert("삭제 중 오류가 발생했어요.");
+          }
+        });
+
+        guestbookList.appendChild(item);
+      });
+    }, err => {
+      console.error("방명록 로드 오류:", err);
+    });
+}
+
+guestbookForm.addEventListener("submit", async e => {
   e.preventDefault();
-  const text = chatInput.value.trim();
-  if(!text || !db) return;
+  const name = guestbookName.value.trim();
+  const password = guestbookPassword.value;
+  const text = guestbookText.value.trim();
 
-  db.collection("messages").add({
-    sender: "teacher",
-    senderName: "선생님",
-    text: text,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
+  if(!name || !password || !text || !db) {
+    alert("이름, 비밀번호, 한마디를 모두 입력해 주세요.");
+    return;
+  }
 
-  chatInput.value = "";
+  const passwordHash = await hashPassword(password);
+
+  try{
+    await db.collection("guestbook").add({
+      name,
+      text,
+      passwordHash,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(err){
+    console.error("방명록 등록 오류:", err);
+    alert("등록 중 오류가 발생했어요.");
+    return;
+  }
+
+  guestbookName.value = "";
+  guestbookPassword.value = "";
+  guestbookText.value = "";
 });
 
 </script>
