@@ -82,8 +82,14 @@
     flex-shrink:0; width:140px;
     display:flex; align-items:center; justify-content:center;
     background:var(--leaf-soft); font-size:56px;
+    overflow:hidden;
   }
+  .sci-portrait img{ width:100%; height:100%; object-fit:cover; display:block; }
   .sci-body{ flex:1; padding:14px 18px; }
+  .sci-figure{
+    display:block; max-width:320px; width:100%; margin:10px 0 2px;
+    border-radius:8px; border:1px solid var(--line);
+  }
   .sci-name{ font-size:15px; font-weight:800; margin-bottom:2px; }
   .sci-life{ font-size:11px; color:var(--ink-soft); margin-bottom:8px; }
   .sci-quote{
@@ -339,13 +345,14 @@ const SCIENTISTS = [
     year: "1648년",
     name: "헬몬트",
     life: "Jan Baptist van Helmont · 1580~1644 · 벨기에",
-    portrait: "🧑‍⚕️",
+    portraitImg: "gwahaksa-helmont.png",
     quote: "\"식물은 물을 먹고 자란다.\"",
     oneliner: "버드나무 화분 실험",
     desc: `2.25kg짜리 버드나무 묘목을 90kg의 마른 흙에 심고, 5년 동안 <b>물</b>만 주며 길렀다.
       5년 뒤 버드나무는 74kg으로 크게 늘었지만, 흙의 무게는 89.05kg으로 거의 줄지 않았다.
       이를 통해 헬몬트는 <b>"식물이 흙 알갱이를 양분으로 삼아 자란다"</b>는 당시의 생각이 옳지 않으며,
-      식물은 주로 <b>물</b>을 먹고 자란다고 결론지었다. (공기의 역할까지는 알지 못했다.)`
+      식물은 주로 <b>물</b>을 먹고 자란다고 결론지었다. (공기의 역할까지는 알지 못했다.)
+      <img class="sci-figure" src="gwahaksa-helmont-willow.png" alt="버드나무 화분 실험: 2.25kg 묘목이 5년 뒤 74kg으로 자란 그림">`
   },
   {
     id: "priestley",
@@ -365,14 +372,15 @@ const SCIENTISTS = [
     year: "1779년",
     name: "잉엔하우스",
     life: "Jan Ingenhousz · 1730~1799 · 네덜란드",
-    portrait: "🧑‍🔬",
+    portraitImg: "gwahaksa-ingenhousz.png",
     quote: "\"식물은 빛을 이용하여 동물이 살아가는 데 필요한 기체를 만든다.\"",
     oneliner: "빛의 유무에 따른 대조 실험",
     desc: `잉엔하우스는 프리스틀리의 실험이 왜 어떤 때는 성공하고 어떤 때는 실패하는지 궁금했다.
       그래서 식물과 쥐를 넣은 밀폐 용기를 <b>빛을 비추었을 때</b>와 <b>빛을 비추지 않았을 때</b>로 나누어 비교했다.
       빛을 비추지 않았을 때는 쥐가 죽었지만, 빛을 비추었을 때는 쥐가 살아 있는 것을 확인했다.
       이를 통해 프리스틀리의 실험에 빠져 있던 조건이 바로 <b>빛</b>이라는 것을 밝혀냈다.
-      이때 식물이 만드는 이 기체는 훗날 우리가 숨 쉬는 데 꼭 필요한 <b>산소</b>로 밝혀졌다.`
+      이때 식물이 만드는 이 기체는 훗날 우리가 숨 쉬는 데 꼭 필요한 <b>산소</b>로 밝혀졌다.
+      <img class="sci-figure" src="gwahaksa-ingenhousz-belljars.png" alt="빛을 비추었을 때와 비추지 않았을 때 유리 종 속 쥐의 생존을 비교한 그림">`
   },
   {
     id: "senebier",
@@ -429,7 +437,12 @@ function selectScientist(id){
 
   document.querySelectorAll(".tl-node").forEach(n => n.classList.toggle("active", n.dataset.id === id));
 
-  portraitEl.textContent = s.portrait;
+  if(s.portraitImg){
+    portraitEl.innerHTML = `<img src="${s.portraitImg}" alt="${s.name} 초상">`;
+  } else {
+    portraitEl.innerHTML = "";
+    portraitEl.textContent = s.portrait;
+  }
   nameEl.textContent = s.name;
   lifeEl.textContent = s.life;
   quoteEl.textContent = s.quote;
