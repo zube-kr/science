@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탄성력 실험 — 용수철의 탄성력 측정하기</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --force:#D8493B;
+    --force-soft:#FDEAE7;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --violet:#7A56C9;
+    --violet-soft:#EFE9FA;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--blue),var(--force)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:760px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 탄성력 방향 다이어그램 ---------- */
+  .direction-diagrams{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .dir-card{ border:1px solid var(--line); border-radius:12px; padding:10px; background:#FBFAF6; text-align:center; }
+  .dir-card svg{ width:100%; height:70px; display:block; }
+  .dir-card .dir-label{ font-size:12px; font-weight:800; margin-top:4px; }
+
+  /* ---------- 준비물 / 과정 ---------- */
+  .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; margin-bottom:14px; }
+  @media (max-width:640px){ .info-grid{ grid-template-columns:1fr; } }
+  .info-box{ font-size:12.5px; line-height:1.8; }
+  .info-box b{ display:block; font-size:12.5px; font-weight:800; margin-bottom:4px; color:var(--ink); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{ font-size:11.5px; background:var(--blue-soft); color:var(--blue); padding:3px 10px; border-radius:999px; font-weight:700; }
+  .steps{ font-size:12.5px; line-height:1.9; color:var(--ink-soft); padding-left:18px; }
+
+  /* ---------- 실험 표 + 그래프 ---------- */
+  .lab-layout{ display:grid; grid-template-columns:1.1fr 1fr; gap:18px; align-items:start; }
+  @media (max-width:760px){ .lab-layout{ grid-template-columns:1fr; } }
+
+  table.data-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.data-table th, table.data-table td{ border:1px solid var(--line); padding:8px 6px; text-align:center; }
+  table.data-table th{ background:#F1EEE5; font-weight:800; font-size:12px; }
+  table.data-table input[type="number"]{
+    width:70px; text-align:center; font-family:inherit; font-size:13px;
+    border:1px solid var(--line); border-radius:7px; padding:5px 4px; background:#FBFAF6;
+  }
+  table.data-table input[type="text"]{
+    width:90%; font-family:inherit; font-size:12.5px;
+    border:none; border-bottom:1.5px solid var(--ink); background:transparent; text-align:center;
+  }
+  .weight-out{ font-weight:800; color:var(--force); }
+
+  .graph-box canvas{ width:100%; height:auto; background:#FBFAF6; border:1px solid var(--line); border-radius:12px; }
+  .graph-caption{ font-size:11px; color:var(--ink-soft); text-align:center; margin-top:6px; }
+
+  .lab-actions{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:9px 15px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .slope-readout{
+    margin-top:10px; font-size:12.5px; font-weight:700; color:var(--ink-soft);
+    background:#FAF8F2; border:1px solid var(--line); border-radius:10px; padding:8px 12px;
+  }
+  .slope-readout b{ color:var(--violet); }
+
+  /* ---------- 워크시트 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:90px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .q-feedback.info{ color:var(--blue); }
+
+  textarea{
+    width:100%; min-height:60px; margin-top:8px; font-family:inherit; font-size:13px; line-height:1.6;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+  .q-label{ font-weight:800; font-size:13.5px; margin-bottom:4px; display:block; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+
+  footer{ max-width:980px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">여러 가지 힘 · 탄성력</div>
+    <h1>실제로 <span>추</span>를 매달아 보고, 값을 입력하면 <span>그래프</span>가 그려져요</h1>
+    <p class="sub">집에서(또는 교실에서) 용수철에 100 g짜리 추를 1개, 2개, 3개, 4개 순서로 매달면서 늘어난 길이를 직접 자로 측정해 보세요. 표에 측정값을 입력하면 오른쪽 그래프에 점이 자동으로 찍히고, 탄성력과 늘어난 길이 사이의 관계를 바로 확인할 수 있어요.</p>
+  </header>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">개념</span>탄성력의 방향</div>
+    <div class="card-hint">변형된 물체가 원래 모양으로 되돌아가려는 성질을 <b>탄성</b>이라 하고, 이때 작용하는 힘을 <b>탄성력</b>이라고 한다. 탄성력은 물체에 작용하는 힘과 반대 방향으로 작용한다.</div>
+
+    <div class="direction-diagrams">
+      <div class="dir-card">
+        <svg viewBox="0 0 220 70">
+          <path d="M20,35 h18 q7,-10 14,0 t14,0 t14,0 t14,0 q7,-10 14,0 h18" fill="none" stroke="#8a7250" stroke-width="3"/>
+          <line x1="130" y1="35" x2="170" y2="35" stroke="#D8493B" stroke-width="4"/><polygon points="170,35 158,29 158,41" fill="#D8493B"/>
+          <text x="130" y="24" font-size="10" fill="#D8493B" font-weight="700">미는 힘</text>
+          <line x1="130" y1="52" x2="90" y2="52" stroke="#2F6FDB" stroke-width="4"/><polygon points="90,52 102,46 102,58" fill="#2F6FDB"/>
+          <text x="90" y="65" font-size="10" fill="#2F6FDB" font-weight="700">탄성력</text>
+        </svg>
+        <div class="dir-label">미는 힘 → 탄성력은 반대 방향(밀려난 쪽 반대)으로 작용</div>
+      </div>
+      <div class="dir-card">
+        <svg viewBox="0 0 220 70">
+          <path d="M20,35 h10 q7,-10 14,0 t14,0 t14,0 t14,0 t14,0 q7,-10 14,0 h10" fill="none" stroke="#8a7250" stroke-width="3"/>
+          <line x1="150" y1="35" x2="190" y2="35" stroke="#D8493B" stroke-width="4"/><polygon points="190,35 178,29 178,41" fill="#D8493B"/>
+          <text x="150" y="24" font-size="10" fill="#D8493B" font-weight="700">당기는 힘</text>
+          <line x1="150" y1="52" x2="110" y2="52" stroke="#2F6FDB" stroke-width="4"/><polygon points="110,52 122,46 122,58" fill="#2F6FDB"/>
+          <text x="110" y="65" font-size="10" fill="#2F6FDB" font-weight="700">탄성력</text>
+        </svg>
+        <div class="dir-label">당기는 힘 → 탄성력은 반대 방향(당겨온 쪽 반대)으로 작용</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--blue)">탐구</span>용수철의 탄성력 측정하기</div>
+    <div class="card-hint">목표: 추를 사용하여 용수철의 탄성력을 측정할 수 있다. (질량이 100 g인 추 하나가 용수철을 당기는 힘은 약 1 N으로 생각한다.)</div>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <b>준비물</b>
+        <div class="chip-row">
+          <span class="chip">용수철</span><span class="chip">스탠드</span><span class="chip">집게·집게발이</span>
+          <span class="chip">링</span><span class="chip">추(100g) 4개</span><span class="chip">눈금자(30cm)</span>
+          <span class="chip">힘 센서·스마트 기기(선택)</span>
+        </div>
+      </div>
+      <div class="info-box">
+        <b>과정</b>
+        <ol class="steps">
+          <li>스탠드에 용수철을 매달고, 눈금자의 0점을 용수철 끝점에 맞춰 고정한다.</li>
+          <li>용수철에 추를 1개 매달고, 늘어난 길이를 측정하여 표에 기록한다.</li>
+          <li>추의 개수를 2개, 3개, 4개로 늘려 가며 과정 2를 반복한다.</li>
+          <li>추가 용수철을 당기는 힘(N)과 늘어난 길이(cm)의 관계를 그래프로 확인한다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="lab-layout">
+      <div>
+        <table class="data-table" id="data-table">
+          <thead>
+            <tr><th>추의 개수(개)</th><th>당기는 힘(N)</th><th>용수철이 늘어난 길이(cm)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td><input type="number" class="len-input" data-force="1" min="0" step="0.1" placeholder="cm"></td></tr>
+            <tr><td>2</td><td>2</td><td><input type="number" class="len-input" data-force="2" min="0" step="0.1" placeholder="cm"></td></tr>
+            <tr><td>3</td><td>3</td><td><input type="number" class="len-input" data-force="3" min="0" step="0.1" placeholder="cm"></td></tr>
+            <tr><td>4</td><td>4</td><td><input type="number" class="len-input" data-force="4" min="0" step="0.1" placeholder="cm"></td></tr>
+          </tbody>
+        </table>
+
+        <div class="lab-actions">
+          <button class="btn ghost" id="fill-sample">📎 예시 값으로 미리보기</button>
+          <button class="btn primary" id="clear-data">🧹 내 실험값 입력하기(초기화)</button>
+        </div>
+
+        <div class="slope-readout" id="slope-readout">아직 데이터가 부족해요. 표를 2칸 이상 채우면 비례 관계(기울기)를 계산해서 알려드려요.</div>
+      </div>
+
+      <div class="graph-box">
+        <canvas id="graph-canvas" width="420" height="340"></canvas>
+        <div class="graph-caption">가로축: 당기는 힘(N) · 세로축: 용수철이 늘어난 길이(cm)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--violet)">활동</span>그래프로 여러 물체의 무게 구하기</div>
+    <div class="card-hint">위 실험에서 구한 비례 관계를 이용하면, 같은 용수철에 다른 물체를 매달았을 때 늘어난 길이만 측정해도 그 물체의 무게(N)를 추정할 수 있어요. 늘어난 길이를 입력하면 추정 무게가 자동으로 계산돼요.</div>
+
+    <table class="data-table" id="object-table">
+      <thead>
+        <tr><th>매단 물체</th><th>용수철이 늘어난 길이(cm)</th><th>추정 무게(N)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>필통</td><td><input type="number" class="obj-len" min="0" step="0.1" placeholder="cm"></td><td class="weight-out">-</td></tr>
+        <tr><td>가위</td><td><input type="number" class="obj-len" min="0" step="0.1" placeholder="cm"></td><td class="weight-out">-</td></tr>
+        <tr><td>컵</td><td><input type="number" class="obj-len" min="0" step="0.1" placeholder="cm"></td><td class="weight-out">-</td></tr>
+        <tr><td><input type="text" placeholder="직접 입력..."></td><td><input type="number" class="obj-len" min="0" step="0.1" placeholder="cm"></td><td class="weight-out">-</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">워크시트</span>스스로 확인 &amp; 결과 정리</div>
+    <div class="card-hint">객관식 빈칸은 자동으로 채점되고, 서술형 답변은 선생님이 확인할 수 있도록 함께 저장돼요.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        물체를 눌러서 힘을 가하면, 탄성력의 방향은 가한 힘과
+        <input type="text" class="blank-input" id="blank1" placeholder="방향">
+        방향이다.
+      </div>
+      <span class="q-feedback" id="fb1"></span>
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        용수철의 탄성력의 크기는 용수철이 늘어난(또는 줄어든) 길이에
+        <input type="text" class="blank-input" id="blank2" placeholder="관계">
+        한다.
+      </div>
+      <span class="q-feedback" id="fb2"></span>
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        용수철에 매단 추의 무게가 2배, 3배가 되면 용수철이 늘어난 길이는 각각
+        <input type="text" class="blank-input" id="blank3a" placeholder="배">
+        배,
+        <input type="text" class="blank-input" id="blank3b" placeholder="배">
+        배가 된다.
+      </div>
+      <span class="q-feedback" id="fb3"></span>
+    </div>
+
+    <div class="q">
+      <span class="q-label">🔬 결과 정리 — 추의 개수(무게)가 많아질수록 용수철이 늘어난 길이는 어떻게 변하는가?</span>
+      <textarea id="reflect1" placeholder="내가 측정한 표와 그래프를 보고 설명해 보세요."></textarea>
+    </div>
+
+    <div class="q">
+      <span class="q-label">🔬 결과 정리 — 탄성력의 크기와 용수철이 늘어난 길이 사이의 관계를 추론해 보자.</span>
+      <textarea id="reflect2" placeholder="예: 늘어난 길이가 커질수록 탄성력의 크기도 ~"></textarea>
+      <span class="q-feedback" id="fb-reflect"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 탄성력 실험 — 용수철의 탄성력 측정하기</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+  이 저장소 루트의 code.gs(범용 스크립트)를 그대로 배포해서 쓰면 됩니다.
+  이미 다른 워크시트에 배포해 둔 웹 앱 주소가 있다면 그대로 재사용해도
+  되고, 여기서는 이미 사용 중인 주소를 기본값으로 넣어 두었습니다.
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   실험 표 → 실시간 그래프
+=========================================================== */
+const lenInputs = Array.from(document.querySelectorAll(".len-input"));
+const canvas = document.getElementById("graph-canvas");
+const ctx = canvas.getContext("2d");
+const CW = 420, CH = 340;
+const PAD_L = 46, PAD_R = 18, PAD_T = 18, PAD_B = 40;
+
+function getDataPoints(){
+  return lenInputs
+    .map(inp => ({ force: Number(inp.dataset.force), length: inp.value === "" ? null : Number(inp.value) }))
+    .filter(p => p.length !== null && !isNaN(p.length));
+}
+
+function computeSlope(points){
+  if(points.length === 0) return null;
+  const sum = points.reduce((acc,p) => acc + (p.length / p.force), 0);
+  return sum / points.length; // cm per N (평균으로 원점을 지나는 직선의 기울기 추정)
+}
+
+function drawGraph(){
+  const points = getDataPoints();
+  const slope = computeSlope(points);
+
+  ctx.clearRect(0,0,CW,CH);
+
+  const forceMax = 5;
+  const maxLen = Math.max(4, ...points.map(p => p.length), slope ? slope*forceMax : 0);
+  const lenMax = Math.ceil(maxLen / 1) + 1;
+
+  const x0 = PAD_L, x1 = CW-PAD_R;
+  const y0 = CH-PAD_B, y1 = PAD_T;
+
+  function toX(force){ return x0 + (force/forceMax) * (x1-x0); }
+  function toY(len){ return y0 - (len/lenMax) * (y0-y1); }
+
+  // 격자 + 축
+  ctx.strokeStyle = "#DCD6C7"; ctx.fillStyle = "#626A78";
+  ctx.font = "11px Pretendard, sans-serif";
+  ctx.lineWidth = 1;
+
+  for(let f=0; f<=forceMax; f++){
+    const x = toX(f);
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    ctx.fillText(String(f), x-3, y0+16);
+  }
+  for(let l=0; l<=lenMax; l++){
+    const y = toY(l);
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    ctx.fillText(String(l), x0-22, y+4);
+  }
+
+  ctx.strokeStyle = "#232A35"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0,y1); ctx.stroke();
+
+  ctx.fillText("힘(N)", x1-24, y0+30);
+  ctx.save();
+  ctx.translate(14, y1+6);
+  ctx.fillText("길이(cm)", 0, 0);
+  ctx.restore();
+
+  // 추세선 (원점을 지나는 비례 직선)
+  if(slope !== null){
+    ctx.strokeStyle = "#7A56C9"; ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(0));
+    ctx.lineTo(toX(forceMax), toY(slope*forceMax));
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // 데이터 점
+  points.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(toX(p.force), toY(p.length), 5.5, 0, Math.PI*2);
+    ctx.fillStyle = "#D8493B";
+    ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  updateSlopeReadout(slope, points.length);
+  updateObjectWeights(slope);
+}
+
+function updateSlopeReadout(slope, n){
+  const el = document.getElementById("slope-readout");
+  if(slope === null){
+    el.innerHTML = "아직 데이터가 부족해요. 표를 2칸 이상 채우면 비례 관계(기울기)를 계산해서 알려드려요.";
+    return;
+  }
+  el.innerHTML = `측정값 ${n}개를 바탕으로 계산한 관계: 힘 1N당 용수철이 약 <b>${slope.toFixed(2)} cm</b>씩 늘어나요. (탄성력의 크기 ∝ 늘어난 길이)`;
+}
+
+lenInputs.forEach(inp => inp.addEventListener("input", drawGraph));
+
+document.getElementById("fill-sample").addEventListener("click", () => {
+  const sample = [0.9, 1.6, 2.4, 3.0];
+  lenInputs.forEach((inp,i) => inp.value = sample[i]);
+  drawGraph();
+});
+document.getElementById("clear-data").addEventListener("click", () => {
+  lenInputs.forEach(inp => inp.value = "");
+  drawGraph();
+});
+
+/* ==========================================================
+   여러 물체의 무게 추정 (기울기 이용)
+=========================================================== */
+const objLenInputs = Array.from(document.querySelectorAll(".obj-len"));
+
+function updateObjectWeights(slope){
+  objLenInputs.forEach(inp => {
+    const out = inp.closest("tr").querySelector(".weight-out");
+    const len = Number(inp.value);
+    if(!inp.value || isNaN(len) || slope === null || slope === 0){
+      out.textContent = slope === null ? "실험표 먼저!" : "-";
+      return;
+    }
+    out.textContent = (len / slope).toFixed(1) + " N";
+  });
+}
+objLenInputs.forEach(inp => inp.addEventListener("input", () => updateObjectWeights(computeSlope(getDataPoints()))));
+
+drawGraph();
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+=========================================================== */
+function normalize(str){ return (str || "").trim().replace(/\s+/g, ""); }
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const blank1 = document.getElementById("blank1").value;
+  const blank2 = document.getElementById("blank2").value;
+  const blank3a = document.getElementById("blank3a").value;
+  const blank3b = document.getElementById("blank3b").value;
+  const reflect1 = document.getElementById("reflect1").value.trim();
+  const reflect2 = document.getElementById("reflect2").value.trim();
+
+  const dataPoints = getDataPoints();
+
+  if(!blank1.trim() || !blank2.trim() || !blank3a.trim() || !blank3b.trim() || !reflect1 || !reflect2){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+  if(dataPoints.length < 4){
+    if(!confirm("실험표가 아직 다 채워지지 않았어요. 그래도 제출할까요?")) return;
+  }
+
+  const ok1 = ["반대","반대방향","반대쪽"].includes(normalize(blank1));
+  const ok2 = ["비례","비례한다"].includes(normalize(blank2));
+  const ok3 = normalize(blank3a) === "2" && normalize(blank3b) === "3";
+
+  document.getElementById("fb1").textContent = ok1 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 반대)";
+  document.getElementById("fb1").className = "q-feedback " + (ok1 ? "ok" : "bad");
+
+  document.getElementById("fb2").textContent = ok2 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 비례)";
+  document.getElementById("fb2").className = "q-feedback " + (ok2 ? "ok" : "bad");
+
+  document.getElementById("fb3").textContent = ok3 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 2배, 3배)";
+  document.getElementById("fb3").className = "q-feedback " + (ok3 ? "ok" : "bad");
+
+  document.getElementById("fb-reflect").textContent = "📝 서술형 답변은 선생님이 확인 후 피드백해 줄게요.";
+  document.getElementById("fb-reflect").className = "q-feedback info";
+
+  const correctCount = [ok1, ok2, ok3].filter(Boolean).length;
+  const total = 3;
+  wsResult.textContent = `객관식 ${correctCount} / ${total} 개 정답 (서술형은 선생님이 확인해요)`;
+  wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    worksheet: "him-tansungnyeok",
+    grade, classNum, number, name,
+    len_1n: lenInputs[0].value, len_2n: lenInputs[1].value, len_3n: lenInputs[2].value, len_4n: lenInputs[3].value,
+    slope_cm_per_n: (computeSlope(dataPoints) || "").toString(),
+    blank1, blank2, blank3a, blank3b,
+    reflect1, reflect2,
+    score: String(correctCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  ["blank1","blank2","blank3a","blank3b"].forEach(id => document.getElementById(id).value = "");
+  ["reflect1","reflect2"].forEach(id => document.getElementById(id).value = "");
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
