@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>식물과 에너지 — 광합성의 과정이 밝혀지기까지</title>
+<style>
+  :root{
+    --bg:#F4F1EA;
+    --card:#FFFFFF;
+    --ink:#2E2A22;
+    --ink-soft:#736C5D;
+    --line:#E1D9C6;
+
+    --leaf:#4B8B3B;
+    --leaf-soft:#E7F2E1;
+    --paper:#B98A4E;
+    --paper-soft:#F7EEDD;
+
+    --ok:#2E9E5B;
+    --err:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBF9F3 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1000px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--paper),var(--leaf)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:720px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(46,42,34,.06);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 타임라인 ---------- */
+  .timeline{ display:flex; flex-wrap:wrap; gap:6px; align-items:stretch; }
+  .tl-node{
+    flex:1; min-width:150px;
+    display:flex; flex-direction:column; gap:4px;
+    background:var(--paper-soft); border:1.5px solid #E7D3A9; border-radius:12px;
+    padding:10px 12px; cursor:pointer; transition:.15s;
+  }
+  .tl-node:hover{ border-color:var(--paper); }
+  .tl-node.active{ border-color:var(--paper); background:#FBEFD6; box-shadow:0 2px 8px rgba(185,138,78,.25); }
+  .tl-year{ font-size:10.5px; font-weight:800; color:var(--paper); }
+  .tl-name{ font-size:13px; font-weight:800; }
+  .tl-oneliner{ font-size:10.5px; color:var(--ink-soft); line-height:1.4; }
+
+  /* ---------- 과학자 상세 카드 ---------- */
+  .scientist-detail{
+    display:none; margin-top:14px;
+    border:1.5px solid var(--line); border-radius:14px; overflow:hidden;
+  }
+  .scientist-detail.active{ display:flex; }
+  @media (max-width:640px){ .scientist-detail.active{ flex-direction:column; } }
+
+  .sci-portrait{
+    flex-shrink:0; width:140px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--leaf-soft); font-size:56px;
+  }
+  .sci-body{ flex:1; padding:14px 18px; }
+  .sci-name{ font-size:15px; font-weight:800; margin-bottom:2px; }
+  .sci-life{ font-size:11px; color:var(--ink-soft); margin-bottom:8px; }
+  .sci-quote{
+    font-size:12px; font-style:italic; color:var(--paper);
+    border-left:3px solid var(--paper); padding-left:8px; margin-bottom:8px;
+  }
+  .sci-desc{ font-size:12.5px; line-height:1.8; }
+  .sci-desc b{ color:var(--leaf); font-weight:800; }
+
+  /* ---------- 개념정리활동지 ---------- */
+  .concept-block{ margin-bottom:18px; }
+  .concept-block:last-child{ margin-bottom:0; }
+  .concept-block-title{
+    display:inline-block; font-size:13px; font-weight:800; color:#fff;
+    background:var(--leaf); padding:4px 12px; border-radius:8px 8px 0 0;
+  }
+  .concept-body{ border:1.5px solid var(--leaf); border-radius:0 12px 12px 12px; padding:14px 16px; }
+  .concept-line{ font-size:13.5px; line-height:2.3; }
+
+  /* ---------- 워크시트 공통 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF3;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:130px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--leaf); color:var(--leaf); background:var(--leaf-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--err); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#4a4433; }
+  .btn.ghost{ background:#EFEAD9; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E5DFC9; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  footer{ max-width:1000px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 식물과 에너지 · 과학사</div>
+    <h1>광합성의 <span>과정이 밝혀지기까지</span></h1>
+    <p class="sub">옛날부터 사람들은 동물처럼 먹이를 먹지 않는 식물이 무엇을 먹고 살아가는지 궁금해했습니다. 여러 과학자가 오랜 시간에 걸쳐 실험을 거듭하며 광합성의 비밀을 하나씩 밝혀냈습니다. 아래 타임라인의 과학자를 눌러 이야기를 읽고, 워크시트를 풀어 보세요.</p>
+  </header>
+
+  <!-- 타임라인 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--paper)">과학사</span>과학자를 눌러 이야기 읽기</div>
+    <div class="card-hint">시간 순서대로 나열된 다섯 과학자를 차례로 눌러 보세요. 서로의 연구가 어떻게 이어지는지 보이나요?</div>
+
+    <div class="timeline" id="timeline"></div>
+
+    <div class="scientist-detail active" id="scientist-detail">
+      <div class="sci-portrait" id="sci-portrait"></div>
+      <div class="sci-body">
+        <div class="sci-name" id="sci-name"></div>
+        <div class="sci-life" id="sci-life"></div>
+        <div class="sci-quote" id="sci-quote"></div>
+        <div class="sci-desc" id="sci-desc"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 개념정리활동지 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--leaf)">개념정리</span>개념정리활동지</div>
+    <div class="card-hint">위 타임라인을 참고해서 빈칸을 채워 보세요.</div>
+
+    <div class="concept-block">
+      <div class="concept-block-title">1. 물과 공기에 대한 발견</div>
+      <div class="concept-body">
+        <div class="concept-line">
+          (1) 헬몬트는 버드나무를 5년간 물만 주며 기른 실험을 통해, 식물이 자라는 데 필요한 것은 흙이 아니라
+          <input type="text" class="blank-input" id="c1-blank" placeholder="OO">
+          (이)라고 결론지었다.
+        </div>
+        <div class="concept-line">
+          (2) 프리스틀리는 밀폐된 용기 속에 촛불(또는 쥐)과 식물을 함께 두는 실험으로, 식물이
+          <input type="text" class="blank-input" id="c2-blank" placeholder="OOO OO(O)">
+          을(를) 맑게 정화한다는 것을 발견했다.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-block">
+      <div class="concept-block-title">2. 빛·기체·양분에 대한 발견</div>
+      <div class="concept-body">
+        <div class="concept-line">
+          (1) 잉엔하우스는 프리스틀리의 실험이 성공하려면
+          <input type="text" class="blank-input" id="c3-blank" placeholder="O">
+          이(가) 있어야 한다는 것을 밝혔다.
+        </div>
+        <div class="concept-line">
+          (2) 세네비에는 식물이
+          <input type="text" class="blank-input" id="c4-blank" placeholder="OOO OO">
+          를 흡수하여 산소를 만든다는 것을 밝혔다.
+        </div>
+        <div class="concept-line">
+          (3) 사흐스는 빛을 받은 잎에 아이오딘 반응 실험을 하여, 광합성 결과
+          <input type="text" class="blank-input" id="c5-blank" placeholder="OO">
+          이(가) 만들어짐을 증명했다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 스스로 확인 워크시트 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--ink)">워크시트</span>스스로 확인</div>
+    <div class="card-hint">정답을 입력하고 <b>제출하고 채점받기</b>를 누르면 개념정리활동지와 함께 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록됩니다.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        버드나무를 5년간 물만 주며 기른 뒤 무게 변화를 측정해, 식물이
+        <span class="choice-group" data-answer="물">
+          <button type="button" class="choice-btn" data-value="흙">흙</button>
+          <button type="button" class="choice-btn" data-value="물">물</button>
+        </span>
+        을 먹고 자란다고 결론 내린 과학자는 <b>헬몬트</b>이다.
+      </div>
+      <span class="q-feedback" id="q1-feedback"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        밀폐된 유리 용기 속에 촛불과 식물을 함께 두어, 식물이 탁해진 공기를 정화한다는 것을 처음 주장한 과학자는
+        <span class="choice-group" data-answer="프리스틀리">
+          <button type="button" class="choice-btn" data-value="프리스틀리">프리스틀리</button>
+          <button type="button" class="choice-btn" data-value="사흐스">사흐스</button>
+        </span>
+        이다.
+      </div>
+      <span class="q-feedback" id="q2-feedback"></span>
+    </div>
+
+    <div class="q" id="q3">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        프리스틀리의 실험이 어떤 때는 성공하고 어떤 때는 실패했던 까닭이
+        <input type="text" class="blank-input" id="q3-blank" placeholder="O">
+        의 유무 때문임을 밝혀낸 과학자는 잉엔하우스이다.
+      </div>
+      <span class="q-feedback" id="q3-feedback"></span>
+    </div>
+
+    <div class="q" id="q4">
+      <div class="q-text">
+        <span class="q-num">4</span>
+        식물이
+        <input type="text" class="blank-input" id="q4-blank" placeholder="OOO OO">
+        를 흡수하여 산소를 만든다는 것을 처음 밝힌 과학자는 세네비에이다.
+      </div>
+      <span class="q-feedback" id="q4-feedback"></span>
+    </div>
+
+    <div class="q" id="q5">
+      <div class="q-text">
+        <span class="q-num">5</span>
+        빛을 받은 잎에 아이오딘 반응 실험을 하여, 광합성 결과
+        <input type="text" class="blank-input" id="q5-blank" placeholder="OO">
+        이(가) 만들어짐을 증명한 과학자는 사흐스이다.
+      </div>
+      <span class="q-feedback" id="q5-feedback"></span>
+    </div>
+
+    <div class="q" id="q6">
+      <div class="q-text">
+        <span class="q-num">6</span>
+        다음 중 과학자들의 활동 순서가 올바른 것은
+        <span class="choice-group" data-answer="헬몬트 → 프리스틀리 → 잉엔하우스 → 세네비에 → 사흐스">
+          <button type="button" class="choice-btn" data-value="헬몬트 → 프리스틀리 → 잉엔하우스 → 세네비에 → 사흐스">헬몬트 → 프리스틀리 → 잉엔하우스 → 세네비에 → 사흐스</button>
+          <button type="button" class="choice-btn" data-value="사흐스 → 세네비에 → 잉엔하우스 → 프리스틀리 → 헬몬트">사흐스 → 세네비에 → 잉엔하우스 → 프리스틀리 → 헬몬트</button>
+        </span>
+        이다.
+      </div>
+      <span class="q-feedback" id="q6-feedback"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 식물과 에너지 (광합성의 과정이 밝혀지기까지)</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+
+  다른 워크시트와 같은 웹훅 주소를 재사용하도록 미리 연결해 두었습니다.
+  제출값의 worksheet 필드("4_광합성과학사")로 어떤 워크시트에서 온
+  응답인지 구분할 수 있으니, Apps Script의 doPost에서 이 값에 따라
+  다른 시트(탭)로 분기해서 저장해 주세요.
+  주소를 다른 스프레드시트로 바꾸고 싶다면 아래 SPREADSHEET_WEBHOOK_URL
+  값만 바꿔주시면 됩니다. (비워두면 학생 화면에서 채점만 되고 전송은 생략됩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   과학자 타임라인
+=========================================================== */
+const SCIENTISTS = [
+  {
+    id: "helmont",
+    year: "1648년",
+    name: "헬몬트",
+    life: "Jan Baptist van Helmont · 1580~1644 · 벨기에",
+    portrait: "🧑‍⚕️",
+    quote: "\"식물은 물을 먹고 자란다.\"",
+    oneliner: "버드나무 화분 실험",
+    desc: `2.25kg짜리 버드나무 묘목을 90kg의 마른 흙에 심고, 5년 동안 <b>물</b>만 주며 길렀다.
+      5년 뒤 버드나무는 74kg으로 크게 늘었지만, 흙의 무게는 89.05kg으로 거의 줄지 않았다.
+      이를 통해 헬몬트는 <b>"식물이 흙 알갱이를 양분으로 삼아 자란다"</b>는 당시의 생각이 옳지 않으며,
+      식물은 주로 <b>물</b>을 먹고 자란다고 결론지었다. (공기의 역할까지는 알지 못했다.)`
+  },
+  {
+    id: "priestley",
+    year: "1771년",
+    name: "프리스틀리",
+    life: "Joseph Priestley · 1733~1804 · 영국",
+    portrait: "🧑‍🔬",
+    quote: "\"식물이 탁해진 공기를 다시 맑게 만든다.\"",
+    oneliner: "밀폐 용기 속 촛불·쥐 실험",
+    desc: `밀폐된 유리 용기 속에 촛불을 넣으면 얼마 못 가 꺼지고, 쥐를 넣으면 오래 살지 못했다.
+      그런데 <b>박하 가지(식물)</b>를 함께 넣어 두었던 용기에서는 촛불이 더 오래 타고, 쥐도 더 오래 살 수 있었다.
+      프리스틀리는 이 결과를 보고 <b>식물이 탁해진(오염된) 공기를 맑게 정화한다</b>고 주장했다.
+      다만 이 실험은 항상 똑같이 성공하지는 않아서 당시 과학자들 사이에 논란이 있었다.`
+  },
+  {
+    id: "ingenhousz",
+    year: "1779년",
+    name: "잉엔하우스",
+    life: "Jan Ingenhousz · 1730~1799 · 네덜란드",
+    portrait: "🧑‍🔬",
+    quote: "\"식물은 빛을 이용하여 동물이 살아가는 데 필요한 기체를 만든다.\"",
+    oneliner: "빛의 유무에 따른 대조 실험",
+    desc: `잉엔하우스는 프리스틀리의 실험이 왜 어떤 때는 성공하고 어떤 때는 실패하는지 궁금했다.
+      그래서 식물과 쥐를 넣은 밀폐 용기를 <b>빛을 비추었을 때</b>와 <b>빛을 비추지 않았을 때</b>로 나누어 비교했다.
+      빛을 비추지 않았을 때는 쥐가 죽었지만, 빛을 비추었을 때는 쥐가 살아 있는 것을 확인했다.
+      이를 통해 프리스틀리의 실험에 빠져 있던 조건이 바로 <b>빛</b>이라는 것을 밝혀냈다.
+      이때 식물이 만드는 이 기체는 훗날 우리가 숨 쉬는 데 꼭 필요한 <b>산소</b>로 밝혀졌다.`
+  },
+  {
+    id: "senebier",
+    year: "1782년",
+    name: "세네비에",
+    life: "Jean Senebier · 1742~1809 · 스위스",
+    portrait: "🧑‍🔬",
+    quote: "\"식물은 이산화 탄소를 흡수하여 산소를 내보낸다.\"",
+    oneliner: "이산화 탄소가 원료임을 규명",
+    desc: `세네비에는 여러 실험을 통해 식물이 산소를 만들어 내려면 물속(또는 공기 중)에
+      <b>이산화 탄소</b>가 녹아 있어야 한다는 것을 밝혔다.
+      이로써 광합성에는 빛뿐만 아니라 <b>이산화 탄소</b>라는 원료도 반드시 필요하다는 사실이 처음으로 분명해졌다.`
+  },
+  {
+    id: "sachs",
+    year: "1862년",
+    name: "사흐스",
+    life: "Julius von Sachs · 1832~1897 · 독일",
+    portrait: "🧑‍🔬",
+    quote: "\"빛을 받은 잎의 엽록체에서 녹말이 만들어진다.\"",
+    oneliner: "아이오딘 반응으로 녹말 생성 증명",
+    desc: `사흐스는 하루 동안 빛을 충분히 받은 잎과 어둠 속에 두었던 잎에 각각
+      <b>아이오딘-아이오딘화 칼륨 용액</b>을 떨어뜨려 비교했다.
+      빛을 받은 잎만 청람색으로 변하는 것을 확인하고, 이를 통해 광합성의 결과로
+      잎의 엽록체 안에 <b>녹말</b>(양분)이 만들어진다는 것을 실험으로 증명했다.
+      오늘날 교실에서 하는 검정말 아이오딘 반응 실험이 바로 사흐스의 실험에서 비롯되었다.`
+  }
+];
+
+const timelineEl = document.getElementById("timeline");
+const detailEl = document.getElementById("scientist-detail");
+const portraitEl = document.getElementById("sci-portrait");
+const nameEl = document.getElementById("sci-name");
+const lifeEl = document.getElementById("sci-life");
+const quoteEl = document.getElementById("sci-quote");
+const descEl = document.getElementById("sci-desc");
+
+SCIENTISTS.forEach((s, idx) => {
+  const node = document.createElement("div");
+  node.className = "tl-node" + (idx === 0 ? " active" : "");
+  node.dataset.id = s.id;
+  node.innerHTML = `
+    <div class="tl-year">${s.year}</div>
+    <div class="tl-name">${s.name}</div>
+    <div class="tl-oneliner">${s.oneliner}</div>
+  `;
+  node.addEventListener("click", () => selectScientist(s.id));
+  timelineEl.appendChild(node);
+});
+
+function selectScientist(id){
+  const s = SCIENTISTS.find(x => x.id === id);
+  if(!s) return;
+
+  document.querySelectorAll(".tl-node").forEach(n => n.classList.toggle("active", n.dataset.id === id));
+
+  portraitEl.textContent = s.portrait;
+  nameEl.textContent = s.name;
+  lifeEl.textContent = s.life;
+  quoteEl.textContent = s.quote;
+  descEl.innerHTML = s.desc;
+  detailEl.classList.add("active");
+}
+
+selectScientist(SCIENTISTS[0].id);
+
+/* ==========================================================
+   워크시트(개념정리활동지 + 스스로 확인) 채점 & 스프레드시트 자동 전송
+=========================================================== */
+const choiceGroups = document.querySelectorAll(".choice-group");
+
+choiceGroups.forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+function blankMatches(inputVal, ...answers){
+  const v = normalize(inputVal);
+  return answers.some(a => v === normalize(a) || v.includes(normalize(a)));
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const c1 = document.getElementById("c1-blank").value;
+  const c2 = document.getElementById("c2-blank").value;
+  const c3 = document.getElementById("c3-blank").value;
+  const c4 = document.getElementById("c4-blank").value;
+  const c5 = document.getElementById("c5-blank").value;
+
+  const q1Choice = pickedValue(document.querySelector("#q1 .choice-group"));
+  const q2Choice = pickedValue(document.querySelector("#q2 .choice-group"));
+  const q3Blank = document.getElementById("q3-blank").value;
+  const q4Blank = document.getElementById("q4-blank").value;
+  const q5Blank = document.getElementById("q5-blank").value;
+  const q6Choice = pickedValue(document.querySelector("#q6 .choice-group"));
+
+  const allFilled = [c1,c2,c3,c4,c5,q1Choice,q2Choice,q3Blank,q4Blank,q5Blank,q6Choice]
+    .every(v => (v || "").toString().trim() !== "");
+  if(!allFilled){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  const results = {};
+
+  results.c1 = blankMatches(c1, "물");
+  document.getElementById("c1-blank").style.color = results.c1 ? "" : "var(--err)";
+
+  results.c2 = blankMatches(c2, "탁해진공기", "오염된공기", "공기");
+  document.getElementById("c2-blank").style.color = results.c2 ? "" : "var(--err)";
+
+  results.c3 = blankMatches(c3, "빛");
+  document.getElementById("c3-blank").style.color = results.c3 ? "" : "var(--err)";
+
+  results.c4 = blankMatches(c4, "이산화탄소");
+  document.getElementById("c4-blank").style.color = results.c4 ? "" : "var(--err)";
+
+  results.c5 = blankMatches(c5, "녹말");
+  document.getElementById("c5-blank").style.color = results.c5 ? "" : "var(--err)";
+
+  results.q1 = q1Choice === "물";
+  setFeedback("q1-feedback", results.q1, "물");
+
+  results.q2 = q2Choice === "프리스틀리";
+  setFeedback("q2-feedback", results.q2, "프리스틀리");
+
+  results.q3 = blankMatches(q3Blank, "빛");
+  setFeedback("q3-feedback", results.q3, "빛");
+
+  results.q4 = blankMatches(q4Blank, "이산화탄소");
+  setFeedback("q4-feedback", results.q4, "이산화 탄소");
+
+  results.q5 = blankMatches(q5Blank, "녹말");
+  setFeedback("q5-feedback", results.q5, "녹말");
+
+  results.q6 = q6Choice === "헬몬트 → 프리스틀리 → 잉엔하우스 → 세네비에 → 사흐스";
+  setFeedback("q6-feedback", results.q6, "헬몬트 → 프리스틀리 → 잉엔하우스 → 세네비에 → 사흐스");
+
+  const values = Object.values(results);
+  const correctSubCount = values.filter(Boolean).length;
+  const total = values.length;
+  wsResult.textContent = `${correctSubCount} / ${total} 개 정답 (개념정리활동지 5 + 워크시트 ${total - 5})`;
+  wsResult.className = "ws-result " + (correctSubCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    worksheet: "4_광합성과학사",
+    grade, classNum, number, name,
+    c1_blank: c1, c2_blank: c2, c3_blank: c3, c4_blank: c4, c5_blank: c5,
+    q1_choice: q1Choice, q2_choice: q2Choice, q3_blank: q3Blank,
+    q4_blank: q4Blank, q5_blank: q5Blank, q6_choice: q6Choice,
+    score: String(correctSubCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.style.color = ""; });
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
