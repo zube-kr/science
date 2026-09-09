@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>식물과 에너지 — 광합성산물의 저장과 이용</title>
+<style>
+  :root{
+    --bg:#F4F6EF;
+    --card:#FFFFFF;
+    --ink:#26321F;
+    --ink-soft:#657058;
+    --line:#D9E0C9;
+
+    --leaf:#4B8B3B;
+    --leaf-soft:#E7F2E1;
+    --fruit:#B84B3C;
+    --fruit-soft:#FBEAE6;
+
+    --ok:#2E9E5B;
+    --err:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FAFBF5 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1000px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--leaf),var(--fruit)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:720px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(38,50,31,.06);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  .source-img{ width:100%; border-radius:12px; border:1px solid var(--line); display:block; }
+  .source-img + .source-img{ margin-top:12px; }
+
+  .recap-list{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .recap-item{
+    display:flex; gap:10px; align-items:flex-start;
+    background:var(--leaf-soft); border:1px solid #D3E6C8; border-radius:10px;
+    padding:10px 12px; font-size:12.5px; line-height:1.65;
+  }
+  .recap-item .num{ flex-shrink:0; font-weight:800; color:var(--leaf); }
+  .recap-item b{ color:var(--leaf); font-weight:800; }
+
+  /* ---------- 개념정리활동지: 표 ---------- */
+  .concept-block{ margin-bottom:18px; }
+  .concept-block:last-child{ margin-bottom:0; }
+  .concept-block-title{
+    display:inline-block; font-size:13px; font-weight:800; color:#fff;
+    background:var(--leaf); padding:4px 12px; border-radius:8px 8px 0 0;
+  }
+  .concept-body{ border:1.5px solid var(--leaf); border-radius:0 12px 12px 12px; padding:14px 16px; overflow-x:auto; }
+  .concept-line{ font-size:13.5px; line-height:2.3; }
+
+  table.process-table{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:520px; }
+  table.process-table th, table.process-table td{
+    border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:middle;
+  }
+  table.process-table th{ background:var(--leaf-soft); font-weight:800; }
+  table.process-table td.given{ color:var(--ink-soft); }
+  table.process-table input.blank-input{ width:100%; min-width:80px; }
+
+  /* ---------- 워크시트 공통 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF3;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--leaf); color:var(--leaf); background:var(--leaf-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--err); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3d4a32; }
+  .btn.ghost{ background:#EFEAD9; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E4E2D2; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  footer{ max-width:1000px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 식물과 에너지 · 02. 광합성산물의 저장과 이용</div>
+    <h1>포도당은 어디로 갈까? — <span>광합성산물의 저장과 이용</span></h1>
+    <p class="sub">식물은 광합성으로 만든 포도당을 여러 형태의 양분으로 바꾸어 이동시키고 저장합니다. 자료를 읽고 개념정리활동지와 워크시트를 풀어 보세요. 제출하면 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록돼요.</p>
+  </header>
+
+  <!-- 읽기 자료 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">읽기 자료</span>광합성산물의 저장과 이용</div>
+    <div class="card-hint">교과서 자료를 천천히 읽어 보세요. 광합성산물(포도당)이 어떤 형태로 바뀌어 이동하고, 어디에 저장되며, 어떻게 이용되는지 살펴봅니다.</div>
+    <img class="source-img" src="gwanghapseong-jeojang-p1.webp" alt="광합성산물의 저장과 이용 - 그림 V-9 광합성산물의 이동과 저장">
+    <img class="source-img" src="gwanghapseong-jeojang-p2.webp" alt="광합성산물의 이용 - 그림 V-10 광합성산물의 이용">
+
+    <div class="recap-list">
+      <div class="recap-item"><span class="num">①</span><span>엽록체에서 만들어진 <b>포도당</b>은 <b>녹말</b>로 바뀌어 잎에 잠시 저장되고, 체관을 통해 각 기관으로 운반될 때는 물에 잘 녹는 <b>설탕</b>으로 바뀐다.</span></div>
+      <div class="recap-item"><span class="num">②</span><span><b>열매·씨</b>에는 지방·단백질 등의 형태로, <b>줄기·뿌리</b>에는 <b>녹말</b> 형태로 양분이 저장된다.</span></div>
+      <div class="recap-item"><span class="num">③</span><span>광합성산물은 식물이 <b>싹 틔우기·꽃 피우기·생장·열매와 씨 맺기</b> 등 스스로 살아가는 데 쓰이기도 하고, <b>동물</b>을 비롯한 다른 생물이 살아가는 데 필요한 양분과 산소로도 이용된다.</span></div>
+    </div>
+  </section>
+
+  <!-- 탐구 자료 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--fruit)">함께 만드는 탐구</span>광합성산물의 저장과 이용을 모형으로 나타내기</div>
+    <div class="card-hint">엽록체를 포도당을 만드는 "공장"에 비유한 그림입니다. 공장에서 만든 포도당이 그 다음 어떻게 되는지 생각해 보세요.</div>
+    <img class="source-img" src="gwanghapseong-jeojang-p3.png" alt="광합성산물의 저장과 이용을 모형으로 나타내기 - 이산화 탄소와 물이 엽록체 공장으로 들어가 포도당이 만들어지는 그림과 과정 표">
+  </section>
+
+  <!-- 개념정리활동지 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--leaf)">개념정리</span>개념정리활동지</div>
+    <div class="card-hint">위 자료를 참고해서 표와 빈칸을 채워 보세요.</div>
+
+    <div class="concept-block">
+      <div class="concept-block-title">1. 광합성산물이 만들어진 뒤의 과정</div>
+      <div class="concept-body">
+        <table class="process-table">
+          <thead>
+            <tr><th style="width:90px">과정</th><th style="width:110px">장소</th><th>내용</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="given">광합성</td>
+              <td class="given">엽록체</td>
+              <td class="given">빛에너지를 이용하여 이산화 탄소와 물로 포도당과 산소를 만든다.</td>
+            </tr>
+            <tr>
+              <td>이동하기</td>
+              <td><input type="text" class="blank-input" id="t1-place" placeholder="OO"></td>
+              <td>포도당을 물에 잘 녹는 <input type="text" class="blank-input" id="t1-content" placeholder="OO">(으)로 바꾸어 각 기관으로 운반한다.</td>
+            </tr>
+            <tr>
+              <td>사용하기</td>
+              <td><input type="text" class="blank-input" id="t2-place" placeholder="OOO OO"></td>
+              <td>생명활동에 필요한 <input type="text" class="blank-input" id="t2-content" placeholder="OOO">(으)로 쓴다.</td>
+            </tr>
+            <tr>
+              <td>저장하기</td>
+              <td><input type="text" class="blank-input" id="t3-place" placeholder="OO, OO, OO, O 등"></td>
+              <td>지방·단백질·<input type="text" class="blank-input" id="t3-content" placeholder="OO"> 등 다양한 형태로 저장한다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="concept-block">
+      <div class="concept-block-title">2. 저장 기관별 저장 형태</div>
+      <div class="concept-body">
+        <div class="concept-line">
+          (1) 열매나 씨에는 지방, 단백질, <input type="text" class="blank-input" id="c1-blank" placeholder="OO"> 등의 형태로 양분을 저장한다.
+        </div>
+        <div class="concept-line">
+          (2) 줄기(감자)와 뿌리(고구마)에는 주로
+          <input type="text" class="blank-input" id="c2-blank" placeholder="OO">
+          형태로 양분을 저장한다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 스스로 확인 워크시트 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--fruit)">워크시트</span>스스로 확인</div>
+    <div class="card-hint">정답을 입력하고 <b>제출하고 채점받기</b>를 누르면 개념정리활동지와 함께 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록됩니다.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        잎에서 만들어진 포도당은 체관을 통해 운반될 때 물에 잘 녹는
+        <span class="choice-group" data-answer="설탕">
+          <button type="button" class="choice-btn" data-value="설탕">설탕</button>
+          <button type="button" class="choice-btn" data-value="녹말">녹말</button>
+        </span>
+        형태로 바뀐다.
+      </div>
+      <span class="q-feedback" id="q1-feedback"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        감자(줄기)와 고구마(뿌리)에는 주로
+        <span class="choice-group" data-answer="녹말">
+          <button type="button" class="choice-btn" data-value="설탕">설탕</button>
+          <button type="button" class="choice-btn" data-value="녹말">녹말</button>
+        </span>
+        형태로 양분이 저장된다.
+      </div>
+      <span class="q-feedback" id="q2-feedback"></span>
+    </div>
+
+    <div class="q" id="q3">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        열매와 씨에는 지방, 단백질 등 다양한 형태로 양분이
+        <span class="choice-group" data-answer="저장된다">
+          <button type="button" class="choice-btn" data-value="저장된다">저장된다</button>
+          <button type="button" class="choice-btn" data-value="모두 분해된다">모두 분해된다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="q3-feedback"></span>
+    </div>
+
+    <div class="q" id="q4">
+      <div class="q-text">
+        <span class="q-num">4</span>
+        광합성산물은 식물 스스로 이용하기도 하지만,
+        <input type="text" class="blank-input" id="q4-blank" placeholder="OO">
+        을(를) 비롯한 다른 생물이 살아가는 데 필요한 양분으로도 이용된다.
+      </div>
+      <span class="q-feedback" id="q4-feedback"></span>
+    </div>
+
+    <div class="q" id="q5">
+      <div class="q-text">
+        <span class="q-num">5</span>
+        식물이 광합성을 하지 않으면 동물도 생명활동에 필요한 양분과
+        <input type="text" class="blank-input" id="q5-blank" placeholder="OO">
+        을(를) 얻을 수 없어 식물과 동물 모두 생명을 유지하기 어렵다.
+      </div>
+      <span class="q-feedback" id="q5-feedback"></span>
+    </div>
+
+    <div class="q" id="q6">
+      <div class="q-text">
+        <span class="q-num">6</span>
+        광합성산물(양분)을 필요한 기관까지 운반하는 통로는 물관이 아니라
+        <input type="text" class="blank-input" id="q6-blank" placeholder="OO">
+        이다.
+      </div>
+      <span class="q-feedback" id="q6-feedback"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 식물과 에너지 (광합성산물의 저장과 이용)</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+
+  다른 워크시트와 같은 웹훅 주소를 재사용하도록 미리 연결해 두었습니다.
+  제출값의 worksheet 필드("5_광합성산물저장이용")로 어떤 워크시트에서 온
+  응답인지 구분할 수 있으니, Apps Script의 doPost에서 이 값에 따라
+  다른 시트(탭)로 분기해서 저장해 주세요.
+  주소를 다른 스프레드시트로 바꾸고 싶다면 아래 SPREADSHEET_WEBHOOK_URL
+  값만 바꿔주시면 됩니다. (비워두면 학생 화면에서 채점만 되고 전송은 생략됩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   워크시트(표 + 개념정리활동지 + 스스로 확인) 채점 & 스프레드시트 자동 전송
+=========================================================== */
+const choiceGroups = document.querySelectorAll(".choice-group");
+
+choiceGroups.forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+function normalize(str){
+  return (str || "").trim().replace(/\s+/g, "");
+}
+
+function blankMatches(inputVal, ...answers){
+  const v = normalize(inputVal);
+  return answers.some(a => v === normalize(a) || v.includes(normalize(a)));
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const t1Place = document.getElementById("t1-place").value;
+  const t1Content = document.getElementById("t1-content").value;
+  const t2Place = document.getElementById("t2-place").value;
+  const t2Content = document.getElementById("t2-content").value;
+  const t3Place = document.getElementById("t3-place").value;
+  const t3Content = document.getElementById("t3-content").value;
+  const c1 = document.getElementById("c1-blank").value;
+  const c2 = document.getElementById("c2-blank").value;
+
+  const q1Choice = pickedValue(document.querySelector("#q1 .choice-group"));
+  const q2Choice = pickedValue(document.querySelector("#q2 .choice-group"));
+  const q3Choice = pickedValue(document.querySelector("#q3 .choice-group"));
+  const q4Blank = document.getElementById("q4-blank").value;
+  const q5Blank = document.getElementById("q5-blank").value;
+  const q6Blank = document.getElementById("q6-blank").value;
+
+  const allFilled = [t1Place,t1Content,t2Place,t2Content,t3Place,t3Content,c1,c2,q1Choice,q2Choice,q3Choice,q4Blank,q5Blank,q6Blank]
+    .every(v => (v || "").toString().trim() !== "");
+  if(!allFilled){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+
+  const results = {};
+
+  results.t1Place = blankMatches(t1Place, "체관");
+  document.getElementById("t1-place").style.color = results.t1Place ? "" : "var(--err)";
+  results.t1Content = blankMatches(t1Content, "설탕");
+  document.getElementById("t1-content").style.color = results.t1Content ? "" : "var(--err)";
+
+  results.t2Place = blankMatches(t2Place, "식물체전체", "각기관", "식물전체", "온몸");
+  document.getElementById("t2-place").style.color = results.t2Place ? "" : "var(--err)";
+  results.t2Content = blankMatches(t2Content, "에너지원", "에너지");
+  document.getElementById("t2-content").style.color = results.t2Content ? "" : "var(--err)";
+
+  results.t3Place = blankMatches(t3Place, "뿌리줄기열매씨", "열매씨줄기뿌리") ||
+    (normalize(t3Place).includes("뿌리") && normalize(t3Place).includes("줄기"));
+  document.getElementById("t3-place").style.color = results.t3Place ? "" : "var(--err)";
+  results.t3Content = blankMatches(t3Content, "녹말");
+  document.getElementById("t3-content").style.color = results.t3Content ? "" : "var(--err)";
+
+  results.c1 = blankMatches(c1, "녹말");
+  document.getElementById("c1-blank").style.color = results.c1 ? "" : "var(--err)";
+
+  results.c2 = blankMatches(c2, "녹말");
+  document.getElementById("c2-blank").style.color = results.c2 ? "" : "var(--err)";
+
+  results.q1 = q1Choice === "설탕";
+  setFeedback("q1-feedback", results.q1, "설탕");
+
+  results.q2 = q2Choice === "녹말";
+  setFeedback("q2-feedback", results.q2, "녹말");
+
+  results.q3 = q3Choice === "저장된다";
+  setFeedback("q3-feedback", results.q3, "저장된다");
+
+  results.q4 = blankMatches(q4Blank, "동물");
+  setFeedback("q4-feedback", results.q4, "동물");
+
+  results.q5 = blankMatches(q5Blank, "산소");
+  setFeedback("q5-feedback", results.q5, "산소");
+
+  results.q6 = blankMatches(q6Blank, "체관");
+  setFeedback("q6-feedback", results.q6, "체관");
+
+  const values = Object.values(results);
+  const correctSubCount = values.filter(Boolean).length;
+  const total = values.length;
+  wsResult.textContent = `${correctSubCount} / ${total} 개 정답 (개념정리활동지 8 + 워크시트 6)`;
+  wsResult.className = "ws-result " + (correctSubCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    worksheet: "5_광합성산물저장이용",
+    grade, classNum, number, name,
+    t1_place: t1Place, t1_content: t1Content,
+    t2_place: t2Place, t2_content: t2Content,
+    t3_place: t3Place, t3_content: t3Content,
+    c1_blank: c1, c2_blank: c2,
+    q1_choice: q1Choice, q2_choice: q2Choice, q3_choice: q3Choice,
+    q4_blank: q4Blank, q5_blank: q5Blank, q6_blank: q6Blank,
+    score: String(correctSubCount),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.style.color = ""; });
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
