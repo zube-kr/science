@@ -108,128 +108,6 @@ body{
   background:rgba(140,180,255,.2);
 }
 
-/*==============================
-사이드바 로그인/회원가입
-==============================*/
-.account-box{
-  background:rgba(140,180,255,.06);
-  border:1px solid var(--panel-border);
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:18px;
-  font-size:12.5px;
-}
-
-.account-tabs{
-  display:flex;
-  gap:6px;
-  margin-bottom:9px;
-}
-
-.account-tab{
-  flex:1;
-  padding:7px;
-  border-radius:9px;
-  border:1px solid var(--panel-border);
-  background:rgba(255,255,255,.04);
-  color:var(--muted);
-  font-family:var(--font-kr);
-  font-weight:700;
-  font-size:12px;
-  cursor:pointer;
-}
-.account-tab.active{
-  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
-  color:#0a0f1a;
-}
-
-.account-form{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-.account-form[hidden]{
-  display:none;
-}
-
-.account-form input{
-  background:rgba(255,255,255,.06);
-  color:var(--ink);
-  border:1px solid var(--panel-border);
-  border-radius:8px;
-  padding:7px 10px;
-  font-size:12.5px;
-  font-family:var(--font-kr);
-}
-
-.account-form button[type="submit"]{
-  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
-  color:#0a0f1a;
-  border:none;
-  border-radius:8px;
-  padding:7px;
-  font-weight:700;
-  cursor:pointer;
-  font-family:var(--font-kr);
-  font-size:12.5px;
-}
-
-.account-msg{
-  font-size:11px;
-  color:#ff8b7a;
-  line-height:1.5;
-  margin-top:6px;
-  min-height:14px;
-}
-.account-msg.ok{
-  color:#8de3c4;
-}
-
-.account-verify{
-  text-align:center;
-  color:var(--ink);
-  line-height:1.6;
-}
-.account-verify p{
-  margin-bottom:8px;
-}
-.account-verify-actions{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.account-verify-actions button,
-.account-user button{
-  background:rgba(255,255,255,.06);
-  color:var(--ink);
-  border:1px solid var(--panel-border);
-  border-radius:8px;
-  padding:6px;
-  cursor:pointer;
-  font-family:var(--font-kr);
-  font-size:11.5px;
-}
-
-.account-user{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  color:var(--ink);
-  font-weight:600;
-}
-.account-user[hidden]{
-  display:none;
-}
-.account-user span{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.account-user button{
-  flex-shrink:0;
-}
-
 .grade{
   margin-bottom:18px;
 }
@@ -638,7 +516,7 @@ footer{
 }
 
 /*==============================
-채팅공간
+방명록
 ==============================*/
 .chatview{
   width:640px;
@@ -748,7 +626,7 @@ footer{
   font-size:14px;
 }
 
-.guestbook-footer{
+.guestbook-form{
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -773,6 +651,10 @@ footer{
   min-width:0;
 }
 
+.guestbook-row input#guestbook-name{
+  flex:0 0 120px;
+}
+
 .guestbook-row button{
   background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
   color:#0a0f1a;
@@ -783,23 +665,6 @@ footer{
   cursor:pointer;
   font-family:var(--font-kr);
   flex-shrink:0;
-}
-
-.guestbook-locked{
-  text-align:center;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.7;
-  padding:4px 0;
-}
-.guestbook-locked b{
-  color:var(--ink);
-}
-
-.guestbook-user-bar{
-  margin-bottom:10px;
-  font-size:12.5px;
-  color:var(--muted);
 }
 </style>
 </head>
@@ -816,45 +681,7 @@ footer{
   <div class="logo" onclick="goHome()" style="cursor:pointer;">🔬 SCIENCE</div>
   <div class="school">아화중학교 과학수업</div>
 
-  <!-- 로그인해야 채팅공간에 글을 쓸 수 있습니다 -->
-  <div class="account-box" id="account-box">
-    <div class="account-guest" id="account-guest">
-      <div class="account-tabs">
-        <button type="button" class="account-tab active" id="account-tab-login">로그인</button>
-        <button type="button" class="account-tab" id="account-tab-signup">회원가입</button>
-      </div>
-
-      <form class="account-form" id="sidebar-login-form">
-        <input type="email" id="sidebar-login-email" placeholder="이메일" autocomplete="email">
-        <input type="password" id="sidebar-login-password" placeholder="비밀번호" autocomplete="current-password">
-        <button type="submit">로그인</button>
-      </form>
-
-      <form class="account-form" id="sidebar-signup-form" hidden>
-        <input type="text" id="sidebar-signup-name" placeholder="이름" maxlength="12" autocomplete="off">
-        <input type="email" id="sidebar-signup-email" placeholder="이메일" autocomplete="email">
-        <input type="password" id="sidebar-signup-password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
-        <button type="submit">회원가입</button>
-      </form>
-
-      <div class="account-msg" id="account-msg"></div>
-    </div>
-
-    <div class="account-verify" id="account-verify" hidden>
-      <p>이메일 인증이 필요해요.<br>메일함(스팸함 포함)을 확인해 주세요.</p>
-      <div class="account-verify-actions">
-        <button type="button" id="account-resend-btn">인증메일 재전송</button>
-        <button type="button" id="account-verify-logout-btn">로그아웃</button>
-      </div>
-    </div>
-
-    <div class="account-user" id="account-user" hidden>
-      <span id="account-user-label"></span>
-      <button type="button" id="account-logout-btn">로그아웃</button>
-    </div>
-  </div>
-
-  <div class="chat-entry" onclick="openChat()">💬 채팅공간</div>
+  <div class="chat-entry" onclick="openChat()">📖 방명록</div>
 
   <details class="grade" open>
     <summary>📘 중학교 1학년</summary>
@@ -980,33 +807,25 @@ footer{
     </div>
   </div>
 
-  <!-- 채팅공간 화면 (전체 공용 한마디 게시판) -->
+  <!-- 방명록 화면 (전체 공용 한마디 게시판) -->
   <div id="view-chat" class="view">
     <div class="chatview">
       <div class="chatview-header">
         <button class="back-btn" onclick="goHome()">← 홈</button>
-        <div class="chatview-title">💬 채팅공간</div>
+        <div class="chatview-title">📖 방명록</div>
         <button class="back-btn" id="admin-toggle-btn" style="margin-left:auto;">🔒 관리자</button>
       </div>
       <div class="chat-messages" id="guestbook-list"></div>
-
-      <div class="guestbook-footer">
-        <!-- 로그인 전/이메일 인증 전: 왼쪽 사이드바에서 로그인하라는 안내 -->
-        <div class="guestbook-locked" id="guestbook-locked">
-          왼쪽의 <b>로그인 / 회원가입</b>을 먼저 진행해야 채팅공간에 글을 남길 수 있어요.
+      <form class="guestbook-form" id="guestbook-form">
+        <div class="guestbook-row">
+          <input type="text" id="guestbook-name" placeholder="이름" maxlength="12" autocomplete="off">
+          <input type="password" id="guestbook-password" placeholder="비밀번호 (삭제할 때 필요해요)" maxlength="20" autocomplete="new-password">
         </div>
-
-        <!-- 로그인 + 이메일 인증 완료: 채팅공간 작성 -->
-        <div class="guestbook-write" id="guestbook-write" hidden>
-          <div class="guestbook-user-bar">
-            <span id="guestbook-user-label"></span>
-          </div>
-          <form class="guestbook-row" id="guestbook-form">
-            <input type="text" id="guestbook-text" placeholder="한마디를 남겨보세요" maxlength="120" autocomplete="off">
-            <button type="submit">남기기</button>
-          </form>
+        <div class="guestbook-row">
+          <input type="text" id="guestbook-text" placeholder="한마디를 남겨보세요" maxlength="120" autocomplete="off">
+          <button type="submit">남기기</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -1015,12 +834,11 @@ footer{
 </div>
 
 <!-- ==========================
-채팅공간용 Firebase (Firestore)
+방명록용 Firebase (Firestore)
 아래 6개 값을 Firebase 콘솔 > 프로젝트 설정 > 내 앱 에서 복사해 넣어주세요.
 =========================== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyC0r8Qz_wGGW-TUKUC7RWZ8tyHgBG3kyFk",
@@ -1032,11 +850,9 @@ const firebaseConfig = {
 };
 
 let db = null;
-let auth = null;
 try{
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
-  auth = firebase.auth();
 }catch(e){
   console.warn("Firebase 설정이 아직 입력되지 않았습니다.", e);
 }
@@ -1706,43 +1522,23 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
 });
 
 // ==========================================
-// 채팅공간 (Firestore 실시간 공용 한마디 게시판)
-// 회원가입 + 이메일 인증을 마친 로그인 사용자만 글을 남길 수 있습니다.
+// 방명록 (Firestore 실시간 공용 한마디 게시판)
 // ==========================================
 const guestbookList = document.getElementById("guestbook-list");
-const guestbookLocked = document.getElementById("guestbook-locked");
-const guestbookWrite = document.getElementById("guestbook-write");
-const guestbookUserLabel = document.getElementById("guestbook-user-label");
 const guestbookForm = document.getElementById("guestbook-form");
+const guestbookName = document.getElementById("guestbook-name");
+const guestbookPassword = document.getElementById("guestbook-password");
 const guestbookText = document.getElementById("guestbook-text");
-
-// 로그인/회원가입은 왼쪽 사이드바에 있습니다.
-const accountGuest = document.getElementById("account-guest");
-const accountVerify = document.getElementById("account-verify");
-const accountUser = document.getElementById("account-user");
-const accountUserLabel = document.getElementById("account-user-label");
-const accountTabLogin = document.getElementById("account-tab-login");
-const accountTabSignup = document.getElementById("account-tab-signup");
-const sidebarLoginForm = document.getElementById("sidebar-login-form");
-const sidebarSignupForm = document.getElementById("sidebar-signup-form");
-const accountMsg = document.getElementById("account-msg");
-const accountResendBtn = document.getElementById("account-resend-btn");
-const accountVerifyLogoutBtn = document.getElementById("account-verify-logout-btn");
-const accountLogoutBtn = document.getElementById("account-logout-btn");
 
 let guestbookUnsubscribe = null;
 let guestbookStarted = false;
-let currentUser = null;
 
 function openChat(){
-  if(!db || !auth){
-    alert("아직 채팅공간 기능이 연결되지 않았어요. Firebase 설정을 먼저 완료해주세요.");
+  if(!db){
+    alert("아직 방명록 기능이 연결되지 않았어요. Firebase 설정을 먼저 완료해주세요.");
     return;
   }
   showView(viewChat);
-  if(currentUser){
-    currentUser.reload().then(() => { currentUser = auth.currentUser; updateAuthUI(); });
-  }
   if(!guestbookStarted){
     startGuestbook();
     guestbookStarted = true;
@@ -1755,7 +1551,7 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-// 비밀번호는 평문으로 저장하지 않고 해시로 변환해 저장/대조합니다. (관리자 비밀번호 확인용)
+// 비밀번호는 평문으로 저장하지 않고 해시로 변환해 저장/대조합니다.
 async function hashPassword(pw){
   if(window.crypto && window.crypto.subtle){
     try{
@@ -1773,7 +1569,7 @@ async function hashPassword(pw){
   return "fnv" + h.toString(16);
 }
 
-// 선생님이 학생 계정이 아니어도 부적절한 글을 지울 수 있도록 하는 관리자 비밀번호입니다.
+// 선생님이 학생 비밀번호를 몰라도 부적절한 글을 지울 수 있도록 하는 관리자 비밀번호입니다.
 // (이 사이트는 소스가 공개되어 있어 완전한 보안은 아니고, 장난 삭제를 막는 정도의 가벼운 잠금입니다.)
 const ADMIN_PASSWORD = "97889323";
 let adminPasswordHashPromise = null;
@@ -1826,7 +1622,7 @@ function renderGuestbookEntries(entries){
   if(entries.length === 0){
     const empty = document.createElement("div");
     empty.className = "chat-empty";
-    empty.textContent = "아직 남긴 한마디가 없어요. 첫 채팅을 남겨보세요!";
+    empty.textContent = "아직 남긴 한마디가 없어요. 첫 방명록을 남겨보세요!";
     guestbookList.appendChild(empty);
     return;
   }
@@ -1843,28 +1639,33 @@ function renderGuestbookEntries(entries){
       ? `<span class="gb-ip">${escapeHtml(entry.ip || "IP 없음")}</span>`
       : "";
 
-    const isOwner = !!(currentUser && entry.authorUid && currentUser.uid === entry.authorUid);
-    const canDelete = isOwner || isAdminMode;
-    const delBtnHtml = canDelete ? `<button type="button" class="gb-del">삭제</button>` : "";
-
     item.innerHTML = `
-      <span class="gb-name">${escapeHtml(entry.authorName || "익명")}</span>
+      <span class="gb-name">${escapeHtml(entry.name || "익명")}</span>
       <span class="gb-text">${escapeHtml(entry.text || "")}</span>
       ${ipHtml}
       <span class="gb-meta">${time}</span>
-      ${delBtnHtml}
+      <button type="button" class="gb-del">삭제</button>
     `;
 
-    if(canDelete){
-      item.querySelector(".gb-del").addEventListener("click", async () => {
-        try{
-          await db.collection("guestbook").doc(id).delete();
-        }catch(err){
-          console.error("채팅공간 삭제 오류:", err);
-          alert("삭제 중 오류가 발생했어요.");
+    item.querySelector(".gb-del").addEventListener("click", async () => {
+      // 관리자 모드에서는 비밀번호를 다시 묻지 않고 바로 삭제합니다.
+      if(!isAdminMode){
+        const pw = prompt("삭제하려면 남길 때 입력한 비밀번호(또는 관리자 비밀번호)를 입력하세요.");
+        if(pw === null) return;
+        const hash = await hashPassword(pw);
+        const adminHash = await getAdminPasswordHash();
+        if(hash !== entry.passwordHash && hash !== adminHash){
+          alert("비밀번호가 일치하지 않아요.");
+          return;
         }
-      });
-    }
+      }
+      try{
+        await db.collection("guestbook").doc(id).delete();
+      }catch(err){
+        console.error("방명록 삭제 오류:", err);
+        alert("삭제 중 오류가 발생했어요.");
+      }
+    });
 
     guestbookList.appendChild(item);
   });
@@ -1880,165 +1681,42 @@ function startGuestbook(){
       snapshot.forEach(doc => lastGuestbookEntries.push({ id: doc.id, entry: doc.data() }));
       renderGuestbookEntries(lastGuestbookEntries);
     }, err => {
-      console.error("채팅공간 로드 오류:", err);
+      console.error("방명록 로드 오류:", err);
     });
 }
 
 guestbookForm.addEventListener("submit", async e => {
   e.preventDefault();
-  if(!currentUser || !currentUser.emailVerified){
-    alert("로그인 후 이메일 인증을 완료해야 글을 남길 수 있어요.");
+  const name = guestbookName.value.trim();
+  const password = guestbookPassword.value;
+  const text = guestbookText.value.trim();
+
+  if(!name || !password || !text || !db) {
+    alert("이름, 비밀번호, 한마디를 모두 입력해 주세요.");
     return;
   }
-  const text = guestbookText.value.trim();
-  if(!text || !db) return;
 
+  const passwordHash = await hashPassword(password);
   const ip = await fetchClientIp();
 
   try{
     await db.collection("guestbook").add({
+      name,
       text,
-      authorUid: currentUser.uid,
-      authorName: currentUser.displayName || currentUser.email,
+      passwordHash,
       ip,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   }catch(err){
-    console.error("채팅공간 등록 오류:", err);
+    console.error("방명록 등록 오류:", err);
     alert("등록 중 오류가 발생했어요.");
     return;
   }
 
+  guestbookName.value = "";
+  guestbookPassword.value = "";
   guestbookText.value = "";
 });
-
-// ==========================================
-// 회원가입 / 로그인 / 이메일 인증 (Firebase Authentication)
-// ==========================================
-function showAuthMsg(text, ok){
-  accountMsg.textContent = text;
-  accountMsg.className = "account-msg" + (ok ? " ok" : "");
-}
-
-function switchAuthTab(tab){
-  const isLogin = tab === "login";
-  accountTabLogin.classList.toggle("active", isLogin);
-  accountTabSignup.classList.toggle("active", !isLogin);
-  sidebarLoginForm.hidden = !isLogin;
-  sidebarSignupForm.hidden = isLogin;
-  showAuthMsg("");
-}
-accountTabLogin.addEventListener("click", () => switchAuthTab("login"));
-accountTabSignup.addEventListener("click", () => switchAuthTab("signup"));
-
-function authErrorMessage(err){
-  const map = {
-    "auth/email-already-in-use": "이미 가입된 이메일이에요.",
-    "auth/invalid-email": "이메일 형식이 올바르지 않아요.",
-    "auth/weak-password": "비밀번호는 6자 이상으로 만들어 주세요.",
-    "auth/user-not-found": "가입되지 않은 이메일이에요.",
-    "auth/wrong-password": "비밀번호가 일치하지 않아요.",
-    "auth/invalid-credential": "이메일 또는 비밀번호가 올바르지 않아요.",
-    "auth/too-many-requests": "너무 여러 번 시도했어요. 잠시 후 다시 시도해 주세요."
-  };
-  return map[err.code] || ("오류가 발생했어요: " + err.message);
-}
-
-function updateAuthUI(){
-  accountGuest.hidden = true;
-  accountVerify.hidden = true;
-  accountUser.hidden = true;
-  guestbookLocked.hidden = true;
-  guestbookWrite.hidden = true;
-
-  if(!currentUser){
-    accountGuest.hidden = false;
-    guestbookLocked.hidden = false;
-  } else if(!currentUser.emailVerified){
-    accountVerify.hidden = false;
-    guestbookLocked.hidden = false;
-  } else {
-    accountUser.hidden = false;
-    accountUserLabel.textContent = (currentUser.displayName || currentUser.email) + "님";
-    guestbookWrite.hidden = false;
-    guestbookUserLabel.textContent = (currentUser.displayName || currentUser.email) + "님으로 작성 중";
-  }
-  // 로그인 상태(이메일 인증 여부)에 따라 삭제 버튼 노출이 달라지므로 다시 그립니다.
-  renderGuestbookEntries(lastGuestbookEntries);
-}
-
-if(auth){
-  auth.onAuthStateChanged(user => {
-    currentUser = user;
-    updateAuthUI();
-  });
-}
-
-sidebarSignupForm.addEventListener("submit", async e => {
-  e.preventDefault();
-  const name = document.getElementById("sidebar-signup-name").value.trim();
-  const email = document.getElementById("sidebar-signup-email").value.trim();
-  const password = document.getElementById("sidebar-signup-password").value;
-
-  if(!name || !email || !password){
-    showAuthMsg("이름, 이메일, 비밀번호를 모두 입력해 주세요.");
-    return;
-  }
-  if(password.length < 6){
-    showAuthMsg("비밀번호는 6자 이상이어야 해요.");
-    return;
-  }
-
-  try{
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
-    await cred.user.updateProfile({ displayName: name });
-    await cred.user.sendEmailVerification();
-    await auth.signOut();
-    sidebarSignupForm.reset();
-    switchAuthTab("login");
-    showAuthMsg("인증 메일을 보냈어요! 메일함을 확인하고 인증한 뒤 로그인해 주세요.", true);
-  }catch(err){
-    console.error("회원가입 오류:", err);
-    showAuthMsg(authErrorMessage(err));
-  }
-});
-
-sidebarLoginForm.addEventListener("submit", async e => {
-  e.preventDefault();
-  const email = document.getElementById("sidebar-login-email").value.trim();
-  const password = document.getElementById("sidebar-login-password").value;
-
-  if(!email || !password){
-    showAuthMsg("이메일과 비밀번호를 입력해 주세요.");
-    return;
-  }
-
-  try{
-    await auth.signInWithEmailAndPassword(email, password);
-    sidebarLoginForm.reset();
-    showAuthMsg("");
-  }catch(err){
-    console.error("로그인 오류:", err);
-    showAuthMsg(authErrorMessage(err));
-  }
-});
-
-accountResendBtn.addEventListener("click", async () => {
-  if(!currentUser) return;
-  try{
-    await currentUser.sendEmailVerification();
-    alert("인증 메일을 다시 보냈어요. 메일함(스팸함도 확인)을 확인해 주세요.");
-  }catch(err){
-    console.error(err);
-    alert("메일 전송 중 오류가 발생했어요: " + err.message);
-  }
-});
-
-async function accountLogout(){
-  try{ await auth.signOut(); }catch(err){ console.error(err); }
-}
-accountVerifyLogoutBtn.addEventListener("click", accountLogout);
-accountLogoutBtn.addEventListener("click", accountLogout);
 
 </script>
 
