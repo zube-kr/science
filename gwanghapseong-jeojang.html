@@ -113,6 +113,11 @@
     display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
     text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
   }
+  .blank-check{
+    display:inline-block; margin-left:4px; font-size:11.5px; font-weight:700; white-space:nowrap;
+  }
+  .blank-check.ok{ color:var(--ok); }
+  .blank-check.bad{ color:var(--err); }
   .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
   .choice-btn{
     font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
@@ -390,6 +395,20 @@ function setFeedback(id, ok, correctText){
   el.className = "q-feedback " + (ok ? "ok" : "bad");
 }
 
+function markBlank(inputId, ok, correctText){
+  const input = document.getElementById(inputId);
+  input.style.color = ok ? "" : "var(--err)";
+
+  let check = input.nextElementSibling;
+  if(!check || !check.classList.contains("blank-check")){
+    check = document.createElement("span");
+    check.className = "blank-check";
+    input.insertAdjacentElement("afterend", check);
+  }
+  check.textContent = ok ? "✅" : `❌ (정답: ${correctText})`;
+  check.className = "blank-check " + (ok ? "ok" : "bad");
+}
+
 submitBtn.addEventListener("click", async () => {
   const name = document.getElementById("ws-name").value.trim();
   const grade = document.getElementById("ws-grade").value.trim();
@@ -427,26 +446,26 @@ submitBtn.addEventListener("click", async () => {
   const results = {};
 
   results.t1Place = blankMatches(t1Place, "체관");
-  document.getElementById("t1-place").style.color = results.t1Place ? "" : "var(--err)";
+  markBlank("t1-place", results.t1Place, "체관");
   results.t1Content = blankMatches(t1Content, "설탕");
-  document.getElementById("t1-content").style.color = results.t1Content ? "" : "var(--err)";
+  markBlank("t1-content", results.t1Content, "설탕");
 
   results.t2Place = blankMatches(t2Place, "식물체전체", "각기관", "식물전체", "온몸");
-  document.getElementById("t2-place").style.color = results.t2Place ? "" : "var(--err)";
+  markBlank("t2-place", results.t2Place, "식물체 전체");
   results.t2Content = blankMatches(t2Content, "에너지원", "에너지");
-  document.getElementById("t2-content").style.color = results.t2Content ? "" : "var(--err)";
+  markBlank("t2-content", results.t2Content, "에너지원");
 
   results.t3Place = blankMatches(t3Place, "뿌리줄기열매씨", "열매씨줄기뿌리") ||
     (normalize(t3Place).includes("뿌리") && normalize(t3Place).includes("줄기"));
-  document.getElementById("t3-place").style.color = results.t3Place ? "" : "var(--err)";
+  markBlank("t3-place", results.t3Place, "뿌리, 줄기, 열매, 씨");
   results.t3Content = blankMatches(t3Content, "녹말");
-  document.getElementById("t3-content").style.color = results.t3Content ? "" : "var(--err)";
+  markBlank("t3-content", results.t3Content, "녹말");
 
   results.c1 = blankMatches(c1, "녹말");
-  document.getElementById("c1-blank").style.color = results.c1 ? "" : "var(--err)";
+  markBlank("c1-blank", results.c1, "녹말");
 
   results.c2 = blankMatches(c2, "녹말");
-  document.getElementById("c2-blank").style.color = results.c2 ? "" : "var(--err)";
+  markBlank("c2-blank", results.c2, "녹말");
 
   results.q1 = q1Choice === "설탕";
   setFeedback("q1-feedback", results.q1, "설탕");
@@ -512,6 +531,7 @@ submitBtn.addEventListener("click", async () => {
 
 resetBtn.addEventListener("click", () => {
   document.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.style.color = ""; });
+  document.querySelectorAll(".blank-check").forEach(c => c.remove());
   document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
   document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
   wsResult.textContent = "";

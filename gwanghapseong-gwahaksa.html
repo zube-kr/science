@@ -130,6 +130,11 @@
     display:inline-block; width:130px; border:none; border-bottom:2px solid var(--ink);
     text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
   }
+  .blank-check{
+    display:inline-block; margin-left:4px; font-size:11.5px; font-weight:700; white-space:nowrap;
+  }
+  .blank-check.ok{ color:var(--ok); }
+  .blank-check.bad{ color:var(--err); }
   .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
   .choice-btn{
     font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
@@ -491,6 +496,20 @@ function setFeedback(id, ok, correctText){
   el.className = "q-feedback " + (ok ? "ok" : "bad");
 }
 
+function markBlank(inputId, ok, correctText){
+  const input = document.getElementById(inputId);
+  input.style.color = ok ? "" : "var(--err)";
+
+  let check = input.nextElementSibling;
+  if(!check || !check.classList.contains("blank-check")){
+    check = document.createElement("span");
+    check.className = "blank-check";
+    input.insertAdjacentElement("afterend", check);
+  }
+  check.textContent = ok ? "✅" : `❌ (정답: ${correctText})`;
+  check.className = "blank-check " + (ok ? "ok" : "bad");
+}
+
 submitBtn.addEventListener("click", async () => {
   const name = document.getElementById("ws-name").value.trim();
   const grade = document.getElementById("ws-grade").value.trim();
@@ -525,19 +544,19 @@ submitBtn.addEventListener("click", async () => {
   const results = {};
 
   results.c1 = blankMatches(c1, "물");
-  document.getElementById("c1-blank").style.color = results.c1 ? "" : "var(--err)";
+  markBlank("c1-blank", results.c1, "물");
 
   results.c2 = blankMatches(c2, "탁해진공기", "오염된공기", "공기");
-  document.getElementById("c2-blank").style.color = results.c2 ? "" : "var(--err)";
+  markBlank("c2-blank", results.c2, "탁해진(오염된) 공기");
 
   results.c3 = blankMatches(c3, "빛");
-  document.getElementById("c3-blank").style.color = results.c3 ? "" : "var(--err)";
+  markBlank("c3-blank", results.c3, "빛");
 
   results.c4 = blankMatches(c4, "이산화탄소");
-  document.getElementById("c4-blank").style.color = results.c4 ? "" : "var(--err)";
+  markBlank("c4-blank", results.c4, "이산화 탄소");
 
   results.c5 = blankMatches(c5, "녹말");
-  document.getElementById("c5-blank").style.color = results.c5 ? "" : "var(--err)";
+  markBlank("c5-blank", results.c5, "녹말");
 
   results.q1 = q1Choice === "물";
   setFeedback("q1-feedback", results.q1, "물");
@@ -600,6 +619,7 @@ submitBtn.addEventListener("click", async () => {
 
 resetBtn.addEventListener("click", () => {
   document.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.style.color = ""; });
+  document.querySelectorAll(".blank-check").forEach(c => c.remove());
   document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
   document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
   wsResult.textContent = "";
