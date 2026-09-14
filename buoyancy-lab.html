@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>물속에서 부력 측정하기</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --water:#2F8FD6;
+    --water-soft:#E4F1FC;
+    --force:#D8493B;
+    --force-soft:#FDEAE7;
+    --violet:#7A56C9;
+    --violet-soft:#EFE9FA;
+    --amber:#C6871F;
+    --amber-soft:#FAF0DC;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1040px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--water),var(--force)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:780px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 원리 다이어그램 ---------- */
+  .principle-layout{ display:grid; grid-template-columns:1fr 1.1fr; gap:16px; align-items:center; }
+  @media (max-width:700px){ .principle-layout{ grid-template-columns:1fr; } }
+  .principle-layout svg{ width:100%; height:auto; }
+  .principle-text{ font-size:13px; line-height:1.85; color:var(--ink-soft); }
+  .principle-text b{ color:var(--ink); }
+
+  /* ---------- 준비물 / 과정 ---------- */
+  .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; margin-bottom:14px; }
+  @media (max-width:640px){ .info-grid{ grid-template-columns:1fr; } }
+  .info-box{ font-size:12.5px; line-height:1.8; }
+  .info-box b{ display:block; font-size:12.5px; font-weight:800; margin-bottom:4px; color:var(--ink); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{ font-size:11.5px; padding:3px 10px; border-radius:999px; font-weight:700; }
+  .chip.item{ background:var(--water-soft); color:var(--water); }
+  .steps{ font-size:12.5px; line-height:1.9; color:var(--ink-soft); padding-left:18px; }
+  .note-box{
+    margin-top:8px; padding:9px 12px; border-radius:10px; background:var(--force-soft); color:#8a3226;
+    font-size:11.5px; line-height:1.6;
+  }
+
+  /* ---------- 학생 정보 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:100px; }
+  .ws-student input.small{ width:64px; }
+  .ws-student input.group{ width:90px; }
+
+  /* ---------- 텍스트 영역 ---------- */
+  textarea{
+    width:100%; min-height:56px; margin-top:8px; font-family:inherit; font-size:13px; line-height:1.6;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+  .q-label{ font-weight:800; font-size:13.5px; margin-bottom:4px; display:block; }
+
+  /* ---------- 데이터 표 ---------- */
+  table.data-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.data-table th, table.data-table td{ border:1px solid var(--line); padding:8px 6px; text-align:center; }
+  table.data-table th{ background:#F1EEE5; font-weight:800; font-size:12px; }
+  table.data-table td.row-label{ background:var(--water-soft); font-weight:800; color:var(--water); }
+  .cell-inputs{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+  table.data-table input[type="number"]{
+    width:72px; text-align:center; font-family:inherit; font-size:13px;
+    border:1px solid var(--line); border-radius:7px; padding:5px 4px; background:#FBFAF6;
+  }
+  .derived-readout{ font-size:10.5px; color:var(--violet); font-weight:700; }
+
+  .insight-box{
+    margin-top:12px; padding:10px 13px; border-radius:12px; background:#FAF8F2; border:1px solid var(--line);
+    font-size:12.5px; color:var(--ink-soft); line-height:1.7;
+  }
+  .insight-box b{ color:var(--violet); }
+
+  .graph-box canvas{ width:100%; height:auto; background:#FBFAF6; border:1px solid var(--line); border-radius:12px; margin-top:14px; }
+  .graph-caption{ font-size:11px; color:var(--ink-soft); text-align:center; margin-top:6px; }
+  .legend-row{ display:flex; gap:14px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft); font-weight:700; }
+  .legend-dot{ width:11px; height:11px; border-radius:3px; }
+
+  .lab-actions{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:9px 15px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  /* ---------- 결과 분석 워크시트 ---------- */
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:90px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .q-feedback.info{ color:var(--water); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+
+  footer{ max-width:1040px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">여러 가지 힘 · 부력</div>
+    <h1>물에 잠긴 정도에 따라 <span>부력</span>이 어떻게 달라질까?</h1>
+    <p class="sub">용수철저울에 추를 매달고 물에 점점 더 깊이 잠기게 하면서 무게를 측정해 보세요. 공기 중 무게에서 물속 무게를 빼면 그 순간의 <b>부력</b>을 구할 수 있어요. 실험 1·2의 표에 값을 입력하면 그래프와 부력 값이 자동으로 계산됩니다.</p>
+  </header>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">원리</span>부력이란?</div>
+    <div class="principle-layout">
+      <svg viewBox="0 0 240 150">
+        <rect x="10" y="10" width="90" height="130" fill="none"/>
+        <circle cx="55" cy="30" r="16" fill="#E5484D" opacity="0.85"/>
+        <circle cx="55" cy="30" r="16" fill="none" stroke="#B33" stroke-width="1.5"/>
+        <line x1="55" y1="14" x2="55" y2="-6" stroke="#999" stroke-width="1.5"/>
+        <line x1="55" y1="6" x2="55" y2="-14" stroke="#2E9E5B" stroke-width="3"/><polygon points="55,-14 50,-6 60,-6" fill="#2E9E5B"/>
+        <text x="60" y="-16" font-size="9" fill="#2E9E5B" font-weight="700">부력</text>
+        <text x="20" y="60" font-size="9" fill="#626A78">공기 중인 풍선</text>
+
+        <rect x="130" y="45" width="90" height="70" fill="#CFE8F7" opacity="0.7"/>
+        <rect x="150" y="60" width="28" height="18" rx="4" fill="#4C4C4C"/>
+        <line x1="164" y1="60" x2="164" y2="40" stroke="#999" stroke-width="1.5"/>
+        <line x1="164" y1="60" x2="164" y2="35" stroke="#2E9E5B" stroke-width="3"/><polygon points="164,35 159,43 169,43" fill="#2E9E5B"/>
+        <text x="168" y="33" font-size="9" fill="#2E9E5B" font-weight="700">부력</text>
+        <line x1="164" y1="78" x2="164" y2="100" stroke="#D8493B" stroke-width="3"/><polygon points="164,100 159,92 169,92" fill="#D8493B"/>
+        <text x="168" y="104" font-size="9" fill="#D8493B" font-weight="700">중력</text>
+        <text x="140" y="128" font-size="9" fill="#626A78">물속의 잠수함</text>
+      </svg>
+      <div class="principle-text">
+        액체나 기체가 그 속에 있는 물체를 <b>위로 밀어 올리는 힘</b>을 부력이라고 한다. 부력은 항상 <b>중력과 반대 방향</b>으로 작용한다.<br><br>
+        물에 잠긴 물체의 부피가 클수록 물체의 무게가 가벼워지는 까닭은, 물체를 위로 밀어 올리는 부력이 <b>커지기</b> 때문이다. 즉, <b>부력의 크기는 액체나 기체 속에 잠긴 물체의 부피가 클수록 커진다.</b>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--water)">실험 1</span>물속에서 부력 측정하기</div>
+    <div class="card-hint">목표: 용수철저울을 사용하여 물속의 물체에 작용하는 부력의 크기를 측정할 수 있다.</div>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <b>준비물</b>
+        <div class="chip-row">
+          <span class="chip item">용수철저울</span><span class="chip item">추</span>
+          <span class="chip item">비커(300 mL)</span><span class="chip item">물</span>
+          <span class="chip item">집게 잡이</span><span class="chip item">링</span><span class="chip item">스탠드</span>
+        </div>
+      </div>
+      <div class="info-box">
+        <b>과정</b>
+        <ol class="steps">
+          <li>비커를 스탠드 받침 위에 올려놓고, 용수철저울을 스탠드에 고정한다.</li>
+          <li>용수철저울에 추를 매달고, 추가 물에 잠기지 않도록 비커에 물을 넣는다.</li>
+          <li>용수철저울의 눈금을 읽고 추의 무게(공기 중 무게)를 기록한다.</li>
+          <li>추가 절반만 잠기도록 링을 내린 뒤 추의 무게를 측정한다.</li>
+          <li>추가 모두 잠기도록 링을 내린 뒤 추의 무게를 측정한다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="q">
+      <span class="q-label">🧪 실험 전 예상 — 추가 물에 점점 더 많이 잠길수록 용수철저울의 눈금(추의 무게)은 어떻게 변할까요?</span>
+      <textarea id="hypothesis1" placeholder="예: 물에 잠긴 부분이 많아질수록 무게가 점점 가벼워질 것 같다."></textarea>
+    </div>
+
+    <table class="data-table" id="table-exp1" style="margin-top:12px;">
+      <thead>
+        <tr><th>구분</th><th>용수철저울의 눈금(N)</th><th>부력(N)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">공기 중</td>
+          <td><input type="number" step="0.01" min="0" class="exp1-n" data-state="air" placeholder="N"></td>
+          <td><span class="derived-readout" data-buoy1="air">0.00 N</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">추가 절반만 잠겼을 때</td>
+          <td><input type="number" step="0.01" min="0" class="exp1-n" data-state="half" placeholder="N"></td>
+          <td><span class="derived-readout" data-buoy1="half">-</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">추가 모두 잠겼을 때</td>
+          <td><input type="number" step="0.01" min="0" class="exp1-n" data-state="full" placeholder="N"></td>
+          <td><span class="derived-readout" data-buoy1="full">-</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="lab-actions">
+      <button class="btn ghost" id="clear-exp1">🧹 표 지우기</button>
+    </div>
+
+    <div class="graph-box">
+      <canvas id="graph1" width="820" height="320"></canvas>
+      <div class="graph-caption">가로축: 추가 잠긴 정도 · 세로축: 부력(N) — 막대가 높을수록 부력이 큰 상태예요.</div>
+    </div>
+
+    <div class="q">
+      <span class="q-label">🔬 결과 정리 — 과정 3~5에서 추의 무게는 어떻게 변하는지 쓰고, 그 까닭을 설명해 보자.</span>
+      <textarea id="reflect1" placeholder="측정한 값과 함께 설명해 보세요."></textarea>
+    </div>
+    <div class="q">
+      <span class="q-label">🔬 결과 정리 — 추가 물에 잠긴 정도에 따라 부력의 크기가 어떻게 달라지는지 설명해 보자.</span>
+      <textarea id="reflect2" placeholder="공기 중, 절반 잠김, 완전히 잠김일 때의 부력을 비교해서 설명해 보세요."></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--amber)">실험 2</span>눈금실린더로 부력과 부피의 관계 알아보기</div>
+    <div class="card-hint">목표: 물에 잠긴 추의 부피와 추에 작용하는 부력 사이의 관계를 알아본다.</div>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <b>준비물</b>
+        <div class="chip-row">
+          <span class="chip item">눈금실린더(250 mL)</span><span class="chip item">용수철저울</span>
+          <span class="chip item">100 g짜리 추 2개</span><span class="chip item">스탠드</span><span class="chip item">물</span>
+        </div>
+        <div class="note-box">⚠ 주의: 눈금실린더와 같은 유리 기구를 다룰 때 깨지지 않도록, 혹시 깨진 유리에 손을 베이지 않도록 주의한다.</div>
+      </div>
+      <div class="info-box">
+        <b>과정</b>
+        <ol class="steps">
+          <li>눈금실린더에 물을 200 mL만큼 채운다.</li>
+          <li>추 2개를 용수철저울에 매달아 무게(공기 중)를 측정한다.</li>
+          <li>추 1개만 물에 잠기게 한 후 용수철저울과 눈금실린더의 눈금을 읽는다.</li>
+          <li>추 2개를 모두 물에 잠기게 한 후 과정 3을 반복한다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <table class="data-table" id="table-exp2" style="margin-top:12px;">
+      <thead>
+        <tr><th>구분</th><th>공기 중</th><th>추 1개가 물에 잠겼을 때</th><th>추 2개가 물에 잠겼을 때</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">용수철저울의 눈금(N)</td>
+          <td><input type="number" step="0.01" min="0" class="exp2-n" data-state="air" placeholder="N"></td>
+          <td><input type="number" step="0.01" min="0" class="exp2-n" data-state="one" placeholder="N"></td>
+          <td><input type="number" step="0.01" min="0" class="exp2-n" data-state="two" placeholder="N"></td>
+        </tr>
+        <tr>
+          <td class="row-label">눈금실린더의 눈금(mL)</td>
+          <td><input type="number" step="1" min="0" class="exp2-ml" data-state="air" placeholder="mL" value="200"></td>
+          <td><input type="number" step="1" min="0" class="exp2-ml" data-state="one" placeholder="mL"></td>
+          <td><input type="number" step="1" min="0" class="exp2-ml" data-state="two" placeholder="mL"></td>
+        </tr>
+        <tr>
+          <td class="row-label">부력(N) / 잠긴 부피(mL)</td>
+          <td><span class="derived-readout">-</span></td>
+          <td><span class="derived-readout" id="derived-one">-</span></td>
+          <td><span class="derived-readout" id="derived-two">-</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="lab-actions">
+      <button class="btn ghost" id="clear-exp2">🧹 표 지우기</button>
+    </div>
+
+    <div class="insight-box" id="insight-box-2">아직 데이터가 부족해요. 표를 채우면 부력과 잠긴 부피 사이의 관계를 알려드려요.</div>
+
+    <div class="graph-box">
+      <canvas id="graph2" width="820" height="340"></canvas>
+      <div class="graph-caption">가로축: 물에 잠긴 부피(mL) · 세로축: 부력(N) — 점들이 원점을 지나는 직선에 가까울수록 부력이 잠긴 부피에 비례한다는 뜻이에요.</div>
+    </div>
+
+    <div class="q">
+      <span class="q-label">💬 의사소통하기 — 물에 잠긴 추의 부피와 추에 작용하는 부력 사이에는 어떤 관계가 있는지 토의해 보자.</span>
+      <textarea id="reflect3" placeholder="위 그래프와 계산된 값을 근거로 설명해 보세요."></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--violet)">탐구 확인 문제</span>주어진 자료로 확인해 보기</div>
+    <div class="card-hint">아래 표는 물에 잠긴 추의 개수에 따른 무게와 물의 부피를 측정한 결과예요. (이미 주어진 자료입니다)</div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>물에 잠긴 추의 개수(개)</th><th>0</th><th>1</th><th>2</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="row-label">용수철저울의 눈금(N)</td><td>4.00</td><td>3.75</td><td>3.51</td></tr>
+        <tr><td class="row-label">물의 부피(mL)</td><td>200</td><td>225</td><td>250</td></tr>
+      </tbody>
+    </table>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        추 1개가 받는 부력은 얼마인가?
+        <input type="text" class="blank-input" id="tq1" placeholder="N">
+        N
+      </div>
+      <span class="q-feedback" id="fb-tq1"></span>
+    </div>
+
+    <div class="q">
+      <span class="q-label">2. 다음 제시어를 모두 사용하여 위 표의 결과로 내릴 수 있는 결론을 서술하시오.</span>
+      <div class="card-hint" style="margin:4px 0 0;">제시어: 물에 잠긴 추의 개수, 추가 잠긴 물의 부피, 물에 잠긴 용수철저울의 눈금, 부력</div>
+      <textarea id="tq2" placeholder="제시어를 모두 사용해서 결론을 문장으로 써 보세요."></textarea>
+      <span class="q-feedback" id="fb-tq2"></span>
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        위에서 사용한 것과 같은 추 3개를 매달면 무게는
+        <input type="text" class="blank-input" id="tq3a" placeholder="N">
+        N이다. 이 3개의 추를 모두 물에 잠기게 하면, 물의 부피는
+        <input type="text" class="blank-input" id="tq3b" placeholder="mL">
+        mL이므로 이때 추 3개가 물에 잠겼을 때 받는 부력은
+        <input type="text" class="blank-input" id="tq3c" placeholder="N">
+        N이다.
+      </div>
+      <span class="q-feedback" id="fb-tq3"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">스스로 확인</span>개념 정리 &amp; 제출</div>
+    <div class="card-hint">객관식 빈칸은 자동으로 채점되고, 서술형 답변은 선생님이 확인할 수 있도록 함께 저장돼요.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="group" id="ws-group" placeholder="모둠">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        지구가 물체를 당기는 힘을 지구의
+        <input type="text" class="blank-input" id="blank1" placeholder="무엇?">
+        이라 하고, 변형된 물체가 원래 모양으로 되돌아가려는 힘을
+        <input type="text" class="blank-input" id="blank2" placeholder="무엇?">
+        이라고 한다.
+      </div>
+      <span class="q-feedback" id="fb1"></span>
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        액체나 기체가 물체를 위로 밀어 올리는 힘을
+        <input type="text" class="blank-input" id="blank3" placeholder="무엇?">
+        이라고 한다.
+      </div>
+      <span class="q-feedback" id="fb3"></span>
+    </div>
+
+    <div class="q">
+      <span class="q-label">✏️ 창의력 — 일상생활에서 마찰력이 작용하지 않는다면 어떤 일이 일어날지 이야기해 보자. (보너스)</span>
+      <textarea id="bonus" placeholder="예: 걸을 때 자꾸 미끄러져 넘어질 것이다. 등등"></textarea>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 물속에서 부력 측정하기</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+  이 저장소 루트의 code.gs(범용 스크립트)를 그대로 배포해서 쓰면 됩니다.
+  이미 다른 워크시트에 배포해 둔 웹 앱 주소가 있다면 그대로 재사용해도
+  되고, 여기서는 이미 사용 중인 주소를 기본값으로 넣어 두었습니다.
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+function normalize(str){ return (str || "").trim().replace(/\s+/g, ""); }
+function numMatch(input, expected, tol){
+  const n = parseFloat((input || "").toString().replace(/[^0-9.\-]/g, ""));
+  return !isNaN(n) && Math.abs(n - expected) <= (tol === undefined ? 0.03 : tol);
+}
+
+/* ==========================================================
+   실험 1: 공기중 / 절반 잠김 / 완전히 잠김 → 부력 자동 계산
+=========================================================== */
+const exp1Inputs = Array.from(document.querySelectorAll(".exp1-n"));
+
+function getExp1(state){
+  const inp = exp1Inputs.find(i => i.dataset.state === state);
+  const v = inp && inp.value !== "" ? Number(inp.value) : null;
+  return (v === null || isNaN(v)) ? null : v;
+}
+
+const canvas1 = document.getElementById("graph1");
+const ctx1 = canvas1.getContext("2d");
+
+function drawGraph1(){
+  const air = getExp1("air"), half = getExp1("half"), full = getExp1("full");
+  const buoyHalf = (air !== null && half !== null) ? air - half : null;
+  const buoyFull = (air !== null && full !== null) ? air - full : null;
+
+  document.querySelector('[data-buoy1="half"]').textContent = buoyHalf !== null ? buoyHalf.toFixed(2) + " N" : "-";
+  document.querySelector('[data-buoy1="full"]').textContent = buoyFull !== null ? buoyFull.toFixed(2) + " N" : "-";
+
+  const CW = 820, CH = 320, PAD_L = 55, PAD_R = 20, PAD_T = 20, PAD_B = 50;
+  ctx1.clearRect(0,0,CW,CH);
+
+  const vals = [0, buoyHalf, buoyFull].filter(v => v !== null);
+  const yMax = Math.max(1, ...vals.map(v => v*1.3));
+  const x0 = PAD_L, x1 = CW-PAD_R, y0 = CH-PAD_B, y1 = PAD_T;
+  function toY(v){ return y0 - (v/yMax) * (y0-y1); }
+
+  ctx1.strokeStyle = "#DCD6C7"; ctx1.fillStyle = "#626A78"; ctx1.font = "11px Pretendard, sans-serif"; ctx1.lineWidth = 1;
+  const step = yMax > 4 ? 1 : (yMax/4 || 0.5);
+  for(let v=0; v<=yMax; v+=step){
+    const y = toY(v);
+    ctx1.beginPath(); ctx1.moveTo(x0,y); ctx1.lineTo(x1,y); ctx1.stroke();
+    ctx1.fillText(v.toFixed(1), x0-32, y+4);
+  }
+  ctx1.strokeStyle = "#232A35"; ctx1.lineWidth = 2;
+  ctx1.beginPath(); ctx1.moveTo(x0,y0); ctx1.lineTo(x1,y0); ctx1.stroke();
+  ctx1.beginPath(); ctx1.moveTo(x0,y0); ctx1.lineTo(x0,y1); ctx1.stroke();
+
+  const labels = [
+    { label:"공기 중", value:0, color:"#DCD6C7" },
+    { label:"절반 잠김", value:buoyHalf, color:"#2F8FD6" },
+    { label:"완전히 잠김", value:buoyFull, color:"#D8493B" }
+  ];
+  const groupWidth = (x1-x0) / labels.length;
+  labels.forEach((g, i) => {
+    const cx = x0 + i*groupWidth + groupWidth/2;
+    ctx1.fillStyle = "#232A35"; ctx1.font = "bold 12px Pretendard, sans-serif"; ctx1.textAlign = "center";
+    ctx1.fillText(g.label, cx, y0+20);
+    if(g.value === null){
+      ctx1.strokeStyle = "#DCD6C7"; ctx1.setLineDash([3,3]);
+      ctx1.strokeRect(cx-25, y1, 50, y0-y1);
+      ctx1.setLineDash([]);
+    } else {
+      const barY = toY(g.value);
+      ctx1.fillStyle = g.color;
+      ctx1.fillRect(cx-25, barY, 50, y0-barY);
+      ctx1.font = "11px Pretendard, sans-serif";
+      ctx1.fillText(g.value.toFixed(2)+"N", cx, barY-6);
+    }
+    ctx1.textAlign = "left";
+  });
+}
+
+exp1Inputs.forEach(inp => inp.addEventListener("input", drawGraph1));
+document.getElementById("clear-exp1").addEventListener("click", () => {
+  exp1Inputs.forEach(inp => inp.value = "");
+  drawGraph1();
+});
+drawGraph1();
+
+/* ==========================================================
+   실험 2: 추 1개/2개 잠김 → 부력·배제 부피 자동 계산 + 그래프
+=========================================================== */
+const exp2NInputs = Array.from(document.querySelectorAll(".exp2-n"));
+const exp2MlInputs = Array.from(document.querySelectorAll(".exp2-ml"));
+
+function getExp2N(state){
+  const inp = exp2NInputs.find(i => i.dataset.state === state);
+  const v = inp && inp.value !== "" ? Number(inp.value) : null;
+  return (v === null || isNaN(v)) ? null : v;
+}
+function getExp2Ml(state){
+  const inp = exp2MlInputs.find(i => i.dataset.state === state);
+  const v = inp && inp.value !== "" ? Number(inp.value) : null;
+  return (v === null || isNaN(v)) ? null : v;
+}
+
+const canvas2 = document.getElementById("graph2");
+const ctx2 = canvas2.getContext("2d");
+
+function computeExp2(){
+  const airN = getExp2N("air"), airMl = getExp2Ml("air");
+  const oneN = getExp2N("one"), oneMl = getExp2Ml("one");
+  const twoN = getExp2N("two"), twoMl = getExp2Ml("two");
+
+  const oneBuoy = (airN !== null && oneN !== null) ? airN - oneN : null;
+  const twoBuoy = (airN !== null && twoN !== null) ? airN - twoN : null;
+  const oneVol = (airMl !== null && oneMl !== null) ? oneMl - airMl : null;
+  const twoVol = (airMl !== null && twoMl !== null) ? twoMl - airMl : null;
+
+  document.getElementById("derived-one").textContent =
+    (oneBuoy !== null && oneVol !== null) ? `${oneBuoy.toFixed(2)} N / ${oneVol.toFixed(0)} mL` : "-";
+  document.getElementById("derived-two").textContent =
+    (twoBuoy !== null && twoVol !== null) ? `${twoBuoy.toFixed(2)} N / ${twoVol.toFixed(0)} mL` : "-";
+
+  return { oneBuoy, oneVol, twoBuoy, twoVol };
+}
+
+function updateInsight2(d){
+  const el = document.getElementById("insight-box-2");
+  if(d.oneBuoy === null || d.oneVol === null){
+    el.innerHTML = "아직 데이터가 부족해요. 표를 채우면 부력과 잠긴 부피 사이의 관계를 알려드려요.";
+    return;
+  }
+  const ratio1 = d.oneVol > 0 ? d.oneBuoy / d.oneVol : null;
+  let msg = `추 1개가 잠겼을 때 부력은 <b>${d.oneBuoy.toFixed(2)} N</b>, 배제된 물의 부피는 <b>${d.oneVol.toFixed(0)} mL</b>예요`;
+  if(d.twoBuoy !== null && d.twoVol !== null){
+    const ratio2 = d.twoVol > 0 ? d.twoBuoy / d.twoVol : null;
+    msg += `. 추 2개가 잠겼을 때는 부력 <b>${d.twoBuoy.toFixed(2)} N</b>, 부피 <b>${d.twoVol.toFixed(0)} mL</b>예요.`;
+    if(ratio1 !== null && ratio2 !== null){
+      const close = Math.abs(ratio1 - ratio2) < 0.01;
+      msg += close
+        ? ` 두 경우 모두 부력을 부피로 나눈 값이 <b>약 ${ratio1.toFixed(3)} N/mL</b>로 비슷해요 → 부력은 잠긴 부피에 <b>비례</b>한다는 것을 알 수 있어요!`
+        : ` 부력을 부피로 나눈 값이 ${ratio1.toFixed(3)}과 ${ratio2.toFixed(3)}으로 차이가 있어요. 측정을 다시 확인해 보세요.`;
+    }
+  } else {
+    msg += ". 추 2개 데이터도 입력하면 비교해 드려요.";
+  }
+  el.innerHTML = msg;
+}
+
+function drawGraph2(){
+  const d = computeExp2();
+  updateInsight2(d);
+
+  const CW = 820, CH = 340, PAD_L = 55, PAD_R = 20, PAD_T = 20, PAD_B = 50;
+  ctx2.clearRect(0,0,CW,CH);
+
+  const points = [];
+  if(d.oneBuoy !== null && d.oneVol !== null) points.push({ x:d.oneVol, y:d.oneBuoy });
+  if(d.twoBuoy !== null && d.twoVol !== null) points.push({ x:d.twoVol, y:d.twoBuoy });
+
+  const xMax = Math.max(30, ...points.map(p => p.x*1.3));
+  const yMax = Math.max(1, ...points.map(p => p.y*1.3));
+  const x0 = PAD_L, x1 = CW-PAD_R, y0 = CH-PAD_B, y1 = PAD_T;
+  function toX(v){ return x0 + (v/xMax) * (x1-x0); }
+  function toY(v){ return y0 - (v/yMax) * (y0-y1); }
+
+  ctx2.strokeStyle = "#DCD6C7"; ctx2.fillStyle = "#626A78"; ctx2.font = "11px Pretendard, sans-serif"; ctx2.lineWidth = 1;
+  const xStep = Math.ceil(xMax/6/5)*5 || 5;
+  for(let v=0; v<=xMax; v+=xStep){
+    const x = toX(v);
+    ctx2.beginPath(); ctx2.moveTo(x,y0); ctx2.lineTo(x,y1); ctx2.stroke();
+    ctx2.fillText(String(v), x-8, y0+16);
+  }
+  const yStep = yMax > 4 ? 1 : (yMax/4 || 0.5);
+  for(let v=0; v<=yMax; v+=yStep){
+    const y = toY(v);
+    ctx2.beginPath(); ctx2.moveTo(x0,y); ctx2.lineTo(x1,y); ctx2.stroke();
+    ctx2.fillText(v.toFixed(1), x0-32, y+4);
+  }
+  ctx2.strokeStyle = "#232A35"; ctx2.lineWidth = 2;
+  ctx2.beginPath(); ctx2.moveTo(x0,y0); ctx2.lineTo(x1,y0); ctx2.stroke();
+  ctx2.beginPath(); ctx2.moveTo(x0,y0); ctx2.lineTo(x0,y1); ctx2.stroke();
+  ctx2.fillText("부피(mL)", x1-50, y0+34);
+
+  if(points.length > 0){
+    const avgRatio = points.reduce((s,p) => s + (p.x>0?p.y/p.x:0), 0) / points.length;
+    ctx2.strokeStyle = "#7A56C9"; ctx2.lineWidth = 2; ctx2.setLineDash([5,4]);
+    ctx2.beginPath();
+    ctx2.moveTo(toX(0), toY(0));
+    ctx2.lineTo(toX(xMax), toY(avgRatio*xMax));
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+  }
+
+  points.forEach(p => {
+    ctx2.beginPath();
+    ctx2.arc(toX(p.x), toY(p.y), 5.5, 0, Math.PI*2);
+    ctx2.fillStyle = "#2F8FD6";
+    ctx2.fill();
+    ctx2.strokeStyle = "#fff"; ctx2.lineWidth = 1.5; ctx2.stroke();
+  });
+}
+
+[...exp2NInputs, ...exp2MlInputs].forEach(inp => inp.addEventListener("input", drawGraph2));
+document.getElementById("clear-exp2").addEventListener("click", () => {
+  exp2NInputs.forEach(inp => inp.value = "");
+  exp2MlInputs.forEach(inp => { if(inp.dataset.state !== "air") inp.value = ""; });
+  drawGraph2();
+});
+drawGraph2();
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+=========================================================== */
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+  const group = document.getElementById("ws-group").value.trim();
+
+  if(!name){
+    alert("이름을 입력해 주세요.");
+    return;
+  }
+
+  const hypothesis1 = document.getElementById("hypothesis1").value.trim();
+  const reflect1 = document.getElementById("reflect1").value.trim();
+  const reflect2 = document.getElementById("reflect2").value.trim();
+  const reflect3 = document.getElementById("reflect3").value.trim();
+  const tq1 = document.getElementById("tq1").value;
+  const tq2 = document.getElementById("tq2").value.trim();
+  const tq3a = document.getElementById("tq3a").value;
+  const tq3b = document.getElementById("tq3b").value;
+  const tq3c = document.getElementById("tq3c").value;
+  const blank1 = document.getElementById("blank1").value;
+  const blank2 = document.getElementById("blank2").value;
+  const blank3 = document.getElementById("blank3").value;
+  const bonus = document.getElementById("bonus").value.trim();
+
+  const required = [hypothesis1, reflect1, reflect2, reflect3, tq1, tq2, tq3a, tq3b, tq3c, blank1, blank2, blank3];
+  if(required.some(v => !v.trim())){
+    alert("모든 문항에 답해 주세요. (보너스 문항 제외)");
+    return;
+  }
+
+  const okTq1 = numMatch(tq1, 0.25);
+  const okTq3a = numMatch(tq3a, 6.00, 0.05);
+  const okTq3b = numMatch(tq3b, 275, 1);
+  const okTq3c = numMatch(tq3c, 0.75, 0.05);
+  const okTq3 = okTq3a && okTq3b && okTq3c;
+  const okBlank1 = ["중력"].includes(normalize(blank1));
+  const okBlank2 = ["탄성력"].includes(normalize(blank2));
+  const okBlank3 = ["부력"].includes(normalize(blank3));
+
+  document.getElementById("fb-tq1").textContent = okTq1 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 0.25N, 4.00-3.75)";
+  document.getElementById("fb-tq1").className = "q-feedback " + (okTq1 ? "ok" : "bad");
+
+  document.getElementById("fb-tq2").textContent = "📝 서술형 답변은 선생님이 확인 후 피드백해 줄게요.";
+  document.getElementById("fb-tq2").className = "q-feedback info";
+
+  document.getElementById("fb-tq3").textContent = okTq3 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 6.00N / 275mL / 0.75N)";
+  document.getElementById("fb-tq3").className = "q-feedback " + (okTq3 ? "ok" : "bad");
+
+  const ok1 = okBlank1 && okBlank2;
+  document.getElementById("fb1").textContent = ok1 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 중력 / 탄성력)";
+  document.getElementById("fb1").className = "q-feedback " + (ok1 ? "ok" : "bad");
+
+  document.getElementById("fb3").textContent = okBlank3 ? "✅ 정답이에요!" : "❌ 다시 확인해 보세요. (정답: 부력)";
+  document.getElementById("fb3").className = "q-feedback " + (okBlank3 ? "ok" : "bad");
+
+  const checks = [okTq1, okTq3, ok1, okBlank3];
+  const correctCount = checks.filter(Boolean).length;
+  const total = checks.length;
+  wsResult.textContent = `객관식 ${correctCount} / ${total} 개 정답 (서술형·실험표는 선생님이 확인해요)`;
+  wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = { worksheet: "him-buryeok", grade, classNum, number, group, name };
+  exp1Inputs.forEach(inp => { payload[`exp1_${inp.dataset.state}`] = inp.value; });
+  exp2NInputs.forEach(inp => { payload[`exp2_n_${inp.dataset.state}`] = inp.value; });
+  exp2MlInputs.forEach(inp => { payload[`exp2_ml_${inp.dataset.state}`] = inp.value; });
+  Object.assign(payload, {
+    hypothesis1, reflect1, reflect2, reflect3,
+    tq1, tq2, tq3a, tq3b, tq3c,
+    blank1, blank2, blank3, bonus,
+    score: String(correctCount), total: String(total)
+  });
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  ["blank1","blank2","blank3","tq1","tq2","tq3a","tq3b","tq3c"].forEach(id => document.getElementById(id).value = "");
+  ["hypothesis1","reflect1","reflect2","reflect3","bonus"].forEach(id => document.getElementById(id).value = "");
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
