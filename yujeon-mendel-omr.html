@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>멘델의 법칙과 사람의 유전 — 답안지</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --cell:#2F8F6F;
+    --cell-soft:#E1F3EC;
+    --dye:#C0512F;
+    --dye-soft:#FBEAE4;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:920px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--cell),var(--dye)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:720px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  /* ---------- 개념 정리 답안지 ---------- */
+  .fillrow{
+    display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+    padding:9px 4px; border-top:1px dashed var(--line); font-size:13.5px; line-height:1.9;
+  }
+  .fillrow:first-of-type{ border-top:none; }
+  .fillrow .fnum{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--cell); color:#fff;
+    font-size:11px; font-weight:800; flex-shrink:0;
+  }
+  .fillrow select{
+    font-family:inherit; font-size:12.5px; border:1px solid var(--cell); border-radius:6px;
+    padding:3px 5px; background:#fff; color:var(--cell); font-weight:700;
+  }
+  .fillrow .fb{ display:inline-block; margin-top:4px; font-size:12px; font-weight:700; min-height:16px; }
+  .fillrow .fb.ok{ color:var(--ok); }
+  .fillrow .fb.bad{ color:var(--bad); }
+
+  /* ---------- OMR 표시(O/X) ---------- */
+  .omr-item{ border-top:1px dashed var(--line); padding:14px 2px; }
+  .omr-item:first-of-type{ border-top:none; }
+  .omr-q{ display:flex; align-items:flex-start; gap:8px; font-size:13.5px; line-height:1.8; margin-bottom:9px; }
+  .omr-q .qnum{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; flex-shrink:0; margin-top:1px;
+  }
+  .omr-bubbles{ display:flex; gap:14px; align-items:center; }
+  .omr-bubble{
+    width:40px; height:40px; border-radius:50%; border:2px solid var(--line); background:#fff;
+    font-size:16px; font-weight:800; color:var(--ink-soft); cursor:pointer; transition:.15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .omr-bubble:hover{ border-color:var(--cell); }
+  .omr-bubble.picked{ border-color:var(--cell); background:var(--cell); color:#fff; }
+  .omr-bubble.picked.x-mark{ border-color:var(--dye); background:var(--dye); }
+  .omr-fb{ display:block; margin-top:8px; font-size:12.5px; font-weight:700; }
+  .omr-fb.ok{ color:var(--ok); }
+  .omr-fb.bad{ color:var(--bad); }
+
+  /* ---------- 서술형 ---------- */
+  textarea.long-answer{
+    width:100%; min-height:70px; resize:vertical; font-family:inherit; font-size:13px;
+    border:1px solid var(--line); border-radius:10px; padding:9px 11px; background:#FBFAF6; line-height:1.6;
+  }
+  .model-answer{
+    margin-top:10px; font-size:12px; color:var(--ink-soft); background:#FBFAF6; border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; line-height:1.65; display:none;
+  }
+  .model-answer.show{ display:block; }
+  .model-answer b{ color:var(--cell); }
+
+  /* ---------- 채점 ---------- */
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+
+  .ws-result{ font-size:14px; font-weight:800; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+
+  footer{ max-width:920px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 생식과 유전 · 2. 사람의 유전 (교과서 223쪽)</div>
+    <h1>멘델의 법칙과 사람의 유전 — <span>답안지</span></h1>
+    <p class="sub">교과서 223쪽의 빈칸과 확인 문제 답을 아래에 바로 입력하고 <b>채점하기</b>를 누르면, 무엇을 틀렸는지 바로 알려줍니다. (스프레드시트에는 저장되지 않아요)</p>
+  </header>
+
+  <!-- 개념 정리 빈칸 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">개념 정리</span>멘델의 법칙 · 사람의 유전 연구 · 반성 유전</div>
+    <div class="card-hint">문장을 읽고 네모 상자에서 알맞은 답을 골라 보세요.</div>
+
+    <div class="fillrow">
+      <span class="fnum">1</span>
+      우열의 원리: 순종의 두 대립 형질을 교배하면 잡종 1대에서는
+      <select id="b1"><option value="">-선택-</option><option value="우성">우성</option><option value="열성">열성</option></select>
+      의 형질만 나타난다.
+    </div>
+
+    <div class="fillrow">
+      <span class="fnum">2</span>
+      <select id="b2"><option value="">-선택-</option><option value="분리의법칙">분리의 법칙</option><option value="독립의법칙">독립의 법칙</option><option value="우열의원리">우열의 원리</option></select>
+      : 생식세포를 형성할 때 한 쌍의 대립유전자가 분리되어 서로 다른 생식세포로 나뉘어 들어가는 현상이다.
+    </div>
+
+    <div class="fillrow">
+      <span class="fnum">3</span>
+      독립의 법칙: 완두의 모양과 색깔 교배 실험에서 둥글고 황색 : 둥글고 녹색 : 주름지고 황색 : 주름지고 녹색인 완두의 비가 9 : 3 : 3 : 1일 때, 모양은 색깔과 관계없이·색깔은 모양과 관계없이 각각 우성과 열성의 비가
+      <select id="b3"><option value="">-선택-</option><option value="9:3:3:1">9:3:3:1</option><option value="3:1">3:1</option><option value="1:2:1">1:2:1</option></select>
+      (으)로 나타난다.
+    </div>
+
+    <div class="fillrow">
+      <span class="fnum">4</span>
+      사람의 유전 연구 방법: 쌍둥이 연구,
+      <select id="b4"><option value="">-선택-</option><option value="가계도조사">가계도 조사</option><option value="표본조사">표본 조사</option><option value="현미경관찰">현미경 관찰</option></select>
+      , 통계 조사, 염색체와 유전자 조사 등
+    </div>
+
+    <div class="fillrow">
+      <span class="fnum">5</span>
+      <select id="b5"><option value="">-선택-</option><option value="반성유전">반성유전</option><option value="상염색체유전">상염색체유전</option><option value="다인자유전">다인자유전</option></select>
+      : 색맹 유전자는 성염색체인
+      <select id="b6"><option value="">-선택-</option><option value="X">X</option><option value="Y">Y</option><option value="상염색체">상염색체</option></select>
+      염색체 위에 있어서
+      <select id="b7"><option value="">-선택-</option><option value="여자">여자</option><option value="남자">남자</option></select>
+      보다
+      <select id="b8"><option value="">-선택-</option><option value="여자">여자</option><option value="남자">남자</option></select>
+      에게 많이 나타난다.
+    </div>
+    <span class="fb" id="concept-fb"></span>
+  </section>
+
+  <!-- 확인 문제 1: O/X -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--dye)">문제 1</span>유전과 유전 법칙에 대한 설명으로 옳은 것에는 ○, 옳지 않은 것에는 ×</div>
+
+    <div class="omr-item" id="q1-1">
+      <div class="omr-q"><span class="qnum">1</span>순종 황색 완두(YY)와 순종 녹색 완두(yy)를 교배하여 나온 잡종은 모두 황색 완두이다.</div>
+      <div class="omr-bubbles" data-answer="O">
+        <button type="button" class="omr-bubble" data-value="O">○</button>
+        <button type="button" class="omr-bubble x-mark" data-value="X">×</button>
+      </div>
+      <span class="omr-fb" id="q1-1-fb"></span>
+    </div>
+
+    <div class="omr-item" id="q1-2">
+      <div class="omr-q"><span class="qnum">2</span>보라색 꽃을 가진 잡종 완두(Pp)의 대립유전자 P와 p는 생식세포 분열 과정에서 서로 다른 생식세포로 나뉘어 들어간다.</div>
+      <div class="omr-bubbles" data-answer="O">
+        <button type="button" class="omr-bubble" data-value="O">○</button>
+        <button type="button" class="omr-bubble x-mark" data-value="X">×</button>
+      </div>
+      <span class="omr-fb" id="q1-2-fb"></span>
+    </div>
+
+    <div class="omr-item" id="q1-3">
+      <div class="omr-q"><span class="qnum">3</span>두 쌍의 대립 형질을 가진 둥글고 황색인 완두(RrYy)가 만드는 생식세포는 R, r, Y, y의 4종류이다.</div>
+      <div class="omr-bubbles" data-answer="X">
+        <button type="button" class="omr-bubble" data-value="O">○</button>
+        <button type="button" class="omr-bubble x-mark" data-value="X">×</button>
+      </div>
+      <span class="omr-fb" id="q1-3-fb"></span>
+    </div>
+
+    <div class="omr-item" id="q1-4">
+      <div class="omr-q"><span class="qnum">4</span>독립의 법칙은 서로 다른 두 종류의 형질을 결정하는 각각의 유전자가 모두 하나의 염색체에 있기 때문에 나타난다.</div>
+      <div class="omr-bubbles" data-answer="X">
+        <button type="button" class="omr-bubble" data-value="O">○</button>
+        <button type="button" class="omr-bubble x-mark" data-value="X">×</button>
+      </div>
+      <span class="omr-fb" id="q1-4-fb"></span>
+    </div>
+  </section>
+
+  <!-- 확인 문제 2 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--cell)">문제 2</span>혈액형 유전 — 유전자형 쓰기</div>
+    <div class="omr-q" style="margin-bottom:12px;">혈액형이 AB형인 아버지와 O형인 어머니 사이에서 태어난 아이의 혈액형이 B형일 때, 이 아이의 유전자형을 쓰시오.</div>
+    <select id="q2"><option value="">-선택-</option><option value="AO">AO</option><option value="BO">BO</option><option value="AB">AB</option><option value="OO">OO</option></select>
+    <span class="omr-fb" id="q2-fb" style="display:block; margin-top:8px;"></span>
+  </section>
+
+  <!-- 확인 문제 3: 서술형 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--dye)">문제 3</span>[서술형] 반성유전 — 남녀 차이가 생기는 까닭</div>
+    <div class="omr-q" style="margin-bottom:8px;">남자는 색맹 유전자를 한 개 가지면 색맹이지만, 여자는 이 유전자를 한 개만 가지고 있을 경우 정상이다. 남자와 여자 사이에 이러한 차이가 생기는 까닭은 무엇인지 설명하시오.</div>
+    <textarea class="long-answer" id="q3"></textarea>
+    <span class="omr-fb" id="q3-fb" style="display:block; margin-top:8px;"></span>
+    <div class="model-answer" id="q3-model">
+      <b>예시 답안</b> — 색맹 유전자는 X 염색체에 있는 열성 유전자이다. 남자(XY)는 X 염색체가 1개뿐이라 색맹 유전자를 하나만 가져도 바로 색맹으로 나타나지만, 여자(XX)는 X 염색체가 2개이므로 하나는 정상 유전자를 가지고 있으면 우성인 정상 형질이 나타나고, 두 개 모두 색맹 유전자를 가져야만 색맹으로 나타난다.
+    </div>
+  </section>
+
+  <!-- 채점 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">채점</span></div>
+    <div class="ws-actions">
+      <button class="btn primary" id="grade-btn">채점하기</button>
+      <button class="btn ghost" id="reset-btn">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · Ⅴ. 생식과 유전 · 멘델의 법칙과 사람의 유전(223쪽 답안지)</footer>
+</div>
+
+<script>
+document.querySelectorAll(".omr-bubbles").forEach(group => {
+  group.querySelectorAll(".omr-bubble").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".omr-bubble").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedOmr(group){
+  const picked = group.querySelector(".omr-bubble.picked");
+  return picked ? picked.dataset.value : "";
+}
+
+const BLANK_ANSWERS = {
+  b1: "우성", b2: "분리의법칙", b3: "9:3:3:1", b4: "가계도조사",
+  b5: "반성유전", b6: "X", b7: "여자", b8: "남자"
+};
+const BLANK_LABELS = {
+  b1: "우성", b2: "분리의 법칙", b3: "9:3:3:1", b4: "가계도 조사",
+  b5: "반성유전", b6: "X", b7: "여자", b8: "남자"
+};
+
+const gradeBtn = document.getElementById("grade-btn");
+const resetBtn = document.getElementById("reset-btn");
+const wsResult = document.getElementById("ws-result");
+
+gradeBtn.addEventListener("click", () => {
+  let correct = 0;
+  let total = 0;
+
+  // 개념 정리 빈칸 채점
+  let blanksOk = 0;
+  Object.keys(BLANK_ANSWERS).forEach(id => {
+    const val = document.getElementById(id).value;
+    if(val === BLANK_ANSWERS[id]) blanksOk++;
+  });
+  total += Object.keys(BLANK_ANSWERS).length;
+  correct += blanksOk;
+  const conceptFb = document.getElementById("concept-fb");
+  const allBlanksFilled = Object.keys(BLANK_ANSWERS).every(id => document.getElementById(id).value !== "");
+  if(!allBlanksFilled){
+    conceptFb.textContent = "⚠️ 아직 채우지 않은 빈칸이 있어요.";
+    conceptFb.className = "fb bad";
+  } else {
+    conceptFb.textContent = blanksOk === Object.keys(BLANK_ANSWERS).length
+      ? "✅ 빈칸 8개 모두 정답이에요!"
+      : `❌ 8개 중 ${blanksOk}개 정답. 틀린 칸을 다시 확인해 보세요.`;
+    conceptFb.className = "fb " + (blanksOk === Object.keys(BLANK_ANSWERS).length ? "ok" : "bad");
+  }
+  Object.keys(BLANK_ANSWERS).forEach(id => {
+    const sel = document.getElementById(id);
+    sel.style.borderColor = sel.value === "" ? "var(--line)" : (sel.value === BLANK_ANSWERS[id] ? "var(--ok)" : "var(--bad)");
+  });
+
+  // 문제1 O/X 채점
+  ["q1-1","q1-2","q1-3","q1-4"].forEach(qid => {
+    const group = document.querySelector("#" + qid + " .omr-bubbles");
+    const answer = group.dataset.answer;
+    const picked = pickedOmr(group);
+    total++;
+    const fb = document.getElementById(qid + "-fb");
+    if(picked === ""){
+      fb.textContent = "⚠️ 아직 선택하지 않았어요.";
+      fb.className = "omr-fb bad";
+    } else if(picked === answer){
+      correct++;
+      fb.textContent = "✅ 정답이에요!";
+      fb.className = "omr-fb ok";
+    } else {
+      fb.textContent = `❌ 다시 확인해 보세요. (정답: ${answer === "O" ? "○" : "×"})`;
+      fb.className = "omr-fb bad";
+    }
+  });
+
+  // 문제2 채점
+  total++;
+  const q2 = document.getElementById("q2").value;
+  const q2Fb = document.getElementById("q2-fb");
+  if(q2 === ""){
+    q2Fb.textContent = "⚠️ 아직 선택하지 않았어요.";
+    q2Fb.className = "omr-fb bad";
+  } else if(q2 === "BO"){
+    correct++;
+    q2Fb.textContent = "✅ 정답이에요!";
+    q2Fb.className = "omr-fb ok";
+  } else {
+    q2Fb.textContent = "❌ 다시 확인해 보세요. (정답: BO)";
+    q2Fb.className = "omr-fb bad";
+  }
+
+  // 문제3: 핵심 단어 포함 여부로 대략 확인 (참고용, 최종 확인은 선생님 몫)
+  const q3 = document.getElementById("q3").value.trim();
+  const q3Fb = document.getElementById("q3-fb");
+  const q3Model = document.getElementById("q3-model");
+  q3Model.classList.add("show");
+  if(!q3){
+    q3Fb.textContent = "⚠️ 아직 답을 쓰지 않았어요. 아래 예시 답안을 참고해 보세요.";
+    q3Fb.className = "omr-fb bad";
+  } else {
+    const hasX = q3.includes("X") || q3.includes("엑스");
+    const hasCount = /1개|한\s*개|2개|두\s*개/.test(q3);
+    const hasRecessive = q3.includes("열성");
+    const keywordScore = [hasX, hasCount, hasRecessive].filter(Boolean).length;
+    if(keywordScore >= 2){
+      q3Fb.textContent = "✅ 핵심 내용(X 염색체 개수·열성 유전)이 잘 들어간 것 같아요. 아래 예시 답안과 비교해 보세요.";
+      q3Fb.className = "omr-fb ok";
+    } else {
+      q3Fb.textContent = "❌ X 염색체 개수 차이, 열성 유전 같은 핵심 단어가 부족해 보여요. 아래 예시 답안을 참고해 보세요.";
+      q3Fb.className = "omr-fb bad";
+    }
+  }
+
+  wsResult.textContent = `객관식·단답형 ${correct} / ${total} 개 정답 (서술형 3번은 선생님이 최종 확인해요)`;
+  wsResult.className = "ws-result " + (correct === total ? "ok" : "");
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".fillrow select").forEach(s => { s.value = ""; s.style.borderColor = "var(--cell)"; });
+  document.getElementById("q2").value = "";
+  document.getElementById("q3").value = "";
+  document.querySelectorAll(".omr-bubble.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".omr-fb, .fb").forEach(f => { f.textContent = ""; f.className = f.className.replace(/ ok| bad/g, ""); });
+  document.getElementById("q3-model").classList.remove("show");
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+});
+</script>
+
+</body>
+</html>
