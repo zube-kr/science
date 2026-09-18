@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>달무티 — 4인 카드 게임</title>
+<style>
+  :root{
+    --felt:#0f3d2e;
+    --felt-dark:#0a2a20;
+    --gold:#e8c468;
+    --gold-soft:#3a3320;
+    --ink:#232A35;
+    --ink-soft:#8fa89c;
+    --card-bg:#FBFAF6;
+    --card-line:#DCD6C7;
+    --royal:#7A56C9;
+    --peasant:#8a6a4a;
+    --ok:#4CC28C;
+    --bad:#E5645A;
+    --line:rgba(255,255,255,.14);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 700px at 50% -10%, #1a5a44 0%, var(--felt) 60%, var(--felt-dark) 100%);
+    color:#eef2ef;
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    min-height:100%;
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+
+  .screen{ display:none; min-height:100vh; padding:20px; }
+  .screen.active{ display:flex; flex-direction:column; }
+
+  /* ---------- 공통 ---------- */
+  .title-row{ display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:6px; }
+  .title-row h1{ font-size:clamp(22px,4vw,30px); font-weight:800; letter-spacing:-.02em; color:var(--gold); }
+  .subtitle{ text-align:center; color:var(--ink-soft); font-size:13px; margin-bottom:22px; }
+
+  .panel{
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:22px;
+    max-width:420px;
+    margin:0 auto;
+    width:100%;
+    backdrop-filter:blur(6px);
+  }
+  .panel h2{ font-size:16px; font-weight:800; margin-bottom:12px; color:#fff; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:5px; font-weight:700; }
+  .field input{
+    width:100%; font-family:inherit; font-size:16px; padding:11px 13px;
+    border-radius:10px; border:1px solid var(--line); background:rgba(255,255,255,.08); color:#fff;
+    text-transform:uppercase; letter-spacing:2px; text-align:center;
+  }
+  .field input#nickname-input{ text-transform:none; letter-spacing:normal; text-align:left; }
+  .field input::placeholder{ color:rgba(255,255,255,.35); }
+
+  .btn{
+    font-family:inherit; font-size:14px; font-weight:800; cursor:pointer;
+    border:none; border-radius:12px; padding:12px 18px; transition:.15s; width:100%;
+  }
+  .btn.gold{ background:linear-gradient(120deg,var(--gold),#f4dfa0); color:#3a2f0c; }
+  .btn.gold:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+  .btn.ghost{ background:rgba(255,255,255,.08); color:#eef2ef; border:1px solid var(--line); }
+  .btn.ghost:hover{ background:rgba(255,255,255,.15); }
+  .btn.small{ width:auto; padding:8px 14px; font-size:12.5px; }
+  .btn:disabled{ opacity:.4; cursor:default; }
+  .btn-row{ display:flex; gap:10px; margin-top:6px; }
+
+  .error-msg{ color:var(--bad); font-size:12.5px; margin-top:8px; min-height:16px; text-align:center; }
+  .hint{ color:var(--ink-soft); font-size:11.5px; line-height:1.6; margin-top:14px; }
+
+  /* ---------- 대기실 ---------- */
+  .room-code-display{
+    text-align:center; font-size:34px; font-weight:800; letter-spacing:10px; color:var(--gold);
+    background:rgba(0,0,0,.25); border-radius:14px; padding:16px; margin-bottom:16px;
+  }
+  .seat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .seat-slot{
+    border:1.5px dashed var(--line); border-radius:12px; padding:14px 10px; text-align:center;
+    font-size:13px; color:var(--ink-soft); font-weight:700;
+  }
+  .seat-slot.filled{ border-style:solid; border-color:var(--gold); color:#fff; background:rgba(232,196,104,.08); }
+  .seat-slot .seat-you{ font-size:10.5px; color:var(--gold); display:block; margin-top:3px; }
+
+  /* ---------- 게임 보드 ---------- */
+  #screen-game{ padding:10px; }
+  .board-wrap{ max-width:920px; margin:0 auto; width:100%; flex:1; display:flex; flex-direction:column; }
+  .top-bar{ display:flex; justify-content:space-between; align-items:center; padding:6px 10px; font-size:12px; color:var(--ink-soft); }
+  .top-bar .room-tag{ font-weight:800; color:var(--gold); letter-spacing:2px; }
+
+  .opponents-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:8px; }
+  .opp-card{
+    background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:14px; padding:10px;
+    text-align:center; position:relative;
+  }
+  .opp-card.current-turn{ border-color:var(--gold); box-shadow:0 0 0 2px rgba(232,196,104,.4); }
+  .opp-card.finished{ opacity:.45; }
+  .opp-name{ font-size:12.5px; font-weight:800; margin-bottom:2px; }
+  .opp-title{ font-size:10.5px; color:var(--gold); margin-bottom:6px; }
+  .opp-cardcount{ font-size:11px; color:var(--ink-soft); }
+  .mini-cards{ display:flex; justify-content:center; gap:-6px; margin-top:4px; }
+  .mini-card{ width:16px; height:22px; background:#2b6650; border:1px solid rgba(255,255,255,.3); border-radius:3px; margin-left:-8px; }
+  .mini-card:first-child{ margin-left:0; }
+
+  .table-area{
+    flex:1; min-height:150px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,.05), transparent 70%);
+    border-radius:20px; margin:8px; padding:16px; position:relative;
+  }
+  .trick-cards{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height:78px; align-items:center; }
+  .turn-banner{
+    font-size:13px; font-weight:800; color:var(--gold); margin-bottom:10px; text-align:center;
+    padding:6px 16px; background:rgba(0,0,0,.25); border-radius:999px;
+  }
+  .log-line{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:8px; min-height:16px; }
+
+  .my-area{ padding:10px; }
+  .my-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:0 6px; }
+  .my-header .my-title{ font-size:12.5px; font-weight:800; color:var(--gold); }
+  .my-actions{ display:flex; gap:8px; }
+
+  .hand-row{
+    display:flex; gap:6px; overflow-x:auto; padding:10px 6px 16px; justify-content:flex-start;
+    min-height:110px;
+  }
+  @media (min-width:700px){ .hand-row{ justify-content:center; flex-wrap:wrap; } }
+
+  .card{
+    flex-shrink:0; width:58px; height:82px; border-radius:8px; background:var(--card-bg);
+    border:2px solid var(--card-line); display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer; user-select:none; transition:transform .12s ease, border-color .12s ease; position:relative;
+  }
+  .card:hover{ transform:translateY(-4px); }
+  .card.selected{ transform:translateY(-10px); border-color:var(--gold); box-shadow:0 4px 14px rgba(232,196,104,.4); }
+  .card .rank-num{ font-size:22px; font-weight:800; }
+  .card .rank-label{ font-size:8px; color:var(--ink-soft); margin-top:2px; }
+  .card.tier-royal .rank-num{ color:#8b3fd8; }
+  .card.tier-mid .rank-num{ color:#2F6FDB; }
+  .card.tier-peasant .rank-num{ color:#a9642f; }
+  .card.tier-joker{ background:linear-gradient(135deg,#ffe17c,#ff9b7c,#8b7cff); }
+  .card.tier-joker .rank-num{ font-size:12px; color:#3a2f0c; font-weight:900; }
+  .card.static{ cursor:default; width:46px; height:64px; }
+  .card.static .rank-num{ font-size:17px; }
+  .card.facedown{ background:repeating-linear-gradient(45deg,#2b6650,#2b6650 4px,#215544 4px,#215544 8px); border-color:rgba(255,255,255,.2); }
+
+  /* ---------- 라운드 종료 모달 ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(5,15,10,.75); display:none;
+    align-items:center; justify-content:center; z-index:60; padding:16px;
+  }
+  .overlay.show{ display:flex; }
+  .overlay-card{
+    background:#132a20; border:1px solid var(--line); border-radius:20px; padding:26px;
+    max-width:440px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.5);
+    max-height:90vh; overflow-y:auto;
+  }
+  .overlay-card h2{ font-size:20px; font-weight:800; color:var(--gold); margin-bottom:14px; }
+  .standing-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .standing-row{
+    display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,.06);
+    border-radius:10px; padding:9px 14px; font-size:13px;
+  }
+  .standing-row .medal{ font-size:16px; margin-right:6px; }
+  .revolution-banner{
+    background:linear-gradient(120deg,#ff6b6b,#ffb703); color:#3a1000; font-weight:800; font-size:14px;
+    padding:10px; border-radius:12px; margin-bottom:14px;
+  }
+  .tax-note{ font-size:11.5px; color:var(--ink-soft); line-height:1.7; margin-bottom:16px; text-align:left; }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:11px; padding:14px; }
+</style>
+</head>
+<body>
+
+<!-- ============ 로비 ============ -->
+<div class="screen active" id="screen-lobby">
+  <div class="title-row"><h1>🃏 달무티</h1></div>
+  <div class="subtitle">4명이서 함께하는 서열 뒤집기 카드 게임 — 방 코드로 친구들과 만나요</div>
+
+  <div class="panel">
+    <div class="field">
+      <label>내 이름</label>
+      <input id="nickname-input" type="text" placeholder="이름을 입력하세요" maxlength="10">
+    </div>
+
+    <h2 style="margin-top:6px;">방 만들기</h2>
+    <button class="btn gold" id="create-room-btn">🎲 새 방 만들기</button>
+
+    <h2 style="margin-top:20px;">방 입장하기</h2>
+    <div class="field">
+      <label>방 코드 (4자리)</label>
+      <input id="join-code-input" type="text" placeholder="ABCD" maxlength="4">
+    </div>
+    <button class="btn ghost" id="join-room-btn">🚪 입장하기</button>
+
+    <div class="error-msg" id="lobby-error"></div>
+    <div class="hint">
+      · 방을 만들면 방 코드가 생겨요. 친구 3명에게 코드를 알려주고 함께 입장하세요.<br>
+      · 4명이 모이면 방장이 게임을 시작할 수 있어요.
+    </div>
+  </div>
+</div>
+
+<!-- ============ 대기실 ============ -->
+<div class="screen" id="screen-waiting">
+  <div class="title-row"><h1>🃏 달무티</h1></div>
+  <div class="subtitle">4명이 모이면 방장이 게임을 시작할 수 있어요</div>
+
+  <div class="panel">
+    <div class="room-code-display" id="waiting-room-code">----</div>
+    <div class="seat-grid" id="seat-grid"></div>
+    <button class="btn gold" id="start-game-btn" disabled>4명이 모이면 시작할 수 있어요</button>
+    <div class="btn-row">
+      <button class="btn ghost small" id="leave-room-btn" style="width:100%;">← 방 나가기</button>
+    </div>
+    <div class="error-msg" id="waiting-error"></div>
+  </div>
+</div>
+
+<!-- ============ 게임 화면 ============ -->
+<div class="screen" id="screen-game">
+  <div class="board-wrap">
+    <div class="top-bar">
+      <span class="room-tag" id="game-room-code">----</span>
+      <span id="round-tag">라운드 1</span>
+      <button class="btn ghost small" id="leave-game-btn">나가기</button>
+    </div>
+
+    <div class="opponents-row" id="opponents-row"></div>
+
+    <div class="table-area">
+      <div class="turn-banner" id="turn-banner">대기 중...</div>
+      <div class="trick-cards" id="trick-cards"></div>
+      <div class="log-line" id="log-line"></div>
+    </div>
+
+    <div class="my-area">
+      <div class="my-header">
+        <span class="my-title" id="my-title-badge"></span>
+        <div class="my-actions">
+          <button class="btn ghost small" id="pass-btn">패스</button>
+          <button class="btn gold small" id="play-btn">카드 내기</button>
+        </div>
+      </div>
+      <div class="hand-row" id="hand-row"></div>
+      <div class="error-msg" id="game-error"></div>
+    </div>
+  </div>
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 달무티</footer>
+</div>
+
+<!-- ============ 라운드/게임 종료 모달 ============ -->
+<div class="overlay" id="round-overlay">
+  <div class="overlay-card">
+    <h2 id="round-overlay-title">라운드 결과</h2>
+    <div id="revolution-banner-slot"></div>
+    <div class="standing-list" id="standing-list"></div>
+    <div class="tax-note" id="tax-note"></div>
+    <button class="btn gold" id="next-round-btn">다음 라운드 시작</button>
+  </div>
+</div>
+
+<!-- ==========================================================
+  ▣ Firebase (Firestore) — 이 사이트의 방명록과 같은 프로젝트를 재사용합니다.
+=========================================================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC0r8Qz_wGGW-TUKUC7RWZ8tyHgBG3kyFk",
+  authDomain: "ahwa-science-chat.firebaseapp.com",
+  projectId: "ahwa-science-chat",
+  storageBucket: "ahwa-science-chat.firebasestorage.app",
+  messagingSenderId: "547072324299",
+  appId: "1:547072324299:web:76a9a58948f8f1251e214e"
+};
+let db = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}catch(e){
+  console.warn("Firebase 초기화 실패", e);
+}
+</script>
+
+<script>
+/* ==========================================================
+   달무티 게임 엔진 (순수 함수)
+=========================================================== */
+function createDeck(){
+  const cards = [];
+  for(let rank=1; rank<=12; rank++){
+    for(let i=0;i<rank;i++) cards.push({ id:`r${rank}-${i}`, rank, isJoker:false });
+  }
+  cards.push({ id:"joker-1", rank:0, isJoker:true });
+  cards.push({ id:"joker-2", rank:0, isJoker:true });
+  return cards;
+}
+function shuffle(deck, rng){
+  const a = deck.slice();
+  const rand = rng || Math.random;
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(rand()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function dealCards(deck, numPlayers){
+  const perPlayer = Math.floor(deck.length / numPlayers);
+  const hands = Array.from({length:numPlayers}, () => []);
+  for(let i=0;i<perPlayer*numPlayers;i++) hands[i % numPlayers].push(deck[i]);
+  return hands;
+}
+function sortHand(hand){
+  return hand.slice().sort((a,b) => (a.isJoker?0.5:a.rank) - (b.isJoker?0.5:b.rank));
+}
+function evaluateSet(selectedCards){
+  if(!selectedCards || selectedCards.length === 0) return { valid:false, reason:"카드를 선택해 주세요." };
+  const naturals = selectedCards.filter(c => !c.isJoker);
+  const jokers = selectedCards.filter(c => c.isJoker);
+  if(jokers.length > 2) return { valid:false, reason:"조커는 2장까지만 사용할 수 있어요." };
+  if(naturals.length === 0) return { valid:true, effectiveRank:0, count:selectedCards.length };
+  const rank = naturals[0].rank;
+  if(!naturals.every(c => c.rank === rank)) return { valid:false, reason:"같은 숫자의 카드만 함께 낼 수 있어요." };
+  return { valid:true, effectiveRank:rank, count:selectedCards.length };
+}
+function canPlay(selectedCards, currentTrick){
+  const ev = evaluateSet(selectedCards);
+  if(!ev.valid) return ev;
+  if(!currentTrick) return { valid:true, effectiveRank:ev.effectiveRank, count:ev.count };
+  if(ev.count !== currentTrick.count) return { valid:false, reason:`이번 트릭은 ${currentTrick.count}장씩 내야 해요.` };
+  if(ev.effectiveRank >= currentTrick.bestEffectiveRank) return { valid:false, reason:"이전에 낸 카드보다 숫자가 더 작아야 해요." };
+  return { valid:true, effectiveRank:ev.effectiveRank, count:ev.count };
+}
+function initRoundState(hands, startingSeat){
+  return {
+    hands: hands.map(h => h.slice()), finishedOrder: [], turnSeat: startingSeat, leaderSeat: startingSeat,
+    trick: null, passedSeats: [], roundOver: false, numPlayers: hands.length
+  };
+}
+function activeSeats(state){
+  const out = [];
+  for(let s=0;s<state.numPlayers;s++) if(!state.finishedOrder.includes(s)) out.push(s);
+  return out;
+}
+function nextActiveSeat(state, fromSeat){
+  const n = state.numPlayers;
+  let s = (fromSeat + 1) % n, guard = 0;
+  while(state.finishedOrder.includes(s) && guard < n){ s = (s+1) % n; guard++; }
+  return s;
+}
+function applyAction(state, action){
+  if(state.roundOver) return { ok:false, reason:"라운드가 이미 끝났어요." };
+  if(action.seat !== state.turnSeat) return { ok:false, reason:"내 차례가 아니에요." };
+  const next = {
+    ...state, hands: state.hands.map(h => h.slice()), finishedOrder: state.finishedOrder.slice(),
+    passedSeats: state.passedSeats.slice(),
+    trick: state.trick ? { ...state.trick, cardsOnTable: state.trick.cardsOnTable.slice() } : null
+  };
+  if(action.type === "pass"){
+    if(!next.trick) return { ok:false, reason:"트릭을 시작할 때는 패스할 수 없어요." };
+    next.passedSeats.push(action.seat);
+    return resolveAfterAction(next);
+  }
+  if(action.type === "play"){
+    const hand = next.hands[action.seat];
+    const selected = action.cardIds.map(id => hand.find(c => c.id === id)).filter(Boolean);
+    if(selected.length !== action.cardIds.length) return { ok:false, reason:"보유하지 않은 카드예요." };
+    const check = canPlay(selected, next.trick);
+    if(!check.valid) return { ok:false, reason:check.reason };
+    next.hands[action.seat] = hand.filter(c => !action.cardIds.includes(c.id));
+    next.trick = {
+      count: check.count, bestEffectiveRank: check.effectiveRank, bestSeat: action.seat,
+      cardsOnTable: (state.trick ? state.trick.cardsOnTable : []).concat(selected)
+    };
+    next.passedSeats = [];
+    next.leaderSeat = state.trick ? state.leaderSeat : action.seat;
+    if(next.hands[action.seat].length === 0) next.finishedOrder.push(action.seat);
+    return resolveAfterAction(next);
+  }
+  return { ok:false, reason:"알 수 없는 액션입니다." };
+}
+function resolveAfterAction(state){
+  const active = activeSeats(state);
+  if(active.length <= 1){
+    if(active.length === 1 && !state.finishedOrder.includes(active[0])) state.finishedOrder.push(active[0]);
+    state.roundOver = true; state.turnSeat = null;
+    return { ok:true, state };
+  }
+  if(state.trick){
+    const others = active.filter(s => s !== state.trick.bestSeat);
+    const allPassed = others.length > 0 && others.every(s => state.passedSeats.includes(s));
+    if(allPassed){
+      const winner = state.trick.bestSeat;
+      state.trick = null; state.passedSeats = []; state.leaderSeat = winner;
+      if(state.finishedOrder.includes(winner)){
+        state.turnSeat = nextActiveSeat(state, winner);
+        state.leaderSeat = state.turnSeat;
+      } else {
+        state.turnSeat = winner;
+      }
+      return { ok:true, state, trickWon:true, winner };
+    }
+  }
+  state.turnSeat = nextActiveSeat(state, state.turnSeat);
+  return { ok:true, state };
+}
+const TITLES = ["대무티","소무티","소농노","대농노"];
+function applyTaxation(hands, rankOfSeat){
+  const seatOfRank = {};
+  Object.entries(rankOfSeat).forEach(([seat, rank]) => { seatOfRank[rank] = Number(seat); });
+  const dalmutiSeat = seatOfRank[0], lesserDalmutiSeat = seatOfRank[1], lesserPeonSeat = seatOfRank[2], peonSeat = seatOfRank[3];
+  const newHands = hands.map(h => h.slice());
+  let revolution = false;
+  function takeBest(seat, n){ const hand = sortHand(newHands[seat]); const taken = hand.slice(0,n); newHands[seat] = newHands[seat].filter(c=>!taken.includes(c)); return taken; }
+  function takeWorst(seat, n){ const hand = sortHand(newHands[seat]); const taken = hand.slice(-n); newHands[seat] = newHands[seat].filter(c=>!taken.includes(c)); return taken; }
+  const peonBest = takeBest(peonSeat, 2);
+  const dalmutiWorst = takeWorst(dalmutiSeat, 2);
+  newHands[dalmutiSeat] = newHands[dalmutiSeat].concat(peonBest);
+  newHands[peonSeat] = newHands[peonSeat].concat(dalmutiWorst);
+  if(peonBest.length === 2 && peonBest.every(c => c.isJoker)) revolution = true;
+  const lesserPeonBest = takeBest(lesserPeonSeat, 1);
+  const lesserDalmutiWorst = takeWorst(lesserDalmutiSeat, 1);
+  newHands[lesserDalmutiSeat] = newHands[lesserDalmutiSeat].concat(lesserPeonBest);
+  newHands[lesserPeonSeat] = newHands[lesserPeonSeat].concat(lesserDalmutiWorst);
+  let newRankOfSeat = rankOfSeat;
+  if(revolution){
+    newRankOfSeat = {};
+    Object.entries(rankOfSeat).forEach(([seat, rank]) => { newRankOfSeat[seat] = 3 - rank; });
+  }
+  return {
+    hands: newHands, rankOfSeat: newRankOfSeat, revolution,
+    exchanges: { peonToDalmuti:peonBest, dalmutiToPeon:dalmutiWorst, lesserPeonToLesserDalmuti:lesserPeonBest, lesserDalmutiToLesserPeon:lesserDalmutiWorst }
+  };
+}
+
+/* ==========================================================
+   플레이어 식별 / 방 코드
+=========================================================== */
+function getPlayerId(){
+  let id = sessionStorage.getItem("dalmuti_player_id");
+  if(!id){
+    id = "p_" + Math.random().toString(36).slice(2,10);
+    sessionStorage.setItem("dalmuti_player_id", id);
+  }
+  return id;
+}
+const PLAYER_ID = getPlayerId();
+
+function randomRoomCode(){
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // 0/O, 1/I 제외
+  let s = "";
+  for(let i=0;i<4;i++) s += chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+
+/* ==========================================================
+   화면 전환
+=========================================================== */
+const screens = {
+  lobby: document.getElementById("screen-lobby"),
+  waiting: document.getElementById("screen-waiting"),
+  game: document.getElementById("screen-game")
+};
+function showScreen(name){
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+}
+
+let currentRoomCode = null;
+let unsubscribeRoom = null;
+let selectedCardIds = new Set();
+let lastSeenLogCount = 0;
+
+function requireDb(){
+  if(!db){
+    alert("아직 게임 서버(Firebase) 연결이 설정되지 않았어요. 선생님께 문의해 주세요.");
+    return false;
+  }
+  return true;
+}
+
+/* ==========================================================
+   방 만들기 / 입장하기
+=========================================================== */
+document.getElementById("create-room-btn").addEventListener("click", async () => {
+  if(!requireDb()) return;
+  const name = document.getElementById("nickname-input").value.trim();
+  if(!name){ setLobbyError("이름을 입력해 주세요."); return; }
+
+  const code = randomRoomCode();
+  const roomRef = db.collection("dalmuti_rooms").doc(code);
+  try{
+    await roomRef.set({
+      code, phase:"waiting", createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      hostId: PLAYER_ID,
+      players: [{ id:PLAYER_ID, name, seat:0 }],
+      roundNumber:0, log:[]
+    });
+    enterRoom(code);
+  }catch(e){
+    console.error(e);
+    setLobbyError("방을 만들지 못했어요. 다시 시도해 주세요.");
+  }
+});
+
+document.getElementById("join-room-btn").addEventListener("click", async () => {
+  if(!requireDb()) return;
+  const name = document.getElementById("nickname-input").value.trim();
+  const code = document.getElementById("join-code-input").value.trim().toUpperCase();
+  if(!name){ setLobbyError("이름을 입력해 주세요."); return; }
+  if(code.length !== 4){ setLobbyError("방 코드 4자리를 입력해 주세요."); return; }
+
+  const roomRef = db.collection("dalmuti_rooms").doc(code);
+  try{
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(roomRef);
+      if(!snap.exists) throw new Error("존재하지 않는 방 코드예요.");
+      const room = snap.data();
+      const already = room.players.find(p => p.id === PLAYER_ID);
+      if(already){ return; }
+      if(room.phase !== "waiting") throw new Error("이미 게임이 시작된 방이에요.");
+      if(room.players.length >= 4) throw new Error("방이 가득 찼어요 (4명).");
+      const usedSeats = room.players.map(p => p.seat);
+      let seat = 0;
+      while(usedSeats.includes(seat)) seat++;
+      const players = room.players.concat([{ id:PLAYER_ID, name, seat }]);
+      tx.update(roomRef, { players });
+    });
+    enterRoom(code);
+  }catch(e){
+    console.error(e);
+    setLobbyError(e.message || "입장하지 못했어요.");
+  }
+});
+
+function setLobbyError(msg){ document.getElementById("lobby-error").textContent = msg; }
+function setWaitingError(msg){ document.getElementById("waiting-error").textContent = msg; }
+function setGameError(msg){
+  const el = document.getElementById("game-error");
+  el.textContent = msg;
+  if(msg) setTimeout(() => { if(el.textContent === msg) el.textContent = ""; }, 2500);
+}
+
+function enterRoom(code){
+  currentRoomCode = code;
+  sessionStorage.setItem("dalmuti_last_room", code);
+  if(unsubscribeRoom) unsubscribeRoom();
+  unsubscribeRoom = db.collection("dalmuti_rooms").doc(code).onSnapshot(snap => {
+    if(!snap.exists){
+      alert("방이 사라졌어요 (호스트가 나갔거나 만료됨).");
+      leaveToLobby();
+      return;
+    }
+    renderRoom(snap.data());
+  }, err => {
+    console.error("방 구독 오류:", err);
+  });
+}
+
+function leaveToLobby(){
+  if(unsubscribeRoom){ unsubscribeRoom(); unsubscribeRoom = null; }
+  currentRoomCode = null;
+  selectedCardIds = new Set();
+  showScreen("lobby");
+}
+
+document.getElementById("leave-room-btn").addEventListener("click", leaveToLobby);
+document.getElementById("leave-game-btn").addEventListener("click", () => {
+  if(confirm("게임에서 나갈까요? (다른 플레이어는 계속 진행할 수 있어요)")) leaveToLobby();
+});
+
+/* ==========================================================
+   방/게임 상태 렌더링
+=========================================================== */
+function renderRoom(room){
+  if(room.phase === "waiting"){
+    showScreen("waiting");
+    renderWaiting(room);
+  } else {
+    showScreen("game");
+    renderGame(room);
+  }
+}
+
+function mySeat(room){
+  const me = room.players.find(p => p.id === PLAYER_ID);
+  return me ? me.seat : null;
+}
+
+function renderWaiting(room){
+  document.getElementById("waiting-room-code").textContent = room.code;
+  const grid = document.getElementById("seat-grid");
+  grid.innerHTML = "";
+  for(let seat=0; seat<4; seat++){
+    const p = room.players.find(pl => pl.seat === seat);
+    const div = document.createElement("div");
+    div.className = "seat-slot" + (p ? " filled" : "");
+    div.innerHTML = p
+      ? `👤 ${escapeHtml(p.name)}${p.id === PLAYER_ID ? '<span class="seat-you">나</span>' : ''}${p.id === room.hostId ? '<span class="seat-you">방장</span>' : ''}`
+      : `자리 비어있음`;
+    grid.appendChild(div);
+  }
+  const startBtn = document.getElementById("start-game-btn");
+  const isHost = room.hostId === PLAYER_ID;
+  const full = room.players.length === 4;
+  startBtn.textContent = full ? (isHost ? "🎮 게임 시작" : "방장이 시작하기를 기다리는 중...") : `4명이 모이면 시작할 수 있어요 (${room.players.length}/4)`;
+  startBtn.disabled = !(full && isHost);
+}
+
+document.getElementById("start-game-btn").addEventListener("click", async () => {
+  if(!currentRoomCode) return;
+  const roomRef = db.collection("dalmuti_rooms").doc(currentRoomCode);
+  try{
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(roomRef);
+      const room = snap.data();
+      if(room.players.length !== 4 || room.hostId !== PLAYER_ID) return;
+      const deck = shuffle(createDeck());
+      const hands = dealCards(deck, 4);
+      const roundState = initRoundState(hands, 0); // 방장 좌석(0)이 1라운드 리더
+      tx.update(roomRef, {
+        phase:"playing", roundNumber:1,
+        state: roundState,
+        rankOfSeat: null,
+        log: ["🎉 게임을 시작합니다! 방장(0번 자리)이 먼저 냅니다."]
+      });
+    });
+  }catch(e){
+    console.error(e);
+    setWaitingError("게임을 시작하지 못했어요.");
+  }
+});
+
+/* ---------- 카드 렌더링 헬퍼 ---------- */
+function cardTierClass(card){
+  if(card.isJoker) return "tier-joker";
+  if(card.rank <= 3) return "tier-royal";
+  if(card.rank <= 8) return "tier-mid";
+  return "tier-peasant";
+}
+function cardLabel(card){ return card.isJoker ? "조커" : `${card.rank}`; }
+function escapeHtml(str){ const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
+
+function renderGame(room){
+  document.getElementById("game-room-code").textContent = room.code;
+  document.getElementById("round-tag").textContent = `라운드 ${room.roundNumber}`;
+
+  const state = room.state;
+  const seat = mySeat(room);
+  const players = room.players;
+  const nameOf = s => { const p = players.find(pl => pl.seat === s); return p ? p.name : `자리${s}`; };
+  const titleOf = s => (room.rankOfSeat && room.rankOfSeat[s] !== undefined) ? TITLES[room.rankOfSeat[s]] : "";
+
+  // 상대방 3명
+  const oppRow = document.getElementById("opponents-row");
+  oppRow.innerHTML = "";
+  for(let s=0; s<4; s++){
+    if(s === seat) continue;
+    const handCount = state.hands[s] ? state.hands[s].length : 0;
+    const finished = state.finishedOrder.includes(s);
+    const div = document.createElement("div");
+    div.className = "opp-card" + (state.turnSeat === s ? " current-turn" : "") + (finished ? " finished" : "");
+    div.innerHTML = `
+      <div class="opp-name">${escapeHtml(nameOf(s))}</div>
+      <div class="opp-title">${titleOf(s)}</div>
+      <div class="opp-cardcount">${finished ? "✅ 완료" : handCount + "장"}</div>
+    `;
+    oppRow.appendChild(div);
+  }
+
+  // 트릭(테이블) 카드
+  const trickEl = document.getElementById("trick-cards");
+  trickEl.innerHTML = "";
+  if(state.trick && state.trick.cardsOnTable.length){
+    state.trick.cardsOnTable.slice(-8).forEach(c => {
+      const el = document.createElement("div");
+      el.className = `card static ${cardTierClass(c)}`;
+      el.innerHTML = `<div class="rank-num">${cardLabel(c)}</div>`;
+      trickEl.appendChild(el);
+    });
+  } else {
+    trickEl.innerHTML = `<div style="color:var(--ink-soft); font-size:12.5px;">비어 있음 — 새 트릭을 시작하세요</div>`;
+  }
+
+  // 턴 안내
+  const turnBanner = document.getElementById("turn-banner");
+  if(state.roundOver){
+    turnBanner.textContent = "라운드 종료!";
+  } else if(state.turnSeat === seat){
+    turnBanner.textContent = "🟢 내 차례예요!";
+  } else {
+    turnBanner.textContent = `${nameOf(state.turnSeat)}님의 차례`;
+  }
+
+  document.getElementById("log-line").textContent = (room.log && room.log.length) ? room.log[room.log.length-1] : "";
+
+  // 내 정보 / 손패
+  document.getElementById("my-title-badge").textContent = titleOf(seat) ? `나: ${titleOf(seat)}` : "";
+  const myHand = state.hands[seat] ? sortHand(state.hands[seat]) : [];
+  const handRow = document.getElementById("hand-row");
+  handRow.innerHTML = "";
+  myHand.forEach(c => {
+    const el = document.createElement("div");
+    el.className = `card ${cardTierClass(c)}` + (selectedCardIds.has(c.id) ? " selected" : "");
+    el.innerHTML = `<div class="rank-num">${cardLabel(c)}</div><div class="rank-label">${c.isJoker ? "WILD" : "랭크"}</div>`;
+    el.addEventListener("click", () => {
+      if(selectedCardIds.has(c.id)) selectedCardIds.delete(c.id);
+      else selectedCardIds.add(c.id);
+      renderGame(room); // 즉시 선택 상태 재렌더 (로컬 전용, 서버 반영 없음)
+    });
+    handRow.appendChild(el);
+  });
+
+  const myTurn = !state.roundOver && state.turnSeat === seat && !state.finishedOrder.includes(seat);
+  const passBtn = document.getElementById("pass-btn");
+  const playBtn = document.getElementById("play-btn");
+  passBtn.disabled = !myTurn || !state.trick; // 트릭을 여는 상황에서는 패스 불가
+  playBtn.disabled = !myTurn || selectedCardIds.size === 0;
+
+  // 라운드 종료 모달
+  if(state.roundOver && room.phase === "playing"){
+    showRoundOverlay(room);
+  } else {
+    document.getElementById("round-overlay").classList.remove("show");
+  }
+}
+
+document.getElementById("pass-btn").addEventListener("click", () => doAction({ type:"pass" }));
+document.getElementById("play-btn").addEventListener("click", () => {
+  doAction({ type:"play", cardIds:Array.from(selectedCardIds) });
+});
+
+async function doAction(partialAction){
+  if(!currentRoomCode) return;
+  const roomRef = db.collection("dalmuti_rooms").doc(currentRoomCode);
+  try{
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(roomRef);
+      const room = snap.data();
+      const seat = mySeat(room);
+      if(seat === null) throw new Error("좌석 정보를 찾을 수 없어요.");
+      const action = { ...partialAction, seat };
+      const result = applyAction(room.state, action);
+      if(!result.ok) throw new Error(result.reason);
+
+      const nameOf = s => { const p = room.players.find(pl => pl.seat === s); return p ? p.name : `자리${s}`; };
+      const logMsg = action.type === "pass"
+        ? `${nameOf(seat)}: 패스`
+        : `${nameOf(seat)}: ${action.cardIds.length}장 냄 (${result.state.trick ? result.state.trick.bestEffectiveRank : "?"}${result.state.trick && result.state.trick.bestEffectiveRank===0 ? " (조커!)" : ""})`;
+      const newLog = (room.log || []).concat([logMsg]).slice(-12);
+
+      tx.update(roomRef, { state: result.state, log: newLog });
+    });
+    selectedCardIds = new Set();
+  }catch(e){
+    console.error(e);
+    setGameError(e.message || "처리하지 못했어요.");
+  }
+}
+
+/* ---------- 라운드 종료 모달 ---------- */
+let overlayShownForRound = -1;
+
+function showRoundOverlay(room){
+  const overlay = document.getElementById("round-overlay");
+  overlay.classList.add("show");
+
+  const state = room.state;
+  const rankOfSeat = {};
+  state.finishedOrder.forEach((seat, idx) => { rankOfSeat[seat] = idx; });
+  const nameOf = s => { const p = room.players.find(pl => pl.seat === s); return p ? p.name : `자리${s}`; };
+  const medals = ["🥇","🥈","🥉","🏳️"];
+
+  document.getElementById("round-overlay-title").textContent = `${room.roundNumber}라운드 결과`;
+  const list = document.getElementById("standing-list");
+  list.innerHTML = "";
+  state.finishedOrder.forEach((seat, idx) => {
+    const row = document.createElement("div");
+    row.className = "standing-row";
+    row.innerHTML = `<span><span class="medal">${medals[idx]}</span>${escapeHtml(nameOf(seat))}</span><b>${TITLES[idx]}</b>`;
+    list.appendChild(row);
+  });
+
+  const isHost = room.hostId === PLAYER_ID;
+  const nextBtn = document.getElementById("next-round-btn");
+  nextBtn.style.display = isHost ? "block" : "none";
+  document.getElementById("tax-note").innerHTML = isHost
+    ? "다음 라운드를 시작하면 새로 카드를 나눠주고, 대농노는 가장 좋은 카드 2장을 대무티에게 바치고 대무티의 카드 2장을 받아요. (소농노-소무티는 1장씩) 만약 대농노가 조커 2장을 모두 바치면 <b>혁명</b>이 일어나 서열이 뒤집혀요!"
+    : "방장이 다음 라운드를 시작할 때까지 기다려 주세요.";
+  document.getElementById("revolution-banner-slot").innerHTML = "";
+}
+
+document.getElementById("next-round-btn").addEventListener("click", async () => {
+  if(!currentRoomCode) return;
+  const roomRef = db.collection("dalmuti_rooms").doc(currentRoomCode);
+  try{
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(roomRef);
+      const room = snap.data();
+      if(room.hostId !== PLAYER_ID) return;
+      const state = room.state;
+      const rankOfSeat = {};
+      state.finishedOrder.forEach((seat, idx) => { rankOfSeat[seat] = idx; });
+
+      const deck = shuffle(createDeck());
+      const freshHands = dealCards(deck, 4);
+
+      let nextRankOfSeat = rankOfSeat;
+      let revolution = false;
+      let finalHands = freshHands;
+      if(room.roundNumber >= 1){
+        const tax = applyTaxation(freshHands, rankOfSeat);
+        finalHands = tax.hands;
+        nextRankOfSeat = tax.rankOfSeat;
+        revolution = tax.revolution;
+      }
+
+      const dalmutiSeat = Number(Object.keys(nextRankOfSeat).find(s => nextRankOfSeat[s] === 0));
+      const newRoundState = initRoundState(finalHands, dalmutiSeat);
+
+      const log = (room.log || []).concat([
+        revolution ? "🔥 대농노가 조커 2장을 모두 바쳐 혁명이 일어났습니다! 서열이 뒤집혔어요." : "📦 세금(카드 교환)을 완료했습니다.",
+        `${room.roundNumber+1}라운드 시작! 대무티가 먼저 냅니다.`
+      ]).slice(-12);
+
+      tx.update(roomRef, {
+        roundNumber: room.roundNumber + 1,
+        state: newRoundState,
+        rankOfSeat: nextRankOfSeat,
+        log
+      });
+    });
+  }catch(e){
+    console.error(e);
+    setGameError("다음 라운드를 시작하지 못했어요.");
+  }
+});
+
+/* ---------- 자동 재입장 (새로고침 대비) ---------- */
+window.addEventListener("load", () => {
+  const last = sessionStorage.getItem("dalmuti_last_room");
+  if(last && db){
+    db.collection("dalmuti_rooms").doc(last).get().then(snap => {
+      if(snap.exists && snap.data().players.some(p => p.id === PLAYER_ID)){
+        enterRoom(last);
+      }
+    }).catch(()=>{});
+  }
+});
+</script>
+
+</body>
+</html>
