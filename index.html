@@ -682,7 +682,14 @@ footer{
   <div class="school">아화중학교 과학수업</div>
 
   <div class="chat-entry" onclick="openChat()">📖 방명록</div>
-  <div class="chat-entry" onclick="openQuickLink('dalmuti', {title:'🃏 달무티 게임', url: DALMUTI_URL, ready:true})">🃏 달무티 게임</div>
+
+  <details class="grade">
+    <summary>🎮 쉬어가는 게임</summary>
+    <ul>
+      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[0])">🃏 달무티 게임</li>
+      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[1])">🏹 활쏘기 게임</li>
+    </ul>
+  </details>
 
   <details class="grade" open>
     <summary>📘 중학교 1학년</summary>
@@ -1224,6 +1231,7 @@ const BUOYANCY_LAB_URL = "buoyancy-lab.html";
 
 // ⚠️ dalmuti-game.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const DALMUTI_URL = "dalmuti-game.html";
+const HWALSSOGI_URL = "hwalssogi-game.html";
 
 // ⚠️ rollercoaster-creator.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const ROLLERCOASTER_CREATOR_URL = "rollercoaster-creator.html";
@@ -1235,6 +1243,23 @@ const MECHANICAL_ENERGY_URL = "https://sciencej.cafe24.com/html5/mechanicalenerg
 const FORCE_RIDES_URL = "force-rides-lab.html";
 
 const topicsData = {
+  "swieo-game": {
+    title: "🎮 쉬어가는 게임",
+    posts: [
+      {
+        title: "🃏 달무티 게임",
+        desc: "방 코드로 친구들과 함께 접속해 즐기는 4인 실시간 카드 게임입니다.",
+        url: DALMUTI_URL,
+        ready: true
+      },
+      {
+        title: "🏹 활쏘기 게임",
+        desc: "각도와 힘, 바람을 조절해 기둥 너머의 과녁을 맞히는 활쏘기 게임입니다. 날아다니는 새와 잠자리를 맞히면 보너스 점수!",
+        url: HWALSSOGI_URL,
+        ready: true
+      }
+    ]
+  },
   "mul-sangtae-byeonhwa": {
     title: "④ 물질의 상태 변화",
     posts: [
