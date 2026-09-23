@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>활쏘기 — 쉬어가는 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Jua&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:#2B4B5A;
+    font-family:"Jua","Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    color:#1F3340;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 16 / 9));
+    aspect-ratio:16 / 9;
+    box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  canvas{ display:block; width:100%; height:100%; touch-action:none; user-select:none; cursor:crosshair; }
+
+  .overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(20,50,60,.35); backdrop-filter:blur(2px);
+  }
+  .overlay.hidden{ display:none; }
+  .panel{
+    background:#FFFDF4; border:4px solid #2F5D3A; border-radius:22px;
+    padding:clamp(16px,3vw,30px) clamp(18px,4vw,40px); max-width:min(560px, 92%);
+    text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.25);
+    max-height:94%; overflow-y:auto;
+  }
+  .panel h1{ font-size:clamp(28px,5vw,48px); color:#2F5D3A; letter-spacing:.04em; }
+  .panel h1 .bow{ display:inline-block; transform:rotate(-12deg); }
+  .panel p{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:clamp(12px,1.6vw,15px); line-height:1.75; margin-top:10px; color:#39505C; }
+  .panel ul{ text-align:left; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:clamp(12px,1.5vw,14px); line-height:1.8; margin:12px auto 0; max-width:420px; color:#39505C; padding-left:18px; }
+  .panel b{ color:#B5452F; }
+  .score-big{ font-size:clamp(40px,8vw,72px); color:#B5452F; margin-top:6px; }
+  .rank{ font-size:clamp(18px,3vw,26px); margin-top:4px; }
+  .best{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; color:#6B7F88; margin-top:4px; }
+  .start-btn{
+    margin-top:18px; font-family:inherit; font-size:clamp(18px,2.4vw,22px); cursor:pointer;
+    background:#2F5D3A; color:#fff; border:none; border-radius:14px; padding:10px 34px;
+    box-shadow:0 4px 0 #1C3A24; transition:transform .1s;
+  }
+  .start-btn:hover{ background:#3A7248; }
+  .start-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #1C3A24; }
+
+  .sound-btn{
+    position:absolute; right:1.2%; top:2%; font-size:clamp(14px,2vw,20px);
+    background:rgba(255,255,255,.75); border:2px solid #2F5D3A; border-radius:10px;
+    padding:2px 8px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <canvas id="game" width="1280" height="720" aria-label="활쏘기 게임 화면"></canvas>
+  <button type="button" class="sound-btn" id="sound-btn" title="소리 켜기/끄기">🔊</button>
+
+  <div class="overlay" id="intro">
+    <div class="panel">
+      <h1><span class="bow">🏹</span> 활쏘기</h1>
+      <p>기둥 너머 멀리 있는 <b>과녁</b>을 맞혀 보세요! 화살은 모두 <b>10발</b>이에요.</p>
+      <ul>
+        <li>마우스(손가락)를 움직여 <b>쏘는 각도</b>를 정해요.</li>
+        <li>누르고 있으면 <b>힘 막대</b>가 오르내려요. 알맞을 때 떼면 발사!</li>
+        <li>깃발과 오른쪽 위의 <b>바람</b>을 보고 세기를 조절하세요.</li>
+        <li>과녁 한가운데는 <b>10점</b>. 날아다니는 <b>잠자리 5점, 파랑새 4점, 노랑새 3점</b>.</li>
+        <li>왼쪽 위 작은 지도에서 과녁 위치와 지난번 화살 길을 확인할 수 있어요.</li>
+        <li>키보드: ↑↓ 각도, 스페이스바를 누르고 있다가 떼면 발사.</li>
+      </ul>
+      <button type="button" class="start-btn" id="start-btn">시작하기</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="result">
+    <div class="panel">
+      <h1>🎯 게임 끝!</h1>
+      <div class="score-big" id="final-score">0점</div>
+      <div class="rank" id="final-rank"></div>
+      <div class="best" id="final-best"></div>
+      <p id="final-detail"></p>
+      <button type="button" class="start-btn" id="again-btn">다시 하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   기본 설정 (게임 속 좌표: 화면 1280×720, 세계 가로 3100)
+=========================================================== */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const VIEW_W = 1280, VIEW_H = 720;
+const WORLD_W = 3100;
+const GROUND = 664;
+const G = 900;                 // 중력 가속도(px/s²)
+const TOTAL_ARROWS = 10;
+
+const ARCHER_X = 250;
+const PILLAR = { x:1100, w:52, top:170 };
+const TARGET = { x:2700, y:GROUND - 150, half:66 };
+const FLAG_X = 110;
+
+function setupCanvas(){
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = VIEW_W * dpr;
+  canvas.height = VIEW_H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+setupCanvas();
+
+/* ==========================================================
+   효과음 (Web Audio로 간단히 합성)
+=========================================================== */
+let audioCtx = null, soundOn = true;
+function audio(){
+  if (!soundOn) return null;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) { return null; }
+  return audioCtx;
+}
+function tone(freq, dur, type = "sine", vol = .18, slideTo){
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, a.currentTime);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, a.currentTime + dur);
+  g.gain.setValueAtTime(vol, a.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001, a.currentTime + dur);
+  o.connect(g).connect(a.destination);
+  o.start(); o.stop(a.currentTime + dur);
+}
+const SFX = {
+  shoot(){ tone(420, .18, "triangle", .2, 120); },
+  thunk(){ tone(140, .15, "square", .12, 70); },
+  hit(){ tone(660, .12, "triangle", .18); setTimeout(() => tone(880, .18, "triangle", .16), 90); },
+  bull(){ [660, 880, 1100, 1320].forEach((f, i) => setTimeout(() => tone(f, .22, "triangle", .16), i * 90)); },
+  bird(){ tone(1500, .1, "sine", .12, 2200); setTimeout(() => tone(1800, .12, "sine", .1, 1200), 90); }
+};
+document.getElementById("sound-btn").addEventListener("click", e => {
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? "🔊" : "🔇";
+});
+
+/* ==========================================================
+   게임 상태
+=========================================================== */
+let state = "intro";           // intro · aim · fly · land · return · over
+let score = 0, arrowsLeft = TOTAL_ARROWS;
+let camX = 0;
+let aimAngle = 42 * Math.PI / 180;
+let charging = false, chargeT0 = 0, power = 0;
+let wind = 0;
+let arrow = null;              // 날아가는 화살
+let stuck = [];                // 꽂힌 화살
+let trail = [], lastTrail = [];
+let popups = [], feathers = [];
+let banner = null;             // 화면 위 결과 문구
+let landTimer = 0;
+let lastShot = null;
+let hitLog = { target:0, bull:0, creatures:0 };
+let keyAim = false;
+
+function newWind(){
+  wind = Math.round((Math.random() * 2 - 1) * 40) / 10;   // -4.0 ~ 4.0
+}
+
+/* 쏘는 팔(활) 위치 */
+function bowHand(){
+  const sx = ARCHER_X + 6, sy = GROUND - 106;              // 어깨
+  return { x: sx + Math.cos(aimAngle) * 40, y: sy - Math.sin(aimAngle) * 40, sx, sy };
+}
+
+/* ==========================================================
+   구름·풍경
+=========================================================== */
+const clouds = [
+  { x:420, y:120, s:1.0 }, { x:980, y:60, s:.8 }, { x:1600, y:140, s:1.1 },
+  { x:2150, y:80, s:.9 }, { x:2700, y:170, s:1.2 }, { x:3250, y:90, s:.85 }
+];
+const decor = [];
+(function makeDecor(){
+  const rnd = mulberry(7);
+  for (let x = 40; x < WORLD_W; x += 90 + rnd() * 160){
+    const k = rnd();
+    if (Math.abs(x - ARCHER_X) < 60 || Math.abs(x - TARGET.x) < 70 || Math.abs(x - PILLAR.x) < 60) continue;
+    decor.push({ x, type: k < .45 ? "flower" : k < .75 ? "tree" : "tuft", hue: rnd(), h: .8 + rnd() * .5 });
+  }
+})();
+function mulberry(a){
+  return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+/* ==========================================================
+   날아다니는 새·잠자리
+=========================================================== */
+const POINTS = { dragonfly:5, blue:4, yellow:3 };
+const NAMES = { dragonfly:"잠자리", blue:"파랑새", yellow:"노랑새" };
+const creatures = [];
+function spawn(type, fromEdge){
+  const c = { type, alive:true, phase:Math.random() * 6.28, fall:0, rot:0 };
+  if (type === "dragonfly"){
+    c.x = 500 + Math.random() * (WORLD_W - 900);
+    c.y = 200 + Math.random() * 300;
+    c.tx = c.x; c.ty = c.y; c.wait = 0; c.r = 20;
+  } else {
+    const dir = Math.random() < .5 ? 1 : -1;
+    c.vx = dir * (type === "blue" ? 150 : 110 + Math.random() * 50);
+    c.x = fromEdge ? (dir > 0 ? 350 : WORLD_W - 150) : 500 + Math.random() * (WORLD_W - 900);
+    c.baseY = 110 + Math.random() * 360;
+    c.y = c.baseY; c.r = type === "blue" ? 30 : 26;
+  }
+  creatures.push(c);
+  return c;
+}
+function resetCreatures(){
+  creatures.length = 0;
+  ["yellow","yellow","yellow","blue","dragonfly","dragonfly","dragonfly"].forEach(t => spawn(t, false));
+}
+
+function updateCreatures(dt, t){
+  for (let i = creatures.length - 1; i >= 0; i--){
+    const c = creatures[i];
+    if (!c.alive){
+      c.fall += 900 * dt; c.y += c.fall * dt; c.rot += 6 * dt;
+      if (c.y > GROUND + 40){ creatures.splice(i, 1); setTimeout(() => spawn(c.type, true), 1500); }
+      continue;
+    }
+    if (c.type === "dragonfly"){
+      c.wait -= dt;
+      if (c.wait <= 0){
+        c.tx = Math.min(WORLD_W - 400, Math.max(420, c.x + (Math.random() * 2 - 1) * 260));
+        c.ty = Math.min(560, Math.max(120, c.y + (Math.random() * 2 - 1) * 160));
+        c.wait = .8 + Math.random() * 1.8;
+      }
+      c.x += (c.tx - c.x) * Math.min(1, 2.4 * dt);
+      c.y += (c.ty - c.y) * Math.min(1, 2.4 * dt) + Math.sin(t * 9 + c.phase) * .4;
+      c.face = c.tx >= c.x ? 1 : -1;
+    } else {
+      c.x += c.vx * dt;
+      c.y = c.baseY + Math.sin(t * 2 + c.phase) * 22;
+      if (c.x > WORLD_W - 120 && c.vx > 0) c.vx *= -1;
+      if (c.x < 360 && c.vx < 0) c.vx *= -1;
+      c.face = c.vx > 0 ? 1 : -1;
+    }
+  }
+}
+
+/* ==========================================================
+   조작 (마우스·터치·키보드)
+=========================================================== */
+function toCanvas(e){
+  const r = canvas.getBoundingClientRect();
+  return { x:(e.clientX - r.left) * VIEW_W / r.width, y:(e.clientY - r.top) * VIEW_H / r.height };
+}
+function aimAt(p){
+  const h = bowHand();
+  const dx = p.x + camX - h.sx, dy = h.sy - p.y;
+  let a = Math.atan2(dy, Math.max(dx, 1));
+  aimAngle = Math.min(80, Math.max(5, a * 180 / Math.PI)) * Math.PI / 180;
+}
+canvas.addEventListener("pointermove", e => {
+  if (state !== "aim") return;
+  keyAim = false;
+  aimAt(toCanvas(e));
+});
+canvas.addEventListener("pointerdown", e => {
+  if (state !== "aim" || charging) return;
+  e.preventDefault();
+  aimAt(toCanvas(e));
+  startCharge();
+  try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+});
+canvas.addEventListener("pointerup", () => { if (charging) fire(); });
+canvas.addEventListener("pointercancel", () => { charging = false; power = 0; });
+
+const keys = {};
+window.addEventListener("keydown", e => {
+  if (["ArrowUp","ArrowDown","Space"].includes(e.code)) e.preventDefault();
+  keys[e.code] = true;
+  if (e.code === "Space" && state === "aim" && !charging && !e.repeat) startCharge();
+});
+window.addEventListener("keyup", e => {
+  keys[e.code] = false;
+  if (e.code === "Space" && charging) fire();
+});
+
+function startCharge(){
+  audio();
+  charging = true; chargeT0 = performance.now(); power = 0;
+}
+function currentPower(now){
+  const t = ((now - chargeT0) / 1000) % 3.6;                // 1.8초 동안 차오르고 1.8초 동안 내려감
+  return t < 1.8 ? t / 1.8 : 2 - t / 1.8;
+}
+
+/* ==========================================================
+   발사와 비행
+=========================================================== */
+function fire(){
+  charging = false;
+  const p = power;
+  const v = 700 + p * 1100;
+  const h = bowHand();
+  const dx = Math.cos(aimAngle), dy = -Math.sin(aimAngle);
+  arrow = { x:h.x + dx * 30, y:h.y + dy * 30, vx:dx * v, vy:dy * v, hitSet:new Set() };
+  lastShot = { angle:Math.round(aimAngle * 180 / Math.PI), power:Math.round(p * 100) };
+  arrowsLeft--;
+  trail = [];
+  state = "fly";
+  banner = null;
+  SFX.shoot();
+}
+
+function land(kind, info){
+  lastTrail = trail.slice();
+  state = "land";
+  landTimer = kind === "target" ? 2.0 : 1.4;
+  if (kind === "target"){
+    const d = Math.abs(info.y - TARGET.y);
+    const k = d / TARGET.half;
+    const pts = k < .2 ? 10 : k < .4 ? 8 : k < .6 ? 6 : k < .8 ? 4 : 2;
+    score += pts; hitLog.target++;
+    if (pts === 10){ hitLog.bull++; SFX.bull(); } else SFX.hit();
+    banner = { text: pts === 10 ? "🎯 정중앙! 10점!" : `🎯 과녁 명중! ${pts}점`, color:"#B5452F" };
+    popups.push({ x:TARGET.x, y:info.y - 30, text:`+${pts}`, t:0, color:"#D6402A", big:true });
+  } else {
+    SFX.thunk();
+    const msg = { pillar:"기둥에 맞았어요! 조금 더 높이 쏘아 보세요.", ground:"땅에 꽂혔어요.", lost:"화살이 멀리 날아가 버렸어요!" }[kind];
+    banner = { text: msg, color:"#39505C" };
+  }
+  arrow = null;
+}
+
+function stepArrow(dt){
+  const a = arrow;
+  const px = a.x, py = a.y;
+  a.vx += wind * 30 * dt;
+  a.vy += G * dt;
+  a.x += a.vx * dt; a.y += a.vy * dt;
+  const ang = Math.atan2(a.vy, a.vx);
+
+  /* 새·잠자리 */
+  for (const c of creatures){
+    if (!c.alive || a.hitSet.has(c)) continue;
+    if (Math.hypot(a.x - c.x, a.y - c.y) < c.r){
+      a.hitSet.add(c); c.alive = false; c.fall = -120;
+      const pts = POINTS[c.type];
+      score += pts; hitLog.creatures++;
+      popups.push({ x:c.x, y:c.y - 20, text:`${NAMES[c.type]} +${pts}`, t:0, color:"#2F5D3A" });
+      for (let i = 0; i < 10; i++) feathers.push({ x:c.x, y:c.y, vx:(Math.random() - .5) * 240, vy:(Math.random() - .8) * 200,
+        t:0, col: c.type === "blue" ? "#3E7BE0" : c.type === "yellow" ? "#F5D42A" : "#B9C4C9" });
+      SFX.bird();
+    }
+  }
+
+  /* 과녁: 과녁 면(x = TARGET.x)을 지나는 순간 */
+  if (px < TARGET.x && a.x >= TARGET.x){
+    const k = (TARGET.x - px) / (a.x - px);
+    const y = py + (a.y - py) * k;
+    if (Math.abs(y - TARGET.y) <= TARGET.half){
+      stuck.push({ x:TARGET.x + 4, y, ang });
+      land("target", { y });
+      return true;
+    }
+  }
+  /* 기둥 */
+  if (a.x >= PILLAR.x && a.x <= PILLAR.x + PILLAR.w + 4 && a.y >= PILLAR.top){
+    const x = px < PILLAR.x ? PILLAR.x + 6 : Math.min(a.x, PILLAR.x + PILLAR.w);
+    const y = px < PILLAR.x ? a.y : PILLAR.top + 6;
+    stuck.push({ x, y, ang });
+    land("pillar");
+    return true;
+  }
+  /* 땅 */
+  if (a.y >= GROUND){
+    stuck.push({ x:a.x, y:GROUND + 8, ang });
+    land("ground");
+    return true;
+  }
+  if (a.x > WORLD_W + 200 || a.x < -200){ land("lost"); return true; }
+  return false;
+}
+
+/* ==========================================================
+   그리기 도우미
+=========================================================== */
+function drawCloud(x, y, s){
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.fillStyle = "#fff"; ctx.strokeStyle = "#8FB4C4"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 28, Math.PI * .6, Math.PI * 1.75);
+  ctx.arc(34, -14, 30, Math.PI * 1.1, Math.PI * 1.95);
+  ctx.arc(66, 0, 24, Math.PI * 1.35, Math.PI * .45);
+  ctx.quadraticCurveTo(34, 30, 0, 26);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(20, 2, 9, Math.PI * .2, Math.PI * 1.8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(86, 8); ctx.bezierCurveTo(110, 20, 118, 2, 140, 12); ctx.stroke();
+  ctx.restore();
+}
+
+function drawArrow(x, y, ang, len = 50){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+  ctx.strokeStyle = "#5B3A1E"; ctx.lineWidth = 2.6; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(-len, 0); ctx.lineTo(-6, 0); ctx.stroke();
+  ctx.fillStyle = "#6D7780";
+  ctx.beginPath(); ctx.moveTo(2, 0); ctx.lineTo(-9, -4.5); ctx.lineTo(-9, 4.5); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#D6402A";
+  ctx.beginPath(); ctx.moveTo(-len + 12, 0); ctx.lineTo(-len - 2, -6); ctx.lineTo(-len + 2, 0); ctx.lineTo(-len - 2, 6); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawBird(c, t){
+  const blue = c.type === "blue";
+  const body = blue ? "#2F6FD8" : "#F5D42A", dark = blue ? "#1D4A9A" : "#C9A20F";
+  const flap = Math.sin(t * (blue ? 14 : 16) + c.phase);
+  ctx.save(); ctx.translate(c.x, c.y);
+  if (!c.alive) ctx.rotate(c.rot);
+  ctx.scale(c.face * (blue ? 1.15 : 1), blue ? 1.15 : 1);
+  ctx.lineWidth = 1.6; ctx.strokeStyle = dark;
+  // 꼬리
+  ctx.fillStyle = body;
+  ctx.beginPath(); ctx.moveTo(-18, 2); ctx.lineTo(-36, -6); ctx.lineTo(-33, 4); ctx.lineTo(-38, 12); ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 몸
+  ctx.beginPath(); ctx.ellipse(0, 2, 21, 13, -.1, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // 배
+  ctx.fillStyle = blue ? "#8FC0FF" : "#FFF3A6";
+  ctx.beginPath(); ctx.ellipse(4, 7, 12, 6, -.1, 0, Math.PI * 2); ctx.fill();
+  // 머리
+  ctx.fillStyle = body;
+  ctx.beginPath(); ctx.arc(17, -6, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // 부리
+  ctx.fillStyle = "#F28C1E";
+  ctx.beginPath(); ctx.moveTo(25, -8); ctx.lineTo(34, -4); ctx.lineTo(25, -1); ctx.closePath(); ctx.fill();
+  // 눈
+  ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(19, -8, 3.6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(20, -8, 1.9, 0, Math.PI * 2); ctx.fill();
+  // 날개
+  ctx.fillStyle = blue ? "#4A8BF0" : "#FBE45C";
+  ctx.beginPath();
+  ctx.moveTo(-6, -2);
+  ctx.quadraticCurveTo(-4, -22 * flap - 6, 8, -26 * flap - 4);
+  ctx.quadraticCurveTo(10, -8 * flap, 6, 0);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawDragonfly(c, t){
+  ctx.save(); ctx.translate(c.x, c.y);
+  if (!c.alive) ctx.rotate(c.rot);
+  ctx.scale(c.face || 1, 1);
+  const f = Math.sin(t * 60 + c.phase) * .35;
+  ctx.fillStyle = "rgba(210,225,235,.65)"; ctx.strokeStyle = "#6B7B86"; ctx.lineWidth = 1;
+  [[-1, -1, f], [-1, 1, -f], [1, -1, -f], [1, 1, f]].forEach(([sx, sy, fl]) => {
+    ctx.save(); ctx.translate(sx * 3, 0); ctx.rotate(sy * (1.35 + fl) + (sx > 0 ? -.12 * sy : .12 * sy));
+    ctx.beginPath(); ctx.ellipse(0, -15, 4, 15, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  });
+  // 몸통(배)
+  ctx.strokeStyle = "#B8322A"; ctx.lineWidth = 3.4; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(-2, 0); ctx.lineTo(-30, 0); ctx.stroke();
+  ctx.strokeStyle = "#7A1E18"; ctx.lineWidth = 1;
+  for (let x = -8; x > -30; x -= 4){ ctx.beginPath(); ctx.moveTo(x, -1.8); ctx.lineTo(x, 1.8); ctx.stroke(); }
+  // 가슴·머리
+  ctx.fillStyle = "#8A3A24"; ctx.beginPath(); ctx.ellipse(2, 0, 5, 3.6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#3A6B3A"; ctx.beginPath(); ctx.arc(8, 0, 3.6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawArcher(){
+  const h = bowHand();
+  const fx = ARCHER_X, fy = GROUND;
+  const dx = Math.cos(aimAngle), dy = -Math.sin(aimAngle);
+  const px = -dy, py = dx;                          // 활 방향(수직)
+  const pull = state === "aim" && charging ? power : 0;
+  const skin = "#F2C9A6", skinD = "#C8936C";
+
+  ctx.save();
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  // 다리
+  ctx.strokeStyle = skinD; ctx.lineWidth = 9.5;
+  ctx.beginPath(); ctx.moveTo(fx - 8, fy - 56); ctx.lineTo(fx - 14, fy - 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(fx + 7, fy - 56); ctx.lineTo(fx + 15, fy - 4); ctx.stroke();
+  ctx.strokeStyle = skin; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.moveTo(fx - 8, fy - 56); ctx.lineTo(fx - 14, fy - 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(fx + 7, fy - 56); ctx.lineTo(fx + 15, fy - 4); ctx.stroke();
+  ctx.fillStyle = skin; ctx.strokeStyle = skinD; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.ellipse(fx - 11, fy - 2, 8, 3.6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(fx + 19, fy - 2, 8, 3.6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // 반바지
+  ctx.fillStyle = "#FAFAF7"; ctx.strokeStyle = "#AEB6BA"; ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(fx - 15, fy - 80); ctx.lineTo(fx + 14, fy - 80); ctx.lineTo(fx + 17, fy - 48);
+  ctx.lineTo(fx + 2, fy - 46); ctx.lineTo(fx, fy - 58); ctx.lineTo(fx - 3, fy - 46); ctx.lineTo(fx - 18, fy - 48); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  // 윗옷
+  ctx.beginPath();
+  ctx.moveTo(fx - 12, fy - 114); ctx.quadraticCurveTo(fx, fy - 120, fx + 12, fy - 114);
+  ctx.lineTo(fx + 15, fy - 76); ctx.quadraticCurveTo(fx, fy - 72, fx - 16, fy - 76); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = "#D5DBDE"; ctx.beginPath(); ctx.moveTo(fx - 4, fy - 108); ctx.lineTo(fx - 6, fy - 80); ctx.stroke();
+
+  // 활 (활 손을 중심으로 휘어진 활대)
+  const bx = h.x, by = h.y, L = 44;
+  const t1 = { x:bx + px * L - dx * 10, y:by + py * L - dy * 10 };
+  const t2 = { x:bx - px * L - dx * 10, y:by - py * L - dy * 10 };
+  const nock = { x:bx - dx * (10 + pull * 30), y:by - dy * (10 + pull * 30) };
+  ctx.strokeStyle = "#555"; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(t1.x, t1.y); ctx.lineTo(nock.x, nock.y); ctx.lineTo(t2.x, t2.y); ctx.stroke();
+  ctx.strokeStyle = "#7A2E10"; ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(t1.x, t1.y);
+  ctx.bezierCurveTo(bx + px * L * .6 + dx * 10, by + py * L * .6 + dy * 10, bx + px * 8 + dx * 8, by + py * 8 + dy * 8, bx, by);
+  ctx.bezierCurveTo(bx - px * 8 + dx * 8, by - py * 8 + dy * 8, bx - px * L * .6 + dx * 10, by - py * L * .6 + dy * 10, t2.x, t2.y);
+  ctx.stroke();
+  ctx.strokeStyle = "#B9551F"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(t1.x, t1.y);
+  ctx.bezierCurveTo(bx + px * L * .6 + dx * 10, by + py * L * .6 + dy * 10, bx + px * 8 + dx * 8, by + py * 8 + dy * 8, bx, by);
+  ctx.stroke();
+
+  // 걸어 둔 화살
+  if (state === "aim") drawArrow(nock.x + dx * 58, nock.y + dy * 58, Math.atan2(dy, dx), 56);
+
+  // 팔: 활 잡은 팔과 시위를 당기는 팔
+  ctx.strokeStyle = skinD; ctx.lineWidth = 7.5;
+  ctx.beginPath(); ctx.moveTo(h.sx, h.sy); ctx.lineTo(bx, by); ctx.stroke();
+  const elbow = { x:h.sx - 14 - pull * 10, y:h.sy - 6 - dy * 6 };
+  ctx.beginPath(); ctx.moveTo(fx - 6, fy - 106); ctx.lineTo(elbow.x, elbow.y); ctx.lineTo(nock.x, nock.y); ctx.stroke();
+  ctx.strokeStyle = skin; ctx.lineWidth = 5.2;
+  ctx.beginPath(); ctx.moveTo(h.sx, h.sy); ctx.lineTo(bx, by); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(fx - 6, fy - 106); ctx.lineTo(elbow.x, elbow.y); ctx.lineTo(nock.x, nock.y); ctx.stroke();
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(bx, by, 4.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(nock.x, nock.y, 3.6, 0, Math.PI * 2); ctx.fill();
+
+  // 머리
+  const hx = fx + 2, hy = fy - 132;
+  ctx.fillStyle = skin; ctx.strokeStyle = skinD; ctx.lineWidth = 1.2;
+  ctx.fillRect(hx - 4, hy + 10, 8, 10);
+  ctx.beginPath(); ctx.arc(hx, hy, 15, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#3B2418";
+  ctx.beginPath(); ctx.arc(hx - 2, hy - 3, 16, Math.PI * .72, Math.PI * 1.95); ctx.quadraticCurveTo(hx + 4, hy - 8, hx - 2, hy - 1); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(hx - 19, hy + 8, 6, 15, .25, 0, Math.PI * 2); ctx.fill();   // 묶은 머리
+  ctx.fillStyle = "#E04E7A"; ctx.beginPath(); ctx.arc(hx - 15, hy - 4, 3.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#2A1A12"; ctx.beginPath(); ctx.arc(hx + 9, hy - 1, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#F29C9C"; ctx.globalAlpha = .6; ctx.beginPath(); ctx.arc(hx + 7, hy + 6, 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+  ctx.strokeStyle = "#B5452F"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(hx + 10, hy + 8, 2.5, .2, 1.6); ctx.stroke();
+  ctx.restore();
+}
+
+function drawTarget(){
+  const { x, y, half } = TARGET;
+  ctx.save();
+  // 받침대
+  ctx.strokeStyle = "#6E4A2A"; ctx.lineWidth = 6; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x + 2, y + 40); ctx.lineTo(x - 22, GROUND + 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + 2, y + 40); ctx.lineTo(x + 26, GROUND + 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + 6, y); ctx.lineTo(x + 6, GROUND + 4); ctx.stroke();
+  // 과녁 면(옆에서 본 모습)
+  const rings = [[1, "#FFFFFF"], [.8, "#2B2B2B"], [.6, "#2F6FD8"], [.4, "#D6402A"], [.2, "#F5D42A"]].map(([k, c]) => [half * k, c]);
+  rings.forEach(([ry, col]) => {
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.ellipse(x, y, Math.max(5, ry * .3), ry, 0, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.strokeStyle = "#333"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.ellipse(x, y, half * .3, half, 0, 0, Math.PI * 2); ctx.stroke();
+  // 안내 글씨
+  ctx.fillStyle = "#1D4A9A"; ctx.textAlign = "center";
+  ctx.font = "26px Gaegu, Jua, sans-serif";
+  ctx.fillText("과녁", x - 10, y - half - 58);
+  ctx.fillText("나를 맞추세요", x - 10, y - half - 30);
+  ctx.strokeStyle = "#1D4A9A"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x - 4, y - half - 22); ctx.quadraticCurveTo(x - 14, y - half - 12, x - 2, y - half - 6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 8, y - half - 10); ctx.lineTo(x - 2, y - half - 6); ctx.lineTo(x - 7, y - half - 1); ctx.stroke();
+  ctx.restore();
+}
+
+function drawPillar(){
+  ctx.fillStyle = "#9A9A9A"; ctx.strokeStyle = "#222"; ctx.lineWidth = 2.4;
+  ctx.fillRect(PILLAR.x, PILLAR.top, PILLAR.w, GROUND - PILLAR.top + 10);
+  ctx.strokeRect(PILLAR.x, PILLAR.top, PILLAR.w, GROUND - PILLAR.top + 10);
+  ctx.fillStyle = "rgba(255,255,255,.25)"; ctx.fillRect(PILLAR.x + 6, PILLAR.top + 4, 8, GROUND - PILLAR.top);
+  ctx.fillStyle = "rgba(0,0,0,.12)"; ctx.fillRect(PILLAR.x + PILLAR.w - 12, PILLAR.top + 2, 10, GROUND - PILLAR.top);
+}
+
+function drawFlag(t){
+  const x = FLAG_X, top = GROUND - 180;
+  ctx.strokeStyle = "#6E4A2A"; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, GROUND + 14); ctx.stroke();
+  const dir = wind >= 0 ? 1 : -1, len = 22 + Math.abs(wind) * 14, wav = Math.sin(t * (4 + Math.abs(wind))) * (2 + Math.abs(wind));
+  ctx.fillStyle = "#1A2FC4";
+  ctx.beginPath(); ctx.moveTo(x, top); ctx.quadraticCurveTo(x + dir * len * .5, top + 16 + wav, x + dir * len, top + 34 + wav * .5);
+  ctx.lineTo(x, top + 68); ctx.closePath(); ctx.fill();
+}
+
+function drawGround(){
+  ctx.fillStyle = "#1FCB0E";
+  ctx.fillRect(camX - 10, GROUND, VIEW_W + 20, VIEW_H - GROUND);
+  ctx.strokeStyle = "#0E3A08"; ctx.lineWidth = 2.2; ctx.fillStyle = "#1FCB0E";
+  const start = Math.floor((camX - 40) / 26) * 26;
+  ctx.beginPath(); ctx.moveTo(start, GROUND + 14);
+  for (let x = start; x < camX + VIEW_W + 40; x += 26){
+    const k = mulberry(x)();
+    ctx.lineTo(x + 8, GROUND - 4 - k * 8);
+    ctx.lineTo(x + 13, GROUND + 3);
+    ctx.lineTo(x + 20, GROUND - 2 - k * 5);
+    ctx.lineTo(x + 26, GROUND + 4);
+  }
+  ctx.lineTo(camX + VIEW_W + 60, GROUND + 14);
+  ctx.fill(); ctx.stroke();
+}
+
+function drawDecor(){
+  for (const d of decor){
+    if (d.x < camX - 60 || d.x > camX + VIEW_W + 60) continue;
+    if (d.type === "flower"){
+      ctx.strokeStyle = "#2E8B2E"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(d.x, GROUND + 6); ctx.quadraticCurveTo(d.x - 8, GROUND - 14, d.x, GROUND - 30 * d.h); ctx.stroke();
+      const col = ["#F0479A","#F5A623","#B44CE0","#FF5F5F"][Math.floor(d.hue * 4)];
+      ctx.fillStyle = col;
+      for (let i = 0; i < 5; i++){ const a = i * 1.2566; ctx.beginPath(); ctx.arc(d.x + Math.cos(a) * 6, GROUND - 30 * d.h + Math.sin(a) * 5, 5, 0, Math.PI * 2); ctx.fill(); }
+      ctx.fillStyle = "#FFE26B"; ctx.beginPath(); ctx.arc(d.x, GROUND - 30 * d.h, 3.4, 0, Math.PI * 2); ctx.fill();
+    } else if (d.type === "tree"){
+      ctx.strokeStyle = "#6E4A2A"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(d.x, GROUND + 10); ctx.lineTo(d.x, GROUND - 40 * d.h); ctx.stroke();
+      const g = ctx.createLinearGradient(d.x - 14, 0, d.x + 14, 0);
+      g.addColorStop(0, "#0A7A1A"); g.addColorStop(.45, "#34E04A"); g.addColorStop(1, "#0A7A1A");
+      ctx.fillStyle = g; ctx.strokeStyle = "#064A10"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.ellipse(d.x, GROUND - 58 * d.h, 14, 38 * d.h, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    } else {
+      ctx.strokeStyle = "#138A0A"; ctx.lineWidth = 2;
+      for (let i = -2; i <= 2; i++){ ctx.beginPath(); ctx.moveTo(d.x + i * 3, GROUND + 4); ctx.lineTo(d.x + i * 7, GROUND - 14 * d.h); ctx.stroke(); }
+    }
+  }
+}
+
+/* ==========================================================
+   화면 위 정보(점수판·작은 지도·바람·힘 막대)
+=========================================================== */
+function roundRect(x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+function drawHUD(t){
+  // 점수판
+  ctx.fillStyle = "rgba(170,255,220,.92)"; ctx.strokeStyle = "#2B4B3A"; ctx.lineWidth = 2;
+  ctx.fillRect(0, 0, 300, 132); ctx.strokeRect(-1, -1, 301, 133);
+  ctx.fillStyle = "#1F3340"; ctx.textAlign = "left";
+  ctx.font = "40px Gaegu, Jua, sans-serif"; ctx.fillText("🏹 활쏘기", 18, 46);
+  ctx.font = "22px Jua, sans-serif";
+  ctx.fillText("합계점수", 26, 86); ctx.fillText("남은화살수", 26, 118);
+  ctx.textAlign = "right"; ctx.fillStyle = "#B5452F";
+  ctx.fillText(String(score), 270, 86); ctx.fillText(String(arrowsLeft), 270, 118);
+
+  // 작은 지도
+  const mx = 0, my = 136, mw = 420, mh = 104, s = mw / WORLD_W, sy = (mh - 6) / VIEW_H;
+  ctx.fillStyle = "rgba(90,255,255,.9)"; ctx.fillRect(mx, my, mw, mh);
+  ctx.fillStyle = "#8FBA88"; ctx.fillRect(mx, my + GROUND * sy, mw, mh - GROUND * sy);
+  ctx.strokeStyle = "#1F3340"; ctx.lineWidth = 1.5; ctx.strokeRect(mx - 1, my, mw + 1, mh);
+  // 지난 궤적
+  if (lastTrail.length > 1){
+    ctx.strokeStyle = "rgba(214,64,42,.7)"; ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); lastTrail.forEach(([x, y], i) => { const X = mx + x * s, Y = my + Math.max(0, y) * sy; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  ctx.fillStyle = "#777"; ctx.fillRect(mx + PILLAR.x * s, my + PILLAR.top * sy, Math.max(3, PILLAR.w * s), (GROUND - PILLAR.top) * sy);
+  ctx.fillStyle = "#1F3340"; ctx.fillRect(mx + ARCHER_X * s - 1.5, my + (GROUND - 30) * sy, 3, 30 * sy);
+  ctx.beginPath(); ctx.arc(mx + ARCHER_X * s, my + (GROUND - 36) * sy, 2.4, 0, Math.PI * 2); ctx.fill();
+  ["#FFFFFF","#2B2B2B","#2F6FD8","#D6402A","#F5D42A"].forEach((c, i) => {
+    ctx.fillStyle = c; const hh = TARGET.half * (1 - i * .2) * 2 * sy;
+    ctx.fillRect(mx + TARGET.x * s - 2, my + TARGET.y * sy - hh / 2, 4, hh);
+  });
+  ctx.fillStyle = "#1D4A9A"; ctx.font = "14px Gaegu, Jua, sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("과녁 ↓", mx + TARGET.x * s - 6, my + (TARGET.y - TARGET.half) * sy - 3);
+  for (const c of creatures) if (c.alive){
+    ctx.fillStyle = c.type === "blue" ? "#2F6FD8" : c.type === "yellow" ? "#E0B800" : "#B8322A";
+    ctx.beginPath(); ctx.arc(mx + c.x * s, my + c.y * sy, 2, 0, Math.PI * 2); ctx.fill();
+  }
+  if (arrow){ ctx.fillStyle = "#D6402A"; ctx.beginPath(); ctx.arc(mx + arrow.x * s, my + Math.max(2, arrow.y * sy), 3, 0, Math.PI * 2); ctx.fill(); }
+  ctx.strokeStyle = "rgba(31,51,64,.8)"; ctx.lineWidth = 1.2; ctx.strokeRect(mx + camX * s, my + 1, VIEW_W * s, mh - 2);
+
+  // 바람
+  ctx.save();
+  ctx.translate(VIEW_W - 170, 60);
+  ctx.fillStyle = "rgba(255,255,255,.8)"; roundRect(-70, -30, 150, 62, 14); ctx.fill();
+  ctx.strokeStyle = "#2F5D3A"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = "#1F3340"; ctx.font = "18px Jua, sans-serif"; ctx.textAlign = "left";
+  ctx.fillText("바람", -58, -6);
+  ctx.textAlign = "right"; ctx.fillText(wind === 0 ? "없음" : Math.abs(wind).toFixed(1), 68, -6);
+  const len = Math.abs(wind) * 14, dir = Math.sign(wind);
+  ctx.strokeStyle = wind === 0 ? "#999" : "#1A6FC4"; ctx.lineWidth = 4; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(5 - dir * len, 14); ctx.lineTo(5 + dir * len, 14); ctx.stroke();
+  if (wind !== 0){
+    ctx.beginPath(); ctx.moveTo(5 + dir * len, 14); ctx.lineTo(5 + dir * (len - 9), 7); ctx.moveTo(5 + dir * len, 14); ctx.lineTo(5 + dir * (len - 9), 21); ctx.stroke();
+  }
+  ctx.restore();
+
+  // 각도·힘
+  if (state === "aim"){
+    const h = bowHand();
+    const sx = h.sx - camX;
+    ctx.fillStyle = "rgba(255,255,255,.82)"; roundRect(sx + 62, GROUND - 318, 104, 54, 10); ctx.fill();
+    ctx.fillStyle = "#1F3340"; ctx.font = "17px Jua, sans-serif"; ctx.textAlign = "left";
+    ctx.fillText(`각도 ${Math.round(aimAngle * 180 / Math.PI)}°`, sx + 72, GROUND - 296);
+    ctx.fillText(`힘 ${Math.round(power * 100)}%`, sx + 72, GROUND - 274);
+    // 힘 막대
+    const bx = sx + 110, by = GROUND - 250, bh = 200;
+    ctx.fillStyle = "rgba(255,255,255,.85)"; roundRect(bx - 4, by - 4, 30, bh + 8, 8); ctx.fill();
+    ctx.strokeStyle = "#2F5D3A"; ctx.lineWidth = 2; ctx.stroke();
+    const g = ctx.createLinearGradient(0, by + bh, 0, by);
+    g.addColorStop(0, "#4CC28C"); g.addColorStop(.6, "#F5D42A"); g.addColorStop(1, "#D6402A");
+    ctx.fillStyle = g; ctx.fillRect(bx, by + bh * (1 - power), 22, bh * power);
+    if (lastShot){
+      const ly = by + bh * (1 - lastShot.power / 100);
+      ctx.strokeStyle = "#1F3340"; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(bx - 6, ly); ctx.lineTo(bx + 28, ly); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#1F3340"; ctx.font = "12px Jua, sans-serif"; ctx.textAlign = "left";
+      ctx.fillText("지난번", bx + 30, ly + 4);
+    }
+    if (!charging){
+      ctx.fillStyle = "rgba(31,51,64,.85)"; ctx.font = "20px Jua, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("누르고 있다가 떼면 발사!", VIEW_W / 2 + 60, 60 + Math.sin(t * 3) * 3);
+    }
+  }
+  // 화살이 화면 위로 벗어났을 때
+  if (arrow && arrow.y < 0){
+    const ax = arrow.x - camX;
+    ctx.fillStyle = "#D6402A";
+    ctx.beginPath(); ctx.moveTo(ax, 6); ctx.lineTo(ax - 9, 22); ctx.lineTo(ax + 9, 22); ctx.closePath(); ctx.fill();
+    ctx.font = "14px Jua, sans-serif"; ctx.textAlign = "center"; ctx.fillText(`${Math.round(-arrow.y)}`, ax, 38);
+  }
+  // 결과 문구
+  if (banner){
+    ctx.font = "34px Jua, sans-serif"; ctx.textAlign = "center";
+    const w = ctx.measureText(banner.text).width + 50;
+    ctx.fillStyle = "rgba(255,253,244,.92)"; roundRect(VIEW_W / 2 - w / 2 + 60, 100, w, 58, 16); ctx.fill();
+    ctx.strokeStyle = banner.color; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = banner.color; ctx.fillText(banner.text, VIEW_W / 2 + 60, 141);
+  }
+}
+
+/* ==========================================================
+   한 프레임
+=========================================================== */
+let lastT = performance.now();
+function frame(now){
+  const dt = Math.min(.033, (now - lastT) / 1000);
+  lastT = now;
+  const t = now / 1000;
+
+  // 상태 갱신
+  if (state === "aim"){
+    if (keys.ArrowUp) aimAngle = Math.min(80 * Math.PI / 180, aimAngle + dt * .9);
+    if (keys.ArrowDown) aimAngle = Math.max(5 * Math.PI / 180, aimAngle - dt * .9);
+    if (charging) power = currentPower(now);
+    camX += (0 - camX) * Math.min(1, dt * 6);
+  } else if (state === "fly" && arrow){
+    const n = 6;
+    for (let i = 0; i < n && arrow; i++) if (stepArrow(dt / n)) break;
+    if (arrow){
+      if (trail.length === 0 || Math.hypot(arrow.x - trail[trail.length - 1][0], arrow.y - trail[trail.length - 1][1]) > 24) trail.push([arrow.x, arrow.y]);
+      const want = Math.min(WORLD_W - VIEW_W, Math.max(0, arrow.x - 520));
+      camX += (want - camX) * Math.min(1, dt * 8);
+    }
+  } else if (state === "land"){
+    landTimer -= dt;
+    if (landTimer <= 0){
+      if (arrowsLeft <= 0) endGame();
+      else { state = "return"; banner = null; newWind(); }
+    }
+  } else if (state === "return"){
+    camX += (0 - camX) * Math.min(1, dt * 3.2);
+    if (camX < 2){ camX = 0; state = "aim"; power = 0; }
+  }
+  updateCreatures(dt, t);
+  popups.forEach(p => p.t += dt); popups = popups.filter(p => p.t < 1.6);
+  feathers.forEach(f => { f.t += dt; f.vy += 260 * dt; f.vx *= .98; f.x += f.vx * dt; f.y += f.vy * dt; });
+  feathers = feathers.filter(f => f.t < 1.6);
+
+  // 그리기
+  const sky = ctx.createLinearGradient(0, 0, 0, GROUND);
+  sky.addColorStop(0, "#96FFFC"); sky.addColorStop(1, "#FFFFFF");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+  ctx.save();
+  ctx.translate(-camX * .5, 0);
+  clouds.forEach(c => drawCloud(c.x * .6 + 100, c.y, c.s));
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(-camX, 0);
+  drawDecor();
+  drawFlag(t);
+  drawPillar();
+  drawCloud(PILLAR.x - 20, PILLAR.top + 190, .75);
+  drawCloud(PILLAR.x - 24, PILLAR.top + 250, .6);
+  drawTarget();
+  // 지난 궤적
+  if (lastTrail.length > 1 && state === "aim"){
+    ctx.strokeStyle = "rgba(214,64,42,.28)"; ctx.lineWidth = 2; ctx.setLineDash([6, 8]);
+    ctx.beginPath(); lastTrail.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.setLineDash([]);
+  }
+  stuck.forEach(s => drawArrow(s.x, s.y, s.ang));
+  drawGround();
+  drawArcher();
+  creatures.forEach(c => c.type === "dragonfly" ? drawDragonfly(c, t) : drawBird(c, t));
+  feathers.forEach(f => { ctx.globalAlpha = 1 - f.t / 1.6; ctx.fillStyle = f.col; ctx.beginPath(); ctx.ellipse(f.x, f.y, 5, 2, f.t * 6, 0, Math.PI * 2); ctx.fill(); });
+  ctx.globalAlpha = 1;
+  if (arrow) drawArrow(arrow.x, arrow.y, Math.atan2(arrow.vy, arrow.vx));
+  popups.forEach(p => {
+    ctx.globalAlpha = Math.max(0, 1 - p.t / 1.6);
+    ctx.fillStyle = p.color; ctx.strokeStyle = "#fff"; ctx.lineWidth = 4;
+    ctx.font = (p.big ? 44 : 26) + "px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.strokeText(p.text, p.x, p.y - p.t * 50); ctx.fillText(p.text, p.x, p.y - p.t * 50);
+  });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  drawHUD(t);
+  requestAnimationFrame(frame);
+}
+
+/* ==========================================================
+   시작·끝
+=========================================================== */
+const intro = document.getElementById("intro");
+const result = document.getElementById("result");
+
+function startGame(){
+  audio();
+  score = 0; arrowsLeft = TOTAL_ARROWS;
+  stuck = []; trail = []; lastTrail = []; popups = []; feathers = [];
+  arrow = null; banner = null; lastShot = null; charging = false; power = 0;
+  hitLog = { target:0, bull:0, creatures:0 };
+  camX = 0; aimAngle = 42 * Math.PI / 180;
+  newWind(); resetCreatures();
+  intro.classList.add("hidden"); result.classList.add("hidden");
+  state = "aim";
+}
+
+function endGame(){
+  state = "over";
+  let best = 0;
+  try { best = Number(localStorage.getItem("hwalssogi-best") || 0); } catch (e) {}
+  if (score > best){ best = score; try { localStorage.setItem("hwalssogi-best", String(score)); } catch (e) {} }
+  document.getElementById("final-score").textContent = `${score}점`;
+  document.getElementById("final-rank").textContent =
+    score >= 80 ? "🏆 신궁이 나타났다!" : score >= 50 ? "🥇 훌륭한 명궁이에요!" : score >= 25 ? "🙂 좋은 솜씨예요!" : "💪 다시 도전해 볼까요?";
+  document.getElementById("final-best").textContent = `이 컴퓨터 최고 기록: ${best}점`;
+  document.getElementById("final-detail").textContent =
+    `과녁 명중 ${hitLog.target}번 (정중앙 ${hitLog.bull}번) · 새·잠자리 ${hitLog.creatures}마리`;
+  result.classList.remove("hidden");
+}
+
+document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("again-btn").addEventListener("click", startGame);
+
+newWind(); resetCreatures();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
