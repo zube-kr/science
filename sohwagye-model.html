@@ -14,8 +14,7 @@
 
     --leaf:#4B8B3B;
     --leaf-soft:#E7F2E1;
-    --skin:#F6E9D8;
-    --skinLine:#C9AE8E;
+    --ghost:#B79A6E;
 
     --ok:#2E9E5B;
     --err:#D8493B;
@@ -33,13 +32,13 @@
     overflow-y:auto;
   }
 
-  .wrap{ max-width:1000px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+  .wrap{ max-width:1040px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
 
   header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
   .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
   h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
-  h1 span{ background:linear-gradient(90deg,var(--leaf),var(--skinLine)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:720px; }
+  h1 span{ background:linear-gradient(90deg,#C0584A,#7A5230); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:760px; }
 
   section.card{
     background:var(--card);
@@ -56,86 +55,72 @@
   }
   .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
 
-  .read-text{ font-size:13.5px; line-height:1.9; color:var(--ink); margin-bottom:0; }
-  .read-text b{ color:var(--leaf); font-weight:800; }
+  /* ---------- 해부 모형 ---------- */
+  .anatomy{ display:grid; grid-template-columns:minmax(260px, 430px) 1fr; gap:22px; align-items:start; }
+  @media (max-width:760px){ .anatomy{ grid-template-columns:1fr; } }
 
-  /* ---------- 드래그 배치 활동 ---------- */
-  .drag-area{ display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; justify-content:center; }
-
-  .body-stage{
-    position:relative;
-    width:100%;
-    max-width:300px;
-    aspect-ratio: 3 / 4.5;
-    flex-shrink:0;
-    touch-action:none;
+  .stage-wrap{
+    background:radial-gradient(circle at 50% 35%, #FFFDF8 0%, #F1EBDD 100%);
+    border:1px solid var(--line); border-radius:16px; padding:8px;
   }
-  .body-stage svg.body-bg{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+  svg#body-svg{ width:100%; height:auto; display:block; touch-action:none; user-select:none; }
 
-  .drop-zone{
-    position:absolute;
-    width:26%; height:11%;
-    border-radius:50%;
-    transform:translate(-50%,-50%);
-    border:2px dashed #B79A6E;
-    background:rgba(255,255,255,.5);
-    display:flex; align-items:center; justify-content:center;
-    font-size:10px; font-weight:800; color:#B79A6E;
-    z-index:1;
-    transition:.15s;
-  }
-  .drop-zone.filled{ border-style:solid; background:var(--leaf-soft); border-color:var(--leaf); color:var(--leaf); }
-  .drop-zone.flash-bad{ border-color:var(--err); background:#FBEAE6; }
+  .placed-org{ cursor:pointer; transition:filter .2s; }
+  .placed-org.selected{ filter:drop-shadow(0 0 5px #FFC94A) drop-shadow(0 0 2px #FFB000); }
+  .placed-org.pop{ animation:pop .45s ease-out; transform-box:fill-box; transform-origin:center; }
+  @keyframes pop{ 0%{ transform:scale(1.12); opacity:.4; } 100%{ transform:scale(1); opacity:1; } }
+
+  .ghost-hit.flash{ animation:flash .6s ease-out; }
+  @keyframes flash{ 0%,60%{ opacity:1; } 100%{ opacity:0; } }
+
+  .side{ display:flex; flex-direction:column; gap:12px; }
 
   .organ-tray{
-    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;
     padding:10px; border:1.5px dashed var(--line); border-radius:14px;
-    flex:1; min-width:220px; align-content:flex-start;
+    min-height:120px; background:#FBFAF6;
   }
+  .tray-empty{ grid-column:1 / -1; text-align:center; font-size:12px; color:var(--ink-soft); padding:30px 0; }
 
   .organ-tile{
-    width:78px; height:44px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:800; color:#fff;
-    border-radius:10px; cursor:grab; user-select:none;
-    box-shadow:0 2px 4px rgba(0,0,0,.15);
-    touch-action:none;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    background:#fff; border:1.5px solid var(--line); border-radius:12px;
+    padding:6px 4px 5px; cursor:grab; user-select:none; touch-action:none;
+    box-shadow:0 1px 3px rgba(0,0,0,.08); transition:border-color .15s, box-shadow .15s;
   }
-  .organ-tile.dragging{ cursor:grabbing; opacity:.9; box-shadow:0 6px 14px rgba(0,0,0,.25); }
-  .organ-tile.locked{ visibility:hidden; }
-
-  .placed-organ{
-    position:absolute;
-    width:26%; height:11%;
-    transform:translate(-50%,-50%);
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:800; color:#fff;
-    border-radius:50%;
-    z-index:2;
-    cursor:pointer;
-  }
+  .organ-tile:hover{ border-color:#C9AE8E; box-shadow:0 3px 8px rgba(0,0,0,.12); }
+  .organ-tile.dragging{ cursor:grabbing; box-shadow:0 10px 24px rgba(0,0,0,.28); border-color:#C9AE8E; }
+  .organ-tile svg{ width:100%; height:66px; pointer-events:none; }
+  .organ-tile span{ font-size:12.5px; font-weight:800; pointer-events:none; }
+  .organ-tile.locked{ display:none; }
 
   .drag-feedback{
-    min-height:24px;
-    font-size:12.5px; font-weight:700; text-align:center;
-    color:var(--ink-soft);
+    min-height:22px; font-size:12.5px; font-weight:700; text-align:center; color:var(--ink-soft); line-height:1.5;
   }
   .drag-feedback.ok{ color:var(--ok); }
   .drag-feedback.bad{ color:var(--err); }
 
-  .drag-progress{ text-align:center; font-size:12px; color:var(--ink-soft); font-weight:700; }
+  .progress-row{ display:flex; align-items:center; gap:10px; }
+  .progress-bar{ flex:1; height:8px; background:#EEE9DC; border-radius:99px; overflow:hidden; }
+  .progress-bar > div{ height:100%; width:0; background:linear-gradient(90deg,#E88A76,#7A5230); transition:width .3s; }
+  .progress-text{ font-size:12px; font-weight:800; color:var(--ink-soft); white-space:nowrap; }
 
-  .drag-actions{ display:flex; justify-content:center; margin-top:4px; }
+  .side-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .info-panel{
+    border:1.5px solid var(--line); border-radius:14px; padding:12px 14px; background:#FFFDF6;
+    min-height:112px;
+  }
+  .info-panel .ip-title{ font-size:14px; font-weight:800; margin-bottom:4px; }
+  .info-panel .ip-desc{ font-size:12.5px; line-height:1.7; color:var(--ink); }
+  .info-panel .ip-empty{ font-size:12px; color:var(--ink-soft); line-height:1.6; }
 
   /* ---------- 기관 특징 카드 ---------- */
   .organ-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   @media (max-width:720px){ .organ-cards{ grid-template-columns:repeat(2,1fr); } }
-
-  .organ-card{
-    border:1.5px solid var(--line); border-radius:12px; padding:10px 12px;
-    background:#FBFAF6;
-  }
-  .organ-card-title{ font-size:13px; font-weight:800; margin-bottom:6px; }
+  .organ-card{ border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; background:#FBFAF6; display:flex; gap:10px; align-items:flex-start; }
+  .organ-card svg{ width:64px; height:64px; flex-shrink:0; }
+  .organ-card-title{ font-size:13px; font-weight:800; margin-bottom:4px; }
   .organ-card-desc{ font-size:11.5px; line-height:1.6; color:var(--ink-soft); }
 
   /* ---------- 워크시트 공통 ---------- */
@@ -159,9 +144,6 @@
     display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
     text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
   }
-  .blank-check{ display:inline-block; margin-left:4px; font-size:11.5px; font-weight:700; white-space:nowrap; }
-  .blank-check.ok{ color:var(--ok); }
-  .blank-check.bad{ color:var(--err); }
   .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; }
   .choice-btn{
     font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
@@ -182,51 +164,86 @@
   .btn.primary:hover{ background:#3d4a32; }
   .btn.ghost{ background:#EFEAD9; color:var(--ink-soft); }
   .btn.ghost:hover{ background:#E4E2D2; color:var(--ink); }
-  .btn:disabled{ opacity:.5; cursor:default; }
+  .btn.food{ background:#7A5230; color:#fff; }
+  .btn.food:hover{ background:#5E3E22; }
+  .btn:disabled{ opacity:.45; cursor:default; }
 
   .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
   .ws-result.ok{ color:var(--ok); }
   .ws-status{ font-size:11.5px; color:var(--ink-soft); }
 
-  footer{ max-width:1000px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+  footer{ max-width:1040px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
 </style>
 </head>
 <body>
 
+<!-- 공용 그라디언트·필터 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="skinGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#EAC9A8"/>
+      <stop offset=".25" stop-color="#F7E2CB"/>
+      <stop offset=".75" stop-color="#F7E2CB"/>
+      <stop offset="1" stop-color="#E6C29F"/>
+    </linearGradient>
+    <radialGradient id="cavityGrad" cx=".5" cy=".45" r=".65">
+      <stop offset="0" stop-color="#F7E8DB"/>
+      <stop offset=".8" stop-color="#EBCDB6"/>
+      <stop offset="1" stop-color="#D9AF92"/>
+    </radialGradient>
+    <radialGradient id="stomachGrad" cx=".55" cy=".35" r=".75">
+      <stop offset="0" stop-color="#F8C7B8"/>
+      <stop offset=".5" stop-color="#E9907C"/>
+      <stop offset="1" stop-color="#B8503F"/>
+    </radialGradient>
+    <radialGradient id="lipGrad" cx=".5" cy=".4" r=".7">
+      <stop offset="0" stop-color="#E4868A"/>
+      <stop offset="1" stop-color="#B24850"/>
+    </radialGradient>
+    <radialGradient id="lungGrad" cx=".5" cy=".4" r=".7">
+      <stop offset="0" stop-color="#F3D4D4"/>
+      <stop offset="1" stop-color="#DDAFB0"/>
+    </radialGradient>
+    <linearGradient id="liverGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C88A7A"/>
+      <stop offset="1" stop-color="#A86A5C"/>
+    </linearGradient>
+    <filter id="orgShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1.2" dy="2" stdDeviation="1.6" flood-color="#3A2012" flood-opacity=".35"/>
+    </filter>
+  </defs>
+</svg>
+
 <div class="wrap">
   <header>
     <div class="eyebrow">Ⅵ. 동물과 에너지 · 소화 기관 해부 모형 만들기</div>
-    <h1>기관을 몸속 <span>올바른 위치</span>에 배치해 보세요</h1>
-    <p class="sub">입·식도·위·십이지장·소장·대장 6개 소화 기관 조각을 드래그해서 몸 그림의 알맞은 위치에 놓아 보세요. 모두 배치하면 각 기관의 특징도 함께 확인할 수 있고, 아래 스스로 점검 워크시트까지 풀면 자동으로 채점되고 선생님 스프레드시트에도 기록돼요.</p>
+    <h1>소화 기관을 몸속 <span>제자리에 붙여</span> 해부 모형을 완성해요</h1>
+    <p class="sub">종이로 오려 붙이던 인체 해부 모형을 화면에서 만들어 봅니다. 오른쪽의 입·식도·위·십이지장·소장·대장 조각을 끌어다가 몸 그림 속 같은 모양의 윤곽선 위에 놓으세요. 모두 붙이면 음식물이 지나가는 길을 애니메이션으로 따라가 볼 수 있어요.</p>
   </header>
 
-  <!-- 드래그 배치 활동 -->
+  <!-- 해부 모형 -->
   <section class="card">
-    <div class="card-title"><span class="badge">해부 모형</span>소화 기관을 드래그해서 배치하기</div>
-    <div class="card-hint">아래 조각을 마우스(또는 손가락)로 눌러 끌어서, 몸 그림의 점선 위치 중 알맞은 자리에 놓아 보세요.</div>
+    <div class="card-title"><span class="badge" style="background:#7A5230">해부 모형</span>소화 기관 조각을 제자리에 붙이기</div>
+    <div class="card-hint">조각을 마우스(또는 손가락)로 눌러 끌어서 몸 그림의 <b>같은 모양 윤곽선</b> 위에 놓으세요. 그림 속 몸은 우리를 바라보고 있어서, 몸의 왼쪽이 화면에서는 오른쪽이에요. 붙인 기관을 누르면 설명을 다시 볼 수 있어요.</div>
 
-    <div class="drag-area">
-      <div class="body-stage" id="body-stage">
-        <svg class="body-bg" viewBox="0 0 100 150" preserveAspectRatio="none" aria-hidden="true">
-          <ellipse cx="50" cy="12" rx="13" ry="12" fill="var(--skin)" stroke="var(--skinLine)" stroke-width="1.2"></ellipse>
-          <rect x="42" y="20" width="16" height="10" fill="var(--skin)" stroke="var(--skinLine)" stroke-width="1.2"></rect>
-          <path d="M20,30 Q50,20 80,30 L88,145 Q50,150 12,145 Z" fill="var(--skin)" stroke="var(--skinLine)" stroke-width="1.2"></path>
-        </svg>
-
-        <div class="drop-zone" data-organ="ip" style="top:8%; left:50%;">①</div>
-        <div class="drop-zone" data-organ="sikdo" style="top:24%; left:50%;">②</div>
-        <div class="drop-zone" data-organ="wi" style="top:41%; left:35%;">③</div>
-        <div class="drop-zone" data-organ="sibijijang" style="top:45%; left:64%;">④</div>
-        <div class="drop-zone" data-organ="sojang" style="top:64%; left:50%;">⑤</div>
-        <div class="drop-zone" data-organ="daejang" style="top:83%; left:50%;">⑥</div>
+    <div class="anatomy">
+      <div class="stage-wrap">
+        <svg id="body-svg" viewBox="0 0 400 720" aria-label="소화 기관 해부 모형"></svg>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:10px; flex:1; min-width:220px;">
+      <div class="side">
         <div class="organ-tray" id="organ-tray"></div>
-        <div class="drag-feedback" id="drag-feedback">조각을 끌어서 몸 그림의 알맞은 위치에 놓아 보세요.</div>
-        <div class="drag-progress" id="drag-progress">0 / 6 배치 완료</div>
-        <div class="drag-actions">
-          <button type="button" class="btn ghost" id="drag-reset">다시 배치하기</button>
+        <div class="progress-row">
+          <div class="progress-bar"><div id="progress-fill"></div></div>
+          <div class="progress-text" id="progress-text">0 / 6</div>
+        </div>
+        <div class="drag-feedback" id="drag-feedback">조각을 끌어서 몸 그림의 알맞은 윤곽선 위에 놓아 보세요.</div>
+        <div class="info-panel" id="info-panel">
+          <div class="ip-empty">기관을 제자리에 붙이면 여기에 그 기관의 특징이 나타나요.</div>
+        </div>
+        <div class="side-actions">
+          <button type="button" class="btn food" id="food-btn" disabled>🍙 음식물 이동 따라가기</button>
+          <button type="button" class="btn ghost" id="drag-reset">다시 만들기</button>
         </div>
       </div>
     </div>
@@ -367,181 +384,628 @@
 const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
 </script>
 
+
 <script>
 /* ==========================================================
-   소화 기관 데이터
+   소화 기관 데이터 (좌표는 몸 그림 viewBox 400×720 기준)
+   ※ 그림 속 몸은 우리를 바라보고 있으므로
+     몸의 왼쪽(위·하행 결장) = 화면 오른쪽,
+     몸의 오른쪽(간·상행 결장·충수) = 화면 왼쪽
 =========================================================== */
+const SIKDO_D = "M 200 122 C 200 170, 198 230, 204 280 C 208 315, 214 332, 222 348";
+const WI_D = "M 222 348 C 225 325, 265 312, 290 328 C 312 345, 312 400, 298 425 C 285 448, 245 458, 215 446 L 196 436 L 196 418 C 215 420, 238 412, 243 395 C 248 378, 238 360, 222 348 Z";
+const SIBI_D = "M 196 427 C 170 425, 160 442, 164 462 C 168 484, 190 492, 212 488 C 230 485, 242 478, 250 470 C 256 478, 257 488, 254 500";
+const DAEJANG_D = "M 138 628 L 138 505 Q 138 482 162 492 C 198 516, 246 512, 280 480 Q 296 464 298 488 L 298 612 C 298 652, 262 664, 236 672 C 214 679, 206 690, 206 708";
+const APPENDIX_D = "M 134 636 C 128 648, 120 654, 113 664";
+/* 소장: 배 한가운데를 좌우로 여러 번 접혀 내려가는 구불구불한 관 */
+const SOJANG_PTS = (() => {
+  const rows = [ [530,266,182], [549,166,274], [568,278,160], [587,156,280],
+                 [606,280,158], [625,160,276], [644,270,170] ];
+  const pts = [[254,512]];
+  rows.forEach(([y, xa, xb], r) => {
+    const n = Math.max(3, Math.round(Math.abs(xb - xa) / 19));
+    for (let i = 0; i <= n; i++){
+      const x = xa + (xb - xa) * i / n;
+      const wob = (i === 0 || i === n) ? 0 : ((i + r) % 2 ? 4.5 : -4.5);
+      pts.push([Math.round(x), y + wob]);
+    }
+    const next = rows[r + 1];
+    if (next) pts.push([xb + (xb > xa ? 9 : -9), Math.round((y + next[0]) / 2)]);  // U자 굽이
+  });
+  pts.push([156, 634], [152, 614]);  // 회장 끝 → 막창자(맹장)
+  return pts;
+})();
+
 const ORGANS = [
-  { id:"ip", name:"입", color:"#4B8B3B", top:8, left:50,
-    desc:"이(치아)로 음식물을 잘게 부수는 물리적 소화와, 침 속 아밀레이스가 녹말을 분해하는 화학적 소화가 함께 시작되는 곳이다." },
-  { id:"sikdo", name:"식도", color:"#3D6FB0", top:24, left:50,
-    desc:"입에서 위까지 음식물을 연동 운동으로 밀어 내려보내는 통로이다. 소화 효소는 분비되지 않는다." },
-  { id:"wi", name:"위", color:"#C6532B", top:41, left:35,
-    desc:"강한 산성인 위액(염산 + 펩신)을 분비하여 살균 작용을 하고 단백질 소화를 시작하며, 음식물을 잘게 섞어 죽처럼 만든다." },
-  { id:"sibijijang", name:"십이지장", color:"#B98A4E", top:45, left:64,
-    desc:"위에서 내려온 음식물에 이자액과 쓸개즙이 섞이는 곳으로, 탄수화물·단백질·지방 3대 영양소가 모두 분해되기 시작한다." },
-  { id:"sojang", name:"소장", color:"#7A3B8A", top:64, left:50,
-    desc:"길이 약 6~7m이며 안쪽 벽에 융털이 많아 표면적이 매우 넓어, 최종 분해된 영양소를 효율적으로 흡수한다." },
-  { id:"daejang", name:"대장", color:"#3D8A7A", top:83, left:50,
-    desc:"소화 효소가 거의 분비되지 않으며, 주로 물을 흡수하고 소화되지 않은 물질을 대변으로 만들어 배출한다." }
+  { id:"ip", num:"①", name:"입", eul:"을", color:"#C0505A",
+    desc:"음식물을 이로 잘게 부수고(물리적 소화) 혀로 침과 섞는다. 침 속의 아밀레이스가 녹말을 엿당으로 분해하는 화학적 소화가 시작된다.",
+    hint:"입은 얼굴에 있어요. 머리 부분의 타원 윤곽선을 찾아보세요.",
+    badge:[240,104] },
+  { id:"sikdo", num:"②", name:"식도", eul:"를", color:"#D98B7B",
+    desc:"길이 약 25cm의 근육 관으로, 연동 운동으로 음식물을 위까지 밀어 내려보낸다. 소화 효소는 분비되지 않는다.",
+    hint:"식도는 목에서 가슴 한가운데(심장 뒤)를 지나 위까지 이어지는 긴 관이에요.",
+    badge:[182,228] },
+  { id:"wi", num:"③", name:"위", eul:"를", color:"#E9907C",
+    desc:"주머니 모양의 기관으로, 위액(염산+펩신)을 분비한다. 염산은 살균 작용을 하고, 펩신은 단백질을 분해하기 시작한다. 음식물을 죽처럼 잘게 섞는다.",
+    hint:"위는 횡격막 바로 아래, 몸의 왼쪽(화면에서는 오른쪽)에 있는 주머니예요.",
+    badge:[276,372] },
+  { id:"sibijijang", num:"④", name:"십이지장", eul:"을", color:"#E7A866",
+    desc:"위와 소장 사이의 C자 모양 관(길이 약 25cm, 손가락 12개를 나란히 놓은 길이라는 뜻). 이자액과 쓸개즙이 흘러들어 3대 영양소가 모두 분해되기 시작한다.",
+    hint:"십이지장은 위의 끝(날문)에서 시작해 C자로 휘어지는 짧은 관이에요.",
+    badge:[146,448] },
+  { id:"sojang", num:"⑤", name:"소장", eul:"을", color:"#F0A29B",
+    desc:"길이 약 6~7m로 소화관 중 가장 길다. 소화가 마무리되고, 안쪽 벽의 수많은 융털이 표면적을 넓혀 영양소를 흡수한다.",
+    hint:"소장은 배 한가운데에 구불구불 접혀 들어가 있어요. 대장에 둘러싸인 곳을 찾아보세요.",
+    badge:[213,586] },
+  { id:"daejang", num:"⑥", name:"대장", eul:"을", color:"#D2A26C",
+    desc:"길이 약 1.5m이며 소장보다 굵다. 소화 효소는 거의 분비되지 않고 주로 물을 흡수하며, 남은 찌꺼기를 대변으로 만들어 항문으로 내보낸다.",
+    hint:"대장은 소장을 액자처럼 둘러싸고 있는 굵은 관이에요. 끝은 항문으로 이어져요.",
+    badge:[322,560] }
 ];
+const ORGAN_BY_ID = Object.fromEntries(ORGANS.map(o => [o.id, o]));
+/* 몸 그림에 겹쳐 그리는 순서(뒤 → 앞) */
+const Z_ORDER = ["sibijijang","sojang","daejang","wi","sikdo","ip"];
 
 /* ==========================================================
-   기관 특징 카드 (배치 활동과 무관하게 항상 표시)
+   SVG 도우미
 =========================================================== */
-const organCardsEl = document.getElementById("organ-cards");
-ORGANS.forEach(o => {
-  const card = document.createElement("div");
-  card.className = "organ-card";
-  card.innerHTML = `
-    <div class="organ-card-title" style="color:${o.color}">${o.name}</div>
-    <div class="organ-card-desc">${o.desc}</div>
-  `;
-  organCardsEl.appendChild(card);
-});
+const NS = "http://www.w3.org/2000/svg";
+let uid = 0;
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const r1 = n => Math.round(n * 10) / 10;
+
+/* 길이 측정용 숨은 SVG */
+const measureSvg = el("svg", { width:0, height:0, style:"position:absolute;left:-9999px;top:0" });
+document.body.appendChild(measureSvg);
+
+function withPath(d, fn){
+  const p = el("path", { d }, measureSvg);
+  const out = fn(p, p.getTotalLength());
+  p.remove();
+  return out;
+}
+/* 경로를 따라 일정 간격의 점과 접선·법선 방향 */
+function frames(d, spacing, offset){
+  return withPath(d, (p, L) => {
+    const out = [];
+    for (let s = offset; s < L; s += spacing){
+      const a = p.getPointAtLength(s);
+      const b = p.getPointAtLength(Math.min(L, s + .8));
+      const c = p.getPointAtLength(Math.max(0, s - .8));
+      let tx = b.x - c.x, ty = b.y - c.y;
+      const n = Math.hypot(tx, ty) || 1; tx /= n; ty /= n;
+      out.push({ x:a.x, y:a.y, tx, ty, nx:-ty, ny:tx });
+    }
+    return out;
+  });
+}
+function samplePts(d, step){
+  return withPath(d, (p, L) => {
+    const pts = [];
+    for (let s = 0; s <= L; s += step){ const q = p.getPointAtLength(s); pts.push([q.x, q.y]); }
+    const q = p.getPointAtLength(L); pts.push([q.x, q.y]);
+    return pts;
+  });
+}
+/* Catmull-Rom 점 목록 → 부드러운 베지어 경로 */
+function catmullD(pts, from = 0, to = pts.length - 1){
+  let d = `M ${pts[from][0]} ${pts[from][1]}`;
+  for (let i = from; i < to; i++){
+    const p0 = pts[Math.max(i - 1, 0)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(i + 2, pts.length - 1)];
+    const c1 = [r1(p1[0] + (p2[0] - p0[0]) / 6), r1(p1[1] + (p2[1] - p0[1]) / 6)];
+    const c2 = [r1(p2[0] - (p3[0] - p1[0]) / 6), r1(p2[1] - (p3[1] - p1[1]) / 6)];
+    d += ` C ${c1[0]} ${c1[1]}, ${c2[0]} ${c2[1]}, ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+const SOJANG_D = catmullD(SOJANG_PTS);
+
+const strokeBase = { fill:"none", "stroke-linecap":"round", "stroke-linejoin":"round" };
+function stroke(g, d, color, w, extra){
+  return el("path", Object.assign({ d, stroke:color, "stroke-width":w }, strokeBase, extra || {}), g);
+}
+/* 입체감 있는 관: 테두리 → 바탕 → 그늘 → (주름) → 반사광 */
+function tube(g, d, w, c, decorate){
+  stroke(g, d, c.outline, w + 3);
+  stroke(g, d, c.base, w);
+  stroke(g, d, c.outline, w * .34, { "stroke-opacity":.2, transform:`translate(${r1(w*.17)},${r1(w*.17)})` });
+  if (decorate) decorate(g);
+  stroke(g, d, c.light, w * .26, { "stroke-opacity":.85, transform:`translate(${r1(-w*.15)},${r1(-w*.15)})` });
+}
+/* 관을 가로지르는 짧은 곡선(식도 고리, 십이지장·대장 주름) */
+function crossLines(g, d, spacing, offset, half, color, width, opacity, bow){
+  for (const f of frames(d, spacing, offset)){
+    const ax = f.x + f.nx * half, ay = f.y + f.ny * half;
+    const bx = f.x - f.nx * half, by = f.y - f.ny * half;
+    const cx = f.x + f.tx * bow, cy = f.y + f.ty * bow;
+    el("path", { d:`M ${r1(ax)} ${r1(ay)} Q ${r1(cx)} ${r1(cy)} ${r1(bx)} ${r1(by)}`,
+      fill:"none", stroke:color, "stroke-width":width, "stroke-opacity":opacity, "stroke-linecap":"round" }, g);
+  }
+}
 
 /* ==========================================================
-   드래그 배치 활동
+   각 기관 그리기 (몸 그림 좌표 그대로)
 =========================================================== */
-const bodyStage = document.getElementById("body-stage");
-const organTray = document.getElementById("organ-tray");
+const COL = {
+  sikdo:      { outline:"#8A4336", base:"#D98B7B", light:"#F6C9BD" },
+  sibijijang: { outline:"#8C5A2B", base:"#E7A866", light:"#F8D6A8" },
+  sojang:     { outline:"#9A4A48", base:"#F0A29B", light:"#FFD9D3" },
+  daejang:    { outline:"#6E4A2A", base:"#D2A26C", light:"#EFD0A5" }
+};
+
+const DRAW = {
+  ip(g){
+    const id = "mclip" + (uid++);
+    const cp = el("clipPath", { id }, g);
+    el("ellipse", { cx:200, cy:110, rx:20, ry:9.5 }, cp);
+    el("ellipse", { cx:200, cy:110, rx:26, ry:15, fill:"url(#lipGrad)", stroke:"#7C2A2E", "stroke-width":1.5 }, g);
+    /* 윗입술 가운데 굴곡 */
+    el("path", { d:"M 178 104 Q 190 96 200 101 Q 210 96 222 104", fill:"none", stroke:"#7C2A2E", "stroke-width":.9, "stroke-opacity":.55 }, g);
+    el("ellipse", { cx:200, cy:110, rx:20, ry:9.5, fill:"#5A1A1F" }, g);
+    const inner = el("g", { "clip-path":`url(#${id})` }, g);
+    el("ellipse", { cx:200, cy:118, rx:14, ry:6.5, fill:"#E07F84" }, inner);           // 혀
+    el("path", { d:"M 200 113.5 L 200 119", stroke:"#B8585E", "stroke-width":.9 }, inner);
+    el("ellipse", { cx:196, cy:115.5, rx:4, ry:1.3, fill:"#F4B3B6", opacity:.8 }, inner);
+    el("rect", { x:180, y:100, width:40, height:5.6, fill:"#FFFDF5" }, inner);         // 윗니
+    for (let x = 185.5; x <= 215; x += 4.8)
+      el("line", { x1:r1(x), y1:100, x2:r1(x), y2:105.6, stroke:"#D6CCBA", "stroke-width":.6 }, inner);
+    el("rect", { x:184, y:117.2, width:32, height:3.4, fill:"#F4EFE3" }, inner);       // 아랫니
+    el("ellipse", { cx:191, cy:100.5, rx:7, ry:1.8, fill:"#fff", opacity:.35 }, g);
+    el("ellipse", { cx:204, cy:122, rx:9, ry:1.6, fill:"#fff", opacity:.3 }, g);
+  },
+
+  sikdo(g){
+    tube(g, SIKDO_D, 12, COL.sikdo, gg =>
+      crossLines(gg, SIKDO_D, 7.5, 5, 5, COL.sikdo.outline, .9, .45, 1.6));
+  },
+
+  wi(g){
+    const id = "wclip" + (uid++);
+    const cp = el("clipPath", { id }, g);
+    el("path", { d:WI_D }, cp);
+    el("path", { d:WI_D, fill:"url(#stomachGrad)", stroke:"#7E3326", "stroke-width":2.2, "stroke-linejoin":"round" }, g);
+    const inner = el("g", { "clip-path":`url(#${id})` }, g);
+    /* 위 안쪽 주름(위벽 주름) */
+    const rugae = [
+      "M 256 330 C 282 326, 306 352, 304 384",
+      "M 240 350 C 272 336, 302 368, 292 410 C 282 440, 244 448, 204 438",
+      "M 232 358 C 262 346, 292 374, 282 408 C 272 432, 240 436, 204 428",
+      "M 228 366 C 252 358, 276 380, 270 404 C 262 422, 236 424, 204 420",
+      "M 250 336 C 276 330, 298 346, 300 364"
+    ];
+    rugae.forEach(d => {
+      stroke(inner, d, "#FCD7CC", 1.6, { "stroke-opacity":.55, transform:"translate(-1,-1.2)" });
+      stroke(inner, d, "#A8402F", 1.3, { "stroke-opacity":.38 });
+    });
+    /* 작은굽이 쪽 그늘 */
+    stroke(inner, "M 222 348 C 238 360, 248 378, 243 395 C 238 412, 215 420, 196 418", "#7E3326", 6, { "stroke-opacity":.18 });
+    el("ellipse", { cx:274, cy:344, rx:17, ry:7, fill:"#fff", opacity:.33, transform:"rotate(-24 274 344)" }, inner);
+    el("ellipse", { cx:292, cy:392, rx:4, ry:14, fill:"#fff", opacity:.18 }, inner);
+    /* 날문 괄약근 */
+    stroke(g, "M 200 417 C 204 424, 204 430, 200 437", "#7E3326", 3.4);
+  },
+
+  sibijijang(g){
+    tube(g, SIBI_D, 13, COL.sibijijang, gg =>
+      crossLines(gg, SIBI_D, 6.5, 4, 5, COL.sibijijang.outline, .9, .42, 1.8));
+    /* 쓸개즙·이자액이 들어오는 곳 */
+    el("circle", { cx:166, cy:466, r:2.4, fill:"#6E8B2E", stroke:"#4C6320", "stroke-width":.7 }, g);
+  },
+
+  sojang(g){
+    /* 창자 사이의 바탕(장간막) */
+    el("path", { d:"M 212 514 C 262 510, 284 540, 280 590 C 276 636, 246 666, 206 664 C 168 662, 146 632, 147 590 C 148 548, 170 516, 212 514 Z",
+      fill:"#B85B55", stroke:"#8A3F3D", "stroke-width":1.2 }, g);
+    /* 구불구불한 고리를 3구간씩 잘라 겹쳐 그려 앞뒤 층이 보이게 함 */
+    const n = SOJANG_PTS.length - 1;
+    for (let i = 0; i < n; i += 3){
+      const d = catmullD(SOJANG_PTS, i, Math.min(i + 3, n));
+      tube(g, d, 14, COL.sojang);
+    }
+  },
+
+  daejang(g){
+    const c = COL.daejang;
+    tube(g, APPENDIX_D, 5, c);
+    /* 볼록볼록한 팽대(주머니) */
+    for (const f of frames(DAEJANG_D, 11, 5))
+      el("circle", { cx:r1(f.x), cy:r1(f.y), r:13.5, fill:c.base, stroke:c.outline, "stroke-width":1.3 }, g);
+    stroke(g, DAEJANG_D, c.base, 21);
+    stroke(g, DAEJANG_D, c.outline, 8, { "stroke-opacity":.16, transform:"translate(3.5,3.5)" });
+    crossLines(g, DAEJANG_D, 11, 10.5, 10.5, c.outline, 1.2, .5, 2.6);
+    stroke(g, DAEJANG_D, c.light, 5, { "stroke-opacity":.9, transform:"translate(-3.2,-3.2)" });
+    /* 결장 띠 */
+    stroke(g, DAEJANG_D, "#B98952", 1.1, { "stroke-opacity":.5, "stroke-dasharray":"1 0" });
+  }
+};
+
+/* ==========================================================
+   몸(바탕판) 그리기
+=========================================================== */
+const bodySvg = document.getElementById("body-svg");
+
+function drawBody(){
+  const b = el("g", {}, bodySvg);
+  /* 목·몸통 */
+  el("path", { d:"M 176 118 L 224 118 L 226 172 L 174 172 Z", fill:"url(#skinGrad)", stroke:"#C79D78", "stroke-width":1.4 }, b);
+  el("path", { d:"M 150 162 L 250 162 C 290 170, 340 178, 350 205 L 335 400 C 328 470, 330 560, 340 715 L 60 715 C 70 560, 72 470, 65 400 L 50 205 C 60 178, 110 170, 150 162 Z",
+    fill:"url(#skinGrad)", stroke:"#C79D78", "stroke-width":1.6 }, b);
+  /* 쇄골 */
+  stroke(b, "M 190 182 C 165 176, 130 178, 96 190", "#D2AE8C", 3, { "stroke-opacity":.7 });
+  stroke(b, "M 210 182 C 235 176, 270 178, 304 190", "#D2AE8C", 3, { "stroke-opacity":.7 });
+  /* 머리 */
+  el("ellipse", { cx:151, cy:84, rx:8, ry:13, fill:"#F0D2B4", stroke:"#C79D78", "stroke-width":1.3 }, b);
+  el("ellipse", { cx:249, cy:84, rx:8, ry:13, fill:"#F0D2B4", stroke:"#C79D78", "stroke-width":1.3 }, b);
+  el("ellipse", { cx:200, cy:78, rx:48, ry:58, fill:"#F6DEC4", stroke:"#C79D78", "stroke-width":1.5 }, b);
+  el("path", { d:"M 152 74 C 146 30, 178 14, 200 16 C 224 14, 256 30, 248 74 C 242 50, 226 38, 200 38 C 176 38, 158 50, 152 74 Z", fill:"#4A3426" }, b);
+  el("path", { d:"M 174 62 Q 182 58 190 62", fill:"none", stroke:"#4A3426", "stroke-width":2, "stroke-linecap":"round" }, b);
+  el("path", { d:"M 210 62 Q 218 58 226 62", fill:"none", stroke:"#4A3426", "stroke-width":2, "stroke-linecap":"round" }, b);
+  el("ellipse", { cx:182, cy:72, rx:4.2, ry:2.8, fill:"#3A2A20" }, b);
+  el("ellipse", { cx:218, cy:72, rx:4.2, ry:2.8, fill:"#3A2A20" }, b);
+  el("path", { d:"M 200 76 Q 195 88 199 91 L 203 91", fill:"none", stroke:"#C08E68", "stroke-width":1.4, "stroke-linecap":"round" }, b);
+  el("ellipse", { cx:170, cy:92, rx:7, ry:4, fill:"#F2B3A0", opacity:.45 }, b);
+  el("ellipse", { cx:230, cy:92, rx:7, ry:4, fill:"#F2B3A0", opacity:.45 }, b);
+
+  /* 배 속(체강) */
+  el("path", { d:"M 98 200 Q 200 184 302 200 L 312 690 Q 200 706 88 690 Z", fill:"url(#cavityGrad)", stroke:"#C49A7C", "stroke-width":1.5 }, b);
+
+  /* 폐·심장·간·횡격막 (배경 기관) */
+  el("path", { d:"M 150 208 C 118 215, 108 260, 112 318 C 130 330, 170 330, 188 318 C 190 280, 185 230, 170 210 Z", fill:"url(#lungGrad)", stroke:"#C79096", "stroke-width":1.2 }, b);
+  el("path", { d:"M 250 208 C 282 215, 292 260, 288 318 C 270 330, 232 330, 214 318 C 212 280, 216 230, 230 210 Z", fill:"url(#lungGrad)", stroke:"#C79096", "stroke-width":1.2 }, b);
+  ["M 128 262 C 140 256, 160 262, 174 256", "M 118 292 C 136 286, 160 292, 182 286",
+   "M 272 262 C 260 256, 240 262, 226 256", "M 282 292 C 264 286, 240 292, 218 286"]
+    .forEach(d => stroke(b, d, "#C79096", 1, { "stroke-opacity":.6 }));  // 폐엽 경계
+  /* 갈비뼈 */
+  for (let i = 0; i < 6; i++){
+    const y = 212 + i * 21;
+    stroke(b, `M 194 ${y} C 162 ${y - 7}, 124 ${y + 2}, 104 ${y + 26}`, "#E7D2BC", 3.2, { "stroke-opacity":.6 });
+    stroke(b, `M 206 ${y} C 238 ${y - 7}, 276 ${y + 2}, 296 ${y + 26}`, "#E7D2BC", 3.2, { "stroke-opacity":.6 });
+  }
+  el("rect", { x:194, y:198, width:12, height:118, rx:5, fill:"#EEDDC8", stroke:"#D6BCA0", "stroke-width":.8, opacity:.9 }, b);
+  el("path", { d:"M 205 262 C 215 245, 245 250, 250 270 C 258 295, 240 318, 222 324 C 205 318, 190 300, 192 282 C 194 272, 198 266, 205 262 Z",
+    fill:"#D27A78", stroke:"#9E4B4A", "stroke-width":1.3 }, b);
+  stroke(b, "M 212 262 C 214 250, 220 244, 228 242", "#B55A58", 4);
+  el("path", { d:"M 112 338 C 150 322, 230 325, 262 338 C 250 352, 225 360, 200 372 C 175 395, 150 412, 128 410 C 112 400, 108 365, 112 338 Z",
+    fill:"url(#liverGrad)", stroke:"#7E4A3E", "stroke-width":1.3 }, b);
+  el("path", { d:"M 176 400 C 170 404, 168 410, 172 414 C 178 416, 184 410, 182 402 Z", fill:"#7E9B3C", stroke:"#56702A", "stroke-width":.8 }, b); // 쓸개
+  el("path", { d:"M 108 345 Q 150 312 200 330 Q 250 312 292 345", fill:"none", stroke:"#C0916F", "stroke-width":1.4, "stroke-dasharray":"4 3" }, b);
+
+  const lab = (x, y, t, anchor = "middle", fill = "#9C7F66") =>
+    el("text", { x, y, "text-anchor":anchor, "font-size":9, "font-weight":700, fill, "font-family":"inherit" }, b).textContent = t;
+  lab(140, 272, "폐"); lab(262, 272, "폐");
+  lab(222, 300, "심장", "middle", "#FFF3F0");
+  lab(150, 378, "간", "middle", "#FBEDE6");
+  lab(184, 413, "쓸개", "start", "#6D7F3A");
+  lab(84, 342, "횡격막", "end");
+  lab(232, 713, "항문", "start");
+}
+
+/* ==========================================================
+   윤곽선(놓을 자리)·번호 배지
+=========================================================== */
+const ghostLayer = el("g", {}, null);
+const placedLayer = el("g", {}, null);
+const badgeLayer = el("g", {}, null);
+const fxLayer = el("g", {}, null);
+const ghosts = {}, badges = {}, placedGroups = {};
+
+function drawGhosts(){
+  const gc = "#B79A6E", fill = "#F6E7DA";
+  const tubeGhost = (g, d, w) => {
+    stroke(g, d, gc, w + 2.6, { "stroke-opacity":.75 });
+    stroke(g, d, fill, w);
+    stroke(g, d, gc, 1, { "stroke-dasharray":"3 4", "stroke-opacity":.7 });
+  };
+  const dashed = { fill, stroke:gc, "stroke-width":1.6, "stroke-dasharray":"5 3" };
+  Z_ORDER.forEach(id => {
+    const g = el("g", {}, ghostLayer); ghosts[id] = g;
+    if (id === "ip") el("ellipse", Object.assign({ cx:200, cy:110, rx:26, ry:15 }, dashed), g);
+    if (id === "sikdo") tubeGhost(g, SIKDO_D, 12);
+    if (id === "wi") el("path", Object.assign({ d:WI_D }, dashed), g);
+    if (id === "sibijijang") tubeGhost(g, SIBI_D, 13);
+    if (id === "sojang"){
+      el("path", Object.assign({ d:"M 212 514 C 262 510, 284 540, 280 590 C 276 636, 246 666, 206 664 C 168 662, 146 632, 147 590 C 148 548, 170 516, 212 514 Z" }, dashed), g);
+      stroke(g, SOJANG_D, gc, 1.1, { "stroke-opacity":.45, "stroke-dasharray":"3 3" });
+    }
+    if (id === "daejang"){ tubeGhost(g, APPENDIX_D, 5); tubeGhost(g, DAEJANG_D, 24); }
+    placedGroups[id] = el("g", { "data-organ":id }, placedLayer);
+  });
+  ORGANS.forEach((o, i) => {
+    const g = el("g", {}, badgeLayer); badges[o.id] = g;
+    el("circle", { cx:o.badge[0], cy:o.badge[1], r:10.5, fill:"#7A5230", stroke:"#fff", "stroke-width":2 }, g);
+    el("text", { x:o.badge[0], y:o.badge[1] + 4.2, "text-anchor":"middle", "font-size":12, "font-weight":800, fill:"#fff" }, g).textContent = i + 1;
+  });
+}
+
+drawBody();
+bodySvg.appendChild(ghostLayer);
+bodySvg.appendChild(placedLayer);
+bodySvg.appendChild(badgeLayer);
+bodySvg.appendChild(fxLayer);
+drawGhosts();
+
+/* ==========================================================
+   놓은 위치 판정 영역
+=========================================================== */
+function inPoly(pts, x, y){
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++){
+    const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+const minDist = (pts, x, y) => pts.reduce((m, [px, py]) => Math.min(m, Math.hypot(px - x, py - y)), Infinity);
+const inEllipse = (cx, cy, rx, ry, x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+
+const WI_PTS = samplePts(WI_D, 3);
+const HIT = {
+  ip:         (x, y) => inEllipse(200, 110, 40, 28, x, y),
+  sikdo:      ((pts) => (x, y) => minDist(pts, x, y) < 18)(samplePts(SIKDO_D, 3)),
+  wi:         (x, y) => inPoly(WI_PTS, x, y) || minDist(WI_PTS, x, y) < 12,
+  sibijijang: ((pts) => (x, y) => minDist(pts, x, y) < 18)(samplePts(SIBI_D, 3)),
+  sojang:     ((pts) => (x, y) => inEllipse(213, 588, 70, 78, x, y) || minDist(pts, x, y) < 15)(samplePts(SOJANG_D, 3)),
+  daejang:    ((pts) => (x, y) => minDist(pts, x, y) < 22)(samplePts(DAEJANG_D, 3).concat(samplePts(APPENDIX_D, 3)))
+};
+
+function toSvgPoint(clientX, clientY){
+  const pt = bodySvg.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  return pt.matrixTransform(bodySvg.getScreenCTM().inverse());
+}
+
+/* ==========================================================
+   조각(타일) 만들기와 끌어서 놓기
+=========================================================== */
+const tray = document.getElementById("organ-tray");
+const progressFill = document.getElementById("progress-fill");
+const progressText = document.getElementById("progress-text");
 const dragFeedback = document.getElementById("drag-feedback");
-const dragProgress = document.getElementById("drag-progress");
+const infoPanel = document.getElementById("info-panel");
+const foodBtn = document.getElementById("food-btn");
 const dragResetBtn = document.getElementById("drag-reset");
 
 let placedCount = 0;
+const placed = {};
 
-function shuffle(arr){
-  const a = arr.slice();
-  for(let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+/* 기관 그림을 담은 작은 SVG(조각·카드용) — 화면에 붙인 뒤 영역에 맞춰 viewBox 설정 */
+function organThumb(id){
+  const svg = el("svg", { "aria-hidden":"true" });
+  const g = el("g", { filter:"url(#orgShadow)" }, svg);
+  DRAW[id](g);
+  return svg;
+}
+function fitThumb(svg){
+  const bb = svg.firstChild.getBBox();
+  const pad = 14;
+  svg.setAttribute("viewBox", `${r1(bb.x - pad)} ${r1(bb.y - pad)} ${r1(bb.width + pad * 2)} ${r1(bb.height + pad * 2)}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+}
+
+function setFeedbackMsg(text, cls){
+  dragFeedback.textContent = text;
+  dragFeedback.className = "drag-feedback" + (cls ? " " + cls : "");
 }
 
 function buildTray(){
-  organTray.innerHTML = "";
+  stopFood();
+  tray.innerHTML = "";
   placedCount = 0;
-  dragProgress.textContent = "0 / 6 배치 완료";
-  dragFeedback.textContent = "조각을 끌어서 몸 그림의 알맞은 위치에 놓아 보세요.";
-  dragFeedback.className = "drag-feedback";
-
-  document.querySelectorAll(".drop-zone").forEach(z => {
-    z.classList.remove("filled");
-    z.style.visibility = "visible";
+  Z_ORDER.forEach(id => {
+    placed[id] = false;
+    placedGroups[id].innerHTML = "";
+    placedGroups[id].removeAttribute("class");
+    ghosts[id].style.display = "";
+    badges[id].style.display = "";
   });
-  document.querySelectorAll(".placed-organ").forEach(p => p.remove());
-
-  shuffle(ORGANS).forEach(o => {
+  const order = ORGANS.slice().sort(() => Math.random() - .5);
+  order.forEach(o => {
     const tile = document.createElement("div");
     tile.className = "organ-tile";
     tile.dataset.organ = o.id;
-    tile.style.background = o.color;
-    tile.textContent = o.name;
-    organTray.appendChild(tile);
-    attachDrag(tile, o);
+    const svg = organThumb(o.id);
+    tile.appendChild(svg);
+    const label = document.createElement("span");
+    label.textContent = o.name;
+    tile.appendChild(label);
+    tray.appendChild(tile);
+    fitThumb(svg);
+    attachDrag(tile);
   });
+  infoPanel.innerHTML = '<div class="ip-empty">기관을 제자리에 붙이면 여기에 그 기관의 특징이 나타나요.</div>';
+  setFeedbackMsg("조각을 끌어서 몸 그림의 알맞은 윤곽선 위에 놓아 보세요.");
+  foodBtn.disabled = true;
+  updateProgress();
 }
 
-function attachDrag(tile, organ){
-  let dragging = false;
-  let offsetX = 0, offsetY = 0;
+function updateProgress(){
+  progressFill.style.width = (placedCount / ORGANS.length * 100) + "%";
+  progressText.textContent = `${placedCount} / ${ORGANS.length}`;
+  const left = tray.querySelectorAll(".organ-tile:not(.locked)").length;
+  let empty = tray.querySelector(".tray-empty");
+  if (!left && !empty){
+    empty = document.createElement("div");
+    empty.className = "tray-empty";
+    empty.textContent = "🎉 모든 조각을 붙였어요! ‘음식물 이동 따라가기’를 눌러 보세요.";
+    tray.appendChild(empty);
+  }
+}
 
-  tile.addEventListener("pointerdown", (e) => {
-    dragging = true;
+function attachDrag(tile){
+  let drag = null;
+
+  tile.addEventListener("pointerdown", e => {
+    if (tile.classList.contains("locked") || drag) return;
+    e.preventDefault();
     const rect = tile.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
+    const holder = document.createElement("div");
+    holder.style.cssText = `width:${rect.width}px;height:${rect.height}px;visibility:hidden`;
+    tile.parentNode.insertBefore(holder, tile);
+    drag = { dx:e.clientX - rect.left, dy:e.clientY - rect.top, holder, id:e.pointerId };
+    Object.assign(tile.style, { position:"fixed", left:rect.left + "px", top:rect.top + "px",
+      width:rect.width + "px", zIndex:1000, margin:0 });
     tile.classList.add("dragging");
-    tile.style.width = rect.width + "px";
-    tile.style.height = rect.height + "px";
-    tile.style.position = "fixed";
-    tile.style.left = rect.left + "px";
-    tile.style.top = rect.top + "px";
-    tile.style.zIndex = 999;
     tile.setPointerCapture(e.pointerId);
   });
 
-  tile.addEventListener("pointermove", (e) => {
-    if(!dragging) return;
-    tile.style.left = (e.clientX - offsetX) + "px";
-    tile.style.top = (e.clientY - offsetY) + "px";
+  tile.addEventListener("pointermove", e => {
+    if (!drag) return;
+    tile.style.left = (e.clientX - drag.dx) + "px";
+    tile.style.top = (e.clientY - drag.dy) + "px";
   });
 
-  tile.addEventListener("pointerup", (e) => {
-    if(!dragging) return;
-    dragging = false;
+  const finish = (e, cancelled) => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    const rect = tile.getBoundingClientRect();
+    const id = tile.dataset.organ;
     tile.classList.remove("dragging");
+    tile.style.cssText = "";
+    d.holder.remove();
+    if (cancelled) return;
 
-    const px = e.clientX, py = e.clientY;
-    let targetZone = null;
+    const stage = bodySvg.getBoundingClientRect();
+    const overStage = e.clientX >= stage.left && e.clientX <= stage.right && e.clientY >= stage.top && e.clientY <= stage.bottom;
+    if (!overStage) return;
 
-    document.querySelectorAll(".drop-zone:not(.filled)").forEach(zone => {
-      const zr = zone.getBoundingClientRect();
-      const zcx = zr.left + zr.width / 2;
-      const zcy = zr.top + zr.height / 2;
-      const dist = Math.hypot(px - zcx, py - zcy);
-      if(dist < Math.max(zr.width, zr.height) * 0.75){
-        targetZone = zone;
-      }
-    });
-
-    if(targetZone){
-      if(targetZone.dataset.organ === organ.id){
-        // 정답
-        targetZone.classList.add("filled");
-        placedCount++;
-        dragProgress.textContent = `${placedCount} / 6 배치 완료`;
-        dragFeedback.innerHTML = `✅ <b>${organ.name}</b>을 올바른 위치에 놓았어요! ${organ.desc}`;
-        dragFeedback.className = "drag-feedback ok";
-
-        const placed = document.createElement("div");
-        placed.className = "placed-organ";
-        placed.style.background = organ.color;
-        placed.style.top = organ.top + "%";
-        placed.style.left = organ.left + "%";
-        placed.textContent = organ.name;
-        placed.title = organ.desc;
-        placed.addEventListener("click", () => {
-          dragFeedback.innerHTML = `<b>${organ.name}</b>: ${organ.desc}`;
-          dragFeedback.className = "drag-feedback ok";
-        });
-        bodyStage.appendChild(placed);
-
-        tile.classList.add("locked");
-        tile.style.position = "";
-        tile.style.left = "";
-        tile.style.top = "";
-        tile.style.zIndex = "";
-
-        if(placedCount === 6){
-          dragFeedback.innerHTML = "🎉 6개 기관을 모두 올바르게 배치했어요! 아래에서 워크시트도 풀어 보세요.";
-        }
-      } else {
-        // 오답
-        targetZone.classList.add("flash-bad");
-        setTimeout(() => targetZone.classList.remove("flash-bad"), 500);
-        dragFeedback.textContent = `❌ 그 자리는 ${organ.name}의 위치가 아니에요. 다시 시도해 보세요.`;
-        dragFeedback.className = "drag-feedback bad";
-        returnToTray(tile);
-      }
+    const p = toSvgPoint(e.clientX, e.clientY);
+    const c = toSvgPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    if (HIT[id](p.x, p.y) || HIT[id](c.x, c.y)){
+      placeOrgan(id, tile);
     } else {
-      returnToTray(tile);
+      const o = ORGAN_BY_ID[id];
+      setFeedbackMsg(`❌ 그곳은 ‘${o.name}’의 자리가 아니에요. 힌트: ${o.hint}`, "bad");
     }
-  });
+  };
+  tile.addEventListener("pointerup", e => finish(e, false));
+  tile.addEventListener("pointercancel", e => finish(e, true));
 }
 
-function returnToTray(tile){
-  tile.style.position = "";
-  tile.style.left = "";
-  tile.style.top = "";
-  tile.style.width = "";
-  tile.style.height = "";
-  tile.style.zIndex = "";
-  organTray.appendChild(tile);
+function placeOrgan(id, tile){
+  const o = ORGAN_BY_ID[id];
+  placed[id] = true;
+  placedCount++;
+  tile.classList.add("locked");
+  ghosts[id].style.display = "none";
+  badges[id].style.display = "none";
+
+  const g = placedGroups[id];
+  g.innerHTML = "";
+  g.setAttribute("filter", "url(#orgShadow)");
+  DRAW[id](g);
+  g.setAttribute("class", "placed-org pop");
+  setTimeout(() => g.classList.remove("pop"), 500);
+
+  showInfo(id);
+  updateProgress();
+  if (placedCount === ORGANS.length){
+    setFeedbackMsg("🎉 해부 모형 완성! 이제 음식물이 지나가는 길을 따라가 보세요.", "ok");
+    foodBtn.disabled = false;
+  } else {
+    setFeedbackMsg(`✅ 정답! ‘${o.name}’${o.eul} 제자리에 붙였어요.`, "ok");
+  }
 }
+
+function showInfo(id){
+  const o = ORGAN_BY_ID[id];
+  Z_ORDER.forEach(k => placedGroups[k].classList.toggle("selected", k === id && placed[k]));
+  infoPanel.innerHTML = "";
+  const t = document.createElement("div");
+  t.className = "ip-title";
+  t.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${o.color};margin-right:6px"></span>${o.num} ${o.name}`;
+  const d = document.createElement("div");
+  d.className = "ip-desc";
+  d.textContent = o.desc;
+  infoPanel.append(t, d);
+}
+
+placedLayer.addEventListener("click", e => {
+  const g = e.target.closest("g[data-organ]");
+  if (g && placed[g.dataset.organ]) showInfo(g.dataset.organ);
+});
+
+/* ==========================================================
+   음식물 이동 따라가기 애니메이션
+=========================================================== */
+const FOOD_ROUTE = [
+  { id:"ip",         d:"M 200 108 L 200 122", msg:"입에서 이로 씹고 침과 섞어요." },
+  { id:"sikdo",      d:SIKDO_D, msg:"식도의 연동 운동으로 위까지 내려가요." },
+  { id:"wi",         d:"M 222 348 C 262 336, 296 372, 278 412 C 264 440, 228 440, 198 428", msg:"위에서 위액과 섞여 죽처럼 돼요." },
+  { id:"sibijijang", d:SIBI_D, msg:"십이지장에서 이자액·쓸개즙과 만나요." },
+  { id:"sojang",     d:SOJANG_D, msg:"소장에서 소화가 끝나고 융털로 영양소를 흡수해요." },
+  { id:"daejang",    d:DAEJANG_D, msg:"대장에서 물이 흡수되고 대변이 만들어져요." }
+];
+let foodToken = 0;
+let foodDot = null;
+
+function stopFood(){
+  foodToken++;
+  if (foodDot){ foodDot.remove(); foodDot = null; }
+}
+
+foodBtn.addEventListener("click", () => {
+  stopFood();
+  const token = foodToken;
+  foodBtn.disabled = true;
+  foodDot = el("g", {}, fxLayer);
+  el("circle", { r:7, fill:"#F5E3A8", stroke:"#8A6D3B", "stroke-width":1.6 }, foodDot);
+  el("circle", { r:2.2, cx:-2, cy:-2, fill:"#fff", opacity:.7 }, foodDot);
+  const dot = foodDot;
+  const SPEED = 230; // 단위/초
+
+  let step = 0;
+  const runStep = () => {
+    if (token !== foodToken) return;
+    if (step >= FOOD_ROUTE.length){
+      setFeedbackMsg("🚽 남은 찌꺼기는 대변이 되어 항문으로 나가요. 소화 여행 끝!", "ok");
+      dot.style.transition = "opacity .6s";
+      dot.style.opacity = "0";
+      setTimeout(() => { if (token === foodToken){ stopFood(); foodBtn.disabled = false; } }, 700);
+      return;
+    }
+    const seg = FOOD_ROUTE[step];
+    showInfo(seg.id);
+    setFeedbackMsg(`🍙 ${ORGAN_BY_ID[seg.id].name}: ${seg.msg}`, "ok");
+    const path = el("path", { d:seg.d }, measureSvg);
+    const L = path.getTotalLength();
+    const dur = Math.max(700, L / SPEED * 1000);
+    const t0 = performance.now();
+    const frame = now => {
+      if (token !== foodToken){ path.remove(); return; }
+      const k = Math.min(1, (now - t0) / dur);
+      const q = path.getPointAtLength(L * k);
+      dot.setAttribute("transform", `translate(${r1(q.x)},${r1(q.y)}) scale(${seg.id === "daejang" ? r1(1 - k * .35) : 1})`);
+      if (k < 1) requestAnimationFrame(frame);
+      else { path.remove(); step++; runStep(); }
+    };
+    requestAnimationFrame(frame);
+  };
+  runStep();
+});
+
+/* ==========================================================
+   기관 특징 카드
+=========================================================== */
+(function buildCards(){
+  const box = document.getElementById("organ-cards");
+  ORGANS.forEach(o => {
+    const card = document.createElement("div");
+    card.className = "organ-card";
+    const svg = organThumb(o.id);
+    card.appendChild(svg);
+    const body = document.createElement("div");
+    body.innerHTML = `<div class="organ-card-title">${o.num} ${o.name}</div><div class="organ-card-desc"></div>`;
+    body.querySelector(".organ-card-desc").textContent = o.desc;
+    card.appendChild(body);
+    box.appendChild(card);
+    fitThumb(svg);
+  });
+})();
 
 dragResetBtn.addEventListener("click", buildTray);
 buildTray();
