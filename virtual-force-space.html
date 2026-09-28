@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가상 공간에서의 힘과 운동</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --force:#D8493B;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --violet:#7A56C9;
+    --violet-soft:#EFE9FA;
+    --amber:#C6871F;
+    --amber-soft:#FAF0DC;
+    --teal:#2F8F6F;
+    --teal-soft:#E1F3EC;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--violet),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:800px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{ font-size:11px; font-weight:800; color:#fff; background:var(--ink); padding:3px 9px; border-radius:999px; }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; }
+  @media (max-width:640px){ .info-grid{ grid-template-columns:1fr; } }
+  .info-box{ font-size:12.5px; line-height:1.8; }
+  .info-box b{ display:block; font-size:12.5px; font-weight:800; margin-bottom:4px; color:var(--ink); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{ font-size:11.5px; padding:3px 10px; border-radius:999px; font-weight:700; background:var(--blue-soft); color:var(--blue); }
+  .steps{ font-size:12.5px; line-height:1.9; color:var(--ink-soft); padding-left:18px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-label{ font-weight:800; font-size:13.5px; margin-bottom:4px; display:block; }
+  textarea{
+    width:100%; min-height:60px; margin-top:8px; font-family:inherit; font-size:13px; line-height:1.6;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+
+  .choice-group{ display:inline-flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .choice-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:5px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--violet); color:var(--violet); background:var(--violet-soft); }
+
+  /* ---------- 샌드박스 ---------- */
+  .toolbox{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+  .tool-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#FBFAF6; color:var(--ink);
+    border-radius:10px; padding:8px 12px; transition:.15s; display:flex; align-items:center; gap:5px;
+  }
+  .tool-btn:hover{ background:#F1EEE5; }
+  .tool-btn.active{ border-color:var(--force); color:var(--force); background:var(--force-soft, #FDEAE7); }
+  .tool-btn.run{ border-color:var(--teal); color:#fff; background:var(--teal); }
+  .tool-btn.run.paused{ border-color:var(--ink); color:#fff; background:var(--ink); }
+  .toolbar-sep{ width:1px; background:var(--line); margin:2px 2px; }
+
+  .sandbox-canvas-wrap{
+    background:linear-gradient(180deg,#dff0ff,#f3faf5);
+    border-radius:14px; border:1px solid var(--line); overflow:hidden; touch-action:none;
+    max-width:760px; margin:0 auto;
+  }
+  .sandbox-canvas-wrap canvas{ display:block; width:100%; height:auto; cursor:grab; }
+  .sandbox-canvas-wrap.dragging canvas{ cursor:grabbing; }
+  .sandbox-canvas-wrap.deleting canvas{ cursor:not-allowed; }
+
+  .sandbox-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:10px; }
+  .power-row{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); font-weight:700; }
+  .power-row input[type=range]{ width:100px; }
+
+  .sandbox-readout{
+    font-size:11.5px; line-height:1.7; background:#FFF7DE; border:1px solid #EEDDA0; color:#5B4A1E;
+    border-radius:8px; padding:8px 12px; margin-top:10px;
+  }
+  .sandbox-hint{ font-size:11.5px; color:var(--ink-soft); line-height:1.7; margin-top:8px; }
+
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:100px; }
+  .ws-student input.small{ width:64px; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13px; font-weight:800; cursor:pointer;
+    border:none; border-radius:9px; padding:9px 14px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.info{ color:var(--blue); }
+
+  footer{ max-width:1080px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅴ. 힘의 작용 · 창의・융합(STEAM)</div>
+    <h1>가상 공간에서 <span>힘과 운동</span>을 설계해요</h1>
+    <p class="sub">기어, 도르래(풀리), 용수철 발사대, 회전 도구 같은 힘을 가하는 도구를 직접 배치해서 나만의 가상 공간을 만들어 보세요. 프로그램을 실행하면 각 도구가 물체(공)에 실제로 힘을 작용시켜 운동 상태를 바꿉니다.</p>
+  </header>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">탐구</span>가상 공간에서의 힘과 운동</div>
+    <div class="card-hint">목표: 현실과 가까운 물리 효과를 내는 가상 공간 구현 프로그램을 이용하여, 힘이 작용할 때 물체의 운동이 어떻게 달라지는지 확인할 수 있다.</div>
+    <div class="info-grid">
+      <div class="info-box">
+        <b>준비물</b>
+        <div class="chip-row"><span class="chip">마우스 클릭·드래그</span><span class="chip">컴퓨터(스마트 기기)</span></div>
+      </div>
+      <div class="info-box">
+        <b>활동하기</b>
+        <ol class="steps">
+          <li>① 힘이 작용할 때 물체의 운동을 확인할 공간이나 상황을 계획한다.</li>
+          <li>② 가상 공간 구현 프로그램(아래 도구 상자)을 실행한다.</li>
+          <li>③ 필요한 물체(공, 발판 등)를 선택하고 공간에 불러온다.</li>
+          <li>④ 기본 도구에서 발판의 기울기, 도구의 회전 크기를 조절하고 물체를 이동·복제한다.</li>
+          <li>⑤ 용수철 발사대, 회전 도구처럼 힘을 가하는 도구를 추가한다.</li>
+          <li>⑥ ▶ 실행을 눌러 힘이 작용할 때 물체의 운동을 확인한다.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--violet)">계획</span>어떤 가상 공간을 만들까요?</div>
+    <div class="q" style="border-top:none;">
+      <span class="q-label">💭 내가 만들고자 하는 가상 공간 설명</span>
+      <textarea id="plan-desc" placeholder="예: 공이 경사로를 굴러 내려가다가 기어에 부딪혀 방향이 바뀌고, 회전 도구에 튕겨 발사대로 떨어지는 공간을 만들고 싶다."></textarea>
+    </div>
+    <div class="q">
+      <span class="q-label">💪 물체에 작용하는 힘</span>
+      <textarea id="plan-force" placeholder="예: 중력, 기어의 회전력, 용수철의 탄성력, 도르래의 장력 등 내가 사용할 힘을 적어보세요."></textarea>
+    </div>
+    <div class="q">
+      <span class="q-label">🎯 물체의 운동 (해당하는 것을 모두 선택하세요)</span>
+      <span class="choice-group" id="motion-types">
+        <button type="button" class="choice-btn" data-value="속력이 변하는 운동" id="motion-speed">물체의 속력이 변하는 운동</button>
+        <button type="button" class="choice-btn" data-value="방향이 변하는 운동" id="motion-dir">물체의 방향이 변하는 운동</button>
+        <button type="button" class="choice-btn" data-value="속력과 방향이 변하는 운동" id="motion-both">물체의 속력과 방향이 변하는 운동</button>
+      </span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--blue)">구현</span>가상 공간 구현 프로그램</div>
+    <div class="card-hint">도구를 추가한 뒤 드래그로 배치해 보세요. 발판은 위쪽 손잡이를 드래그하면 기울기가 바뀌어요.</div>
+
+    <div class="toolbox">
+      <button type="button" class="tool-btn" id="add-ball">🔵 공 추가</button>
+      <button type="button" class="tool-btn" id="add-plat">▭ 발판 추가</button>
+      <button type="button" class="tool-btn" id="add-gear">⚙️ 기어 추가</button>
+      <button type="button" class="tool-btn" id="add-wind">🌀 회전 도구 추가</button>
+      <button type="button" class="tool-btn" id="add-launch">🚀 발사대 추가</button>
+      <button type="button" class="tool-btn" id="add-pulley">🪢 도르래 추가</button>
+      <div class="toolbar-sep"></div>
+      <button type="button" class="tool-btn" id="delete-mode">🗑 삭제 모드</button>
+      <button type="button" class="tool-btn run paused" id="run-toggle">▶ 실행</button>
+      <button type="button" class="tool-btn" id="reset-sandbox">↺ 초기화</button>
+    </div>
+
+    <div class="sandbox-canvas-wrap" id="sandbox-wrap">
+      <canvas id="sandbox-canvas" width="760" height="440"></canvas>
+    </div>
+
+    <div class="sandbox-controls">
+      <div class="power-row">발사 세기 <input type="range" id="launch-power" min="1" max="5" value="3"><span id="launch-power-val">3</span></div>
+      <button type="button" class="btn primary" id="launch-btn">🚀 발사대 전체 발사!</button>
+    </div>
+
+    <div class="sandbox-readout" id="sandbox-readout">아직 추가된 도구가 없어요. 위 버튼으로 도구를 추가해 보세요.</div>
+    <div class="sandbox-hint">💡 기어·회전 도구에 공이 닿으면 힘을 받아 방향과 속력이 바뀌어요. 공을 발사대 위에 올려두고 "전체 발사!"를 누르면 위로 튀어 올라요. 도르래는 저울 옆 ▶ 아이콘을 눌러 손을 놓아 보세요.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--teal)">공유</span>결과 나누기</div>
+    <div class="card-hint">가상 공간 구현 프로그램에서 물체의 다양한 운동을 확인하고, 결과물을 친구들과 공유해 보자.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="q" style="border-top:none;">
+      <span class="q-label">📝 내가 만든 가상 공간에서 힘이 작용해 물체의 운동이 어떻게 바뀌었는지 설명해 보자.</span>
+      <textarea id="share-desc" placeholder="예: 기어에 부딪힌 공은 운동 방향이 바뀌었고, 발사대에서 발사된 공은 속력이 갑자기 빨라졌다."></textarea>
+      <span class="q-feedback info" id="fb-share"></span>
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 피드백받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 가상 공간에서의 힘과 운동</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+  이 저장소 루트의 code.gs(범용 스크립트)를 그대로 배포해서 쓰면 됩니다.
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   선택형 문항(계획) — 단일선택과 달리 다중선택 가능
+=========================================================== */
+document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
+  btn.addEventListener("click", () => btn.classList.toggle("picked"));
+});
+
+/* ==========================================================
+   가상 공간 구현 프로그램 — 캔버스 물리 샌드박스
+=========================================================== */
+(function(){
+  const canvas = document.getElementById("sandbox-canvas");
+  const wrap = document.getElementById("sandbox-wrap");
+  const readout = document.getElementById("sandbox-readout");
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const W = canvas.clientWidth || canvas.width;
+  const H = canvas.clientHeight || canvas.height;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  const GRAVITY = 0.32;
+  const REST = 0.55;
+  const MAX_SPEED = 22;
+  const BALL_COLORS = ["#2F6FDB","#D8493B","#C6871F","#7A56C9","#2F8F6F"];
+
+  const world = { balls:[], plats:[], gears:[], wind:[], launch:[], pulley:[] };
+  const CAPS = { balls:10, plats:8, gears:4, wind:3, launch:3, pulley:2 };
+  let running = false;
+  let deleteMode = false;
+  let maxSpeedObserved = 0;
+  let colorIdx = 0;
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+
+  /* -------------------- 도구 추가 -------------------- */
+  function addBall(){
+    if(world.balls.length >= CAPS.balls){ alert("공은 최대 " + CAPS.balls + "개까지 추가할 수 있어요."); return; }
+    world.balls.push({ x: rand(50,110), y: rand(30,60), vx:0, vy:0, r:14, color: BALL_COLORS[colorIdx++ % BALL_COLORS.length] });
+    updateReadout();
+  }
+  function addPlat(){
+    if(world.plats.length >= CAPS.plats){ alert("발판은 최대 " + CAPS.plats + "개까지 추가할 수 있어요."); return; }
+    world.plats.push({ x: rand(180,320), y: rand(260,320), w:110, h:16, angle:0 });
+    updateReadout();
+  }
+  function addGear(){
+    if(world.gears.length >= CAPS.gears){ alert("기어는 최대 " + CAPS.gears + "개까지 추가할 수 있어요."); return; }
+    world.gears.push({ x: rand(300,420), y: rand(120,200), r:30, angle:0, spinRate:(Math.random()<0.5?1:-1)*0.08 });
+    updateReadout();
+  }
+  function addWind(){
+    if(world.wind.length >= CAPS.wind){ alert("회전 도구는 최대 " + CAPS.wind + "개까지 추가할 수 있어요."); return; }
+    world.wind.push({ x: rand(400,520), y: rand(100,170), angle:0, spinRate:(Math.random()<0.5?1:-1)*0.06, armLen:65, thickness:10 });
+    updateReadout();
+  }
+  function addLaunch(){
+    if(world.launch.length >= CAPS.launch){ alert("발사대는 최대 " + CAPS.launch + "개까지 추가할 수 있어요."); return; }
+    world.launch.push({ x: rand(120,220), y: 390 });
+    updateReadout();
+  }
+  function addPulley(){
+    if(world.pulley.length >= CAPS.pulley){ alert("도르래는 최대 " + CAPS.pulley + "개까지 추가할 수 있어요."); return; }
+    world.pulley.push({ beamX: rand(560,660), beamY:55, offset:0, offsetVel:0, massLeft:1, massRight:1, unlocked:false });
+    updateReadout();
+  }
+
+  document.getElementById("add-ball").addEventListener("click", addBall);
+  document.getElementById("add-plat").addEventListener("click", addPlat);
+  document.getElementById("add-gear").addEventListener("click", addGear);
+  document.getElementById("add-wind").addEventListener("click", addWind);
+  document.getElementById("add-launch").addEventListener("click", addLaunch);
+  document.getElementById("add-pulley").addEventListener("click", addPulley);
+
+  const deleteBtn = document.getElementById("delete-mode");
+  deleteBtn.addEventListener("click", () => {
+    deleteMode = !deleteMode;
+    deleteBtn.classList.toggle("active", deleteMode);
+    wrap.classList.toggle("deleting", deleteMode);
+  });
+
+  const runBtn = document.getElementById("run-toggle");
+  runBtn.addEventListener("click", () => {
+    running = !running;
+    runBtn.textContent = running ? "⏸ 정지" : "▶ 실행";
+    runBtn.classList.toggle("paused", !running);
+  });
+
+  document.getElementById("reset-sandbox").addEventListener("click", () => {
+    world.balls.length = 0; world.plats.length = 0; world.gears.length = 0;
+    world.wind.length = 0; world.launch.length = 0; world.pulley.length = 0;
+    maxSpeedObserved = 0;
+    running = false;
+    runBtn.textContent = "▶ 실행";
+    runBtn.classList.add("paused");
+    updateReadout();
+  });
+
+  const powerSlider = document.getElementById("launch-power");
+  const powerVal = document.getElementById("launch-power-val");
+  powerSlider.addEventListener("input", () => { powerVal.textContent = powerSlider.value; });
+  document.getElementById("launch-btn").addEventListener("click", () => {
+    const power = Number(powerSlider.value);
+    world.launch.forEach(l => {
+      world.balls.forEach(b => {
+        if(Math.abs(b.x-l.x) < 40 && Math.abs(b.y-(l.y-6)) < 30){
+          b.vy -= (6 + power*3);
+          b.vx += rand(-1,1);
+        }
+      });
+    });
+  });
+
+  function updateReadout(){
+    const parts = [];
+    if(world.balls.length) parts.push("공 " + world.balls.length);
+    if(world.plats.length) parts.push("발판 " + world.plats.length);
+    if(world.gears.length) parts.push("기어 " + world.gears.length);
+    if(world.wind.length) parts.push("회전 도구 " + world.wind.length);
+    if(world.launch.length) parts.push("발사대 " + world.launch.length);
+    if(world.pulley.length) parts.push("도르래 " + world.pulley.length);
+    const toolsTxt = parts.length ? ("설치된 도구: " + parts.join(" · ")) : "아직 추가된 도구가 없어요. 위 버튼으로 도구를 추가해 보세요.";
+    readout.textContent = toolsTxt + (maxSpeedObserved > 0.5 ? `  |  관찰된 최고 속력: ${maxSpeedObserved.toFixed(1)}` : "");
+  }
+
+  function objectCounts(){
+    return {
+      ball: world.balls.length, plat: world.plats.length, gear: world.gears.length,
+      wind: world.wind.length, launch: world.launch.length, pulley: world.pulley.length
+    };
+  }
+
+  /* -------------------- 충돌 처리 -------------------- */
+  function resolveCircleRect(ball, plat){
+    const dx = ball.x - plat.x, dy = ball.y - plat.y;
+    const cosA = Math.cos(-plat.angle), sinA = Math.sin(-plat.angle);
+    const lx = dx*cosA - dy*sinA, ly = dx*sinA + dy*cosA;
+    const halfW = plat.w/2, halfH = plat.h/2;
+    const cx = clamp(lx,-halfW,halfW), cy = clamp(ly,-halfH,halfH);
+    const distX = lx-cx, distY = ly-cy;
+    const distSq = distX*distX + distY*distY;
+    if(distSq >= ball.r*ball.r || distSq < 1e-9) return;
+    const dist = Math.sqrt(distSq);
+    const nxLocal = distX/dist, nyLocal = distY/dist;
+    const cosA2 = Math.cos(plat.angle), sinA2 = Math.sin(plat.angle);
+    const nx = nxLocal*cosA2 - nyLocal*sinA2;
+    const ny = nxLocal*sinA2 + nyLocal*cosA2;
+    const overlap = ball.r - dist;
+    ball.x += nx*overlap; ball.y += ny*overlap;
+    const vDotN = ball.vx*nx + ball.vy*ny;
+    if(vDotN < 0){
+      ball.vx -= (1+REST)*vDotN*nx;
+      ball.vy -= (1+REST)*vDotN*ny;
+      ball.vx *= 0.99; ball.vy *= 0.99;
+    }
+  }
+
+  function resolveCircleGear(ball, gear, effOmega){
+    const dx = ball.x-gear.x, dy = ball.y-gear.y;
+    const dist = Math.hypot(dx,dy);
+    const minDist = ball.r + gear.r;
+    if(dist >= minDist || dist < 1e-6) return;
+    const nx = dx/dist, ny = dy/dist;
+    const overlap = minDist-dist;
+    ball.x += nx*overlap; ball.y += ny*overlap;
+    const vDotN = ball.vx*nx + ball.vy*ny;
+    if(vDotN < 0){
+      ball.vx -= (1+REST)*vDotN*nx;
+      ball.vy -= (1+REST)*vDotN*ny;
+    }
+    ball.vx += (-ny)*effOmega*gear.r*0.9;
+    ball.vy += (nx)*effOmega*gear.r*0.9;
+  }
+
+  function resolveCircleBlade(ball, wind, angleI, effOmega){
+    const p0x = wind.x, p0y = wind.y;
+    const p1x = wind.x + Math.cos(angleI)*wind.armLen;
+    const p1y = wind.y + Math.sin(angleI)*wind.armLen;
+    const abx = p1x-p0x, aby = p1y-p0y;
+    const lenSq = abx*abx+aby*aby;
+    let t = ((ball.x-p0x)*abx + (ball.y-p0y)*aby) / lenSq;
+    t = clamp(t,0,1);
+    const cxp = p0x + t*abx, cyp = p0y + t*aby;
+    const dx = ball.x-cxp, dy = ball.y-cyp;
+    const dist = Math.hypot(dx,dy);
+    const threshold = ball.r + wind.thickness/2;
+    if(dist >= threshold) return;
+    const nx = dist>1e-6 ? dx/dist : 0, ny = dist>1e-6 ? dy/dist : -1;
+    const overlap = threshold-dist;
+    ball.x += nx*overlap; ball.y += ny*overlap;
+    const vDotN = ball.vx*nx + ball.vy*ny;
+    if(vDotN < 0){
+      ball.vx -= (1+REST)*vDotN*nx;
+      ball.vy -= (1+REST)*vDotN*ny;
+    }
+    const r_len = t*wind.armLen;
+    ball.vx += effOmega * r_len * (-Math.sin(angleI)) * 0.8;
+    ball.vy += effOmega * r_len * (Math.cos(angleI)) * 0.8;
+  }
+
+  /* -------------------- 물리 업데이트 -------------------- */
+  function update(){
+    if(world.gears.length) world.gears.forEach(g => { if(running) g.angle += g.spinRate; });
+    if(world.wind.length) world.wind.forEach(w => { if(running) w.angle += w.spinRate; });
+
+    world.pulley.forEach(p => {
+      if(running && p.unlocked){
+        const a = (p.massLeft - p.massRight) * GRAVITY * 0.5 / (p.massLeft+p.massRight);
+        p.offsetVel += a;
+        p.offsetVel *= 0.995;
+        p.offset = clamp(p.offset + p.offsetVel, -70, 70);
+        if(Math.abs(p.offset) >= 70) p.offsetVel = 0;
+      }
+    });
+
+    if(!running) return;
+
+    world.balls.forEach(ball => {
+      if(ball._dragging) return;
+      ball.vy += GRAVITY;
+      ball.x += ball.vx; ball.y += ball.vy;
+
+      if(ball.x < ball.r){ ball.x = ball.r; ball.vx = -ball.vx*REST; }
+      if(ball.x > W-ball.r){ ball.x = W-ball.r; ball.vx = -ball.vx*REST; }
+      if(ball.y > H-ball.r){ ball.y = H-ball.r; ball.vy = -ball.vy*REST; ball.vx *= 0.9; }
+
+      world.plats.forEach(p => resolveCircleRect(ball,p));
+      world.launch.forEach(l => resolveCircleRect(ball, { x:l.x, y:l.y+2, w:56, h:12, angle:0 }));
+      world.gears.forEach(g => resolveCircleGear(ball, g, g.spinRate));
+      world.wind.forEach(w => {
+        for(let i=0;i<3;i++){
+          resolveCircleBlade(ball, w, w.angle + i*(Math.PI*2/3), w.spinRate);
+        }
+      });
+
+      const speed = Math.hypot(ball.vx,ball.vy);
+      if(speed > MAX_SPEED){ const s = MAX_SPEED/speed; ball.vx*=s; ball.vy*=s; }
+      if(speed > maxSpeedObserved) maxSpeedObserved = speed;
+    });
+  }
+
+  /* -------------------- 그리기 -------------------- */
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    world.plats.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x,p.y); ctx.rotate(p.angle);
+      ctx.fillStyle = "#8a6a4a";
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.strokeStyle = "#5f4a30"; ctx.lineWidth = 2; ctx.strokeRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+      const hx = p.x + Math.cos(p.angle-Math.PI/2)*(p.h/2+16);
+      const hy = p.y + Math.sin(p.angle-Math.PI/2)*(p.h/2+16);
+      ctx.strokeStyle = "#8a94a3"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(hx,hy); ctx.stroke();
+      ctx.fillStyle = "#5f6b7a"; ctx.beginPath(); ctx.arc(hx,hy,7,0,Math.PI*2); ctx.fill();
+    });
+
+    world.launch.forEach(l => {
+      ctx.fillStyle = "#7A56C9";
+      for(let i=0;i<4;i++){ ctx.fillRect(l.x-16, l.y-4-i*6, 32, 4); }
+      ctx.fillStyle = "#5b3fa0"; ctx.fillRect(l.x-28, l.y, 56, 10);
+    });
+
+    world.gears.forEach(g => {
+      ctx.save();
+      ctx.translate(g.x,g.y); ctx.rotate(g.angle);
+      ctx.fillStyle = "#5f6b7a";
+      for(let i=0;i<8;i++){
+        ctx.save();
+        ctx.rotate(i*(Math.PI*2/8));
+        ctx.fillRect(-5, -g.r-8, 10, 12);
+        ctx.restore();
+      }
+      ctx.beginPath(); ctx.arc(0,0,g.r,0,Math.PI*2); ctx.fillStyle = "#8a94a3"; ctx.fill();
+      ctx.strokeStyle = "#3d4653"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = "#232A35"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+
+    world.wind.forEach(w => {
+      ctx.save();
+      ctx.strokeStyle = "#D8493B"; ctx.lineWidth = w.thickness; ctx.lineCap = "round";
+      for(let i=0;i<3;i++){
+        const a = w.angle + i*(Math.PI*2/3);
+        ctx.beginPath();
+        ctx.moveTo(w.x,w.y);
+        ctx.lineTo(w.x+Math.cos(a)*w.armLen, w.y+Math.sin(a)*w.armLen);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#232A35"; ctx.beginPath(); ctx.arc(w.x,w.y,8,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+
+    world.pulley.forEach(p => {
+      ctx.fillStyle = "#8a94a3"; ctx.fillRect(p.beamX-55, p.beamY-6, 110, 8);
+      ctx.beginPath(); ctx.arc(p.beamX,p.beamY+4,10,0,Math.PI*2); ctx.fillStyle = "#5f6b7a"; ctx.fill();
+
+      const leftX = p.beamX-45, rightX = p.beamX+45;
+      const restY = p.beamY + 70;
+      const leftY = restY + p.offset, rightY = restY - p.offset;
+      ctx.strokeStyle = "#232A35"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(leftX,p.beamY+4); ctx.lineTo(leftX,leftY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rightX,p.beamY+4); ctx.lineTo(rightX,rightY); ctx.stroke();
+
+      function box(cx,cy,mass){
+        const s = 16 + mass*6;
+        ctx.fillStyle = "#C6871F"; ctx.fillRect(cx-s/2,cy,s,s);
+        ctx.strokeStyle = "#8a5a12"; ctx.strokeRect(cx-s/2,cy,s,s);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 11px Pretendard, sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(String(mass), cx, cy+s/2+4);
+      }
+      box(leftX, leftY, p.massLeft);
+      box(rightX, rightY, p.massRight);
+
+      ctx.fillStyle = p.unlocked ? "#2E9E5B" : "#626A78";
+      ctx.beginPath(); ctx.arc(p.beamX, p.beamY-20, 10, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = "10px Pretendard, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(p.unlocked ? "⏸" : "▶", p.beamX, p.beamY-16);
+    });
+
+    world.balls.forEach(b => {
+      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+      ctx.fillStyle = b.color; ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    });
+
+    ctx.textAlign = "left";
+  }
+
+  function loop(){
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  /* -------------------- 포인터(드래그) 처리 -------------------- */
+  let drag = null;
+
+  function canvasPos(e){
+    const rect = canvas.getBoundingClientRect();
+    return { x: (e.clientX-rect.left) * (W/rect.width), y: (e.clientY-rect.top) * (H/rect.height) };
+  }
+
+  function hitTest(mx,my){
+    for(const p of world.pulley){
+      if(Math.hypot(mx-p.beamX, my-(p.beamY-20)) < 12) return { type:"pulley", obj:p, sub:"toggle" };
+    }
+    for(const p of world.pulley){
+      const leftX = p.beamX-45, rightX = p.beamX+45;
+      const restY = p.beamY+70;
+      const leftY = restY+p.offset, rightY = restY-p.offset;
+      const sL = 16+p.massLeft*6, sR = 16+p.massRight*6;
+      if(Math.abs(mx-leftX) < sL/2+4 && my > leftY-4 && my < leftY+sL+4) return { type:"pulley", obj:p, sub:"weightL" };
+      if(Math.abs(mx-rightX) < sR/2+4 && my > rightY-4 && my < rightY+sR+4) return { type:"pulley", obj:p, sub:"weightR" };
+      if(Math.abs(my-p.beamY) < 12 && mx > p.beamX-55 && mx < p.beamX+55) return { type:"pulley", obj:p, sub:"beam" };
+    }
+    for(let i=world.balls.length-1;i>=0;i--){
+      const b = world.balls[i];
+      if(Math.hypot(mx-b.x,my-b.y) < b.r+4) return { type:"ball", obj:b };
+    }
+    for(const g of world.gears){
+      if(Math.hypot(mx-g.x,my-g.y) < g.r+6) return { type:"gear", obj:g };
+    }
+    for(const w of world.wind){
+      if(Math.hypot(mx-w.x,my-w.y) < 16) return { type:"wind", obj:w };
+    }
+    for(const l of world.launch){
+      if(Math.abs(mx-l.x) < 28 && Math.abs(my-(l.y+5)) < 25) return { type:"launch", obj:l };
+    }
+    for(const p of world.plats){
+      const hx = p.x + Math.cos(p.angle-Math.PI/2)*(p.h/2+16);
+      const hy = p.y + Math.sin(p.angle-Math.PI/2)*(p.h/2+16);
+      if(Math.hypot(mx-hx,my-hy) < 9) return { type:"plat", obj:p, sub:"handle" };
+    }
+    for(const p of world.plats){
+      const dx = mx-p.x, dy = my-p.y;
+      const cosA = Math.cos(-p.angle), sinA = Math.sin(-p.angle);
+      const lx = dx*cosA-dy*sinA, ly = dx*sinA+dy*cosA;
+      if(Math.abs(lx) < p.w/2+5 && Math.abs(ly) < p.h/2+5) return { type:"plat", obj:p, sub:"body" };
+    }
+    return null;
+  }
+
+  const ARR = { ball: world.balls, gear: world.gears, wind: world.wind, launch: world.launch, plat: world.plats, pulley: world.pulley };
+
+  canvas.addEventListener("pointerdown", e => {
+    const {x:mx,y:my} = canvasPos(e);
+    const hit = hitTest(mx,my);
+    if(!hit) return;
+
+    if(deleteMode){
+      const arr = ARR[hit.type];
+      const idx = arr.indexOf(hit.obj);
+      if(idx >= 0) arr.splice(idx,1);
+      updateReadout();
+      return;
+    }
+
+    if(hit.type === "pulley" && hit.sub === "toggle"){
+      hit.obj.unlocked = !hit.obj.unlocked;
+      if(!hit.obj.unlocked){ hit.obj.offset = 0; hit.obj.offsetVel = 0; }
+      return;
+    }
+    if(hit.type === "pulley" && (hit.sub === "weightL" || hit.sub === "weightR")){
+      const key = hit.sub === "weightL" ? "massLeft" : "massRight";
+      hit.obj[key] = hit.obj[key] >= 3 ? 1 : hit.obj[key]+1;
+      return;
+    }
+
+    canvas.setPointerCapture(e.pointerId);
+    wrap.classList.add("dragging");
+
+    if(hit.type === "ball"){
+      hit.obj._dragging = true; hit.obj._prevX = mx; hit.obj._prevY = my;
+      drag = { type:"ball", obj:hit.obj, offX: mx-hit.obj.x, offY: my-hit.obj.y };
+    } else if(hit.type === "plat" && hit.sub === "handle"){
+      drag = { type:"platHandle", obj:hit.obj };
+    } else if(hit.type === "plat"){
+      drag = { type:"plat", obj:hit.obj, offX: mx-hit.obj.x, offY: my-hit.obj.y };
+    } else if(hit.type === "pulley" && hit.sub === "beam"){
+      drag = { type:"pulleyBeam", obj:hit.obj, offX: mx-hit.obj.beamX, offY: my-hit.obj.beamY };
+    } else {
+      drag = { type:hit.type, obj:hit.obj, offX: mx-hit.obj.x, offY: my-hit.obj.y };
+    }
+  });
+
+  canvas.addEventListener("pointermove", e => {
+    if(!drag) return;
+    const {x:mx,y:my} = canvasPos(e);
+    if(drag.type === "ball"){
+      const b = drag.obj;
+      b._dragVX = mx-b._prevX; b._dragVY = my-b._prevY;
+      b._prevX = mx; b._prevY = my;
+      b.x = clamp(mx-drag.offX, b.r, W-b.r);
+      b.y = clamp(my-drag.offY, b.r, H-b.r);
+    } else if(drag.type === "platHandle"){
+      const p = drag.obj;
+      p.angle = Math.atan2(my-p.y, mx-p.x) + Math.PI/2;
+    } else if(drag.type === "pulleyBeam"){
+      const p = drag.obj;
+      p.beamX = clamp(mx-drag.offX, 70, W-70);
+      p.beamY = clamp(my-drag.offY, 30, 120);
+    } else {
+      drag.obj.x = mx-drag.offX;
+      drag.obj.y = my-drag.offY;
+    }
+  });
+
+  function endDrag(){
+    if(drag && drag.type === "ball"){
+      const b = drag.obj;
+      b._dragging = false;
+      b.vx = (b._dragVX||0);
+      b.vy = (b._dragVY||0);
+    }
+    drag = null;
+    wrap.classList.remove("dragging");
+  }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+
+  draw();
+  requestAnimationFrame(loop);
+
+  window.__sandboxWorld = world;
+  window.__sandboxObjectCounts = objectCounts;
+  window.__sandboxMaxSpeed = () => maxSpeedObserved;
+  window.__sandboxHitTest = hitTest;
+  window.__sandboxCanvasSize = () => ({ W, H });
+})();
+
+/* ==========================================================
+   워크시트 제출 & 스프레드시트 자동 전송
+=========================================================== */
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+function pickedValues(containerId){
+  return [...document.querySelectorAll(`#${containerId} .choice-btn.picked`)].map(b => b.dataset.value);
+}
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  const planDesc = document.getElementById("plan-desc").value.trim();
+  const planForce = document.getElementById("plan-force").value.trim();
+  const motionTypes = pickedValues("motion-types");
+  const shareDesc = document.getElementById("share-desc").value.trim();
+
+  if(!name){ alert("이름을 입력해 주세요."); return; }
+  if(!planDesc || !planForce || motionTypes.length === 0 || !shareDesc){
+    alert("계획하기와 공유하기의 모든 문항에 답해 주세요.");
+    return;
+  }
+  const counts = window.__sandboxObjectCounts ? window.__sandboxObjectCounts() : {};
+  const totalObjects = Object.values(counts).reduce((a,b) => a+b, 0);
+  if(totalObjects === 0){
+    alert("가상 공간 구현 프로그램에 도구를 하나 이상 배치해 보세요.");
+    return;
+  }
+
+  document.getElementById("fb-share").textContent = "📝 서술형 답변은 선생님이 확인 후 피드백해 줄게요.";
+  document.getElementById("fb-share").className = "q-feedback info";
+
+  const maxSpeed = window.__sandboxMaxSpeed ? window.__sandboxMaxSpeed() : 0;
+  wsResult.textContent = `🎨 창의적인 가상 공간을 잘 구현했어요! (설치한 도구 ${totalObjects}개, 최고 속력 ${maxSpeed.toFixed(1)})`;
+  wsResult.className = "ws-result ok";
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const payload = {
+    worksheet: "him-virtual-force-space",
+    grade, classNum, number, name,
+    plan_desc: planDesc, plan_force: planForce,
+    motion_types: motionTypes.join(", "),
+    share_desc: shareDesc,
+    ball_count: String(counts.ball||0), plat_count: String(counts.plat||0),
+    gear_count: String(counts.gear||0), wind_count: String(counts.wind||0),
+    launch_count: String(counts.launch||0), pulley_count: String(counts.pulley||0),
+    max_speed: maxSpeed.toFixed(1)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "제출 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "제출 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "제출은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  ["plan-desc","plan-force","share-desc"].forEach(id => document.getElementById(id).value = "");
+  document.querySelectorAll("#motion-types .choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.getElementById("fb-share").textContent = "";
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
