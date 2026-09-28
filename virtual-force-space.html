@@ -217,7 +217,7 @@
     </div>
 
     <div class="sandbox-readout" id="sandbox-readout">아직 추가된 도구가 없어요. 위 버튼으로 도구를 추가해 보세요.</div>
-    <div class="sandbox-hint">💡 기어·회전 도구에 공이 닿으면 힘을 받아 방향과 속력이 바뀌어요. 공을 발사대 위에 올려두고 "전체 발사!"를 누르면 위로 튀어 올라요. 도르래는 저울 옆 ▶ 아이콘을 눌러 손을 놓아 보세요.</div>
+    <div class="sandbox-hint">💡 기어·회전 도구에 공이 닿으면 힘을 받아 방향과 속력이 바뀌어요. 공을 발사대 위에 올려두고 "전체 발사!"를 누르면 위로 튀어 올라요. 도르래는 접시 위에 공을 올리면 공이 많이 올라간 쪽이 저절로 내려가고 반대쪽이 올라가요.</div>
   </section>
 
   <section class="card">
@@ -321,7 +321,7 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
   }
   function addPulley(){
     if(world.pulley.length >= CAPS.pulley){ alert("도르래는 최대 " + CAPS.pulley + "개까지 추가할 수 있어요."); return; }
-    world.pulley.push({ beamX: rand(560,660), beamY:55, offset:0, offsetVel:0, massLeft:1, massRight:1, unlocked:false });
+    world.pulley.push({ beamX: rand(560,660), beamY:55, offset:0, offsetVel:0 });
     updateReadout();
   }
 
@@ -399,7 +399,7 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
     const cx = clamp(lx,-halfW,halfW), cy = clamp(ly,-halfH,halfH);
     const distX = lx-cx, distY = ly-cy;
     const distSq = distX*distX + distY*distY;
-    if(distSq >= ball.r*ball.r || distSq < 1e-9) return;
+    if(distSq >= ball.r*ball.r || distSq < 1e-9) return false;
     const dist = Math.sqrt(distSq);
     const nxLocal = distX/dist, nyLocal = distY/dist;
     const cosA2 = Math.cos(plat.angle), sinA2 = Math.sin(plat.angle);
@@ -413,6 +413,7 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
       ball.vy -= (1+REST)*vDotN*ny;
       ball.vx *= 0.99; ball.vy *= 0.99;
     }
+    return true;
   }
 
   function resolveCircleGear(ball, gear, effOmega){
@@ -464,13 +465,10 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
     if(world.wind.length) world.wind.forEach(w => { if(running) w.angle += w.spinRate; });
 
     world.pulley.forEach(p => {
-      if(running && p.unlocked){
-        const a = (p.massLeft - p.massRight) * GRAVITY * 0.5 / (p.massLeft+p.massRight);
-        p.offsetVel += a;
-        p.offsetVel *= 0.995;
-        p.offset = clamp(p.offset + p.offsetVel, -70, 70);
-        if(Math.abs(p.offset) >= 70) p.offsetVel = 0;
-      }
+      const restY = p.beamY + 70;
+      p._leftPlate = { x: p.beamX-45, y: restY+p.offset+2, w:56, h:10, angle:0 };
+      p._rightPlate = { x: p.beamX+45, y: restY-p.offset+2, w:56, h:10, angle:0 };
+      p._leftLoad = 0; p._rightLoad = 0;
     });
 
     if(!running) return;
@@ -486,6 +484,10 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
 
       world.plats.forEach(p => resolveCircleRect(ball,p));
       world.launch.forEach(l => resolveCircleRect(ball, { x:l.x, y:l.y+2, w:56, h:12, angle:0 }));
+      world.pulley.forEach(p => {
+        if(resolveCircleRect(ball, p._leftPlate)) p._leftLoad++;
+        if(resolveCircleRect(ball, p._rightPlate)) p._rightLoad++;
+      });
       world.gears.forEach(g => resolveCircleGear(ball, g, g.spinRate));
       world.wind.forEach(w => {
         for(let i=0;i<3;i++){
@@ -496,6 +498,14 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
       const speed = Math.hypot(ball.vx,ball.vy);
       if(speed > MAX_SPEED){ const s = MAX_SPEED/speed; ball.vx*=s; ball.vy*=s; }
       if(speed > maxSpeedObserved) maxSpeedObserved = speed;
+    });
+
+    world.pulley.forEach(p => {
+      const torque = (p._leftLoad - p._rightLoad) * 0.2 - p.offset*0.003;
+      p.offsetVel += torque;
+      p.offsetVel *= 0.9;
+      p.offset = clamp(p.offset + p.offsetVel, -70, 70);
+      if(Math.abs(p.offset) >= 70) p.offsetVel *= 0.2;
     });
   }
 
@@ -564,20 +574,18 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
       ctx.beginPath(); ctx.moveTo(leftX,p.beamY+4); ctx.lineTo(leftX,leftY); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(rightX,p.beamY+4); ctx.lineTo(rightX,rightY); ctx.stroke();
 
-      function box(cx,cy,mass){
-        const s = 16 + mass*6;
-        ctx.fillStyle = "#C6871F"; ctx.fillRect(cx-s/2,cy,s,s);
-        ctx.strokeStyle = "#8a5a12"; ctx.strokeRect(cx-s/2,cy,s,s);
-        ctx.fillStyle = "#fff"; ctx.font = "bold 11px Pretendard, sans-serif"; ctx.textAlign = "center";
-        ctx.fillText(String(mass), cx, cy+s/2+4);
+      function dish(cx,cy){
+        ctx.strokeStyle = "#5b3fa0"; ctx.lineWidth = 4; ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(cx-27,cy);
+        ctx.quadraticCurveTo(cx, cy+13, cx+27, cy);
+        ctx.stroke();
+        ctx.lineWidth = 2; ctx.strokeStyle = "#8a94a3";
+        ctx.beginPath(); ctx.moveTo(cx-27,cy); ctx.lineTo(cx-27,cy-6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx+27,cy); ctx.lineTo(cx+27,cy-6); ctx.stroke();
       }
-      box(leftX, leftY, p.massLeft);
-      box(rightX, rightY, p.massRight);
-
-      ctx.fillStyle = p.unlocked ? "#2E9E5B" : "#626A78";
-      ctx.beginPath(); ctx.arc(p.beamX, p.beamY-20, 10, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#fff"; ctx.font = "10px Pretendard, sans-serif"; ctx.textAlign = "center";
-      ctx.fillText(p.unlocked ? "⏸" : "▶", p.beamX, p.beamY-16);
+      dish(leftX, leftY);
+      dish(rightX, rightY);
     });
 
     world.balls.forEach(b => {
@@ -604,21 +612,12 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
   }
 
   function hitTest(mx,my){
-    for(const p of world.pulley){
-      if(Math.hypot(mx-p.beamX, my-(p.beamY-20)) < 12) return { type:"pulley", obj:p, sub:"toggle" };
-    }
-    for(const p of world.pulley){
-      const leftX = p.beamX-45, rightX = p.beamX+45;
-      const restY = p.beamY+70;
-      const leftY = restY+p.offset, rightY = restY-p.offset;
-      const sL = 16+p.massLeft*6, sR = 16+p.massRight*6;
-      if(Math.abs(mx-leftX) < sL/2+4 && my > leftY-4 && my < leftY+sL+4) return { type:"pulley", obj:p, sub:"weightL" };
-      if(Math.abs(mx-rightX) < sR/2+4 && my > rightY-4 && my < rightY+sR+4) return { type:"pulley", obj:p, sub:"weightR" };
-      if(Math.abs(my-p.beamY) < 12 && mx > p.beamX-55 && mx < p.beamX+55) return { type:"pulley", obj:p, sub:"beam" };
-    }
     for(let i=world.balls.length-1;i>=0;i--){
       const b = world.balls[i];
       if(Math.hypot(mx-b.x,my-b.y) < b.r+4) return { type:"ball", obj:b };
+    }
+    for(const p of world.pulley){
+      if(Math.abs(my-p.beamY) < 12 && mx > p.beamX-55 && mx < p.beamX+55) return { type:"pulley", obj:p, sub:"beam" };
     }
     for(const g of world.gears){
       if(Math.hypot(mx-g.x,my-g.y) < g.r+6) return { type:"gear", obj:g };
@@ -655,17 +654,6 @@ document.querySelectorAll("#motion-types .choice-btn").forEach(btn => {
       const idx = arr.indexOf(hit.obj);
       if(idx >= 0) arr.splice(idx,1);
       updateReadout();
-      return;
-    }
-
-    if(hit.type === "pulley" && hit.sub === "toggle"){
-      hit.obj.unlocked = !hit.obj.unlocked;
-      if(!hit.obj.unlocked){ hit.obj.offset = 0; hit.obj.offsetVel = 0; }
-      return;
-    }
-    if(hit.type === "pulley" && (hit.sub === "weightL" || hit.sub === "weightR")){
-      const key = hit.sub === "weightL" ? "massLeft" : "massRight";
-      hit.obj[key] = hit.obj[key] >= 3 ? 1 : hit.obj[key]+1;
       return;
     }
 
