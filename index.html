@@ -689,6 +689,7 @@ footer{
       <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[0])">🃏 달무티 게임</li>
       <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[1])">🏹 활쏘기 게임</li>
       <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[2])">🌀 기울기 미로 게임</li>
+      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[3])">✈️ 비행기 슈팅 게임</li>
     </ul>
   </details>
 
@@ -1249,6 +1250,9 @@ const VIRTUAL_FORCE_SPACE_URL = "virtual-force-space.html";
 // ⚠️ tilt-maze-game.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const TILT_MAZE_URL = "tilt-maze-game.html";
 
+// ⚠️ plane-shooting-game.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const PLANE_SHOOTING_URL = "plane-shooting-game.html";
+
 const topicsData = {
   "swieo-game": {
     title: "🎮 쉬어가는 게임",
@@ -1269,6 +1273,12 @@ const topicsData = {
         title: "🌀 기울기 미로 게임",
         desc: "아두이노 우노 + MPU-6050 기울기 센서를 USB로 연결해 실제로 보드를 기울이며 미로 속 구슬을 굴리는 게임입니다. 센서가 없어도 방향키로 플레이할 수 있어요.",
         url: TILT_MAZE_URL,
+        ready: true
+      },
+      {
+        title: "✈️ 비행기 슈팅 게임",
+        desc: "방향키나 드래그로 비행기를 움직여 적이 쏘는 미사일을 피하세요. 총알은 자동으로 발사되니 피하는 데만 집중하면 됩니다!",
+        url: PLANE_SHOOTING_URL,
         ready: true
       }
     ]

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비행기 슈팅 게임 — 미사일 피하기</title>
+<style>
+  :root{
+    --sky1:#4FA8E0;
+    --sky2:#BFE3F5;
+    --card:#FFFFFF;
+    --ink:#1C2733;
+    --ink-soft:#5B6B7A;
+    --line:#CFE2EC;
+    --accent:#D8493B;
+    --accent-soft:#FBE6E2;
+    --gold:#E8A23F;
+    --gold-soft:#FBF1D8;
+    --ok:#2E9E5B;
+    --ok-soft:#E4F5EB;
+    --bad:#C94A3D;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 600px at 15% -10%, #1C3A52 0%, #0E1E2B 60%);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:16px 20px 30px;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+  header{ display:flex; flex-direction:column; gap:4px; color:#E7F2FA; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:#8FD1F5; font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(19px,2.2vw,24px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ color:#8FD1F5; }
+  .sub{ color:#B9CBD9; font-size:12.5px; line-height:1.65; max-width:900px; }
+
+  main{ display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start; }
+  @media (max-width:900px){ main{ grid-template-columns:1fr; } }
+
+  .board-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.2);
+    display:flex; flex-direction:column; gap:10px; align-items:center;
+  }
+  .status-row{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .badge{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800;
+    padding:6px 13px; border-radius:999px; background:var(--gold-soft); color:#A9792E;
+    font-variant-numeric:tabular-nums;
+  }
+  .badge.life{ background:var(--accent-soft); color:var(--accent); }
+  .badge.time{ background:#EEF3F7; color:var(--ink-soft); }
+
+  #boardWrap{
+    width:100%; max-width:440px; border-radius:14px; overflow:hidden;
+    background:linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 100%);
+    border:6px solid #16212B; position:relative; touch-action:none;
+  }
+  #board{ display:block; width:100%; height:auto; }
+
+  .overlay-msg{
+    position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; background:rgba(10,20,30,.55); color:#fff; text-align:center; padding:20px;
+  }
+  .overlay-msg.show{ display:flex; }
+  .overlay-msg .emoji{ font-size:38px; }
+  .overlay-msg h2{ font-size:19px; font-weight:800; }
+  .overlay-msg p{ font-size:13px; color:#D9E6EE; }
+
+  .board-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:10px 18px; transition:.15s;
+  }
+  .btn.primary{ background:#16212B; color:#fff; }
+  .btn.primary:hover{ background:#223344; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+
+  .side-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.2); display:flex; flex-direction:column; gap:14px;
+  }
+  .side-title{ font-size:14px; font-weight:800; display:flex; align-items:center; gap:7px; }
+  .side-title .tag{ font-size:10.5px; font-weight:800; color:#fff; background:var(--accent); padding:2px 8px; border-radius:999px; }
+
+  .legend-item{ display:flex; gap:9px; align-items:flex-start; font-size:12px; line-height:1.6; color:var(--ink-soft); }
+  .legend-item b{ color:var(--ink); }
+  .legend-item .ic{ font-size:16px; flex-shrink:0; width:20px; text-align:center; }
+
+  .hi-row{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:800; color:var(--ink); background:#F6F8FA; border-radius:10px; padding:10px 12px; }
+  .hi-row span.v{ color:var(--gold); }
+
+  .rules{ font-size:11.5px; line-height:1.85; color:var(--ink-soft); }
+  .rules b{ color:var(--ink); }
+
+  footer{ max-width:1180px; margin:4px auto 0; color:#B9CBD9; font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">쉬어가는 게임</div>
+    <h1>비행기 슈팅 게임 — <span>날아오는 미사일 피하기</span></h1>
+    <p class="sub">비행기를 움직여서 적이 쏘는 빨간 미사일을 피하세요. 내 비행기는 자동으로 총알을 쏘니까, 적 비행기 밑을 지나가면 저절로 격추됩니다! 목숨은 3개, 오래 살아남고 많이 격추할수록 점수가 올라가요.</p>
+  </header>
+
+  <main>
+    <div class="board-card">
+      <div class="status-row">
+        <div class="badge">🏆 <span id="scoreLabel">0</span>점</div>
+        <div class="badge time">⏱ <span id="timeLabel">0.0</span>초</div>
+        <div class="badge life">❤️ <span id="livesLabel">3</span></div>
+      </div>
+
+      <div id="boardWrap">
+        <canvas id="board" width="440" height="620"></canvas>
+        <div class="overlay-msg" id="overlayMsg">
+          <div class="emoji" id="overlayEmoji">💥</div>
+          <h2 id="overlayTitle">게임 오버</h2>
+          <p id="overlayDesc">점수: 0점</p>
+          <button class="btn primary" id="overlayRestartBtn">🔄 다시 시작</button>
+        </div>
+      </div>
+
+      <div class="board-actions">
+        <button class="btn ghost" id="restartBtn">🔄 처음부터 다시 시작</button>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="hi-row">최고 점수 <span class="v" id="highScoreLabel">0점</span></div>
+
+      <div>
+        <div class="side-title"><span class="tag">조작 방법</span></div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
+          <div class="legend-item"><span class="ic">⌨️</span><span><b>방향키 / WASD</b> — 비행기를 상하좌우로 이동합니다.</span></div>
+          <div class="legend-item"><span class="ic">🖱️</span><span><b>드래그</b> — 마우스나 손가락으로 비행기를 눌러서 끌 수도 있어요.</span></div>
+          <div class="legend-item"><span class="ic">🔫</span><span>총알은 <b>자동으로</b> 발사돼요 — 피하는 데만 집중하세요!</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="side-title"><span class="tag">게임 요소</span></div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
+          <div class="legend-item"><span class="ic">🚀</span><span><b>빨간 미사일</b> — 적이 발사하는 순간의 내 위치를 조준해요. 맞으면 목숨이 1개 줄어요.</span></div>
+          <div class="legend-item"><span class="ic">🛩️</span><span><b>적 비행기</b> — 아래로 내려오며 가끔 미사일을 쏴요. 총알로 맞히면 점수 획득!</span></div>
+          <div class="legend-item"><span class="ic">✨</span><span>피격 후에는 잠깐 무적 상태가 돼요(비행기가 깜빡여요).</span></div>
+        </div>
+      </div>
+
+      <div class="rules">
+        <b>팁</b><br>
+        시간이 지날수록 적이 더 자주 나타나고 미사일도 빨라져요. 한 방향으로만 움직이지 말고 작은 움직임으로 미사일을 살짝 피해보세요.
+      </div>
+    </div>
+  </main>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 비행기 슈팅 게임</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const canvas = $('board');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+/* ================= 상수 ================= */
+const PLAYER_SPEED = 320;
+const PLAYER_R = 14;
+const FIRE_INTERVAL = 220;
+const BULLET_SPEED = 480;
+const BULLET_R = 4;
+const ENEMY_R = 15;
+const ENEMY_SPEED_MIN = 60, ENEMY_SPEED_MAX = 100;
+const MISSILE_SPEED = 200;
+const MISSILE_R = 6;
+const ENEMY_FIRE_MIN = 900, ENEMY_FIRE_MAX = 2000;
+const SPAWN_INTERVAL_START = 1500, SPAWN_INTERVAL_MIN = 550;
+const INVULN_MS = 1400;
+const LIVES_START = 3;
+
+const HIGH_SCORE_KEY = 'science-planeshooter-highscore';
+let highScore = 0;
+try{ highScore = Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0; }catch(e){}
+$('highScoreLabel').textContent = highScore + '점';
+
+/* ================= 상태 ================= */
+let player, enemies, bullets, missiles, particles, clouds;
+let score, lives, survivalTime, spawnTimer, fireTimer, invulnTimer, gameOver;
+
+function resetGame(){
+  player = { x:W/2, y:H-90, vx:0, vy:0 };
+  enemies = [];
+  bullets = [];
+  missiles = [];
+  particles = [];
+  score = 0;
+  lives = LIVES_START;
+  survivalTime = 0;
+  spawnTimer = SPAWN_INTERVAL_START;
+  fireTimer = 0;
+  invulnTimer = 0;
+  gameOver = false;
+  $('overlayMsg').classList.remove('show');
+  updateHUD();
+}
+
+/* ================= 입력 ================= */
+const keyState = { up:false, down:false, left:false, right:false };
+const MOVE_KEYS = {
+  ArrowUp:'up', w:'up', W:'up',
+  ArrowDown:'down', s:'down', S:'down',
+  ArrowLeft:'left', a:'left', A:'left',
+  ArrowRight:'right', d:'right', D:'right'
+};
+window.addEventListener('keydown', (e) => {
+  const dir = MOVE_KEYS[e.key];
+  if(dir){ keyState[dir] = true; e.preventDefault(); }
+});
+window.addEventListener('keyup', (e) => {
+  const dir = MOVE_KEYS[e.key];
+  if(dir){ keyState[dir] = false; e.preventDefault(); }
+});
+
+let pointerActive = false, pointerX = 0, pointerY = 0;
+function canvasPoint(e){
+  const rect = canvas.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  return { x: cx * (W/rect.width), y: cy * (H/rect.height) };
+}
+canvas.addEventListener('pointerdown', (e) => {
+  pointerActive = true;
+  const p = canvasPoint(e);
+  pointerX = p.x; pointerY = p.y;
+});
+window.addEventListener('pointermove', (e) => {
+  if(!pointerActive) return;
+  const p = canvasPoint(e);
+  pointerX = p.x; pointerY = p.y;
+});
+window.addEventListener('pointerup', () => { pointerActive = false; });
+
+/* ================= 업데이트 ================= */
+function spawnEnemy(){
+  enemies.push({
+    x: ENEMY_R + Math.random()*(W-ENEMY_R*2),
+    y: -ENEMY_R-10,
+    vx: (Math.random()*2-1) * 20,
+    vy: ENEMY_SPEED_MIN + Math.random()*(ENEMY_SPEED_MAX-ENEMY_SPEED_MIN) + Math.min(survivalTime*0.6, 40),
+    fireTimer: ENEMY_FIRE_MIN + Math.random()*(ENEMY_FIRE_MAX-ENEMY_FIRE_MIN)
+  });
+}
+
+function spawnExplosion(x,y,color){
+  const n = 14;
+  for(let i=0;i<n;i++){
+    const ang = Math.random()*Math.PI*2;
+    const spd = 60 + Math.random()*140;
+    particles.push({
+      x, y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd,
+      life:1, color: color || '#F2A33B'
+    });
+  }
+}
+
+function updateHUD(){
+  $('scoreLabel').textContent = score;
+  $('timeLabel').textContent = survivalTime.toFixed(1);
+  $('livesLabel').textContent = Math.max(0, lives);
+}
+
+function update(dt){
+  if(gameOver) return;
+  survivalTime += dt;
+
+  // 이동
+  if(pointerActive){
+    const dx = pointerX-player.x, dy = pointerY-player.y;
+    player.x += dx * Math.min(1, dt*10);
+    player.y += dy * Math.min(1, dt*10);
+  }else{
+    let dx = (keyState.right?1:0) - (keyState.left?1:0);
+    let dy = (keyState.down?1:0) - (keyState.up?1:0);
+    const len = Math.hypot(dx,dy) || 1;
+    player.x += (dx/len) * PLAYER_SPEED * dt;
+    player.y += (dy/len) * PLAYER_SPEED * dt;
+  }
+  player.x = Math.max(PLAYER_R+4, Math.min(W-PLAYER_R-4, player.x));
+  player.y = Math.max(PLAYER_R+4, Math.min(H-PLAYER_R-4, player.y));
+
+  // 자동 발사
+  fireTimer -= dt*1000;
+  if(fireTimer <= 0){
+    bullets.push({ x: player.x, y: player.y-PLAYER_R });
+    fireTimer = FIRE_INTERVAL;
+  }
+
+  // 적 스폰
+  spawnTimer -= dt*1000;
+  if(spawnTimer <= 0){
+    spawnEnemy();
+    spawnTimer = Math.max(SPAWN_INTERVAL_MIN, SPAWN_INTERVAL_START - survivalTime*9);
+  }
+
+  // 적 이동 + 발사
+  for(const en of enemies){
+    en.x += en.vx*dt;
+    en.y += en.vy*dt;
+    if(en.x < ENEMY_R || en.x > W-ENEMY_R) en.vx *= -1;
+    en.fireTimer -= dt*1000;
+    if(en.fireTimer <= 0 && en.y > 0){
+      const dx = player.x-en.x, dy = player.y-en.y;
+      const d = Math.hypot(dx,dy) || 1;
+      missiles.push({ x:en.x, y:en.y, vx:dx/d*MISSILE_SPEED, vy:dy/d*MISSILE_SPEED });
+      en.fireTimer = ENEMY_FIRE_MIN + Math.random()*(ENEMY_FIRE_MAX-ENEMY_FIRE_MIN);
+    }
+  }
+  enemies = enemies.filter(en => en.y < H+40);
+
+  // 총알/미사일 이동
+  for(const b of bullets) b.y -= BULLET_SPEED*dt;
+  bullets = bullets.filter(b => b.y > -20);
+
+  for(const m of missiles){ m.x += m.vx*dt; m.y += m.vy*dt; }
+  missiles = missiles.filter(m => m.x>-30 && m.x<W+30 && m.y>-30 && m.y<H+30);
+
+  // 파티클
+  for(const p of particles){
+    p.x += p.vx*dt; p.y += p.vy*dt;
+    p.vx *= 0.92; p.vy *= 0.92;
+    p.life -= dt*1.6;
+  }
+  particles = particles.filter(p => p.life > 0);
+
+  // 충돌: 총알 vs 적
+  for(const b of bullets){
+    for(const en of enemies){
+      if(en.dead) continue;
+      if(Math.hypot(b.x-en.x, b.y-en.y) < BULLET_R+ENEMY_R){
+        en.dead = true; b.dead = true;
+        score += 10;
+        spawnExplosion(en.x, en.y, '#F2A33B');
+      }
+    }
+  }
+  bullets = bullets.filter(b => !b.dead);
+  enemies = enemies.filter(en => !en.dead);
+
+  if(invulnTimer > 0) invulnTimer -= dt*1000;
+
+  // 충돌: 미사일 vs 플레이어
+  for(const m of missiles){
+    if(Math.hypot(m.x-player.x, m.y-player.y) < MISSILE_R+PLAYER_R){
+      m.dead = true;
+      if(invulnTimer <= 0) hitPlayer();
+    }
+  }
+  missiles = missiles.filter(m => !m.dead);
+
+  // 충돌: 적 vs 플레이어
+  for(const en of enemies){
+    if(Math.hypot(en.x-player.x, en.y-player.y) < ENEMY_R+PLAYER_R){
+      en.dead = true;
+      spawnExplosion(en.x, en.y, '#F2A33B');
+      if(invulnTimer <= 0) hitPlayer();
+    }
+  }
+  enemies = enemies.filter(en => !en.dead);
+
+  // 구름
+  for(const c of clouds){
+    c.y += c.speed*dt;
+    if(c.y > H+60){ c.y = -60; c.x = Math.random()*W; }
+  }
+
+  updateHUD();
+
+  if(lives <= 0 && !gameOver){
+    endGame();
+  }
+}
+
+function hitPlayer(){
+  lives -= 1;
+  invulnTimer = INVULN_MS;
+  spawnExplosion(player.x, player.y, '#4FA8E0');
+}
+
+function endGame(){
+  gameOver = true;
+  if(score > highScore){
+    highScore = score;
+    try{ localStorage.setItem(HIGH_SCORE_KEY, String(highScore)); }catch(e){}
+    $('highScoreLabel').textContent = highScore + '점';
+  }
+  $('overlayEmoji').textContent = '💥';
+  $('overlayTitle').textContent = '게임 오버';
+  $('overlayDesc').textContent = `점수: ${score}점 · 생존 시간: ${survivalTime.toFixed(1)}초`;
+  $('overlayMsg').classList.add('show');
+}
+
+/* ================= 렌더링 ================= */
+function drawPlayerShip(x,y,flash){
+  if(flash) ctx.globalAlpha = 0.45;
+  ctx.fillStyle = '#2E6FDB';
+  ctx.beginPath();
+  ctx.moveTo(x, y-PLAYER_R);
+  ctx.lineTo(x+PLAYER_R*0.8, y+PLAYER_R*0.7);
+  ctx.lineTo(x+PLAYER_R*0.3, y+PLAYER_R*0.3);
+  ctx.lineTo(x-PLAYER_R*0.3, y+PLAYER_R*0.3);
+  ctx.lineTo(x-PLAYER_R*0.8, y+PLAYER_R*0.7);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#9CC4F5';
+  ctx.beginPath();
+  ctx.ellipse(x, y-PLAYER_R*0.1, PLAYER_R*0.28, PLAYER_R*0.45, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+function drawEnemyShip(en){
+  ctx.fillStyle = '#C94A3D';
+  ctx.beginPath();
+  ctx.moveTo(en.x, en.y+ENEMY_R);
+  ctx.lineTo(en.x+ENEMY_R*0.8, en.y-ENEMY_R*0.6);
+  ctx.lineTo(en.x+ENEMY_R*0.25, en.y-ENEMY_R*0.2);
+  ctx.lineTo(en.x-ENEMY_R*0.25, en.y-ENEMY_R*0.2);
+  ctx.lineTo(en.x-ENEMY_R*0.8, en.y-ENEMY_R*0.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#5A1A14';
+  ctx.beginPath();
+  ctx.ellipse(en.x, en.y+ENEMY_R*0.15, ENEMY_R*0.25, ENEMY_R*0.4, 0, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function drawMissile(m){
+  const angle = Math.atan2(m.vy, m.vx);
+  ctx.save();
+  ctx.translate(m.x, m.y);
+  ctx.rotate(angle);
+  ctx.fillStyle = '#E8482E';
+  ctx.beginPath();
+  ctx.moveTo(MISSILE_R*1.6, 0);
+  ctx.lineTo(-MISSILE_R, MISSILE_R*0.8);
+  ctx.lineTo(-MISSILE_R*0.4, 0);
+  ctx.lineTo(-MISSILE_R, -MISSILE_R*0.8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,170,60,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(-MISSILE_R*0.4, 0);
+  ctx.lineTo(-MISSILE_R*2.2, MISSILE_R*0.5);
+  ctx.lineTo(-MISSILE_R*2.2, -MISSILE_R*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function render(){
+  // 배경
+  for(const c of clouds){
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y, c.r, c.r*0.6, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // 적
+  for(const en of enemies) drawEnemyShip(en);
+
+  // 미사일
+  for(const m of missiles) drawMissile(m);
+
+  // 총알
+  ctx.fillStyle = '#FFE66D';
+  for(const b of bullets){
+    ctx.beginPath();
+    ctx.ellipse(b.x, b.y, BULLET_R*0.7, BULLET_R*1.6, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // 파티클
+  for(const p of particles){
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3.2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // 플레이어
+  if(!gameOver){
+    const flash = invulnTimer > 0 && Math.floor(invulnTimer/120)%2===0;
+    drawPlayerShip(player.x, player.y, flash);
+  }
+}
+
+/* ================= 메인 루프 ================= */
+let lastT = null;
+function loop(t){
+  if(lastT===null) lastT = t;
+  let dt = (t-lastT)/1000;
+  lastT = t;
+  dt = Math.min(dt, 0.033);
+
+  ctx.clearRect(0,0,W,H);
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, '#4FA8E0');
+  grad.addColorStop(1, '#D9F0FA');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+
+  update(dt);
+  render();
+
+  requestAnimationFrame(loop);
+}
+
+/* ================= 시작 ================= */
+clouds = Array.from({length:7}, () => ({
+  x: Math.random()*W, y: Math.random()*H, r: 24+Math.random()*30, speed: 12+Math.random()*18
+}));
+
+$('restartBtn').addEventListener('click', resetGame);
+$('overlayRestartBtn').addEventListener('click', resetGame);
+
+resetGame();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
