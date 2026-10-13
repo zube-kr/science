@@ -187,8 +187,9 @@
       <div>
         <div class="side-title"><span class="badge">🏆 명예의 전당</span></div>
         <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">4개 레벨을 모두 클리어한 총 기록(빠른 순)이에요.</p>
+        <p style="font-size:11px; color:var(--ink-soft); margin-top:4px;" id="boardSourceNote"></p>
         <ul class="board-list" id="leaderList" style="margin-top:10px;"></ul>
-        <button type="button" class="board-reset" id="resetBoardBtn" style="margin-top:6px;">랭킹 초기화</button>
+        <button type="button" class="board-reset" id="resetBoardBtn" style="margin-top:6px;">랭킹 초기화(이 기기 사본만)</button>
       </div>
 
       <div>
@@ -374,8 +375,16 @@ let rafId = null;
 let graceTimer = 0;
 let levelTimes = new Array(LEVELS.length).fill(null); // 이번 세션에서 각 레벨을 클리어한 시간
 
-/* ================= 명예의 전당 (랭킹) ================= */
+/* ================= 명예의 전당 (반 전체 공유 랭킹) =================
+   같은 스프레드시트 웹 앱(code.gs)을 다른 워크시트들과 공유해서 쓴다.
+   기기마다 따로 보이던 localStorage는 "즉시 표시용 캐시 + 오프라인
+   대비용 백업"으로만 쓰고, 화면에는 가능하면 공유 스프레드시트에서
+   받아온 전체 학생 기록을 보여준다. */
 const LEADERBOARD_KEY = 'science-tiltmaze-leaderboard';
+const LEADERBOARD_WORKSHEET = '기울기미로_랭킹';
+// ⚠️ 다른 워크시트(sepo-bupi-pyomyeonjeok.html 등)와 같은 스프레드시트 웹 앱 주소입니다.
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+
 function loadLeaderboard(){
   try{
     const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
@@ -391,8 +400,37 @@ function formatBoardTime(sec){
   const s = (sec%60).toFixed(1).padStart(4,'0');
   return m>0 ? `${m}:${s}` : `${s}초`;
 }
-function renderLeaderboard(listEl, highlightEntry){
-  const board = loadLeaderboard();
+
+async function fetchSharedLeaderboard(){
+  if(!LEADERBOARD_WEBHOOK_URL) return null;
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + '?worksheet=' + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if(!res.ok) throw new Error('status ' + res.status);
+    const rows = await res.json();
+    return rows
+      .map(r => ({ name: String(r.name||'').slice(0,12), totalTime: Number(r.totalTime), date: r.date }))
+      .filter(r => r.name && !Number.isNaN(r.totalTime));
+  }catch(err){
+    console.warn('공유 랭킹을 불러오지 못했습니다:', err);
+    return null;
+  }
+}
+
+async function submitToSharedLeaderboard(entry){
+  if(!LEADERBOARD_WEBHOOK_URL) return;
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, totalTime: String(entry.totalTime), date: entry.date })
+    });
+  }catch(err){
+    console.warn('공유 랭킹 전송에 실패했습니다:', err);
+  }
+}
+
+function renderLeaderboardInto(listEl, board, highlightEntry){
   listEl.innerHTML = '';
   if(board.length === 0){
     listEl.innerHTML = '<div class="board-empty">아직 기록이 없어요. 가장 먼저 도전해 보세요!</div>';
@@ -400,16 +438,34 @@ function renderLeaderboard(listEl, highlightEntry){
   }
   board.slice(0,10).forEach((entry, i) => {
     const li = document.createElement('li');
-    const isMe = highlightEntry && entry === highlightEntry;
+    const isMe = highlightEntry && entry.name === highlightEntry.name && entry.totalTime === highlightEntry.totalTime;
     li.className = 'board-row' + (isMe ? ' me' : '');
     li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="btime">${formatBoardTime(entry.totalTime)}</span>`;
     li.querySelector('.bname').textContent = entry.name;
     listEl.appendChild(li);
   });
 }
-function renderAllLeaderboards(highlightEntry){
-  renderLeaderboard($('leaderList'), highlightEntry);
-  renderLeaderboard($('finishLeaderList'), highlightEntry);
+
+async function renderAllLeaderboards(highlightEntry){
+  // 1) 빈 화면이 뜨지 않도록 로컬 캐시를 먼저 그린다.
+  const local = loadLeaderboard().sort((a,b) => a.totalTime - b.totalTime);
+  renderLeaderboardInto($('leaderList'), local, highlightEntry);
+  renderLeaderboardInto($('finishLeaderList'), local, highlightEntry);
+  if($('boardSourceNote')) $('boardSourceNote').textContent = LEADERBOARD_WEBHOOK_URL ? '🌐 반 전체 랭킹을 불러오는 중...' : '이 기기에만 저장되는 기록이에요.';
+
+  // 2) 공유 스프레드시트에서 반 전체 기록을 받아오면 그걸로 교체한다.
+  const shared = await fetchSharedLeaderboard();
+  if(shared){
+    shared.sort((a,b) => a.totalTime - b.totalTime);
+    saveLeaderboard(shared.slice(0,10));
+    renderLeaderboardInto($('leaderList'), shared, highlightEntry);
+    renderLeaderboardInto($('finishLeaderList'), shared, highlightEntry);
+    if($('boardSourceNote')) $('boardSourceNote').textContent = '🌐 반 전체가 함께 보는 공유 랭킹이에요.';
+  }else if($('boardSourceNote')){
+    $('boardSourceNote').textContent = LEADERBOARD_WEBHOOK_URL
+      ? '⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여주고 있어요.'
+      : '이 기기에만 저장되는 기록이에요.';
+  }
 }
 
 /* ================= 입력 ================= */
@@ -890,23 +946,29 @@ function showFinishOverlay(totalTime){
   pendingTotalTime = totalTime;
   $('finishDesc').textContent = `총 기록: ${formatBoardTime(totalTime)} — 이름을 입력하고 랭킹에 등록해 보세요!`;
   $('nameInput').value = '';
-  renderLeaderboard($('finishLeaderList'), null);
+  renderAllLeaderboards(null);
   $('finishOverlay').classList.add('show');
   setTimeout(() => $('nameInput').focus(), 50);
 }
 
-$('nameForm').addEventListener('submit', (e) => {
+$('nameForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = $('nameInput').value.trim();
   if(!name) return;
-  const board = loadLeaderboard();
   const entry = { name, totalTime: pendingTotalTime, date: new Date().toISOString().slice(0,10) };
-  board.push(entry);
-  board.sort((a,b) => a.totalTime - b.totalTime);
-  board.length = Math.min(board.length, 10);
-  saveLeaderboard(board);
-  renderAllLeaderboards(entry);
+
+  // 로컬 캐시에 먼저 반영해 오프라인이어도 내 기록이 바로 보이게 한다.
+  const local = loadLeaderboard();
+  local.push(entry);
+  local.sort((a,b) => a.totalTime - b.totalTime);
+  local.length = Math.min(local.length, 10);
+  saveLeaderboard(local);
+  renderLeaderboardInto($('leaderList'), local, entry);
+  renderLeaderboardInto($('finishLeaderList'), local, entry);
   $('nameForm').style.display = 'none';
+
+  await submitToSharedLeaderboard(entry);
+  renderAllLeaderboards(entry);
 });
 
 $('finishCloseBtn').addEventListener('click', () => {
@@ -915,7 +977,7 @@ $('finishCloseBtn').addEventListener('click', () => {
 });
 
 $('resetBoardBtn').addEventListener('click', () => {
-  if(!confirm('명예의 전당 랭킹을 모두 초기화할까요? 되돌릴 수 없어요.')) return;
+  if(!confirm('이 기기에 저장된 랭킹 사본만 초기화할까요?\n(공유 스프레드시트의 전체 기록은 지워지지 않으며, 선생님이 스프레드시트에서 직접 관리해야 합니다.)')) return;
   saveLeaderboard([]);
   renderAllLeaderboards(null);
 });
