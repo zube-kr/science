@@ -681,18 +681,6 @@ footer{
   <div class="logo" onclick="goHome()" style="cursor:pointer;">🔬 SCIENCE</div>
   <div class="school">아화중학교 과학수업</div>
 
-  <div class="chat-entry" onclick="openChat()">📖 방명록</div>
-
-  <details class="grade">
-    <summary>🎮 쉬어가는 게임</summary>
-    <ul>
-      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[0])">🃏 달무티 게임</li>
-      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[1])">🏹 활쏘기 게임</li>
-      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[2])">🌀 기울기 미로 게임</li>
-      <li onclick="openQuickLink('swieo-game', topicsData['swieo-game'].posts[3])">✈️ 비행기 슈팅 게임</li>
-    </ul>
-  </details>
-
   <details class="grade" open>
     <summary>📘 중학교 1학년</summary>
     <ul>
@@ -734,6 +722,16 @@ footer{
       <li onclick="openSubject('uju-tamsa')">⑦ 우주 탐사</li>
     </ul>
   </details>
+
+  <details class="grade">
+    <summary>🗂️ 개발자료</summary>
+    <ul>
+      <li onclick="openSubject('swieo-game')">🎮 쉬어가는 게임</li>
+      <li onclick="openSubject('best-of-sim')">🧪 추천 가상실험 모음</li>
+    </ul>
+  </details>
+
+  <div class="chat-entry" onclick="openChat()">📖 방명록</div>
 
 </div>
 
@@ -1279,6 +1277,41 @@ const topicsData = {
         title: "✈️ 비행기 슈팅 게임",
         desc: "아두이노 우노 + MPU-6050 기울기 센서를 USB로 연결해 보드를 기울이며 비행기를 조종하는 게임입니다. 센서가 없어도 방향키나 드래그로 플레이할 수 있어요. 적이 쏘는 미사일을 피하세요 — 총알은 자동으로 발사됩니다!",
         url: PLANE_SHOOTING_URL,
+        ready: true
+      }
+    ]
+  },
+  "best-of-sim": {
+    title: "🧪 추천 가상실험 모음",
+    posts: [
+      {
+        title: "힘의 3요소 — 알까기 게임",
+        desc: "빨간 화살표(힘의 방향·크기)와 파란 작용점을 맞춰 상대 돌을 쳐내며 힘의 3요소를 익히는 1학년 ⑤ 힘의 작용 콘텐츠입니다.",
+        url: FORCE_ELEMENTS_URL,
+        ready: true
+      },
+      {
+        title: "가상 공간에서의 힘과 운동",
+        desc: "기어·도르래·용수철 발사대 같은 도구를 직접 배치해 나만의 가상 공간을 설계하는 1학년 창의·융합(STEAM) 콘텐츠입니다.",
+        url: VIRTUAL_FORCE_SPACE_URL,
+        ready: true
+      },
+      {
+        title: "놀이기구에서 힘의 작용 탐구하기",
+        desc: "자유낙하 타워·대관람차·바이킹을 직접 움직이며 알짜힘의 방향을 확인하는 1학년 힘의 작용 콘텐츠입니다.",
+        url: FORCE_RIDES_URL,
+        ready: true
+      },
+      {
+        title: "뇌의 구조",
+        desc: "대뇌·간뇌·중뇌·소뇌·연수·척수를 클릭해서 각 부위의 기능을 알아보는 3학년 자극과 반응 콘텐츠입니다.",
+        url: BRAIN_URL,
+        ready: true
+      },
+      {
+        title: "롤러코스터 크리에이터",
+        desc: "위치 에너지와 운동 에너지의 전환·보존을 이용해 트랙 조각을 배치하는 3학년 에너지 전환 콘텐츠입니다.",
+        url: ROLLERCOASTER_CREATOR_URL,
         ready: true
       }
     ]
