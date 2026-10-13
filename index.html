@@ -689,7 +689,7 @@ footer{
       <li>③ 열과 우리 생활</li>
       <li onclick="openSubject('mul-sangtae-byeonhwa')">④ 물질의 상태 변화</li>
       <li onclick="openSubject('him-jagyong')">⑤ 힘의 작용</li>
-      <li>⑥ 기체의 성질</li>
+      <li onclick="openSubject('gi-seongjil')">⑥ 기체의 성질</li>
       <li>⑦ 태양계</li>
       <li onclick="openSubject('j1-student-home')">★ 1학년 학생홈페이지</li>
     </ul>
@@ -1251,6 +1251,9 @@ const TILT_MAZE_URL = "tilt-maze-game.html";
 // ⚠️ plane-shooting-game.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const PLANE_SHOOTING_URL = "plane-shooting-game.html";
 
+// ⚠️ charles-law-arduino.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const CHARLES_LAW_ARDUINO_URL = "charles-law-arduino.html";
+
 const topicsData = {
   "swieo-game": {
     title: "🎮 쉬어가는 게임",
@@ -1388,6 +1391,17 @@ const topicsData = {
         title: "7. 가상 공간에서의 힘과 운동",
         desc: "기어, 도르래(풀리), 용수철 발사대, 회전 도구 같은 힘을 가하는 도구를 직접 배치해 나만의 가상 공간을 설계하고, 실행 버튼으로 실제 물리 효과를 확인하는 창의・융합(STEAM) 활동입니다.",
         url: VIRTUAL_FORCE_SPACE_URL,
+        ready: true
+      }
+    ]
+  },
+  "gi-seongjil": {
+    title: "⑥ 기체의 성질",
+    posts: [
+      {
+        title: "1. 샤를의 법칙 — 아두이노로 온도와 기체 부피 측정하기",
+        desc: "아두이노 우노에 온도센서·초음파센서를 연결해 USB로 직접 연결하고, 물 온도를 바꿔가며 실시간으로 측정한 데이터로 온도와 기체 부피의 관계를 그래프로 확인하는 실험 워크시트입니다.",
+        url: CHARLES_LAW_ARDUINO_URL,
         ready: true
       }
     ]
