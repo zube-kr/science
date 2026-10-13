@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성단과 성운 — 세 가지 성운의 차이</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --night:#141B34;
+    --night-deep:#0C1224;
+    --star:#E8C468;
+
+    --em:#D8493B;
+    --em-soft:#FBE6E2;
+    --ref:#2F6FDB;
+    --ref-soft:#E7EFFC;
+    --dark:#5B6172;
+    --dark-soft:#EFF0F3;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--em),var(--ref)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:820px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.65; }
+  .card p.body-text{ font-size:13px; line-height:1.85; margin-bottom:10px; }
+  .card p.body-text b{ color:var(--em); }
+
+  .ngc-note{
+    font-size:11.5px; color:var(--ink-soft); background:#FBFAF6; border:1px solid var(--line);
+    border-radius:12px; padding:10px 13px; line-height:1.7; margin-top:8px;
+  }
+  .ngc-note b{ color:var(--ink); }
+
+  /* ---------- 탭 ---------- */
+  .tab-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .tab-btn{
+    font-family:inherit; font-size:13px; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:8px 16px; transition:.15s;
+  }
+  .tab-btn.active.emission{ border-color:var(--em); color:#fff; background:var(--em); }
+  .tab-btn.active.reflection{ border-color:var(--ref); color:#fff; background:var(--ref); }
+  .tab-btn.active.dark{ border-color:var(--dark); color:#fff; background:var(--dark); }
+
+  .sim-wrap{ background:var(--night-deep); border-radius:14px; overflow:hidden; margin-bottom:10px; }
+  #nebulaCanvas{ display:block; width:100%; height:auto; }
+
+  .mech-box{
+    display:flex; align-items:flex-start; gap:12px; border-radius:12px; padding:12px 14px;
+    font-size:12.5px; line-height:1.75; margin-bottom:12px;
+  }
+  .mech-box.emission{ background:var(--em-soft); color:#7A2B20; }
+  .mech-box.reflection{ background:var(--ref-soft); color:#1C3E7A; }
+  .mech-box.dark{ background:var(--dark-soft); color:#2A2E38; }
+  .mech-tag{
+    flex-shrink:0; font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; color:#fff;
+    white-space:nowrap;
+  }
+  .mech-box.emission .mech-tag{ background:var(--em); }
+  .mech-box.reflection .mech-tag{ background:var(--ref); }
+  .mech-box.dark .mech-tag{ background:var(--dark); }
+  .mech-box b{ display:block; font-size:13.5px; margin-bottom:3px; }
+
+  /* ---------- 문항 공통 ---------- */
+  .q-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; line-height:2.1; margin:10px 0; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%;
+    background:var(--ink); color:#fff; font-size:11px; font-weight:800; margin-right:4px; flex-shrink:0;
+  }
+  select.blank{
+    font-family:inherit; font-size:12.8px; border:1px solid var(--line); border-radius:8px;
+    padding:6px 8px; background:#FBFAF6; color:var(--ink); font-weight:700;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; flex-wrap:wrap; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:5px 13px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--em); color:var(--em); background:var(--em-soft); }
+  .q-feedback{ display:block; margin-top:4px; margin-left:26px; font-size:12px; font-weight:700; min-height:16px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .check-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:none; background:#F1EEE5; color:var(--ink-soft); border-radius:8px; padding:7px 14px; margin-top:8px;
+  }
+  .check-btn:hover{ background:#E7E3D6; color:var(--ink); }
+
+  /* ---------- 수소 원자 시뮬레이션 ---------- */
+  .atom-sim-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:14px; }
+  @media (max-width:760px){ .atom-sim-grid{ grid-template-columns:1fr; } }
+  .atom-panel{ background:var(--night-deep); border-radius:14px; padding:6px; }
+  #atomSvg, #ladderSvg{ display:block; width:100%; height:auto; }
+  .excite-row{ display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 6px; }
+  .excite-btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--ref); background:var(--ref-soft); color:var(--ref);
+    border-radius:10px; padding:9px 14px; transition:.15s;
+  }
+  .excite-btn:hover:not(:disabled){ background:var(--ref); color:#fff; }
+  .excite-btn:disabled{ opacity:.45; cursor:default; }
+  .atom-status{
+    font-size:12.5px; color:var(--ink-soft); min-height:18px; margin-top:4px; font-weight:700;
+  }
+  .nebula-link-note{
+    font-size:12px; line-height:1.7; background:#FBFAF6; border:1px solid var(--line);
+    border-radius:12px; padding:10px 13px; margin-top:10px; color:var(--ink-soft);
+  }
+  .nebula-link-note b{ color:var(--em); }
+
+  /* ---------- 공용: 학생 정보 / 제출 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+
+  textarea.essay{
+    width:100%; min-height:90px; font-family:inherit; font-size:13px; line-height:1.7;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+
+  footer{ max-width:1080px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅶ. 별과 우주 · 성단과 성운</div>
+    <h1>성단과 성운 — <span>세 가지 성운의 차이</span></h1>
+    <p class="sub">우리은하에는 수많은 별이 모여 있는 성단과, 성간 물질이 뭉쳐 구름처럼 보이는 성운이 있다. 시뮬레이션으로 방출 성운·반사 성운·암흑 성운이 왜 다르게 보이는지 확인하고, 그 빛이 어디서 나오는지 원자 모형으로 더 깊이 알아보자.</p>
+  </header>
+
+  <!-- 1. 배움 자료 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">1</span>배움 자료 · 성간 물질과 성운</div>
+    <p class="body-text">별과 별 사이의 넓은 공간에는 기체와 먼지들이 희박하게 퍼져 있는데, 이를 <b>성간 물질</b>이라고 한다. 성간 물질은 지역에 따라 밀집되어 구름처럼 보이기도 하는데, 이를 <b>성운</b>이라고 한다.</p>
+    <p class="body-text">성운에는 방출 성운, 반사 성운, 암흑 성운이 있는데 이들은 주로 우리은하의 나선팔에서 발견된다. 또한 우리은하 안에서 많은 수의 별들이 좁은 공간에 집단을 이루고 있는 천체를 <b>성단</b>이라고 한다.</p>
+    <div class="ngc-note">
+      <b>* NGC</b> — New General Catalogue(신판 일반 목록)의 약자로, 약 7800여 개의 천체(은하, 성단, 성운 등)를 정리해 번호를 붙인 목록이다. 예를 들어 장미 성운은 NGC 2244로 부른다.
+    </div>
+  </section>
+
+  <!-- 2. 시뮬레이션: 세 성운 비교 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">2</span>시뮬레이션 · 세 가지 성운은 왜 다르게 보일까?</div>
+    <p class="card-hint">버튼을 눌러 세 성운을 전환하면서, 빛 알갱이(광자)가 별 → 성간 물질 → 우리 눈까지 어떤 경로로 오는지 관찰해 보자.</p>
+
+    <div class="tab-row">
+      <button type="button" class="tab-btn emission active" data-mode="emission">① 방출 성운</button>
+      <button type="button" class="tab-btn reflection" data-mode="reflection">② 반사 성운</button>
+      <button type="button" class="tab-btn dark" data-mode="dark">③ 암흑 성운</button>
+    </div>
+
+    <div class="sim-wrap">
+      <canvas id="nebulaCanvas" width="680" height="300"></canvas>
+    </div>
+
+    <div class="mech-box emission" id="mechEmission">
+      <span class="mech-tag">스스로 빛을 냄</span>
+      <div>
+        <b>방출 성운 (Emission Nebula)</b>
+        뜨거운 별에서 나온 고에너지 자외선이 주변 기체를 이온화하고 들뜨게 한다. 이후 전자가 재결합하거나 낮은 에너지 준위로 떨어지면서 특정 파장의 빛을 스스로 방출한다 — 그래서 붉은색으로 보인다. (대표적인 예: 장미 성운, 오리온 성운)
+      </div>
+    </div>
+    <div class="mech-box reflection" id="mechReflection" style="display:none;">
+      <span class="mech-tag">별빛을 산란</span>
+      <div>
+        <b>반사 성운 (Reflection Nebula)</b>
+        별에서 나온 빛이 성간 먼지 입자에 부딪혀 여러 방향으로 흩어진다(산란). 빛을 흡수했다가 다시 방출하는 것이 아니라, 방향만 바뀌어 우리 눈에 들어오는 것이 핵심이다. 파장이 짧은 파란빛이 더 잘 산란되어 주로 파란색으로 보인다. (대표적인 예: 플레이아데스 성단 주변 반사 성운)
+      </div>
+    </div>
+    <div class="mech-box dark" id="mechDark" style="display:none;">
+      <span class="mech-tag">뒤쪽 빛을 가림</span>
+      <div>
+        <b>암흑 성운 (Dark Nebula)</b>
+        밀도가 높고 차가운 성간 먼지와 기체가 뒤에서 오는 별빛을 흡수해 버린다. 그 결과 우리 쪽으로 도달하는 빛이 거의 없어 검게 보인다 — 은하수 가운데 부분이 검게 보이는 것도 암흑 성운 때문이다. (대표적인 예: 바너드 68)
+      </div>
+    </div>
+
+    <div class="q-row"><span class="q-num">1</span>근처의 뜨거운 별이 내는 자외선을 흡수했다가, 전자가 낮은 준위로 떨어지며 스스로 빛을 내는 성운은
+      <select class="blank" id="qNeb1"><option value="">-선택-</option><option>방출 성운</option><option>반사 성운</option><option>암흑 성운</option></select>
+      이다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>별빛이 성간 먼지에 흡수되지 않고 방향만 바뀌어(산란되어) 밝게 보이는 성운은
+      <select class="blank" id="qNeb2"><option value="">-선택-</option><option>방출 성운</option><option>반사 성운</option><option>암흑 성운</option></select>
+      이다.
+    </div>
+    <div class="q-row"><span class="q-num">3</span>뒤쪽에서 오는 별빛을 가려서 검게 보이는 성운은
+      <select class="blank" id="qNeb3"><option value="">-선택-</option><option>방출 성운</option><option>반사 성운</option><option>암흑 성운</option></select>
+      이다.
+    </div>
+    <button class="check-btn" id="checkNeb">정답 확인</button>
+    <span class="q-feedback" id="nebFeedback"></span>
+  </section>
+
+  <!-- 3. 시뮬레이션: 전자의 들뜸과 빛의 방출 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">3</span>시뮬레이션 · 전자의 들뜸과 빛의 방출 (수소 원자 모형)</div>
+    <p class="card-hint">방출 성운이 빛을 내는 원리를 원자 수준에서 살펴보자. 버튼을 눌러 전자를 더 높은 에너지 준위로 들뜨게 해 보자. 전자는 곧 더 낮은 준위로 떨어지며 빛(광자)을 방출한다.</p>
+
+    <div class="atom-sim-grid">
+      <div class="atom-panel">
+        <svg id="atomSvg" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="atom-panel">
+        <svg id="ladderSvg" viewBox="0 0 340 320" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+
+    <div class="excite-row">
+      <button type="button" class="excite-btn" data-level="3">n=3으로 들뜨게 하기</button>
+      <button type="button" class="excite-btn" data-level="4">n=4로 들뜨게 하기</button>
+      <button type="button" class="excite-btn" data-level="5">n=5로 들뜨게 하기</button>
+    </div>
+    <div class="atom-status" id="atomStatus">버튼을 눌러 전자를 들뜨게 해 보세요. 전자는 n=1(바닥 상태)에 있습니다.</div>
+
+    <div class="nebula-link-note">
+      <b>방출 성운과의 연결</b> — 전자가 n=3에서 n=2로 떨어질 때 나오는 붉은빛(Hα선, 656 nm)이 바로 오리온 성운·장미 성운 같은 방출 성운이 붉게 보이는 이유예요. 위 2번 시뮬레이션에서 본 "붉은빛을 스스로 방출한다"는 현상이, 사실은 수많은 수소 원자의 전자가 들떴다가 떨어지는 과정에서 나오는 것입니다.
+    </div>
+
+    <div class="q-row" style="margin-top:14px;"><span class="q-num">4</span>전자가 높은 에너지 준위에서 낮은 에너지 준위로 떨어질 때는 빛을 (
+      <span class="choice-group" id="qElec1Group">
+        <button type="button" class="choice-btn" data-value="방출한다">방출한다</button>
+        <button type="button" class="choice-btn" data-value="흡수한다">흡수한다</button>
+      </span>
+      ).
+    </div>
+    <div class="q-row"><span class="q-num">5</span>n=3에서 n=2로 전자가 떨어질 때 나오는 빛의 색은
+      <span class="choice-group" id="qElec2Group">
+        <button type="button" class="choice-btn" data-value="빨간색">빨간색</button>
+        <button type="button" class="choice-btn" data-value="파란색">파란색</button>
+        <button type="button" class="choice-btn" data-value="초록색">초록색</button>
+      </span>
+      이다.
+    </div>
+    <button class="check-btn" id="checkElec">정답 확인</button>
+    <span class="q-feedback" id="elecFeedback"></span>
+  </section>
+
+  <!-- 4. 스스로 점검 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">4</span>스스로 점검</div>
+    <div class="q-row"><span class="q-num">1</span>지구에서 바라본 우리은하의 일부로, 밤하늘에서 뿌연 띠 모양으로 관측되는 것을
+      <select class="blank" id="qSelf1"><option value="">-선택-</option><option>은하수</option><option>성운</option><option>성단</option><option>은하</option></select>
+      (이)라고 한다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>우리은하 안에서 많은 수의 별들이 좁은 공간에 집단을 이루고 있는 천체를
+      <select class="blank" id="qSelf2"><option value="">-선택-</option><option>성단</option><option>은하수</option><option>성운</option><option>행성</option></select>
+      (이)라 하고, 성간 물질이 많이 모여 있어 구름처럼 보이는 천체를
+      <select class="blank" id="qSelf3"><option value="">-선택-</option><option>성운</option><option>성단</option><option>은하수</option><option>블랙홀</option></select>
+      (이)라고 한다.
+    </div>
+    <button class="check-btn" id="checkSelf">정답 확인</button>
+    <span class="q-feedback" id="selfFeedback"></span>
+  </section>
+
+  <!-- 5. 창의적 사고력 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">5</span>창의적 사고력</div>
+    <p class="card-hint">태양계가 우리은하의 중심부에 위치한다고 가정하면, 은하수의 모양은 어떻게 보일지 나타내 보자.</p>
+    <textarea class="essay" id="essayAnswer" placeholder="예: 태양계가 은하 중심부에 있다면..."></textarea>
+    <p class="card-hint" style="margin-top:8px; margin-bottom:0;">이 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
+  </section>
+
+  <!-- 제출 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">제출</span>학생 정보를 입력하고 채점받기</div>
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric" value="3">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · Ⅶ. 별과 우주 · 성단과 성운</footer>
+</div>
+
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+
+const $ = (id) => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+
+/* ==========================================================
+   2. 세 성운 비교 시뮬레이션 (canvas 입자 애니메이션)
+=========================================================== */
+const canvas = $('nebulaCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+let nebulaMode = 'emission';
+let particles = [];
+let dustPoints = [];
+let bgStars = [];
+let spawnTimer = 0;
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+function initNebula(mode){
+  nebulaMode = mode;
+  particles = [];
+  dustPoints = [];
+  bgStars = [];
+
+  if(mode === 'dark'){
+    for(let i=0;i<70;i++){
+      bgStars.push({ x: rand(20,CW-20), y: rand(20,CH-20), r: rand(0.8,2.2) });
+    }
+  }
+  if(mode === 'reflection'){
+    for(let i=0;i<55;i++){
+      const a = rand(0,Math.PI*2), r = rand(10,110);
+      dustPoints.push({ x: CW*0.42 + Math.cos(a)*r*1.3, y: CH*0.5 + Math.sin(a)*r*0.8 });
+    }
+  }
+}
+
+function spawnEmissionParticle(){
+  const a = rand(0,Math.PI*2);
+  particles.push({
+    x: CW*0.42, y: CH*0.5, vx: Math.cos(a)*1.4, vy: Math.sin(a)*1.4,
+    color: '#C9A8FF', stage: 'uv', life: 1, maxR: rand(60,100)
+  });
+}
+function spawnReflectionParticle(){
+  const starX = CW*0.22, starY = CH*0.42;
+  const a = rand(-0.5,0.5) + 0.3;
+  particles.push({ x: starX, y: starY, vx: Math.cos(a)*1.6, vy: Math.sin(a)*1.6, color:'#BFE3FF', stage:'free', life:1, bounced:false });
+}
+function spawnDarkParticle(star){
+  const a = Math.atan2(CH*0.5 - star.y, CW - star.x) + rand(-0.05,0.05);
+  particles.push({ x: star.x, y: star.y, vx: Math.cos(a)*2.2, vy: Math.sin(a)*2.2, color:'#fff', life:1 });
+}
+
+const cloudCx = CW*0.42, cloudCy = CH*0.5, cloudR = 110;
+const darkCloudPath = [
+  [CW*0.38,CH*0.18],[CW*0.62,CH*0.22],[CW*0.74,CH*0.42],[CW*0.68,CH*0.68],
+  [CW*0.5,CH*0.82],[CW*0.3,CH*0.72],[CW*0.24,CH*0.46]
+];
+
+function pointInDarkCloud(x,y){
+  // 간단한 다각형 내부 판정(ray casting)
+  let inside = false;
+  for(let i=0,j=darkCloudPath.length-1;i<darkCloudPath.length;j=i++){
+    const [xi,yi]=darkCloudPath[i], [xj,yj]=darkCloudPath[j];
+    const intersect = ((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function updateNebula(){
+  spawnTimer++;
+  if(nebulaMode === 'emission' && spawnTimer % 3 === 0) spawnEmissionParticle();
+  if(nebulaMode === 'reflection' && spawnTimer % 4 === 0) spawnReflectionParticle();
+  if(nebulaMode === 'dark' && spawnTimer % 6 === 0 && bgStars.length){
+    const s = bgStars[Math.floor(Math.random()*bgStars.length)];
+    spawnDarkParticle(s);
+  }
+
+  for(const p of particles){
+    p.x += p.vx; p.y += p.vy;
+
+    if(nebulaMode === 'emission'){
+      const d = Math.hypot(p.x-cloudCx, p.y-cloudCy);
+      if(p.stage === 'uv' && d > p.maxR*0.35){
+        p.stage = 'emit'; p.color = '#FF6B52';
+        const a = Math.atan2(p.y-cloudCy, p.x-cloudCx) + rand(-0.6,0.6);
+        const spd = Math.hypot(p.vx,p.vy);
+        p.vx = Math.cos(a)*spd; p.vy = Math.sin(a)*spd;
+      }
+      if(d > CW) p.life = 0;
+    }
+    if(nebulaMode === 'reflection'){
+      if(!p.bounced){
+        for(const d of dustPoints){
+          if(Math.hypot(p.x-d.x, p.y-d.y) < 7){
+            const a = rand(0,Math.PI*2);
+            const spd = Math.hypot(p.vx,p.vy);
+            p.vx = Math.cos(a)*spd; p.vy = Math.sin(a)*spd;
+            p.bounced = true;
+            break;
+          }
+        }
+      }
+      if(p.x<0||p.x>CW||p.y<0||p.y>CH) p.life = 0;
+    }
+    if(nebulaMode === 'dark'){
+      if(pointInDarkCloud(p.x,p.y)){ p.life -= 0.08; }
+      if(p.x>CW+5||p.y<0||p.y>CH) p.life = 0;
+    }
+  }
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawNebula(){
+  ctx.clearRect(0,0,CW,CH);
+  const grad = ctx.createRadialGradient(CW*0.3,CH*0.3,0,CW*0.3,CH*0.3,CW*0.9);
+  grad.addColorStop(0,'#1A2244'); grad.addColorStop(1,'#060911');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,CW,CH);
+
+  if(nebulaMode === 'emission'){
+    ctx.fillStyle = 'rgba(216,73,59,0.16)';
+    ctx.beginPath(); ctx.ellipse(cloudCx,cloudCy,cloudR*1.3,cloudR*0.9,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(216,73,59,0.10)';
+    ctx.beginPath(); ctx.ellipse(cloudCx,cloudCy,cloudR*1.7,cloudR*1.2,0,0,Math.PI*2); ctx.fill();
+    const g = ctx.createRadialGradient(cloudCx,cloudCy,0,cloudCx,cloudCy,24);
+    g.addColorStop(0,'#fff'); g.addColorStop(0.3,'#9CC4FF'); g.addColorStop(1,'rgba(156,196,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cloudCx,cloudCy,22,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#EAF2FF'; ctx.beginPath(); ctx.arc(cloudCx,cloudCy,7,0,Math.PI*2); ctx.fill();
+  }
+
+  if(nebulaMode === 'reflection'){
+    ctx.fillStyle = 'rgba(120,150,210,0.14)';
+    for(const d of dustPoints){
+      ctx.beginPath(); ctx.arc(d.x,d.y,20,0,Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle = '#C9DBFF';
+    for(const d of dustPoints){
+      ctx.beginPath(); ctx.arc(d.x,d.y,1.6,0,Math.PI*2); ctx.fill();
+    }
+    const starX = CW*0.22, starY = CH*0.42;
+    const g = ctx.createRadialGradient(starX,starY,0,starX,starY,20);
+    g.addColorStop(0,'#fff'); g.addColorStop(0.3,'#CFE6FF'); g.addColorStop(1,'rgba(207,230,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(starX,starY,18,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(starX,starY,5,0,Math.PI*2); ctx.fill();
+  }
+
+  if(nebulaMode === 'dark'){
+    ctx.fillStyle = '#fff';
+    for(const s of bgStars){
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#05070C';
+    ctx.beginPath();
+    darkCloudPath.forEach(([x,y],i) => i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+    ctx.closePath(); ctx.fill();
+  }
+
+  for(const p of particles){
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y, nebulaMode==='dark'?1.6:1.8, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '11px Pretendard, sans-serif';
+  ctx.fillText('👁 관측자(지구)', CW-110, CH-14);
+}
+
+function nebulaLoop(){
+  updateNebula();
+  drawNebula();
+  requestAnimationFrame(nebulaLoop);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+    initNebula(mode);
+    $('mechEmission').style.display = mode==='emission' ? 'flex' : 'none';
+    $('mechReflection').style.display = mode==='reflection' ? 'flex' : 'none';
+    $('mechDark').style.display = mode==='dark' ? 'flex' : 'none';
+  });
+});
+
+initNebula('emission');
+nebulaLoop();
+
+/* ==========================================================
+   3. 수소 원자 전자 전이 시뮬레이션
+=========================================================== */
+const atomSvg = $('atomSvg');
+const ladderSvg = $('ladderSvg');
+
+const LEVELS = [1,2,3,4,5];
+const E_OF = n => -13.6 / (n*n);
+const ORBIT_CX = 200, ORBIT_CY = 170;
+const ORBIT_R = { 1:30, 2:55, 3:78, 4:98, 5:116 };
+
+const LADDER_X0 = 70, LADDER_X1 = 230;
+const LADDER_Y = { 1:290, 2:220, 3:170, 4:130, 5:95 };
+
+// 발머 계열(n→2) 실제 파장·색
+const BALMER = {
+  3: { wl: 656.3, color: '#E8483A', name:'Hα' },
+  4: { wl: 486.1, color: '#36C2C2', name:'Hβ' },
+  5: { wl: 434.0, color: '#6C6CE0', name:'Hγ' }
+};
+
+let currentLevel = 1;
+let animating = false;
+
+function svgEl(tag, attrs){
+  const el = document.createElementNS(svgNS, tag);
+  for(const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+// 궤도 라벨이 한 줄로 겹치지 않도록 궤도마다 다른 각도에 배치한다.
+const ORBIT_LABEL_ANGLE = { 1:-90, 2:-55, 3:-20, 4:20, 5:55 };
+
+function renderAtom(){
+  atomSvg.innerHTML = '';
+  atomSvg.appendChild(svgEl('rect',{x:0,y:0,width:400,height:320,fill:'#0C1224'}));
+  LEVELS.forEach(n => {
+    atomSvg.appendChild(svgEl('circle',{cx:ORBIT_CX,cy:ORBIT_CY,r:ORBIT_R[n],fill:'none',stroke:'#3A4668',"stroke-width":1}));
+    const rad = ORBIT_LABEL_ANGLE[n] * Math.PI/180;
+    const lx = ORBIT_CX + (ORBIT_R[n]+4)*Math.cos(rad);
+    const ly = ORBIT_CY + (ORBIT_R[n]+4)*Math.sin(rad);
+    const lbl = svgEl('text',{x:lx,y:ly,"font-size":10,fill:'#8290B5','font-family':'Pretendard, sans-serif','text-anchor': Math.cos(rad)<0?'end':'start'});
+    lbl.textContent = 'n='+n;
+    atomSvg.appendChild(lbl);
+  });
+  // 원자핵
+  atomSvg.appendChild(svgEl('circle',{cx:ORBIT_CX,cy:ORBIT_CY,r:9,fill:'#E8483A'}));
+  const nucLbl = svgEl('text',{x:ORBIT_CX,y:ORBIT_CY+4,"font-size":10,fill:'#fff','text-anchor':'middle','font-family':'Pretendard, sans-serif','font-weight':700});
+  nucLbl.textContent = 'H';
+  atomSvg.appendChild(nucLbl);
+
+  const ex = ORBIT_CX + ORBIT_R[currentLevel];
+  const ey = ORBIT_CY;
+  const e = svgEl('circle',{cx:ex,cy:ey,r:6,fill:'#6C9CFF',id:'electronDot'});
+  atomSvg.appendChild(e);
+}
+
+function renderLadder(){
+  ladderSvg.innerHTML = '';
+  ladderSvg.appendChild(svgEl('rect',{x:0,y:0,width:340,height:320,fill:'#0C1224'}));
+  LEVELS.forEach(n => {
+    const y = LADDER_Y[n];
+    ladderSvg.appendChild(svgEl('line',{x1:LADDER_X0,y1:y,x2:LADDER_X1,y2:y,stroke: n===currentLevel?'#6C9CFF':'#3A4668','stroke-width': n===currentLevel?2.5:1.4}));
+    const lbl = svgEl('text',{x:LADDER_X1+6,y:y+4,"font-size":9.5,fill:'#8290B5','font-family':'Pretendard, sans-serif'});
+    lbl.textContent = `n=${n} (${E_OF(n).toFixed(2)}eV)`;
+    ladderSvg.appendChild(lbl);
+  });
+  const dot = svgEl('circle',{cx:LADDER_X0-10,cy:LADDER_Y[currentLevel],r:5,fill:'#6C9CFF'});
+  ladderSvg.appendChild(dot);
+}
+
+function render(){ renderAtom(); renderLadder(); }
+render();
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+function animateDotTo(targetLevel, color, durationMs){
+  return new Promise(resolve => {
+    const startLevel = currentLevel;
+    const t0 = performance.now();
+    function step(t){
+      const f = Math.min(1, (t-t0)/durationMs);
+      const lv = startLevel + (targetLevel-startLevel)*f;
+      const r = ORBIT_R[1] + (ORBIT_R[5]-ORBIT_R[1]) * ((lv-1)/4);
+      const dot = $('electronDot');
+      if(dot){ dot.setAttribute('cx', ORBIT_CX + r); dot.setAttribute('fill', color); }
+      const y0 = LADDER_Y[startLevel], y1 = LADDER_Y[targetLevel];
+      const yNow = y0 + (y1-y0)*f;
+      const ladderDot = ladderSvg.querySelector('circle');
+      if(ladderDot) ladderDot.setAttribute('cy', yNow);
+      if(f < 1){ requestAnimationFrame(step); } else { currentLevel = targetLevel; resolve(); }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+async function runExcitation(targetN){
+  if(animating) return;
+  animating = true;
+  document.querySelectorAll('.excite-btn').forEach(b => b.disabled = true);
+
+  $('atomStatus').textContent = `⚡ 빛(광자)을 흡수해 전자가 n=1 → n=${targetN}로 들떠요...`;
+  await animateDotTo(targetN, '#C9A8FF', 450);
+  await sleep(500);
+
+  const b = BALMER[targetN];
+  $('atomStatus').textContent = `✨ 전자가 n=${targetN} → n=2로 떨어지며 ${b.name}선(${b.wl}nm, ${colorName(b.color)}) 빛을 방출해요!`;
+  await animateDotTo(2, b.color, 500);
+  showFlash(b.color);
+  await sleep(900);
+
+  $('atomStatus').textContent = `🔅 이어서 n=2 → n=1로 떨어지며 자외선(라이먼선, 눈에 보이지 않음)을 방출해요.`;
+  await animateDotTo(1, '#8A7FB0', 450);
+  await sleep(600);
+
+  $('atomStatus').textContent = `전자가 다시 n=1(바닥 상태)로 돌아왔어요. 다른 버튼을 눌러 또 확인해 보세요.`;
+  render();
+  document.querySelectorAll('.excite-btn').forEach(b => b.disabled = false);
+  animating = false;
+}
+
+function colorName(hex){
+  if(hex === '#E8483A') return '빨간색';
+  if(hex === '#36C2C2') return '청록색';
+  if(hex === '#6C6CE0') return '파란색';
+  return hex;
+}
+
+function showFlash(color){
+  const flash = svgEl('circle',{cx:ORBIT_CX,cy:ORBIT_CY,r:4,fill:'none',stroke:color,'stroke-width':3,opacity:0.9});
+  atomSvg.appendChild(flash);
+  let r = 4;
+  const t0 = performance.now();
+  function step(t){
+    const f = Math.min(1,(t-t0)/600);
+    r = 4 + f*150;
+    flash.setAttribute('r', r);
+    flash.setAttribute('opacity', 0.9*(1-f));
+    if(f<1) requestAnimationFrame(step); else flash.remove();
+  }
+  requestAnimationFrame(step);
+}
+
+document.querySelectorAll('.excite-btn').forEach(btn => {
+  btn.addEventListener('click', () => runExcitation(Number(btn.dataset.level)));
+});
+
+/* ==========================================================
+   선택지 버튼 공용
+=========================================================== */
+document.querySelectorAll(".choice-group").forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+
+/* ==========================================================
+   채점
+=========================================================== */
+$('checkNeb').addEventListener('click', () => {
+  const ok1 = $('qNeb1').value === '방출 성운';
+  const ok2 = $('qNeb2').value === '반사 성운';
+  const ok3 = $('qNeb3').value === '암흑 성운';
+  setFeedback('nebFeedback', ok1 && ok2 && ok3, '① 방출 성운 ② 반사 성운 ③ 암흑 성운');
+});
+
+$('checkElec').addEventListener('click', () => {
+  const v1 = pickedValue($('qElec1Group'));
+  const v2 = pickedValue($('qElec2Group'));
+  const ok = v1 === '방출한다' && v2 === '빨간색';
+  setFeedback('elecFeedback', ok, '방출한다 / 빨간색');
+});
+
+$('checkSelf').addEventListener('click', () => {
+  const ok = $('qSelf1').value === '은하수' && $('qSelf2').value === '성단' && $('qSelf3').value === '성운';
+  setFeedback('selfFeedback', ok, '은하수 / 성단 / 성운');
+});
+
+/* ==========================================================
+   제출
+=========================================================== */
+const submitBtn = $('ws-submit');
+const wsResult = $('ws-result');
+const wsStatus = $('ws-status');
+
+submitBtn.addEventListener('click', async () => {
+  const name = $('ws-name').value.trim();
+  const grade = $('ws-grade').value.trim();
+  const classNum = $('ws-class').value.trim();
+  const number = $('ws-number').value.trim();
+
+  if(!name){
+    alert('이름을 입력해 주세요.');
+    return;
+  }
+
+  const qNeb1 = $('qNeb1').value, qNeb2 = $('qNeb2').value, qNeb3 = $('qNeb3').value;
+  const qElec1 = pickedValue($('qElec1Group')), qElec2 = pickedValue($('qElec2Group'));
+  const qSelf1 = $('qSelf1').value, qSelf2 = $('qSelf2').value, qSelf3 = $('qSelf3').value;
+  const essay = $('essayAnswer').value.trim();
+
+  if(!qNeb1 || !qNeb2 || !qNeb3 || !qElec1 || !qElec2 || !qSelf1 || !qSelf2 || !qSelf3){
+    alert('아직 선택하지 않은 문항이 있어요. 모든 문항을 채워 주세요.');
+    return;
+  }
+  if(!essay){
+    alert('5번 창의적 사고력 서술형 질문에 답을 작성해 주세요.');
+    return;
+  }
+
+  let correct = 0;
+  const total = 8;
+  if(qNeb1 === '방출 성운') correct++;
+  if(qNeb2 === '반사 성운') correct++;
+  if(qNeb3 === '암흑 성운') correct++;
+  if(qElec1 === '방출한다') correct++;
+  if(qElec2 === '빨간색') correct++;
+  if(qSelf1 === '은하수') correct++;
+  if(qSelf2 === '성단') correct++;
+  if(qSelf3 === '성운') correct++;
+
+  wsResult.textContent = `${correct} / ${total} 개 정답`;
+  wsResult.className = 'ws-result ' + (correct === total ? 'ok' : '');
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = '제출 중...';
+
+  const payload = {
+    worksheet: '7_성단과성운',
+    grade, classNum, number, name,
+    q_nebula1: qNeb1, q_nebula2: qNeb2, q_nebula3: qNeb3,
+    q_electron1: qElec1, q_electron2: qElec2,
+    q_selfcheck1: qSelf1, q_selfcheck2: qSelf2, q_selfcheck3: qSelf3,
+    essay_answer: essay,
+    score: String(correct),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = '채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)';
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = '채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.';
+  }catch(err){
+    console.error('스프레드시트 전송 오류:', err);
+    wsStatus.textContent = '채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.';
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
