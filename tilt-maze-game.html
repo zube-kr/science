@@ -296,6 +296,7 @@ const BALL_R = 9;
 const FRICTION = 0.985;
 const ACCEL_SCALE = 2200;
 const MAX_SPEED = 620;
+const GRACE_MS = 600; // 레벨 시작/리스폰 직후, 자세를 잡을 시간을 벌어주는 유예 시간
 
 const PROGRESS_KEY = 'science-tiltmaze-progress';
 let unlockedMax = 0;
@@ -313,6 +314,7 @@ let won = false;
 let startTime = 0;
 let elapsedAtWin = 0;
 let rafId = null;
+let graceTimer = 0;
 
 /* ================= 입력 ================= */
 let rawTiltX = 0, rawTiltY = 0;      // 시리얼로 들어온 최신 값
@@ -378,6 +380,7 @@ function loadLevel(idx){
   won = false;
   startTime = performance.now();
   elapsedAtWin = 0;
+  graceTimer = GRACE_MS;
 
   $('levelLabel').textContent = `레벨 ${idx+1} / ${LEVELS.length} · ${lv.name}`;
   setMsg(serialConnected ? '보드를 기울여 구슬을 굴려 보세요!' : '방향키(←↑↓→)로 구슬을 굴려 보세요!', '');
@@ -408,6 +411,8 @@ $('restartBtn').addEventListener('click', () => loadLevel(levelIdx));
 /* ================= 물리 / 충돌 ================= */
 function stepPhysics(dt){
   if(won) return;
+  if(graceTimer > 0) graceTimer -= dt*1000;
+
   const tilt = getEffectiveTilt();
   ball.vx += tilt.x * ACCEL_SCALE * dt;
   ball.vy += tilt.y * ACCEL_SCALE * dt;
@@ -421,7 +426,12 @@ function stepPhysics(dt){
   ball.x += ball.vx*dt;
   ball.y += ball.vy*dt;
 
-  if(checkWallHit()){
+  // 레벨 시작/리스폰 직후 짧은 유예 시간 동안은 벽에 닿아도 실패 처리하지
+  // 않고 위치만 밀어낸다(시작 칸은 벽과의 간격이 좁아서, 자세를 잡기도
+  // 전에 바로 실패하던 문제를 막는다). 함정·도착 판정은 평소처럼 계속한다.
+  if(graceTimer > 0){
+    clampOutOfWalls();
+  }else if(checkWallHit()){
     respawnBall();
     setMsg('쿵! 벽에 부딪혔어요. 출발점에서 다시 시작합니다.', 'bad');
     return;
@@ -453,6 +463,42 @@ function respawnBall(){
   ball.x = (sc*2+1)*CELL + CELL/2;
   ball.y = (sr*2+1)*CELL + CELL/2;
   ball.vx = 0; ball.vy = 0;
+  graceTimer = GRACE_MS;
+}
+
+// 유예 시간 동안에는 실패 처리 대신, 벽을 그냥 통과해버리지 않도록 위치를
+// 밀어내고 벽 쪽으로 향하던 속도 성분만 제거한다(튕기지도, 실패하지도
+// 않지만, 속도를 그대로 두면 모서리를 빠르게 연타할 때 벽을 뚫고 나갈 수
+// 있어 반드시 속도도 함께 죽여야 한다).
+function clampOutOfWalls(){
+  const g = maze.grid;
+  const minCol = Math.max(0, Math.floor((ball.x-BALL_R)/CELL)-1);
+  const maxCol = Math.min(maze.gridCols-1, Math.floor((ball.x+BALL_R)/CELL)+1);
+  const minRow = Math.max(0, Math.floor((ball.y-BALL_R)/CELL)-1);
+  const maxRow = Math.min(maze.gridRows-1, Math.floor((ball.y+BALL_R)/CELL)+1);
+
+  for(let r=minRow; r<=maxRow; r++){
+    for(let c=minCol; c<=maxCol; c++){
+      if(g[r][c] !== 1) continue;
+      const bx0=c*CELL, by0=r*CELL, bx1=bx0+CELL, by1=by0+CELL;
+      const closestX = Math.max(bx0, Math.min(ball.x, bx1));
+      const closestY = Math.max(by0, Math.min(ball.y, by1));
+      const dx = ball.x-closestX, dy = ball.y-closestY;
+      const distSq = dx*dx+dy*dy;
+      if(distSq < BALL_R*BALL_R && distSq > 1e-9){
+        const dist = Math.sqrt(distSq);
+        const overlap = BALL_R-dist;
+        const nx = dx/dist, ny = dy/dist;
+        ball.x += nx*overlap;
+        ball.y += ny*overlap;
+        const vn = ball.vx*nx + ball.vy*ny;
+        if(vn < 0){
+          ball.vx -= vn*nx;
+          ball.vy -= vn*ny;
+        }
+      }
+    }
+  }
 }
 
 // 벽에 조금이라도 닿으면 바로 실패 처리한다(판정용 원은 살짝 여유를 줘서
