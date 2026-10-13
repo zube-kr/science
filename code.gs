@@ -27,6 +27,14 @@
  * ※ 참고: mul-teukseong.html은 아직 "worksheet" 값을 보내지 않아서
  *   "기타" 탭에 기록됩니다. 워크시트별로 탭을 분리하고 싶다면 해당 파일의
  *   제출 payload에 worksheet: "1_mul_teukseong" 같은 값을 추가해 주세요.
+ *
+ * ▣ 공유 랭킹(기울기 미로 게임, 비행기 슈팅 게임)에 대해
+ * 이 스크립트는 GET ?worksheet=시트이름 요청에도 응답해서, 여러 학생
+ * 기기가 같은 탭의 기록을 함께 읽을 수 있습니다(반 전체가 공유하는
+ * 랭킹판). 이미 이 URL을 쓰고 있다면 기존 배포를 "새 버전"으로
+ * 업데이트하기만 하면 됩니다(주소는 그대로 유지됨):
+ *   배포 → 배포 관리 → (연필 아이콘) 수정 → 버전: 새 버전 → 배포
+ * 새로 설치하는 경우에는 위 1~4번 설치 방법을 그대로 따르면 됩니다.
  */
 
 function doPost(e) {
@@ -81,8 +89,38 @@ function doPost(e) {
   return ContentService.createTextOutput("OK");
 }
 
+/**
+ * GET ?worksheet=시트이름 으로 호출하면 그 탭의 모든 행을 JSON 배열로
+ * 돌려준다(헤더를 키로 사용). 랭킹처럼 "여러 학생 기기가 공유해서 읽어야
+ * 하는" 데이터를 보여줄 때 쓴다. worksheet 파라미터가 없으면 기존처럼
+ * 안내 문구만 반환한다.
+ */
 function doGet(e) {
-  return ContentService.createTextOutput(
-    "이 웹 앱은 아화중학교 과학 워크시트 제출 데이터를 받는 용도입니다. POST 요청으로 사용해 주세요."
-  );
+  var worksheet = (e && e.parameter && e.parameter.worksheet) || "";
+  if (!worksheet) {
+    return ContentService.createTextOutput(
+      "이 웹 앱은 아화중학교 과학 워크시트 제출 데이터를 받는 용도입니다. POST 요청으로 사용해 주세요."
+    );
+  }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(worksheet);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return ContentService.createTextOutput(JSON.stringify([]))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var values = sheet.getDataRange().getValues();
+  var header = values[0];
+  var rows = values.slice(1).map(function (row) {
+    var obj = {};
+    header.forEach(function (col, i) {
+      var v = row[i];
+      obj[col] = v instanceof Date ? v.toISOString() : v;
+    });
+    return obj;
+  });
+
+  return ContentService.createTextOutput(JSON.stringify(rows))
+    .setMimeType(ContentService.MimeType.JSON);
 }
