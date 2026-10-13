@@ -63,12 +63,40 @@
 
   .overlay-msg{
     position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center;
-    gap:10px; background:rgba(10,20,30,.55); color:#fff; text-align:center; padding:20px;
+    gap:8px; background:rgba(10,20,30,.78); color:#fff; text-align:center; padding:20px;
+    overflow-y:auto;
   }
   .overlay-msg.show{ display:flex; }
-  .overlay-msg .emoji{ font-size:38px; }
-  .overlay-msg h2{ font-size:19px; font-weight:800; }
-  .overlay-msg p{ font-size:13px; color:#D9E6EE; }
+  .overlay-msg .emoji{ font-size:34px; }
+  .overlay-msg h2{ font-size:18px; font-weight:800; }
+  .overlay-msg p{ font-size:12.5px; color:#D9E6EE; }
+
+  .name-form{ display:flex; gap:7px; width:100%; max-width:280px; margin-top:2px; }
+  .name-form input{
+    flex:1; padding:9px 11px; border:none; border-radius:9px;
+    font-family:inherit; font-size:13px; color:var(--ink);
+  }
+
+  .board-list{ list-style:none; display:flex; flex-direction:column; gap:5px; width:100%; max-width:280px; }
+  .board-row{
+    display:flex; align-items:center; gap:8px; font-size:12px; padding:6px 9px;
+    border-radius:8px; background:rgba(255,255,255,0.1);
+  }
+  .board-row.me{ background:rgba(216,73,59,0.55); font-weight:800; }
+  .board-row .rank{ width:18px; flex:none; text-align:center; font-weight:800; color:#B9CBD9; }
+  .board-row:nth-child(1) .rank{ color:#F2C14E; }
+  .board-row:nth-child(2) .rank{ color:#C9CEE0; }
+  .board-row:nth-child(3) .rank{ color:#D99B6C; }
+  .board-row .bname{ flex:1; font-weight:700; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left; }
+  .board-row .bscore{ font-variant-numeric:tabular-nums; color:#F2C14E; font-weight:800; }
+  .board-empty{ font-size:11.5px; color:#B9CBD9; text-align:center; padding:6px 0; }
+  .board-reset{ font-size:11px; color:var(--ink-soft); background:none; border:none; cursor:pointer; text-decoration:underline; padding:2px; }
+
+  .side-card .board-row{ background:#FAF8F2; color:var(--ink); }
+  .side-card .board-row .bname{ color:var(--ink); }
+  .side-card .board-row .bscore{ color:var(--gold); }
+  .side-card .board-row.me{ background:var(--accent-soft); }
+  .side-card .board-empty{ color:var(--ink-soft); }
 
   .board-actions{ display:flex; gap:8px; flex-wrap:wrap; }
   .btn{
@@ -147,6 +175,11 @@
           <div class="emoji" id="overlayEmoji">💥</div>
           <h2 id="overlayTitle">게임 오버</h2>
           <p id="overlayDesc">점수: 0점</p>
+          <form class="name-form" id="nameForm">
+            <input type="text" id="nameInput" maxlength="12" placeholder="이름을 입력하세요" autocomplete="off" required>
+            <button type="submit" class="btn primary">저장</button>
+          </form>
+          <ul class="board-list" id="overlayLeaderList"></ul>
           <button class="btn primary" id="overlayRestartBtn">🔄 다시 시작</button>
         </div>
       </div>
@@ -157,7 +190,12 @@
     </div>
 
     <div class="side-card">
-      <div class="hi-row">최고 점수 <span class="v" id="highScoreLabel">0점</span></div>
+      <div>
+        <div class="side-title"><span class="tag">🏆 랭킹</span></div>
+        <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">게임이 끝날 때마다 기록할 수 있어요(높은 점수 순).</p>
+        <ul class="board-list" id="leaderList" style="margin-top:10px;"></ul>
+        <button type="button" class="board-reset" id="resetBoardBtn" style="margin-top:6px;">랭킹 초기화</button>
+      </div>
 
       <div>
         <div class="side-title"><span class="tag">아두이노 연결</span></div>
@@ -243,10 +281,38 @@ const SPAWN_INTERVAL_START = 1500, SPAWN_INTERVAL_MIN = 550;
 const INVULN_MS = 1400;
 const LIVES_START = 3;
 
-const HIGH_SCORE_KEY = 'science-planeshooter-highscore';
-let highScore = 0;
-try{ highScore = Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0; }catch(e){}
-$('highScoreLabel').textContent = highScore + '점';
+/* ================= 랭킹 ================= */
+const LEADERBOARD_KEY = 'science-planeshooter-leaderboard';
+function loadLeaderboard(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
+    if(Array.isArray(raw)) return raw;
+  }catch(e){}
+  return [];
+}
+function saveLeaderboard(list){
+  try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+}
+function renderLeaderboard(listEl, maxN, highlightEntry){
+  const board = loadLeaderboard();
+  listEl.innerHTML = '';
+  if(board.length === 0){
+    listEl.innerHTML = '<div class="board-empty">아직 기록이 없어요. 가장 먼저 도전해 보세요!</div>';
+    return;
+  }
+  board.slice(0,maxN).forEach((entry, i) => {
+    const li = document.createElement('li');
+    const isMe = highlightEntry && entry === highlightEntry;
+    li.className = 'board-row' + (isMe ? ' me' : '');
+    li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="bscore">${entry.score}점</span>`;
+    li.querySelector('.bname').textContent = entry.name;
+    listEl.appendChild(li);
+  });
+}
+function renderAllLeaderboards(highlightEntry){
+  renderLeaderboard($('leaderList'), 10, highlightEntry);
+  renderLeaderboard($('overlayLeaderList'), 5, highlightEntry);
+}
 
 /* ================= 상태 ================= */
 let player, enemies, bullets, missiles, particles, clouds;
@@ -266,6 +332,8 @@ function resetGame(){
   invulnTimer = 0;
   gameOver = false;
   $('overlayMsg').classList.remove('show');
+  $('nameForm').style.display = 'flex';
+  $('nameInput').value = '';
   updateHUD();
 }
 
@@ -472,17 +540,18 @@ function hitPlayer(){
   spawnExplosion(player.x, player.y, '#4FA8E0');
 }
 
+let pendingScore = 0, pendingSurvivalTime = 0;
+
 function endGame(){
   gameOver = true;
-  if(score > highScore){
-    highScore = score;
-    try{ localStorage.setItem(HIGH_SCORE_KEY, String(highScore)); }catch(e){}
-    $('highScoreLabel').textContent = highScore + '점';
-  }
+  pendingScore = score;
+  pendingSurvivalTime = survivalTime;
   $('overlayEmoji').textContent = '💥';
   $('overlayTitle').textContent = '게임 오버';
   $('overlayDesc').textContent = `점수: ${score}점 · 생존 시간: ${survivalTime.toFixed(1)}초`;
+  renderLeaderboard($('overlayLeaderList'), 5, null);
   $('overlayMsg').classList.add('show');
+  setTimeout(() => $('nameInput').focus(), 50);
 }
 
 /* ================= 렌더링 ================= */
@@ -776,8 +845,29 @@ clouds = Array.from({length:7}, () => ({
 $('restartBtn').addEventListener('click', resetGame);
 $('overlayRestartBtn').addEventListener('click', resetGame);
 
+$('nameForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('nameInput').value.trim();
+  if(!name) return;
+  const board = loadLeaderboard();
+  const entry = { name, score: pendingScore, survivalTime: pendingSurvivalTime, date: new Date().toISOString().slice(0,10) };
+  board.push(entry);
+  board.sort((a,b) => b.score - a.score);
+  board.length = Math.min(board.length, 10);
+  saveLeaderboard(board);
+  renderAllLeaderboards(entry);
+  $('nameForm').style.display = 'none';
+});
+
+$('resetBoardBtn').addEventListener('click', () => {
+  if(!confirm('랭킹을 모두 초기화할까요? 되돌릴 수 없어요.')) return;
+  saveLeaderboard([]);
+  renderAllLeaderboards(null);
+});
+
 updateConnUI();
 tryAutoConnect();
+renderAllLeaderboards(null);
 resetGame();
 requestAnimationFrame(loop);
 </script>

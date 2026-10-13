@@ -117,6 +117,42 @@
   }
 
   footer{ max-width:1180px; margin:4px auto 0; color:#C9B899; font-size:11px; text-align:center; }
+
+  .board-list{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .board-row{
+    display:flex; align-items:center; gap:9px; font-size:12.5px; padding:7px 9px;
+    border-radius:9px; background:#FAF8F2;
+  }
+  .board-row.me{ background:var(--accent-soft); font-weight:800; }
+  .board-row .rank{
+    width:20px; flex:none; text-align:center; font-weight:800; color:var(--ink-soft);
+  }
+  .board-row:nth-child(1) .rank{ color:#C99A2E; }
+  .board-row:nth-child(2) .rank{ color:#9AA0A6; }
+  .board-row:nth-child(3) .rank{ color:#B07A4A; }
+  .board-row .bname{ flex:1; font-weight:700; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .board-row .btime{ font-variant-numeric:tabular-nums; color:var(--ink-soft); font-weight:800; }
+  .board-empty{ font-size:12px; color:var(--ink-soft); text-align:center; padding:10px 0; }
+  .board-reset{ font-size:11px; color:var(--ink-soft); background:none; border:none; cursor:pointer; text-decoration:underline; padding:2px; }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,14,8,.6);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .overlay.show{ display:flex; }
+  .overlay-card{
+    background:#fff; border-radius:20px; padding:28px 30px; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.35); max-width:380px; width:100%;
+  }
+  .overlay-card .emoji{ font-size:38px; margin-bottom:6px; }
+  .overlay-card h2{ font-size:19px; font-weight:800; margin-bottom:8px; }
+  .overlay-card p{ font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:14px; }
+  .name-form{ display:flex; gap:8px; margin-bottom:14px; }
+  .name-form input{
+    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+    font-family:inherit; font-size:13.5px; color:var(--ink);
+  }
+  .overlay-card .board-list{ text-align:left; margin-bottom:10px; }
 </style>
 </head>
 <body>
@@ -148,6 +184,13 @@
     </div>
 
     <div class="side-card">
+      <div>
+        <div class="side-title"><span class="badge">🏆 명예의 전당</span></div>
+        <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">4개 레벨을 모두 클리어한 총 기록(빠른 순)이에요.</p>
+        <ul class="board-list" id="leaderList" style="margin-top:10px;"></ul>
+        <button type="button" class="board-reset" id="resetBoardBtn" style="margin-top:6px;">랭킹 초기화</button>
+      </div>
+
       <div>
         <div class="side-title"><span class="badge">아두이노 연결</span></div>
         <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
@@ -193,6 +236,20 @@
   </main>
 
   <footer>AHWA MIDDLE SCHOOL SCIENCE · 기울기 미로 게임 (Web Serial + MPU-6050)</footer>
+</div>
+
+<div class="overlay" id="finishOverlay">
+  <div class="overlay-card">
+    <div class="emoji">🏁</div>
+    <h2>모든 레벨 클리어!</h2>
+    <p id="finishDesc">총 기록: 0.0초</p>
+    <form class="name-form" id="nameForm">
+      <input type="text" id="nameInput" maxlength="12" placeholder="이름을 입력하세요" autocomplete="off" required>
+      <button type="submit" class="btn primary">저장</button>
+    </form>
+    <ul class="board-list" id="finishLeaderList"></ul>
+    <button type="button" class="btn ghost" id="finishCloseBtn" style="margin-top:12px; width:100%;">닫기</button>
+  </div>
 </div>
 
 <script>
@@ -315,6 +372,45 @@ let startTime = 0;
 let elapsedAtWin = 0;
 let rafId = null;
 let graceTimer = 0;
+let levelTimes = new Array(LEVELS.length).fill(null); // 이번 세션에서 각 레벨을 클리어한 시간
+
+/* ================= 명예의 전당 (랭킹) ================= */
+const LEADERBOARD_KEY = 'science-tiltmaze-leaderboard';
+function loadLeaderboard(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
+    if(Array.isArray(raw)) return raw;
+  }catch(e){}
+  return [];
+}
+function saveLeaderboard(list){
+  try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+}
+function formatBoardTime(sec){
+  const m = Math.floor(sec/60);
+  const s = (sec%60).toFixed(1).padStart(4,'0');
+  return m>0 ? `${m}:${s}` : `${s}초`;
+}
+function renderLeaderboard(listEl, highlightEntry){
+  const board = loadLeaderboard();
+  listEl.innerHTML = '';
+  if(board.length === 0){
+    listEl.innerHTML = '<div class="board-empty">아직 기록이 없어요. 가장 먼저 도전해 보세요!</div>';
+    return;
+  }
+  board.slice(0,10).forEach((entry, i) => {
+    const li = document.createElement('li');
+    const isMe = highlightEntry && entry === highlightEntry;
+    li.className = 'board-row' + (isMe ? ' me' : '');
+    li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="btime">${formatBoardTime(entry.totalTime)}</span>`;
+    li.querySelector('.bname').textContent = entry.name;
+    listEl.appendChild(li);
+  });
+}
+function renderAllLeaderboards(highlightEntry){
+  renderLeaderboard($('leaderList'), highlightEntry);
+  renderLeaderboard($('finishLeaderList'), highlightEntry);
+}
 
 /* ================= 입력 ================= */
 let rawTiltX = 0, rawTiltY = 0;      // 시리얼로 들어온 최신 값
@@ -448,6 +544,7 @@ function stepPhysics(dt){
   if(Math.hypot(ball.x-goalPx.x, ball.y-goalPx.y) < CELL*0.38){
     won = true;
     elapsedAtWin = (performance.now()-startTime)/1000;
+    levelTimes[levelIdx] = elapsedAtWin;
     if(levelIdx+1 > unlockedMax){
       unlockedMax = levelIdx+1;
       try{ localStorage.setItem(PROGRESS_KEY, String(unlockedMax)); }catch(e){}
@@ -455,6 +552,11 @@ function stepPhysics(dt){
     }
     const isLast = levelIdx === LEVELS.length-1;
     setMsg(isLast ? `🎉 도착! 모든 레벨을 클리어했어요! (${elapsedAtWin.toFixed(1)}초)` : `🎉 도착! 레벨 클리어! (${elapsedAtWin.toFixed(1)}초) — 다음 레벨을 선택해 보세요.`, 'ok');
+
+    if(isLast && levelTimes.every(t => t !== null)){
+      const totalTime = levelTimes.reduce((a,b) => a+b, 0);
+      showFinishOverlay(totalTime);
+    }
   }
 }
 
@@ -781,9 +883,47 @@ $('copyCodeBtn').addEventListener('click', async () => {
   }
 });
 
+/* ================= 완주 기록 저장 ================= */
+let pendingTotalTime = 0;
+
+function showFinishOverlay(totalTime){
+  pendingTotalTime = totalTime;
+  $('finishDesc').textContent = `총 기록: ${formatBoardTime(totalTime)} — 이름을 입력하고 랭킹에 등록해 보세요!`;
+  $('nameInput').value = '';
+  renderLeaderboard($('finishLeaderList'), null);
+  $('finishOverlay').classList.add('show');
+  setTimeout(() => $('nameInput').focus(), 50);
+}
+
+$('nameForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('nameInput').value.trim();
+  if(!name) return;
+  const board = loadLeaderboard();
+  const entry = { name, totalTime: pendingTotalTime, date: new Date().toISOString().slice(0,10) };
+  board.push(entry);
+  board.sort((a,b) => a.totalTime - b.totalTime);
+  board.length = Math.min(board.length, 10);
+  saveLeaderboard(board);
+  renderAllLeaderboards(entry);
+  $('nameForm').style.display = 'none';
+});
+
+$('finishCloseBtn').addEventListener('click', () => {
+  $('finishOverlay').classList.remove('show');
+  $('nameForm').style.display = 'flex';
+});
+
+$('resetBoardBtn').addEventListener('click', () => {
+  if(!confirm('명예의 전당 랭킹을 모두 초기화할까요? 되돌릴 수 없어요.')) return;
+  saveLeaderboard([]);
+  renderAllLeaderboards(null);
+});
+
 /* ================= 시작 ================= */
 updateConnUI();
 tryAutoConnect();
+renderAllLeaderboards(null);
 loadLevel(0);
 rafId = requestAnimationFrame(loop);
 </script>
