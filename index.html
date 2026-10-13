@@ -1254,6 +1254,9 @@ const PLANE_SHOOTING_URL = "plane-shooting-game.html";
 // ⚠️ charles-law-arduino.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const CHARLES_LAW_ARDUINO_URL = "charles-law-arduino.html";
 
+// ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
+
 const topicsData = {
   "swieo-game": {
     title: "🎮 쉬어가는 게임",
@@ -1655,7 +1658,17 @@ const topicsData = {
       }
     ]
   },
-  "uju-tamsa": { title: "⑦ 우주 탐사", posts: [ { title: "우주 탐사 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] }
+  "uju-tamsa": {
+    title: "⑦ 우주 탐사",
+    posts: [
+      {
+        title: "성단과 성운 — 세 가지 성운의 차이",
+        desc: "방출·반사·암흑 성운이 왜 다르게 보이는지 입자 시뮬레이션으로 확인하고, 수소 원자의 전자가 들떴다가 떨어지며 빛을 내는 원리까지 연결해서 살펴보는 자동 채점 워크시트입니다.",
+        url: SEONGDAN_SEONGUN_URL,
+        ready: true
+      }
+    ]
+  }
 };
 
 const viewHome = document.getElementById("view-home");
