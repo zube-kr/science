@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>샤를의 법칙 — 아두이노로 온도와 기체 부피 측정하기</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+
+    --force:#D8493B;
+    --force-soft:#FDEAE7;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --violet:#7A56C9;
+    --violet-soft:#EFE9FA;
+    --amber:#C6871F;
+    --amber-soft:#FAF0DC;
+    --teal:#2F8F6F;
+    --teal-soft:#E1F3EC;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1000px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--teal),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:800px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{ font-size:11px; font-weight:800; color:#fff; background:var(--ink); padding:3px 9px; border-radius:999px; }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; }
+  @media (max-width:640px){ .info-grid{ grid-template-columns:1fr; } }
+  .info-box{ font-size:12.5px; line-height:1.8; }
+  .info-box b{ display:block; font-size:12.5px; font-weight:800; margin-bottom:4px; color:var(--ink); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{ font-size:11.5px; padding:3px 10px; border-radius:999px; font-weight:700; background:var(--blue-soft); color:var(--blue); }
+  .steps{ font-size:12.5px; line-height:1.9; color:var(--ink-soft); padding-left:18px; }
+
+  /* ---------- 회로 연결표 ---------- */
+  table.pin-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+  table.pin-table th, table.pin-table td{ border:1px solid var(--line); padding:7px 9px; text-align:center; }
+  table.pin-table th{ background:#F1EEE5; font-weight:800; font-size:12px; }
+  table.pin-table td.part{ font-weight:700; text-align:left; }
+
+  /* ---------- 코드 블록 ---------- */
+  .code-wrap{ position:relative; margin-top:10px; }
+  pre.code-block{
+    background:#1e2430; color:#d9dee8; font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:11.5px; line-height:1.65; border-radius:12px; padding:16px 16px 14px; overflow-x:auto;
+    max-height:360px;
+  }
+  .copy-btn{
+    position:absolute; top:10px; right:10px; font-family:inherit; font-size:11.5px; font-weight:700;
+    cursor:pointer; border:none; border-radius:8px; padding:6px 11px; background:#3a4658; color:#fff; transition:.15s;
+  }
+  .copy-btn:hover{ background:#4a5a72; }
+  .copy-btn.copied{ background:var(--ok); }
+
+  /* ---------- 연결 & 측정 ---------- */
+  .connect-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px; }
+  .conn-status{ font-size:12px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; gap:6px; }
+  .conn-dot{ width:9px; height:9px; border-radius:50%; background:#aab1bd; display:inline-block; }
+  .conn-dot.live{ background:var(--ok); box-shadow:0 0 0 3px var(--teal-soft); }
+
+  .live-readout{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:14px; }
+  .live-box{
+    flex:1; min-width:150px; background:#FBFAF6; border:1px solid var(--line); border-radius:14px;
+    padding:12px 16px; text-align:center;
+  }
+  .live-box .live-label{ font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:4px; }
+  .live-box .live-value{ font-size:26px; font-weight:800; }
+  .live-box input[type="number"]{
+    width:100%; text-align:center; font-family:inherit; font-size:22px; font-weight:800;
+    border:none; border-bottom:2px solid var(--ink); background:transparent; padding:3px 0;
+  }
+
+  .record-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+
+  table.data-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.data-table th, table.data-table td{ border:1px solid var(--line); padding:7px 6px; text-align:center; }
+  table.data-table th{ background:#F1EEE5; font-weight:800; font-size:11.5px; }
+  table.data-table .del-btn{
+    font-family:inherit; font-size:11px; font-weight:700; cursor:pointer; color:var(--bad);
+    border:1px solid var(--bad); background:#fff; border-radius:7px; padding:3px 8px;
+  }
+  table.data-table .empty-row td{ color:var(--ink-soft); font-style:italic; }
+
+  .lab-layout{ display:grid; grid-template-columns:1.05fr 1fr; gap:18px; align-items:start; margin-top:14px; }
+  @media (max-width:760px){ .lab-layout{ grid-template-columns:1fr; } }
+  .graph-box canvas{ width:100%; height:auto; background:#FBFAF6; border:1px solid var(--line); border-radius:12px; }
+  .graph-caption{ font-size:11px; color:var(--ink-soft); text-align:center; margin-top:6px; }
+
+  .slope-readout{
+    margin-top:10px; font-size:12.5px; font-weight:700; color:var(--ink-soft);
+    background:#FAF8F2; border:1px solid var(--line); border-radius:10px; padding:8px 12px; line-height:1.7;
+  }
+  .slope-readout b{ color:var(--violet); }
+
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:9px 15px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn.teal{ background:var(--teal); color:#fff; }
+  .btn.teal:hover{ background:#256f54; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .warn-box{
+    background:var(--amber-soft); border:1px solid #EEDDA0; color:#5B4A1E; border-radius:12px;
+    padding:10px 14px; font-size:12px; line-height:1.7; margin-top:12px;
+  }
+
+  /* ---------- 워크시트 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q{ border-top:1px dashed var(--line); padding:16px 2px 4px; }
+  .q:first-of-type{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:90px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .q-feedback.info{ color:var(--blue); }
+
+  .choice-group{ display:inline-flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .choice-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:5px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--teal); color:var(--teal); background:var(--teal-soft); }
+
+  textarea{
+    width:100%; min-height:60px; margin-top:8px; font-family:inherit; font-size:13px; line-height:1.6;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+  .q-label{ font-weight:800; font-size:13.5px; margin-bottom:4px; display:block; }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+
+  footer{ max-width:1000px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅵ. 기체의 성질 · 샤를의 법칙</div>
+    <h1>아두이노로 직접 재는 <span>온도</span>와 <span>기체 부피</span>의 관계</h1>
+    <p class="sub">아두이노 우노에 온도 센서와 초음파 센서를 연결해 실제 실험 장치를 만들고, 노트북과 USB로 직접 연결해서 실시간 측정값을 받아와요. 물의 온도를 바꿔가며 기체(공기)의 부피가 어떻게 달라지는지 데이터로 확인해 보세요.</p>
+  </header>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">개념</span>샤를의 법칙</div>
+    <div class="card-hint">압력이 일정할 때, 일정량의 기체의 부피는 온도가 높아지면 커지고 온도가 낮아지면 작아진다. 이때 기체의 부피는 <b>절대온도(켈빈온도, K = 섭씨온도 + 273)</b>에 <b>비례</b>한다. 이를 <b>샤를의 법칙</b>이라고 한다.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--blue)">탐구</span>온도에 따른 기체 부피 변화 측정하기</div>
+    <div class="card-hint">목표: 아두이노 센서로 온도와 기체의 부피(비례값)를 직접 측정하여, 온도와 기체 부피 사이의 관계를 그래프로 확인할 수 있다.</div>
+    <div class="info-grid">
+      <div class="info-box">
+        <b>준비물</b>
+        <div class="chip-row">
+          <span class="chip">아두이노 우노</span><span class="chip">LM35 온도센서</span><span class="chip">초음파센서(HC-SR04)</span>
+          <span class="chip">삼각플라스크 + 고무풍선(또는 큰 주사기)</span><span class="chip">얼음물·상온수·미온수·뜨거운 물</span>
+          <span class="chip">브레드보드·점퍼선</span><span class="chip">USB 케이블</span><span class="chip">노트북(크롬/엣지)</span>
+        </div>
+      </div>
+      <div class="info-box">
+        <b>과정</b>
+        <ol class="steps">
+          <li>아래 회로도대로 온도센서·초음파센서를 아두이노에 연결하고, 코드를 업로드한다.</li>
+          <li>삼각플라스크 입구에 풍선을 씌우고, 풍선 꼭대기를 향하도록 초음파 센서를 고정한다. 온도센서는 플라스크 옆(또는 담그는 물 속)에 둔다.</li>
+          <li>USB로 노트북과 아두이노를 연결하고, 이 페이지에서 "아두이노 연결하기"를 누른다.</li>
+          <li>플라스크를 얼음물 → 상온수 → 미온수 → 뜨거운 물 순서로 옮기며, 온도가 안정될 때마다 "현재 값 기록하기"를 눌러 표에 데이터를 쌓는다.</li>
+          <li>최소 4개 이상의 데이터를 기록하고, 자동으로 그려지는 그래프에서 온도와 부피(거리)의 관계를 확인한다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="warn-box">⚠️ 뜨거운 물을 다룰 때는 화상에 주의하고, 선생님의 지도에 따라 실험하세요. 풍선이 너무 많이 부풀면 터질 수 있으니 플라스크 입구에 느슨하게 씌워주세요.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--violet)">회로</span>아두이노 연결하기</div>
+    <table class="pin-table">
+      <thead><tr><th>부품</th><th>부품 핀</th><th>아두이노 핀</th></tr></thead>
+      <tbody>
+        <tr><td class="part" rowspan="3">LM35 온도센서</td><td>VCC</td><td>5V</td></tr>
+        <tr><td>GND</td><td>GND</td></tr>
+        <tr><td>OUT</td><td>A0</td></tr>
+        <tr><td class="part" rowspan="4">HC-SR04 초음파센서</td><td>VCC</td><td>5V</td></tr>
+        <tr><td>GND</td><td>GND</td></tr>
+        <tr><td>TRIG</td><td>9번</td></tr>
+        <tr><td>ECHO</td><td>10번</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-wrap">
+      <button type="button" class="copy-btn" id="copy-code">📋 코드 복사</button>
+      <pre class="code-block" id="arduino-code">/*
+  샤를의 법칙 실험 - 온도 &amp; 거리(기체 부피 비례값) 측정 스케치
+  LM35 온도센서   OUT -> A0,  VCC -> 5V,  GND -> GND
+  HC-SR04 초음파  TRIG -> 9,  ECHO -> 10, VCC -> 5V,  GND -> GND
+  0.5초마다 "온도,거리" 형식으로 시리얼 출력 (보드레이트 9600)
+*/
+const int TEMP_PIN = A0;
+const int TRIG_PIN = 9;
+const int ECHO_PIN = 10;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+float readTemperature() {
+  int raw = analogRead(TEMP_PIN);
+  float voltage = raw * (5.0 / 1023.0);
+  return voltage * 100.0; // LM35: 10mV = 1도
+}
+
+float readDistanceCm() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0) return -1;
+  return duration * 0.0343 / 2.0;
+}
+
+void loop() {
+  float t = readTemperature();
+  float d = readDistanceCm();
+  Serial.print(t, 2);
+  Serial.print(",");
+  Serial.println(d, 2);
+  delay(500);
+}</pre>
+    </div>
+    <div class="card-hint" style="margin-top:8px;">위 코드를 복사해서 아두이노 IDE에 붙여넣고 업로드하세요. (저장소의 <code>arduino-sketches/charles-law-sensor.ino</code> 파일을 직접 열어도 돼요.)</div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--teal)">측정</span>실시간으로 값 받아오기</div>
+    <div class="card-hint">크롬 또는 엣지 브라우저에서만 아두이노와 직접 연결할 수 있어요. 연결이 어렵다면 아래 칸에 값을 직접 입력해도 똑같이 기록·채점돼요.</div>
+
+    <div class="connect-row">
+      <button type="button" class="btn teal" id="connect-btn">🔌 아두이노 연결하기</button>
+      <span class="conn-status"><span class="conn-dot" id="conn-dot"></span><span id="conn-text">연결 안 됨</span></span>
+    </div>
+
+    <div class="live-readout">
+      <div class="live-box">
+        <div class="live-label">🌡️ 온도(℃)</div>
+        <input type="number" id="live-temp" step="0.1" placeholder="온도">
+      </div>
+      <div class="live-box">
+        <div class="live-label">📏 측정 거리(cm) — 기체 부피에 비례</div>
+        <input type="number" id="live-dist" step="0.1" placeholder="거리">
+      </div>
+    </div>
+
+    <div class="record-row">
+      <button type="button" class="btn primary" id="record-btn">📍 현재 값 기록하기</button>
+      <button type="button" class="btn ghost" id="clear-data">🧹 표 초기화</button>
+      <button type="button" class="btn ghost" id="fill-sample">📎 예시 값으로 미리보기</button>
+    </div>
+
+    <div class="lab-layout">
+      <div>
+        <table class="data-table" id="data-table">
+          <thead><tr><th>#</th><th>온도(℃)</th><th>켈빈온도(K)</th><th>측정 거리(cm)</th><th>삭제</th></tr></thead>
+          <tbody id="data-tbody">
+            <tr class="empty-row"><td colspan="5">아직 기록된 데이터가 없어요.</td></tr>
+          </tbody>
+        </table>
+        <div class="slope-readout" id="slope-readout">데이터를 2개 이상 기록하면 온도와 부피 사이의 관계(기울기)를 계산해서 알려드려요.</div>
+      </div>
+      <div class="graph-box">
+        <canvas id="graph-canvas" width="420" height="340"></canvas>
+        <div class="graph-caption">가로축: 온도(℃) · 세로축: 측정 거리(cm, 기체 부피에 비례)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><span class="badge">스스로 확인</span>샤를의 법칙 정리</div>
+
+    <div class="q" style="border-top:none;">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        압력이 일정할 때, 기체의 부피는 온도가 높아지면
+        <span class="choice-group" data-answer="커진다" id="q1">
+          <button type="button" class="choice-btn" data-value="커진다">커진다</button>
+          <button type="button" class="choice-btn" data-value="작아진다">작아진다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="fb1"></span>
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        기체의 부피는 섭씨온도가 아니라
+        <input type="text" class="blank-input" id="blank2" placeholder="무엇?">
+        온도(켈빈온도)에 정비례한다.
+      </div>
+      <span class="q-feedback" id="fb2"></span>
+    </div>
+
+    <div class="q">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        이론적으로 기체의 부피가 0이 되는 온도인 절대영도는 약
+        <input type="text" class="blank-input" id="blank3" placeholder="숫자">
+        ℃이다.
+      </div>
+      <span class="q-feedback" id="fb3"></span>
+    </div>
+
+    <div class="q">
+      <span class="q-label">🔬 내 실험 데이터 해석 — 온도가 올라갈 때 측정 거리(기체 부피)는 어떻게 변했는지, 그래프 모양과 함께 설명해 보자.</span>
+      <textarea id="reflect1" placeholder="내가 측정한 표와 그래프를 보고 설명해 보세요."></textarea>
+    </div>
+
+    <div class="q">
+      <span class="q-label">🎯 생활 속 적용 — 찌그러진 탁구공을 뜨거운 물에 넣으면 펴지는 까닭을 샤를의 법칙과 연관 지어 설명해 보자.</span>
+      <textarea id="reflect2" placeholder="탁구공 안 공기의 온도와 부피 변화를 생각해 보세요."></textarea>
+      <span class="q-feedback" id="fb-reflect"></span>
+    </div>
+
+    <div class="ws-student" style="margin-top:16px;">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 샤를의 법칙 — 아두이노로 온도와 기체 부피 측정하기</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+  이 저장소 루트의 code.gs(범용 스크립트)를 그대로 배포해서 쓰면 됩니다.
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   코드 복사 버튼
+=========================================================== */
+document.getElementById("copy-code").addEventListener("click", async () => {
+  const text = document.getElementById("arduino-code").textContent;
+  const btn = document.getElementById("copy-code");
+  try{
+    await navigator.clipboard.writeText(text);
+    btn.textContent = "✅ 복사됨!";
+    btn.classList.add("copied");
+  }catch(e){
+    btn.textContent = "복사 실패 (직접 선택해 주세요)";
+  }
+  setTimeout(() => { btn.textContent = "📋 코드 복사"; btn.classList.remove("copied"); }, 1800);
+});
+
+/* ==========================================================
+   Web Serial API — 아두이노 실시간 연결
+=========================================================== */
+const connectBtn = document.getElementById("connect-btn");
+const connDot = document.getElementById("conn-dot");
+const connText = document.getElementById("conn-text");
+const liveTempInput = document.getElementById("live-temp");
+const liveDistInput = document.getElementById("live-dist");
+
+let serialPort = null;
+let serialReader = null;
+let keepReading = false;
+
+function setConnectedUI(connected){
+  connDot.classList.toggle("live", connected);
+  connText.textContent = connected ? "실시간 연결됨" : "연결 안 됨";
+  connectBtn.textContent = connected ? "🔌 연결 끊기" : "🔌 아두이노 연결하기";
+}
+
+async function connectSerial(){
+  if(!("serial" in navigator)){
+    alert("이 브라우저는 Web Serial을 지원하지 않아요. 크롬(Chrome) 또는 엣지(Edge) 브라우저를 사용해 주세요.\n연결 없이도 아래 칸에 값을 직접 입력해서 실험을 진행할 수 있어요.");
+    return;
+  }
+  try{
+    serialPort = await navigator.serial.requestPort();
+    await serialPort.open({ baudRate: 9600 });
+    keepReading = true;
+    setConnectedUI(true);
+    readLoop();
+  }catch(err){
+    console.error("시리얼 연결 오류:", err);
+    if(err && err.name !== "NotFoundError"){
+      alert("아두이노 연결에 실패했어요. USB가 잘 꽂혀 있는지, 다른 프로그램(아두이노 IDE 시리얼 모니터 등)이 포트를 쓰고 있지는 않은지 확인해 주세요.");
+    }
+  }
+}
+
+async function disconnectSerial(){
+  keepReading = false;
+  try{ if(serialReader) await serialReader.cancel(); }catch(e){}
+  try{ if(serialPort) await serialPort.close(); }catch(e){}
+  serialPort = null; serialReader = null;
+  setConnectedUI(false);
+}
+
+async function readLoop(){
+  const textDecoder = new TextDecoderStream();
+  const readableClosed = serialPort.readable.pipeTo(textDecoder.writable).catch(() => {});
+  serialReader = textDecoder.readable.getReader();
+  let buf = "";
+  try{
+    while(keepReading){
+      const { value, done } = await serialReader.read();
+      if(done) break;
+      if(value) buf += value;
+      let idx;
+      while((idx = buf.indexOf("\n")) >= 0){
+        const line = buf.slice(0, idx).trim();
+        buf = buf.slice(idx+1);
+        parseSerialLine(line);
+      }
+    }
+  }catch(e){
+    console.error("시리얼 읽기 오류:", e);
+  }finally{
+    try{ serialReader.releaseLock(); }catch(e){}
+  }
+}
+
+function parseSerialLine(line){
+  const parts = line.split(",");
+  if(parts.length !== 2) return;
+  const t = parseFloat(parts[0]), d = parseFloat(parts[1]);
+  if(isNaN(t) || isNaN(d)) return;
+  liveTempInput.value = t.toFixed(1);
+  liveDistInput.value = d.toFixed(1);
+}
+
+connectBtn.addEventListener("click", () => {
+  if(keepReading) disconnectSerial();
+  else connectSerial();
+});
+
+/* ==========================================================
+   데이터 표 + 실시간 그래프
+=========================================================== */
+let dataRows = []; // { temp, dist }
+
+const tbody = document.getElementById("data-tbody");
+const recordBtn = document.getElementById("record-btn");
+const clearDataBtn = document.getElementById("clear-data");
+const fillSampleBtn = document.getElementById("fill-sample");
+
+function renderTable(){
+  if(dataRows.length === 0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">아직 기록된 데이터가 없어요.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = dataRows.map((row, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${row.temp.toFixed(1)}</td>
+      <td>${(row.temp+273).toFixed(1)}</td>
+      <td>${row.dist.toFixed(1)}</td>
+      <td><button type="button" class="del-btn" data-idx="${i}">삭제</button></td>
+    </tr>
+  `).join("");
+  tbody.querySelectorAll(".del-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      dataRows.splice(Number(btn.dataset.idx), 1);
+      renderTable();
+      drawGraph();
+    });
+  });
+}
+
+function linReg(points){
+  const n = points.length;
+  if(n < 2) return null;
+  const sumX = points.reduce((a,p) => a+p.temp, 0);
+  const sumY = points.reduce((a,p) => a+p.dist, 0);
+  const sumXY = points.reduce((a,p) => a+p.temp*p.dist, 0);
+  const sumXX = points.reduce((a,p) => a+p.temp*p.temp, 0);
+  const denom = n*sumXX - sumX*sumX;
+  if(denom === 0) return null;
+  const slope = (n*sumXY - sumX*sumY) / denom;
+  const intercept = (sumY - slope*sumX) / n;
+  return { slope, intercept };
+}
+
+const canvas = document.getElementById("graph-canvas");
+const ctx = canvas.getContext("2d");
+const CW = 420, CH = 340;
+const PAD_L = 46, PAD_R = 18, PAD_T = 18, PAD_B = 40;
+
+function drawGraph(){
+  const points = dataRows;
+  const reg = linReg(points);
+
+  ctx.clearRect(0,0,CW,CH);
+
+  const temps = points.map(p => p.temp);
+  const dists = points.map(p => p.dist);
+  const tMin = Math.min(0, ...temps), tMax = Math.max(40, ...temps);
+  const dMin = Math.min(0, ...dists), dMax = Math.max(10, ...dists);
+  const tRange = (tMax-tMin) || 1, dRange = (dMax-dMin) || 1;
+  const tPadded = [tMin - tRange*0.1, tMax + tRange*0.1];
+  const dPadded = [Math.max(0, dMin - dRange*0.15), dMax + dRange*0.15];
+
+  const x0 = PAD_L, x1 = CW-PAD_R;
+  const y0 = CH-PAD_B, y1 = PAD_T;
+
+  function toX(t){ return x0 + ((t-tPadded[0])/(tPadded[1]-tPadded[0])) * (x1-x0); }
+  function toY(d){ return y0 - ((d-dPadded[0])/(dPadded[1]-dPadded[0])) * (y0-y1); }
+
+  ctx.strokeStyle = "#DCD6C7"; ctx.fillStyle = "#626A78";
+  ctx.font = "11px Pretendard, sans-serif";
+  ctx.lineWidth = 1;
+
+  const tStep = Math.ceil(tRange/6/5)*5 || 5;
+  for(let t=Math.ceil(tPadded[0]/tStep)*tStep; t<=tPadded[1]; t+=tStep){
+    const x = toX(t);
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    ctx.fillText(String(t), x-8, y0+16);
+  }
+  const dStep = Math.ceil(dRange/6) || 1;
+  for(let d=Math.ceil(dPadded[0]/dStep)*dStep; d<=dPadded[1]; d+=dStep){
+    const y = toY(d);
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    ctx.fillText(String(d), x0-26, y+4);
+  }
+
+  ctx.strokeStyle = "#232A35"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0,y1); ctx.stroke();
+
+  ctx.fillText("온도(℃)", x1-30, y0+30);
+  ctx.save();
+  ctx.translate(14, y1+10);
+  ctx.fillText("거리(cm)", 0, 0);
+  ctx.restore();
+
+  if(reg){
+    ctx.strokeStyle = "#7A56C9"; ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    ctx.moveTo(toX(tPadded[0]), toY(reg.slope*tPadded[0]+reg.intercept));
+    ctx.lineTo(toX(tPadded[1]), toY(reg.slope*tPadded[1]+reg.intercept));
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  points.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(toX(p.temp), toY(p.dist), 5.5, 0, Math.PI*2);
+    ctx.fillStyle = "#2F8F6F";
+    ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  updateSlopeReadout(reg, points.length);
+}
+
+function updateSlopeReadout(reg, n){
+  const el = document.getElementById("slope-readout");
+  if(!reg){
+    el.innerHTML = "데이터를 2개 이상 기록하면 온도와 부피 사이의 관계(기울기)를 계산해서 알려드려요.";
+    return;
+  }
+  let txt = `측정값 ${n}개를 바탕으로 계산한 관계: 온도가 1℃ 오를 때마다 측정 거리가 약 <b>${reg.slope.toFixed(3)} cm</b>씩 ${reg.slope >= 0 ? "늘어나요" : "줄어들어요"}.`;
+  if(reg.slope > 0){
+    const xZero = -reg.intercept/reg.slope;
+    txt += ` 그래프의 직선을 왼쪽으로 쭉 연장하면 약 <b>${xZero.toFixed(0)}℃</b>에서 거리(부피)가 0에 가까워져요 — 이것이 바로 절대영도(약 -273℃)의 개념이에요.`;
+  }
+  el.innerHTML = txt;
+}
+
+recordBtn.addEventListener("click", () => {
+  const t = parseFloat(liveTempInput.value), d = parseFloat(liveDistInput.value);
+  if(isNaN(t) || isNaN(d)){
+    alert("온도와 거리 값을 먼저 입력(또는 아두이노 연결 후 측정)해 주세요.");
+    return;
+  }
+  dataRows.push({ temp: t, dist: d });
+  renderTable();
+  drawGraph();
+});
+
+clearDataBtn.addEventListener("click", () => {
+  dataRows = [];
+  renderTable();
+  drawGraph();
+});
+
+fillSampleBtn.addEventListener("click", () => {
+  dataRows = [
+    { temp: 2, dist: 6.2 },
+    { temp: 22, dist: 8.9 },
+    { temp: 45, dist: 11.8 },
+    { temp: 68, dist: 14.5 },
+    { temp: 85, dist: 16.6 }
+  ];
+  renderTable();
+  drawGraph();
+});
+
+renderTable();
+drawGraph();
+
+/* ==========================================================
+   선택형 문항 (단일 선택)
+=========================================================== */
+document.querySelectorAll(".choice-group").forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+function pickedValue(group){
+  const el = group.querySelector(".choice-btn.picked");
+  return el ? el.dataset.value : "";
+}
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+=========================================================== */
+function normalize(str){ return (str || "").trim().replace(/\s+/g, ""); }
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){ alert("이름을 입력해 주세요."); return; }
+
+  const q1 = pickedValue(document.getElementById("q1"));
+  const blank2 = document.getElementById("blank2").value;
+  const blank3 = document.getElementById("blank3").value;
+  const reflect1 = document.getElementById("reflect1").value.trim();
+  const reflect2 = document.getElementById("reflect2").value.trim();
+
+  if(!q1 || !blank2.trim() || !blank3.trim() || !reflect1 || !reflect2){
+    alert("모든 문항에 답해 주세요.");
+    return;
+  }
+  if(dataRows.length < 4){
+    if(!confirm("실험 데이터가 4개보다 적어요. 그래도 제출할까요?")) return;
+  }
+
+  const ok1 = q1 === "커진다";
+  const ok2 = ["절대","켈빈","절대온도","켈빈온도"].includes(normalize(blank2));
+  const ok3 = ["-273","273"].includes(normalize(blank3).replace("℃",""));
+
+  function setFb(id, ok, correctText){
+    const el = document.getElementById(id);
+    el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+    el.className = "q-feedback " + (ok ? "ok" : "bad");
+  }
+  setFb("fb1", ok1, "커진다");
+  setFb("fb2", ok2, "절대(켈빈)");
+  setFb("fb3", ok3, "-273");
+
+  document.getElementById("fb-reflect").textContent = "📝 서술형 답변은 선생님이 확인 후 피드백해 줄게요.";
+  document.getElementById("fb-reflect").className = "q-feedback info";
+
+  const correctCount = [ok1, ok2, ok3].filter(Boolean).length;
+  const total = 3;
+  wsResult.textContent = `객관식 ${correctCount} / ${total} 개 정답 (서술형은 선생님이 확인해요)`;
+  wsResult.className = "ws-result " + (correctCount === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const reg = linReg(dataRows);
+  const payload = {
+    worksheet: "gi-charles-law-arduino",
+    grade, classNum, number, name,
+    data_points: JSON.stringify(dataRows),
+    data_count: String(dataRows.length),
+    slope: reg ? reg.slope.toFixed(3) : "",
+    q1, blank2, blank3,
+    reflect1, reflect2,
+    score: String(correctCount), total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  ["blank2","blank3"].forEach(id => document.getElementById(id).value = "");
+  ["reflect1","reflect2"].forEach(id => document.getElementById(id).value = "");
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
