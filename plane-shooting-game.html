@@ -97,6 +97,30 @@
   .rules{ font-size:11.5px; line-height:1.85; color:var(--ink-soft); }
   .rules b{ color:var(--ink); }
 
+  .conn-status{ display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; }
+  .conn-dot{ width:9px; height:9px; border-radius:50%; background:#C9C3B0; }
+  .conn-dot.on{ background:var(--ok); box-shadow:0 0 0 3px var(--ok-soft); }
+  .conn-dot.off{ background:var(--bad); }
+
+  .ctrl-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); }
+  .ctrl-row label{ display:flex; align-items:center; gap:6px; }
+  .toggle-btn{
+    font-family:inherit; cursor:pointer; border:1px solid var(--line); background:#fff;
+    border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:700; color:var(--ink-soft);
+  }
+  .toggle-btn.active{ background:#16212B; color:#fff; border-color:#16212B; }
+  input[type=range]{ width:100%; accent-color:#16212B; }
+
+  .btn.accent{ background:var(--accent); color:#fff; }
+  .btn.accent:hover{ background:#B9382D; }
+
+  details.code-box{ font-size:11.5px; color:var(--ink-soft); }
+  details.code-box summary{ cursor:pointer; font-weight:800; color:var(--ink); margin-bottom:6px; }
+  details.code-box pre{
+    background:#16212B; color:#E7F2FA; border-radius:10px; padding:12px;
+    font-size:10.5px; line-height:1.6; overflow-x:auto; white-space:pre;
+  }
+
   footer{ max-width:1180px; margin:4px auto 0; color:#B9CBD9; font-size:11px; text-align:center; }
 </style>
 </head>
@@ -104,9 +128,9 @@
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">쉬어가는 게임</div>
+    <div class="eyebrow">쉬어가는 게임 · 아두이노 연동</div>
     <h1>비행기 슈팅 게임 — <span>날아오는 미사일 피하기</span></h1>
-    <p class="sub">비행기를 움직여서 적이 쏘는 빨간 미사일을 피하세요. 내 비행기는 자동으로 총알을 쏘니까, 적 비행기 밑을 지나가면 저절로 격추됩니다! 목숨은 3개, 오래 살아남고 많이 격추할수록 점수가 올라가요.</p>
+    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 USB로 연결하면, 보드를 기울이는 대로 비행기가 움직여요. 적이 쏘는 빨간 미사일을 피하세요 — 내 비행기는 자동으로 총알을 쏘니까, 적 비행기 밑을 지나가면 저절로 격추됩니다! 센서가 없어도 방향키나 드래그로 똑같이 플레이할 수 있어요. 목숨은 3개, 오래 살아남고 많이 격추할수록 점수가 올라가요.</p>
   </header>
 
   <main>
@@ -136,9 +160,42 @@
       <div class="hi-row">최고 점수 <span class="v" id="highScoreLabel">0점</span></div>
 
       <div>
+        <div class="side-title"><span class="tag">아두이노 연결</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 (방향키/드래그로 조작 중)</span></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn accent" id="connectBtn">🔌 아두이노 연결하기</button>
+            <button class="btn ghost" id="disconnectBtn" style="display:none;">연결 해제</button>
+          </div>
+          <div id="autoConnRow" style="display:none;">
+            <button class="btn ghost" id="autoConnectBtn">⚡ 이전에 연결했던 아두이노로 바로 연결</button>
+          </div>
+
+          <div class="ctrl-row">
+            <label>민감도
+              <input type="range" id="sensSlider" min="0.5" max="3" step="0.1" value="1.4" style="width:110px;">
+              <span id="sensReadout">1.4</span>
+            </label>
+          </div>
+          <div class="ctrl-row">
+            <button type="button" class="toggle-btn" id="invertXBtn">X축 반전</button>
+            <button type="button" class="toggle-btn" id="invertYBtn">Y축 반전</button>
+            <button type="button" class="toggle-btn" id="calibrateBtn">🎯 수평 보정(0점)</button>
+          </div>
+        </div>
+      </div>
+
+      <details class="code-box">
+        <summary>📋 아두이노 업로드 코드 보기 / 복사</summary>
+        <pre id="arduinoCode"></pre>
+        <button class="btn ghost" id="copyCodeBtn" style="margin-top:8px;">코드 복사하기</button>
+      </details>
+
+      <div>
         <div class="side-title"><span class="tag">조작 방법</span></div>
         <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
-          <div class="legend-item"><span class="ic">⌨️</span><span><b>방향키 / WASD</b> — 비행기를 상하좌우로 이동합니다.</span></div>
+          <div class="legend-item"><span class="ic">📡</span><span><b>아두이노 기울기</b> — 보드를 기울인 방향·세기에 비례해 비행기가 움직여요(연결 시 자동 적용).</span></div>
+          <div class="legend-item"><span class="ic">⌨️</span><span><b>방향키 / WASD</b> — 센서 연결 전에는 이 키로 상하좌우 이동합니다.</span></div>
           <div class="legend-item"><span class="ic">🖱️</span><span><b>드래그</b> — 마우스나 손가락으로 비행기를 눌러서 끌 수도 있어요.</span></div>
           <div class="legend-item"><span class="ic">🔫</span><span>총알은 <b>자동으로</b> 발사돼요 — 피하는 데만 집중하세요!</span></div>
         </div>
@@ -154,8 +211,10 @@
       </div>
 
       <div class="rules">
+        <b>배선 (우노 기준)</b><br>
+        VCC→5V · GND→GND · SCL→A5 · SDA→A4<br><br>
         <b>팁</b><br>
-        시간이 지날수록 적이 더 자주 나타나고 미사일도 빨라져요. 한 방향으로만 움직이지 말고 작은 움직임으로 미사일을 살짝 피해보세요.
+        시간이 지날수록 적이 더 자주 나타나고 미사일도 빨라져요. 한 방향으로만 움직이지 말고 작은 움직임으로 미사일을 살짝 피해보세요. 보드를 평평하게 놓은 상태에서 "수평 보정"을 눌러 기준점을 맞추면 조작이 훨씬 편해져요.
       </div>
     </div>
   </main>
@@ -227,6 +286,23 @@ window.addEventListener('keyup', (e) => {
   if(dir){ keyState[dir] = false; e.preventDefault(); }
 });
 
+// 아두이노 기울기 입력
+let rawTiltX = 0, rawTiltY = 0;
+let calOffsetX = 0, calOffsetY = 0;
+let invertX = false, invertY = false;
+let sensitivity = 1.4;
+let serialConnected = false;
+
+function getTilt(){
+  let tx = (rawTiltX - calOffsetX);
+  let ty = (rawTiltY - calOffsetY);
+  if(invertX) tx = -tx;
+  if(invertY) ty = -ty;
+  tx = Math.max(-1, Math.min(1, tx*sensitivity));
+  ty = Math.max(-1, Math.min(1, ty*sensitivity));
+  return { x: tx, y: ty };
+}
+
 let pointerActive = false, pointerX = 0, pointerY = 0;
 function canvasPoint(e){
   const rect = canvas.getBoundingClientRect();
@@ -280,7 +356,11 @@ function update(dt){
   survivalTime += dt;
 
   // 이동
-  if(pointerActive){
+  if(serialConnected){
+    const tilt = getTilt();
+    player.x += tilt.x * PLAYER_SPEED * dt;
+    player.y += tilt.y * PLAYER_SPEED * dt;
+  }else if(pointerActive){
     const dx = pointerX-player.x, dy = pointerY-player.y;
     player.x += dx * Math.min(1, dt*10);
     player.y += dy * Math.min(1, dt*10);
@@ -524,6 +604,170 @@ function loop(t){
   requestAnimationFrame(loop);
 }
 
+/* ================= Web Serial ================= */
+let port = null, reader = null;
+
+function updateConnUI(){
+  $('connDot').className = 'conn-dot ' + (serialConnected ? 'on' : 'off');
+  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 보드를 기울여 조작하세요' : '연결 안 됨 (방향키/드래그로 조작 중)';
+  $('connectBtn').style.display = serialConnected ? 'none' : 'inline-block';
+  $('disconnectBtn').style.display = serialConnected ? 'inline-block' : 'none';
+}
+
+async function openAndRead(selectedPort){
+  port = selectedPort;
+  await port.open({ baudRate: 115200 });
+  serialConnected = true;
+  updateConnUI();
+  readLoop();
+}
+
+async function connectSerial(){
+  if(!('serial' in navigator)){
+    alert('이 브라우저는 Web Serial을 지원하지 않습니다. 최신 Chrome 또는 Edge 브라우저에서 열어주세요.');
+    return;
+  }
+  try{
+    const selected = await navigator.serial.requestPort();
+    await openAndRead(selected);
+  }catch(err){
+    console.warn('serial connect cancelled/failed', err);
+  }
+}
+
+async function tryAutoConnect(){
+  if(!('serial' in navigator)) return;
+  try{
+    const ports = await navigator.serial.getPorts();
+    if(ports.length === 1){
+      $('autoConnRow').style.display = 'block';
+      $('autoConnectBtn').onclick = async () => {
+        try{ await openAndRead(ports[0]); }catch(e){ console.warn(e); }
+      };
+    }
+  }catch(e){ /* ignore */ }
+}
+
+let lineBuffer = '';
+async function readLoop(){
+  const textDecoder = new TextDecoderStream();
+  port.readable.pipeTo(textDecoder.writable).catch(()=>{});
+  reader = textDecoder.readable.getReader();
+  try{
+    while(true){
+      const { value, done } = await reader.read();
+      if(done) break;
+      lineBuffer += value;
+      let idx;
+      while((idx = lineBuffer.indexOf('\n')) >= 0){
+        const line = lineBuffer.slice(0, idx).trim();
+        lineBuffer = lineBuffer.slice(idx+1);
+        parseLine(line);
+      }
+    }
+  }catch(err){
+    console.warn('read loop ended', err);
+  }finally{
+    try{ reader.releaseLock(); }catch(e){}
+    serialConnected = false;
+    updateConnUI();
+  }
+}
+
+function parseLine(line){
+  const parts = line.split(',');
+  if(parts.length < 2) return;
+  const x = parseFloat(parts[0]);
+  const y = parseFloat(parts[1]);
+  if(Number.isNaN(x) || Number.isNaN(y)) return;
+  rawTiltX = x; rawTiltY = y;
+}
+
+$('connectBtn').addEventListener('click', connectSerial);
+$('disconnectBtn').addEventListener('click', async () => {
+  try{ if(reader) await reader.cancel(); }catch(e){}
+  try{ if(port) await port.close(); }catch(e){}
+  serialConnected = false;
+  updateConnUI();
+});
+
+if('serial' in navigator){
+  navigator.serial.addEventListener('disconnect', (e) => {
+    if(e.target === port){
+      serialConnected = false;
+      updateConnUI();
+    }
+  });
+}
+
+$('calibrateBtn').addEventListener('click', () => {
+  calOffsetX = rawTiltX;
+  calOffsetY = rawTiltY;
+});
+$('invertXBtn').addEventListener('click', () => {
+  invertX = !invertX;
+  $('invertXBtn').classList.toggle('active', invertX);
+});
+$('invertYBtn').addEventListener('click', () => {
+  invertY = !invertY;
+  $('invertYBtn').classList.toggle('active', invertY);
+});
+$('sensSlider').addEventListener('input', (e) => {
+  sensitivity = Number(e.target.value);
+  $('sensReadout').textContent = sensitivity.toFixed(1);
+});
+
+/* ================= 아두이노 코드 표시 ================= */
+const ARDUINO_CODE = `#include <Wire.h>
+
+const int MPU_ADDR = 0x68;   // AD0을 5V에 연결했다면 0x69로 변경
+
+float axFiltered = 0;
+float ayFiltered = 0;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x6B); // PWR_MGMT_1
+  Wire.write(0x00); // sleep 해제
+  Wire.endTransmission(true);
+}
+
+void loop() {
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x3B); // ACCEL_XOUT_H
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_ADDR, 6, true);
+
+  int16_t rawAx = (Wire.read() << 8) | Wire.read();
+  int16_t rawAy = (Wire.read() << 8) | Wire.read();
+  Wire.read(); Wire.read(); // Z축(사용 안 함)
+
+  float ax = rawAx / 16384.0;
+  float ay = rawAy / 16384.0;
+
+  axFiltered = axFiltered * 0.8 + ax * 0.2;
+  ayFiltered = ayFiltered * 0.8 + ay * 0.2;
+
+  Serial.print(axFiltered, 3);
+  Serial.print(",");
+  Serial.println(ayFiltered, 3);
+
+  delay(20);
+}`;
+$('arduinoCode').textContent = ARDUINO_CODE;
+$('copyCodeBtn').addEventListener('click', async () => {
+  try{
+    await navigator.clipboard.writeText(ARDUINO_CODE);
+    $('copyCodeBtn').textContent = '복사됨!';
+    setTimeout(()=>{ $('copyCodeBtn').textContent = '코드 복사하기'; }, 1500);
+  }catch(e){
+    alert('복사에 실패했어요. 코드를 직접 선택해서 복사해 주세요.');
+  }
+});
+
 /* ================= 시작 ================= */
 clouds = Array.from({length:7}, () => ({
   x: Math.random()*W, y: Math.random()*H, r: 24+Math.random()*30, speed: 12+Math.random()*18
@@ -532,6 +776,8 @@ clouds = Array.from({length:7}, () => ({
 $('restartBtn').addEventListener('click', resetGame);
 $('overlayRestartBtn').addEventListener('click', resetGame);
 
+updateConnUI();
+tryAutoConnect();
 resetGame();
 requestAnimationFrame(loop);
 </script>
