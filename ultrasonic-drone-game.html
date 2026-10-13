@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>초음파 드론 동굴 비행 게임</title>
+<style>
+  :root{
+    --cave1:#3A2E26;
+    --cave2:#0E0A08;
+    --card:#FFFFFF;
+    --ink:#1C2733;
+    --ink-soft:#5B6B7A;
+    --line:#E3DCC8;
+    --accent:#D8493B;
+    --accent-soft:#FBE6E2;
+    --gold:#E8A23F;
+    --gold-soft:#FBF1D8;
+    --teal:#2F8F6F;
+    --teal-soft:#E1F3EC;
+    --ok:#2E9E5B;
+    --ok-soft:#E4F5EB;
+    --bad:#C94A3D;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 600px at 15% -10%, #2E2822 0%, #15110D 60%);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:16px 20px 30px;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+  header{ display:flex; flex-direction:column; gap:4px; color:#F3ECDD; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:#E8C98F; font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(19px,2.2vw,24px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ color:#E8C98F; }
+  .sub{ color:#D8CBB4; font-size:12.5px; line-height:1.65; max-width:900px; }
+
+  main{ display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start; }
+  @media (max-width:900px){ main{ grid-template-columns:1fr; } }
+
+  .board-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.2);
+    display:flex; flex-direction:column; gap:10px; align-items:center;
+  }
+  .status-row{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .badge{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800;
+    padding:6px 13px; border-radius:999px; background:var(--gold-soft); color:#A9792E;
+    font-variant-numeric:tabular-nums;
+  }
+  .badge.life{ background:var(--accent-soft); color:var(--accent); }
+  .badge.time{ background:#EEF3F7; color:var(--ink-soft); }
+
+  #boardWrap{
+    width:100%; max-width:440px; border-radius:14px; overflow:hidden;
+    background:linear-gradient(180deg, var(--cave1) 0%, var(--cave2) 100%);
+    border:6px solid #15110D; position:relative; touch-action:none;
+  }
+  #board{ display:block; width:100%; height:auto; cursor:grab; }
+
+  .overlay-msg{
+    position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; background:rgba(10,8,6,.82); color:#fff; text-align:center; padding:20px;
+    overflow-y:auto;
+  }
+  .overlay-msg.show{ display:flex; }
+  .overlay-msg .emoji{ font-size:34px; }
+  .overlay-msg h2{ font-size:18px; font-weight:800; }
+  .overlay-msg p{ font-size:12.5px; color:#E3D9C4; }
+
+  .name-form{ display:flex; gap:7px; width:100%; max-width:280px; margin-top:2px; }
+  .name-form input{
+    flex:1; padding:9px 11px; border:none; border-radius:9px;
+    font-family:inherit; font-size:13px; color:var(--ink);
+  }
+
+  .board-list{ list-style:none; display:flex; flex-direction:column; gap:5px; width:100%; max-width:280px; }
+  .board-row{
+    display:flex; align-items:center; gap:8px; font-size:12px; padding:6px 9px;
+    border-radius:8px; background:rgba(255,255,255,0.1);
+  }
+  .board-row.me{ background:rgba(216,73,59,0.55); font-weight:800; }
+  .board-row .rank{ width:18px; flex:none; text-align:center; font-weight:800; color:#D8CBB4; }
+  .board-row:nth-child(1) .rank{ color:#F2C14E; }
+  .board-row:nth-child(2) .rank{ color:#C9CEE0; }
+  .board-row:nth-child(3) .rank{ color:#D99B6C; }
+  .board-row .bname{ flex:1; font-weight:700; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left; }
+  .board-row .bscore{ font-variant-numeric:tabular-nums; color:#F2C14E; font-weight:800; }
+  .board-empty{ font-size:11.5px; color:#D8CBB4; text-align:center; padding:6px 0; }
+  .board-reset{ font-size:11px; color:var(--ink-soft); background:none; border:none; cursor:pointer; text-decoration:underline; padding:2px; }
+
+  .side-card .board-row{ background:#FAF8F2; color:var(--ink); }
+  .side-card .board-row .bname{ color:var(--ink); }
+  .side-card .board-row .bscore{ color:var(--gold); }
+  .side-card .board-row.me{ background:var(--accent-soft); }
+  .side-card .board-empty{ color:var(--ink-soft); }
+
+  .board-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:10px 18px; transition:.15s;
+  }
+  .btn.primary{ background:#1C2733; color:#fff; }
+  .btn.primary:hover{ background:#2C3C4D; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+
+  .side-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.2); display:flex; flex-direction:column; gap:14px;
+  }
+  .side-title{ font-size:14px; font-weight:800; display:flex; align-items:center; gap:7px; }
+  .side-title .tag{ font-size:10.5px; font-weight:800; color:#fff; background:var(--accent); padding:2px 8px; border-radius:999px; }
+
+  .legend-item{ display:flex; gap:9px; align-items:flex-start; font-size:12px; line-height:1.6; color:var(--ink-soft); }
+  .legend-item b{ color:var(--ink); }
+  .legend-item .ic{ font-size:16px; flex-shrink:0; width:20px; text-align:center; }
+
+  .rules{ font-size:11.5px; line-height:1.85; color:var(--ink-soft); }
+  .rules b{ color:var(--ink); }
+
+  .conn-status{ display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; }
+  .conn-dot{ width:9px; height:9px; border-radius:50%; background:#C9C3B0; }
+  .conn-dot.on{ background:var(--ok); box-shadow:0 0 0 3px var(--ok-soft); }
+  .conn-dot.off{ background:var(--bad); }
+
+  .dist-readout{ font-size:12px; color:var(--ink-soft); background:#F6F8FA; border-radius:10px; padding:8px 10px; font-weight:700; }
+  .dist-readout b{ color:var(--teal); }
+
+  .ctrl-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); }
+  .toggle-btn{
+    font-family:inherit; cursor:pointer; border:1px solid var(--line); background:#fff;
+    border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:700; color:var(--ink-soft);
+  }
+  .toggle-btn.active{ background:#1C2733; color:#fff; border-color:#1C2733; }
+
+  .btn.accent{ background:var(--accent); color:#fff; }
+  .btn.accent:hover{ background:#B9382D; }
+
+  details.code-box{ font-size:11.5px; color:var(--ink-soft); }
+  details.code-box summary{ cursor:pointer; font-weight:800; color:var(--ink); margin-bottom:6px; }
+  details.code-box pre{
+    background:#1C2733; color:#F3ECDD; border-radius:10px; padding:12px;
+    font-size:10.5px; line-height:1.6; overflow-x:auto; white-space:pre;
+  }
+
+  footer{ max-width:1180px; margin:4px auto 0; color:#D8CBB4; font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">쉬어가는 게임 · 아두이노 연동</div>
+    <h1>초음파 드론 동굴 비행 게임 — <span>손 거리로 조종하기</span></h1>
+    <p class="sub">아두이노 우노 + HC-SR04 초음파 센서를 USB로 연결하면, 센서에서 손이 가까워지고 멀어지는 거리에 따라 드론이 위아래로 움직여요. 동굴 벽에 부딪히지 않게 피하면서 보석을 모으세요! 센서가 없어도 방향키나 드래그로 똑같이 플레이할 수 있어요. 목숨은 3개, 오래 살아남고 보석을 많이 모을수록 점수가 올라가요.</p>
+  </header>
+
+  <main>
+    <div class="board-card">
+      <div class="status-row">
+        <div class="badge">🏆 <span id="scoreLabel">0</span>점</div>
+        <div class="badge time">⏱ <span id="timeLabel">0.0</span>초</div>
+        <div class="badge life">❤️ <span id="livesLabel">3</span></div>
+      </div>
+
+      <div id="boardWrap">
+        <canvas id="board" width="440" height="620"></canvas>
+        <div class="overlay-msg" id="overlayMsg">
+          <div class="emoji" id="overlayEmoji">💥</div>
+          <h2 id="overlayTitle">게임 오버</h2>
+          <p id="overlayDesc">점수: 0점</p>
+          <form class="name-form" id="nameForm">
+            <input type="text" id="nameInput" maxlength="12" placeholder="이름을 입력하세요" autocomplete="off" required>
+            <button type="submit" class="btn primary">저장</button>
+          </form>
+          <ul class="board-list" id="overlayLeaderList"></ul>
+          <button class="btn primary" id="overlayRestartBtn">🔄 다시 시작</button>
+        </div>
+      </div>
+
+      <div class="board-actions">
+        <button class="btn ghost" id="restartBtn">🔄 처음부터 다시 시작</button>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div>
+        <div class="side-title"><span class="tag">🏆 랭킹</span></div>
+        <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">게임이 끝날 때마다 기록할 수 있어요(높은 점수 순).</p>
+        <p style="font-size:11px; color:var(--ink-soft); margin-top:4px;" id="boardSourceNote"></p>
+        <ul class="board-list" id="leaderList" style="margin-top:10px;"></ul>
+        <button type="button" class="board-reset" id="resetBoardBtn" style="margin-top:6px;">랭킹 초기화(이 기기 사본만)</button>
+      </div>
+
+      <div>
+        <div class="side-title"><span class="tag">아두이노 연결</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 (방향키/드래그로 조작 중)</span></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn accent" id="connectBtn">🔌 아두이노 연결하기</button>
+            <button class="btn ghost" id="disconnectBtn" style="display:none;">연결 해제</button>
+          </div>
+          <div id="autoConnRow" style="display:none;">
+            <button class="btn ghost" id="autoConnectBtn">⚡ 이전에 연결했던 아두이노로 바로 연결</button>
+          </div>
+
+          <div class="dist-readout">실시간 거리: <b id="distReadout">-</b> cm</div>
+
+          <div class="ctrl-row">
+            <button type="button" class="toggle-btn" id="setNearBtn">📍 지금 거리 = 가까이</button>
+            <button type="button" class="toggle-btn" id="setFarBtn">📍 지금 거리 = 멀리</button>
+            <button type="button" class="toggle-btn" id="invertBtn">상하 반전</button>
+          </div>
+        </div>
+      </div>
+
+      <details class="code-box">
+        <summary>📋 아두이노 업로드 코드 보기 / 복사</summary>
+        <pre id="arduinoCode"></pre>
+        <button class="btn ghost" id="copyCodeBtn" style="margin-top:8px;">코드 복사하기</button>
+      </details>
+
+      <div>
+        <div class="side-title"><span class="tag">조작 방법</span></div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
+          <div class="legend-item"><span class="ic">📡</span><span><b>손 거리</b> — 센서에 손을 가까이/멀리 하면 드론이 위/아래로 움직여요(연결 시 자동 적용).</span></div>
+          <div class="legend-item"><span class="ic">⌨️</span><span><b>방향키(↑/↓) / W,S</b> — 센서 연결 전에는 이 키로 드론을 위아래로 움직입니다.</span></div>
+          <div class="legend-item"><span class="ic">🖱️</span><span><b>드래그</b> — 마우스나 손가락으로 화면을 눌러서 드론 높이를 바로 옮길 수도 있어요.</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="side-title"><span class="tag">게임 요소</span></div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
+          <div class="legend-item"><span class="ic">🪨</span><span><b>동굴 벽</b> — 위아래에서 좁아지는 틈을 통과해야 해요. 부딪히면 목숨이 1개 줄어요.</span></div>
+          <div class="legend-item"><span class="ic">💎</span><span><b>보석</b> — 지나가며 모으면 점수가 올라가요.</span></div>
+          <div class="legend-item"><span class="ic">✨</span><span>부딪힌 후에는 잠깐 무적 상태가 돼요(드론이 깜빡여요).</span></div>
+        </div>
+      </div>
+
+      <div class="rules">
+        <b>배선 (우노 기준)</b><br>
+        HC-SR04 — VCC→5V · GND→GND · TRIG→9번 · ECHO→10번<br><br>
+        <b>팁</b><br>
+        시간이 지날수록 동굴 틈이 좁아지고 속도도 빨라져요. "지금 거리 = 가까이/멀리" 버튼으로 내 팔이 편하게 움직일 수 있는 범위에 맞춰 보정하면 조작이 훨씬 편해져요.
+      </div>
+    </div>
+  </main>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 초음파 드론 동굴 비행 게임</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const canvas = $('board');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+/* ================= 상수 ================= */
+const PLAYER_X = W*0.26;
+const PLAYER_R = 15;
+const OBSTACLE_W = 56;
+const GAP_START = 220, GAP_MIN = 135;
+const SPEED_START = 115, SPEED_MAX = 230;
+const SPAWN_GAP_PX = 230;
+const GEM_R = 9;
+const INVULN_MS = 1300;
+const LIVES_START = 3;
+const FOLLOW_LERP = 7.5; // 드론이 목표 높이를 따라가는 부드러움
+
+/* ================= 랭킹 (반 전체 공유) =================
+   다른 아두이노 연동 게임들과 같은 스프레드시트 웹 앱(code.gs)을 공유해서 쓴다. */
+const LEADERBOARD_KEY = 'science-ultradrone-leaderboard';
+const LEADERBOARD_WORKSHEET = '초음파드론_랭킹';
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+
+function loadLeaderboard(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
+    if(Array.isArray(raw)) return raw;
+  }catch(e){}
+  return [];
+}
+function saveLeaderboard(list){
+  try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+}
+
+async function fetchSharedLeaderboard(){
+  if(!LEADERBOARD_WEBHOOK_URL) return null;
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + '?worksheet=' + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if(!res.ok) throw new Error('status ' + res.status);
+    const rows = await res.json();
+    return rows
+      .map(r => ({ name: String(r.name||'').slice(0,12), score: Number(r.score), survivalTime: Number(r.survivalTime), date: r.date }))
+      .filter(r => r.name && !Number.isNaN(r.score));
+  }catch(err){
+    console.warn('공유 랭킹을 불러오지 못했습니다:', err);
+    return null;
+  }
+}
+
+async function submitToSharedLeaderboard(entry){
+  if(!LEADERBOARD_WEBHOOK_URL) return;
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, score: String(entry.score), survivalTime: String(entry.survivalTime), date: entry.date })
+    });
+  }catch(err){
+    console.warn('공유 랭킹 전송에 실패했습니다:', err);
+  }
+}
+
+function renderLeaderboardInto(listEl, board, maxN, highlightEntry){
+  listEl.innerHTML = '';
+  if(board.length === 0){
+    listEl.innerHTML = '<div class="board-empty">아직 기록이 없어요. 가장 먼저 도전해 보세요!</div>';
+    return;
+  }
+  board.slice(0,maxN).forEach((entry, i) => {
+    const li = document.createElement('li');
+    const isMe = highlightEntry && entry.name === highlightEntry.name && entry.score === highlightEntry.score;
+    li.className = 'board-row' + (isMe ? ' me' : '');
+    li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="bscore">${entry.score}점</span>`;
+    li.querySelector('.bname').textContent = entry.name;
+    listEl.appendChild(li);
+  });
+}
+
+async function renderAllLeaderboards(highlightEntry){
+  const local = loadLeaderboard().sort((a,b) => b.score - a.score);
+  renderLeaderboardInto($('leaderList'), local, 10, highlightEntry);
+  renderLeaderboardInto($('overlayLeaderList'), local, 5, highlightEntry);
+  if($('boardSourceNote')) $('boardSourceNote').textContent = LEADERBOARD_WEBHOOK_URL ? '🌐 반 전체 랭킹을 불러오는 중...' : '이 기기에만 저장되는 기록이에요.';
+
+  const shared = await fetchSharedLeaderboard();
+  if(shared){
+    shared.sort((a,b) => b.score - a.score);
+    saveLeaderboard(shared.slice(0,10));
+    renderLeaderboardInto($('leaderList'), shared, 10, highlightEntry);
+    renderLeaderboardInto($('overlayLeaderList'), shared, 5, highlightEntry);
+    if($('boardSourceNote')) $('boardSourceNote').textContent = '🌐 반 전체가 함께 보는 공유 랭킹이에요.';
+  }else if($('boardSourceNote')){
+    $('boardSourceNote').textContent = LEADERBOARD_WEBHOOK_URL
+      ? '⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여주고 있어요.'
+      : '이 기기에만 저장되는 기록이에요.';
+  }
+}
+
+/* ================= 상태 ================= */
+let player, obstacles, gems, particles;
+let score, lives, survivalTime, spawnTimer, invulnTimer, gameOver;
+
+function resetGame(){
+  player = { x:PLAYER_X, y:H/2, targetY:H/2 };
+  obstacles = [];
+  gems = [];
+  particles = [];
+  score = 0;
+  lives = LIVES_START;
+  survivalTime = 0;
+  spawnTimer = 0;
+  invulnTimer = 0;
+  gameOver = false;
+  $('overlayMsg').classList.remove('show');
+  $('nameForm').style.display = 'flex';
+  $('nameInput').value = '';
+  spawnObstacle(W+80);
+  updateHUD();
+}
+
+/* ================= 입력 ================= */
+const keyState = { up:false, down:false };
+const MOVE_KEYS = {
+  ArrowUp:'up', w:'up', W:'up',
+  ArrowDown:'down', s:'down', S:'down'
+};
+window.addEventListener('keydown', (e) => {
+  const dir = MOVE_KEYS[e.key];
+  if(dir){ keyState[dir] = true; e.preventDefault(); }
+});
+window.addEventListener('keyup', (e) => {
+  const dir = MOVE_KEYS[e.key];
+  if(dir){ keyState[dir] = false; e.preventDefault(); }
+});
+
+let pointerActive = false, pointerY = 0;
+function canvasPoint(e){
+  const rect = canvas.getBoundingClientRect();
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  return cy * (H/rect.height);
+}
+canvas.addEventListener('pointerdown', (e) => { pointerActive = true; pointerY = canvasPoint(e); });
+window.addEventListener('pointermove', (e) => { if(pointerActive) pointerY = canvasPoint(e); });
+window.addEventListener('pointerup', () => { pointerActive = false; });
+
+// 아두이노 거리 입력
+let rawDist = 18;
+let smoothDist = 18;
+let minDist = 5, maxDist = 35;
+let invertY = false;
+let serialConnected = false;
+
+function getDistTargetY(){
+  let t = (smoothDist - minDist) / (maxDist - minDist || 1);
+  t = Math.max(0, Math.min(1, t));
+  if(invertY) t = 1-t;
+  const margin = PLAYER_R + 12;
+  return margin + t*(H - margin*2);
+}
+
+/* ================= 업데이트 ================= */
+function spawnObstacle(x){
+  const t = Math.min(survivalTime/45, 1);
+  const gap = GAP_START - (GAP_START-GAP_MIN)*t;
+  const margin = 50;
+  const gapCenter = margin + gap/2 + Math.random()*(H - margin*2 - gap);
+  obstacles.push({ x, gapCenter, gap, passed:false });
+  if(Math.random() < 0.55){
+    gems.push({ x: x+OBSTACLE_W/2, y: gapCenter + (Math.random()*2-1)*(gap*0.25), taken:false });
+  }
+}
+
+function spawnBurst(x,y,color){
+  for(let i=0;i<12;i++){
+    const ang = Math.random()*Math.PI*2;
+    const spd = 50 + Math.random()*120;
+    particles.push({ x, y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, life:1, color: color || '#E8A23F' });
+  }
+}
+
+function updateHUD(){
+  $('scoreLabel').textContent = score;
+  $('timeLabel').textContent = survivalTime.toFixed(1);
+  $('livesLabel').textContent = Math.max(0, lives);
+  $('distReadout').textContent = serialConnected ? rawDist.toFixed(1) : '-';
+}
+
+function currentSpeed(){
+  return Math.min(SPEED_MAX, SPEED_START + survivalTime*4.2);
+}
+
+function update(dt){
+  if(gameOver) return;
+  survivalTime += dt;
+  score = Math.floor(survivalTime*10) + gems.filter(g=>g.taken).length*0; // 점수는 아래에서 보석 획득 시 별도 가산
+
+  // 목표 높이 계산
+  smoothDist += (rawDist - smoothDist) * Math.min(1, dt*6);
+  if(serialConnected){
+    player.targetY = getDistTargetY();
+  }else if(pointerActive){
+    player.targetY = pointerY;
+  }else{
+    const dy = (keyState.down?1:0) - (keyState.up?1:0);
+    if(dy !== 0) player.targetY += dy * 260 * dt;
+  }
+  player.targetY = Math.max(PLAYER_R+10, Math.min(H-PLAYER_R-10, player.targetY));
+  player.y += (player.targetY - player.y) * Math.min(1, dt*FOLLOW_LERP);
+
+  const speed = currentSpeed();
+
+  // 장애물 이동 + 스폰
+  spawnTimer -= speed*dt;
+  if(spawnTimer <= 0){
+    const lastX = obstacles.length ? obstacles[obstacles.length-1].x : W;
+    spawnObstacle(Math.max(W+60, lastX+SPAWN_GAP_PX));
+    spawnTimer = SPAWN_GAP_PX;
+  }
+  for(const o of obstacles) o.x -= speed*dt;
+  obstacles = obstacles.filter(o => o.x > -OBSTACLE_W);
+
+  for(const g of gems) g.x -= speed*dt;
+  gems = gems.filter(g => g.x > -20 && !g.taken);
+
+  for(const p of particles){
+    p.x += p.vx*dt; p.y += p.vy*dt;
+    p.vx *= 0.92; p.vy *= 0.92;
+    p.life -= dt*1.6;
+  }
+  particles = particles.filter(p => p.life > 0);
+
+  if(invulnTimer > 0) invulnTimer -= dt*1000;
+
+  // 충돌: 장애물
+  for(const o of obstacles){
+    if(Math.abs(o.x - player.x) < OBSTACLE_W/2 + PLAYER_R){
+      const topEdge = o.gapCenter - o.gap/2, botEdge = o.gapCenter + o.gap/2;
+      if(player.y - PLAYER_R < topEdge || player.y + PLAYER_R > botEdge){
+        if(invulnTimer <= 0) hitPlayer();
+      }
+    }
+  }
+
+  // 획득: 보석
+  for(const g of gems){
+    if(!g.taken && Math.hypot(g.x-player.x, g.y-player.y) < GEM_R+PLAYER_R){
+      g.taken = true;
+      score += 20;
+      spawnBurst(g.x, g.y, '#5BD1A0');
+    }
+  }
+
+  updateHUD();
+
+  if(lives <= 0 && !gameOver) endGame();
+}
+
+function hitPlayer(){
+  lives -= 1;
+  invulnTimer = INVULN_MS;
+  spawnBurst(player.x, player.y, '#E8482E');
+}
+
+let pendingScore = 0, pendingSurvivalTime = 0;
+
+function endGame(){
+  gameOver = true;
+  pendingScore = score;
+  pendingSurvivalTime = survivalTime;
+  $('overlayEmoji').textContent = '💥';
+  $('overlayTitle').textContent = '게임 오버';
+  $('overlayDesc').textContent = `점수: ${score}점 · 생존 시간: ${survivalTime.toFixed(1)}초`;
+  renderAllLeaderboards(null);
+  $('overlayMsg').classList.add('show');
+  setTimeout(() => $('nameInput').focus(), 50);
+}
+
+/* ================= 렌더링 ================= */
+function drawDrone(x,y,flash){
+  if(flash) ctx.globalAlpha = 0.45;
+  ctx.fillStyle = '#2E6FDB';
+  ctx.beginPath(); ctx.ellipse(x,y,PLAYER_R,PLAYER_R*0.78,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#9CC4F5';
+  ctx.beginPath(); ctx.ellipse(x-2,y-2,PLAYER_R*0.4,PLAYER_R*0.32,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#1C2733'; ctx.lineWidth = 2.4;
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x+sx*PLAYER_R*0.6, y+sy*PLAYER_R*0.35);
+    ctx.lineTo(x+sx*PLAYER_R*1.5, y+sy*PLAYER_R*0.9);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(156,196,245,0.55)';
+    ctx.beginPath(); ctx.ellipse(x+sx*PLAYER_R*1.5, y+sy*PLAYER_R*0.9, PLAYER_R*0.55, PLAYER_R*0.18, 0, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawObstacle(o){
+  ctx.fillStyle = '#6B5240';
+  const topH = o.gapCenter - o.gap/2;
+  const botY = o.gapCenter + o.gap/2;
+  // 윗벽 (종유석)
+  ctx.beginPath();
+  ctx.moveTo(o.x-OBSTACLE_W/2, 0);
+  ctx.lineTo(o.x+OBSTACLE_W/2, 0);
+  ctx.lineTo(o.x+OBSTACLE_W/2, topH-18);
+  ctx.lineTo(o.x, topH);
+  ctx.lineTo(o.x-OBSTACLE_W/2, topH-18);
+  ctx.closePath(); ctx.fill();
+  // 아랫벽 (석순)
+  ctx.beginPath();
+  ctx.moveTo(o.x-OBSTACLE_W/2, H);
+  ctx.lineTo(o.x+OBSTACLE_W/2, H);
+  ctx.lineTo(o.x+OBSTACLE_W/2, botY+18);
+  ctx.lineTo(o.x, botY);
+  ctx.lineTo(o.x-OBSTACLE_W/2, botY+18);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#4A392B'; ctx.lineWidth = 2;
+  ctx.strokeRect(o.x-OBSTACLE_W/2, 0, OBSTACLE_W, Math.max(0,topH-18));
+  ctx.strokeRect(o.x-OBSTACLE_W/2, botY+18, OBSTACLE_W, Math.max(0,H-(botY+18)));
+}
+
+function drawGem(g){
+  ctx.save();
+  ctx.translate(g.x, g.y);
+  ctx.rotate(Math.PI/4);
+  ctx.fillStyle = '#5BD1A0';
+  ctx.fillRect(-GEM_R*0.72, -GEM_R*0.72, GEM_R*1.44, GEM_R*1.44);
+  ctx.strokeStyle = '#2F8F6F'; ctx.lineWidth = 1.6;
+  ctx.strokeRect(-GEM_R*0.72, -GEM_R*0.72, GEM_R*1.44, GEM_R*1.44);
+  ctx.restore();
+}
+
+function render(){
+  for(const o of obstacles) drawObstacle(o);
+  for(const g of gems) if(!g.taken) drawGem(g);
+
+  for(const p of particles){
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3.2, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  if(!gameOver){
+    const flash = invulnTimer > 0 && Math.floor(invulnTimer/120)%2===0;
+    drawDrone(player.x, player.y, flash);
+  }
+}
+
+/* ================= 메인 루프 ================= */
+let lastT = null;
+function loop(t){
+  if(lastT===null) lastT = t;
+  let dt = (t-lastT)/1000;
+  lastT = t;
+  dt = Math.min(dt, 0.033);
+
+  ctx.clearRect(0,0,W,H);
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, '#3A2E26');
+  grad.addColorStop(1, '#15110D');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+
+  update(dt);
+  render();
+
+  requestAnimationFrame(loop);
+}
+
+/* ================= Web Serial ================= */
+let port = null, reader = null;
+
+function updateConnUI(){
+  $('connDot').className = 'conn-dot ' + (serialConnected ? 'on' : 'off');
+  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 손 거리로 드론을 조종하세요' : '연결 안 됨 (방향키/드래그로 조작 중)';
+  $('connectBtn').style.display = serialConnected ? 'none' : 'inline-block';
+  $('disconnectBtn').style.display = serialConnected ? 'inline-block' : 'none';
+}
+
+async function openAndRead(selectedPort){
+  port = selectedPort;
+  await port.open({ baudRate: 9600 });
+  serialConnected = true;
+  updateConnUI();
+  readLoop();
+}
+
+async function connectSerial(){
+  if(!('serial' in navigator)){
+    alert('이 브라우저는 Web Serial을 지원하지 않습니다. 최신 Chrome 또는 Edge 브라우저에서 열어주세요.');
+    return;
+  }
+  try{
+    const selected = await navigator.serial.requestPort();
+    await openAndRead(selected);
+  }catch(err){
+    console.warn('serial connect cancelled/failed', err);
+  }
+}
+
+async function tryAutoConnect(){
+  if(!('serial' in navigator)) return;
+  try{
+    const ports = await navigator.serial.getPorts();
+    if(ports.length === 1){
+      $('autoConnRow').style.display = 'block';
+      $('autoConnectBtn').onclick = async () => {
+        try{ await openAndRead(ports[0]); }catch(e){ console.warn(e); }
+      };
+    }
+  }catch(e){ /* ignore */ }
+}
+
+let lineBuffer = '';
+async function readLoop(){
+  const textDecoder = new TextDecoderStream();
+  port.readable.pipeTo(textDecoder.writable).catch(()=>{});
+  reader = textDecoder.readable.getReader();
+  try{
+    while(true){
+      const { value, done } = await reader.read();
+      if(done) break;
+      lineBuffer += value;
+      let idx;
+      while((idx = lineBuffer.indexOf('\n')) >= 0){
+        const line = lineBuffer.slice(0, idx).trim();
+        lineBuffer = lineBuffer.slice(idx+1);
+        parseLine(line);
+      }
+    }
+  }catch(err){
+    console.warn('read loop ended', err);
+  }finally{
+    try{ reader.releaseLock(); }catch(e){}
+    serialConnected = false;
+    updateConnUI();
+  }
+}
+
+function parseLine(line){
+  const d = parseFloat(line);
+  if(Number.isNaN(d) || d < 0) return;
+  rawDist = d;
+}
+
+$('connectBtn').addEventListener('click', connectSerial);
+$('disconnectBtn').addEventListener('click', async () => {
+  try{ if(reader) await reader.cancel(); }catch(e){}
+  try{ if(port) await port.close(); }catch(e){}
+  serialConnected = false;
+  updateConnUI();
+});
+
+if('serial' in navigator){
+  navigator.serial.addEventListener('disconnect', (e) => {
+    if(e.target === port){
+      serialConnected = false;
+      updateConnUI();
+    }
+  });
+}
+
+$('setNearBtn').addEventListener('click', () => { minDist = rawDist; if(minDist >= maxDist) maxDist = minDist+5; });
+$('setFarBtn').addEventListener('click', () => { maxDist = rawDist; if(maxDist <= minDist) minDist = Math.max(0, maxDist-5); });
+$('invertBtn').addEventListener('click', () => {
+  invertY = !invertY;
+  $('invertBtn').classList.toggle('active', invertY);
+});
+
+/* ================= 아두이노 코드 표시 ================= */
+const ARDUINO_CODE = `/*
+  초음파 드론 동굴 비행 게임 - 거리 측정 스케치
+  HC-SR04 초음파센서  TRIG -> 9,  ECHO -> 10, VCC -> 5V,  GND -> GND
+  약 50ms마다 거리(cm) 값 한 줄을 시리얼로 출력 (보드레이트 9600)
+*/
+const int TRIG_PIN = 9;
+const int ECHO_PIN = 10;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+float readDistanceCm() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0) return -1;
+  return duration * 0.0343 / 2.0;
+}
+
+void loop() {
+  float d = readDistanceCm();
+  Serial.println(d, 2);
+  delay(50);
+}`;
+$('arduinoCode').textContent = ARDUINO_CODE;
+$('copyCodeBtn').addEventListener('click', async () => {
+  try{
+    await navigator.clipboard.writeText(ARDUINO_CODE);
+    $('copyCodeBtn').textContent = '복사됨!';
+    setTimeout(()=>{ $('copyCodeBtn').textContent = '코드 복사하기'; }, 1500);
+  }catch(e){
+    alert('복사에 실패했어요. 코드를 직접 선택해서 복사해 주세요.');
+  }
+});
+
+/* ================= 시작 ================= */
+$('restartBtn').addEventListener('click', resetGame);
+$('overlayRestartBtn').addEventListener('click', resetGame);
+
+$('nameForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = $('nameInput').value.trim();
+  if(!name) return;
+  const entry = { name, score: pendingScore, survivalTime: pendingSurvivalTime, date: new Date().toISOString().slice(0,10) };
+
+  const local = loadLeaderboard();
+  local.push(entry);
+  local.sort((a,b) => b.score - a.score);
+  local.length = Math.min(local.length, 10);
+  saveLeaderboard(local);
+  renderLeaderboardInto($('leaderList'), local, 10, entry);
+  renderLeaderboardInto($('overlayLeaderList'), local, 5, entry);
+  $('nameForm').style.display = 'none';
+
+  await submitToSharedLeaderboard(entry);
+  renderAllLeaderboards(entry);
+});
+
+$('resetBoardBtn').addEventListener('click', () => {
+  if(!confirm('이 기기에 저장된 랭킹 사본만 초기화할까요?\n(공유 스프레드시트의 전체 기록은 지워지지 않으며, 선생님이 스프레드시트에서 직접 관리해야 합니다.)')) return;
+  saveLeaderboard([]);
+  renderAllLeaderboards(null);
+});
+
+updateConnUI();
+tryAutoConnect();
+renderAllLeaderboards(null);
+resetGame();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
