@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기울기 미로 게임 — 아두이노 센서로 공 굴리기</title>
+<style>
+  :root{
+    --bg:#2A1D14;
+    --wood-dark:#6B4A2E;
+    --wood-mid:#8B5E3C;
+    --wood-light:#F3DDA8;
+    --card:#FFFFFF;
+    --ink:#2A2015;
+    --ink-soft:#7A6B57;
+    --line:#E3D2AE;
+    --accent:#D8493B;
+    --accent-soft:#FBE6E2;
+    --ok:#2E9E5B;
+    --ok-soft:#E4F5EB;
+    --bad:#C94A3D;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 600px at 15% -10%, #3B2A1C 0%, var(--bg) 60%);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:16px 20px 30px;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+  header{ display:flex; flex-direction:column; gap:4px; color:#F3DDA8; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:#E8C468; font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(19px,2.2vw,24px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ color:#F3DDA8; }
+  .sub{ color:#C9B899; font-size:12.5px; line-height:1.65; max-width:900px; }
+
+  .level-row{ display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+  .level-pill{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:6px 14px; transition:.15s;
+  }
+  .level-pill.active{ background:var(--wood-dark); color:#fff; border-color:var(--wood-dark); }
+  .level-pill.done{ color:var(--ok); border-color:#B9E3C8; }
+  .level-pill:disabled{ opacity:.45; cursor:not-allowed; }
+
+  main{ display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start; }
+  @media (max-width:920px){ main{ grid-template-columns:1fr; } }
+
+  .board-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.2);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .status-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .level-badge{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800;
+    padding:6px 13px; border-radius:999px; background:#FBF1D8; color:#A9792E;
+  }
+  .timer-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:800;
+    padding:6px 13px; border-radius:999px; background:#F1EEE5; color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+  .msg-line{ font-size:12.5px; font-weight:700; color:var(--ink-soft); min-height:18px; }
+  .msg-line.ok{ color:var(--ok); }
+  .msg-line.bad{ color:var(--bad); }
+
+  #boardWrap{ width:100%; border-radius:14px; overflow:hidden; background:var(--wood-mid); border:6px solid var(--wood-dark); display:flex; justify-content:center; }
+  #board{ display:block; width:100%; height:auto; max-width:700px; touch-action:none; }
+
+  .board-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:10px; padding:10px 18px; transition:.15s;
+  }
+  .btn.primary{ background:var(--wood-dark); color:#fff; }
+  .btn.primary:hover:not(:disabled){ background:#5A3D26; }
+  .btn.primary:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn.ghost{ background:#F1EEE5; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#E7E3D6; color:var(--ink); }
+  .btn.accent{ background:var(--accent); color:#fff; }
+  .btn.accent:hover{ background:#B9382D; }
+
+  .side-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.2); display:flex; flex-direction:column; gap:14px;
+  }
+  .side-title{ font-size:14px; font-weight:800; display:flex; align-items:center; gap:7px; }
+  .side-title .badge{ font-size:10.5px; font-weight:800; color:#fff; background:var(--accent); padding:2px 8px; border-radius:999px; }
+
+  .conn-status{ display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; }
+  .conn-dot{ width:9px; height:9px; border-radius:50%; background:#C9C3B0; }
+  .conn-dot.on{ background:var(--ok); box-shadow:0 0 0 3px var(--ok-soft); }
+  .conn-dot.off{ background:var(--bad); }
+
+  .ctrl-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); }
+  .ctrl-row label{ display:flex; align-items:center; gap:6px; }
+  .toggle-btn{
+    font-family:inherit; cursor:pointer; border:1px solid var(--line); background:#fff;
+    border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:700; color:var(--ink-soft);
+  }
+  .toggle-btn.active{ background:var(--wood-dark); color:#fff; border-color:var(--wood-dark); }
+  input[type=range]{ width:100%; accent-color:var(--wood-dark); }
+
+  .rules{ font-size:11.5px; line-height:1.85; color:var(--ink-soft); }
+  .rules b{ color:var(--ink); }
+
+  details.code-box{ font-size:11.5px; color:var(--ink-soft); }
+  details.code-box summary{ cursor:pointer; font-weight:800; color:var(--ink); margin-bottom:6px; }
+  details.code-box pre{
+    background:#1E1710; color:#F1E6CC; border-radius:10px; padding:12px;
+    font-size:10.5px; line-height:1.6; overflow-x:auto; white-space:pre;
+  }
+
+  footer{ max-width:1180px; margin:4px auto 0; color:#C9B899; font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">쉬어가는 게임 · 아두이노 연동</div>
+    <h1>기울기 미로 게임 — <span>아두이노 센서</span>로 공 굴리기</h1>
+    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 USB로 연결하면, 실제로 보드를 기울이는 대로 화면 속 구슬이 굴러가요. 아두이노가 없어도 방향키(←↑↓→)로 똑같이 플레이할 수 있습니다. 미로 벽에 부딪히지 않고 출발점(초록)에서 도착점(깃발)까지 굴려 보세요!</p>
+  </header>
+
+  <div class="level-row" id="levelRow"></div>
+
+  <main>
+    <div class="board-card">
+      <div class="status-row">
+        <div class="level-badge">🌀 <span id="levelLabel">레벨 1 / 4</span></div>
+        <div class="timer-badge">⏱ <span id="timerLabel">00:00</span></div>
+        <div class="msg-line" id="msgLine">조작 방법을 선택하고 출발해 보세요.</div>
+      </div>
+
+      <div id="boardWrap">
+        <canvas id="board" width="500" height="380"></canvas>
+      </div>
+
+      <div class="board-actions">
+        <button class="btn primary" id="restartBtn">🔄 이 레벨 다시 시작</button>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div>
+        <div class="side-title"><span class="badge">아두이노 연결</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 (방향키로 조작 중)</span></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn accent" id="connectBtn">🔌 아두이노 연결하기</button>
+            <button class="btn ghost" id="disconnectBtn" style="display:none;">연결 해제</button>
+          </div>
+          <div id="autoConnRow" style="display:none;">
+            <button class="btn ghost" id="autoConnectBtn">⚡ 이전에 연결했던 아두이노로 바로 연결</button>
+          </div>
+
+          <div class="ctrl-row">
+            <label>민감도
+              <input type="range" id="sensSlider" min="0.5" max="2.5" step="0.1" value="1.2" style="width:110px;">
+              <span id="sensReadout">1.2</span>
+            </label>
+          </div>
+          <div class="ctrl-row">
+            <button type="button" class="toggle-btn" id="invertXBtn">X축 반전</button>
+            <button type="button" class="toggle-btn" id="invertYBtn">Y축 반전</button>
+            <button type="button" class="toggle-btn" id="calibrateBtn">🎯 수평 보정(0점)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules">
+        <b>배선 (우노 기준)</b><br>
+        VCC→5V · GND→GND · SCL→A5 · SDA→A4<br><br>
+        <b>사용 방법</b><br>
+        1) 아래 코드를 아두이노 IDE에 붙여넣고 업로드하세요(시리얼 모니터는 닫아두기).<br>
+        2) 이 페이지에서 <b>아두이노 연결하기</b>를 누르고 포트를 선택하세요. (Chrome·Edge 브라우저 필요)<br>
+        3) 보드를 평평하게 놓은 상태로 <b>수평 보정</b>을 눌러 기준점을 맞추세요.<br>
+        4) 보드를 기울여 구슬을 도착점까지 굴리세요!
+      </div>
+
+      <details class="code-box">
+        <summary>📋 아두이노 업로드 코드 보기 / 복사</summary>
+        <pre id="arduinoCode"></pre>
+        <button class="btn ghost" id="copyCodeBtn" style="margin-top:8px;">코드 복사하기</button>
+      </details>
+    </div>
+  </main>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 기울기 미로 게임 (Web Serial + MPU-6050)</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const canvas = $('board');
+const ctx = canvas.getContext('2d');
+
+/* ================= 미로 생성 ================= */
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function generateMaze(cols, rows, seed, extraOpenCount){
+  const rng = mulberry32(seed);
+  const visited = Array.from({length:rows}, () => Array(cols).fill(false));
+  const wallRight = Array.from({length:rows}, () => Array(cols).fill(true));
+  const wallDown  = Array.from({length:rows}, () => Array(cols).fill(true));
+
+  function shuffledNeighbors(r,c){
+    const list = [];
+    if(r>0) list.push([r-1,c,'up']);
+    if(r<rows-1) list.push([r+1,c,'down']);
+    if(c>0) list.push([r,c-1,'left']);
+    if(c<cols-1) list.push([r,c+1,'right']);
+    for(let i=list.length-1;i>0;i--){
+      const j = Math.floor(rng()*(i+1));
+      [list[i],list[j]] = [list[j],list[i]];
+    }
+    return list;
+  }
+
+  // 재귀 대신 스택 기반으로 구현(큰 미로에서 호출 스택 깊이 걱정 없음)
+  const stack = [[0,0]];
+  visited[0][0] = true;
+  while(stack.length){
+    const [r,c] = stack[stack.length-1];
+    let advanced = false;
+    for(const [nr,nc,dir] of shuffledNeighbors(r,c)){
+      if(visited[nr][nc]) continue;
+      if(dir==='right') wallRight[r][c] = false;
+      else if(dir==='left') wallRight[r][c-1] = false;
+      else if(dir==='down') wallDown[r][c] = false;
+      else if(dir==='up') wallDown[r-1][c] = false;
+      visited[nr][nc] = true;
+      stack.push([nr,nc]);
+      advanced = true;
+      break;
+    }
+    if(!advanced) stack.pop();
+  }
+
+  // 약간의 루프(지름길)를 열어 '완벽한 미로'보다 덜 답답하게 만든다.
+  for(let i=0;i<extraOpenCount;i++){
+    const r = Math.floor(rng()*rows);
+    const c = Math.floor(rng()*cols);
+    const horiz = rng() < 0.5;
+    if(horiz && c < cols-1) wallRight[r][c] = false;
+    else if(!horiz && r < rows-1) wallDown[r][c] = false;
+  }
+
+  const gridCols = cols*2+1, gridRows = rows*2+1;
+  const grid = Array.from({length:gridRows}, () => Array(gridCols).fill(1));
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      grid[r*2+1][c*2+1] = 0;
+      if(!wallRight[r][c]) grid[r*2+1][c*2+2] = 0;
+      if(!wallDown[r][c]) grid[r*2+2][c*2+1] = 0;
+    }
+  }
+
+  // 함정(구멍) 배치: 시작/도착 셀을 피해서 임의의 열린 칸 몇 개를 고른다.
+  const openCells = [];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    if(r===0&&c===0) continue;
+    if(r===rows-1&&c===cols-1) continue;
+    openCells.push([r,c]);
+  }
+  for(let i=openCells.length-1;i>0;i--){
+    const j = Math.floor(rng()*(i+1));
+    [openCells[i],openCells[j]] = [openCells[j],openCells[i]];
+  }
+
+  return { grid, gridCols, gridRows, startCell:[0,0], goalCell:[rows-1,cols-1], openCellsShuffled:openCells };
+}
+
+/* ================= 레벨 정의 ================= */
+const LEVELS = [
+  { name:'1단계', cols:7,  rows:5, seed:11, extraOpen:1, hazards:0 },
+  { name:'2단계', cols:9,  rows:6, seed:22, extraOpen:2, hazards:1 },
+  { name:'3단계', cols:11, rows:8, seed:33, extraOpen:3, hazards:2 },
+  { name:'4단계', cols:13, rows:9, seed:44, extraOpen:3, hazards:3 },
+];
+
+const CELL = 34;
+const BALL_R = 9;
+const FRICTION = 0.985;
+const BOUNCE = 0.18;
+const ACCEL_SCALE = 2200;
+const MAX_SPEED = 620;
+
+const PROGRESS_KEY = 'science-tiltmaze-progress';
+let unlockedMax = 0;
+try{
+  const saved = Number(localStorage.getItem(PROGRESS_KEY));
+  if(!Number.isNaN(saved) && saved >= 0) unlockedMax = saved;
+}catch(e){}
+
+let levelIdx = 0;
+let maze = null;
+let ball = { x:0, y:0, vx:0, vy:0 };
+let hazards = [];
+let goalPx = { x:0, y:0 };
+let won = false;
+let startTime = 0;
+let elapsedAtWin = 0;
+let rafId = null;
+
+/* ================= 입력 ================= */
+let rawTiltX = 0, rawTiltY = 0;      // 시리얼로 들어온 최신 값
+let calOffsetX = 0, calOffsetY = 0;
+let invertX = false, invertY = false;
+let sensitivity = 1.2;
+let serialConnected = false;
+const keyState = { up:false, down:false, left:false, right:false };
+
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowUp' || e.key === 'w') keyState.up = true;
+  if(e.key === 'ArrowDown' || e.key === 's') keyState.down = true;
+  if(e.key === 'ArrowLeft' || e.key === 'a') keyState.left = true;
+  if(e.key === 'ArrowRight' || e.key === 'd') keyState.right = true;
+});
+window.addEventListener('keyup', (e) => {
+  if(e.key === 'ArrowUp' || e.key === 'w') keyState.up = false;
+  if(e.key === 'ArrowDown' || e.key === 's') keyState.down = false;
+  if(e.key === 'ArrowLeft' || e.key === 'a') keyState.left = false;
+  if(e.key === 'ArrowRight' || e.key === 'd') keyState.right = false;
+});
+
+function getEffectiveTilt(){
+  if(serialConnected){
+    let tx = (rawTiltX - calOffsetX);
+    let ty = (rawTiltY - calOffsetY);
+    if(invertX) tx = -tx;
+    if(invertY) ty = -ty;
+    tx = Math.max(-1.6, Math.min(1.6, tx));
+    ty = Math.max(-1.6, Math.min(1.6, ty));
+    return { x: tx*sensitivity, y: ty*sensitivity };
+  }
+  let tx = (keyState.right?1:0) - (keyState.left?1:0);
+  let ty = (keyState.down?1:0) - (keyState.up?1:0);
+  return { x: tx*0.9*sensitivity, y: ty*0.9*sensitivity };
+}
+
+/* ================= 레벨 로드 ================= */
+function loadLevel(idx){
+  if(idx > unlockedMax) return;
+  levelIdx = idx;
+  const lv = LEVELS[idx];
+  maze = generateMaze(lv.cols, lv.rows, lv.seed, lv.extraOpen);
+
+  canvas.width = maze.gridCols * CELL;
+  canvas.height = maze.gridRows * CELL;
+
+  const [sr,sc] = maze.startCell;
+  ball.x = (sc*2+1)*CELL + CELL/2;
+  ball.y = (sr*2+1)*CELL + CELL/2;
+  ball.vx = 0; ball.vy = 0;
+
+  const [gr,gc] = maze.goalCell;
+  goalPx.x = (gc*2+1)*CELL + CELL/2;
+  goalPx.y = (gr*2+1)*CELL + CELL/2;
+
+  hazards = [];
+  for(let i=0;i<lv.hazards && i<maze.openCellsShuffled.length;i++){
+    const [hr,hc] = maze.openCellsShuffled[i];
+    hazards.push({ x:(hc*2+1)*CELL+CELL/2, y:(hr*2+1)*CELL+CELL/2 });
+  }
+
+  won = false;
+  startTime = performance.now();
+  elapsedAtWin = 0;
+
+  $('levelLabel').textContent = `레벨 ${idx+1} / ${LEVELS.length} · ${lv.name}`;
+  setMsg(serialConnected ? '보드를 기울여 구슬을 굴려 보세요!' : '방향키(←↑↓→)로 구슬을 굴려 보세요!', '');
+  renderLevelRow();
+}
+
+function renderLevelRow(){
+  const row = $('levelRow');
+  row.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'level-pill' + (i===levelIdx ? ' active' : '') + (i < unlockedMax ? ' done' : '');
+    btn.textContent = (i < unlockedMax ? '✓ ' : (i > unlockedMax ? '🔒 ' : '')) + (i+1);
+    btn.disabled = i > unlockedMax;
+    btn.addEventListener('click', () => loadLevel(i));
+    row.appendChild(btn);
+  });
+}
+
+function setMsg(text, cls){
+  const el = $('msgLine');
+  el.textContent = text;
+  el.className = 'msg-line' + (cls ? ' '+cls : '');
+}
+
+$('restartBtn').addEventListener('click', () => loadLevel(levelIdx));
+
+/* ================= 물리 / 충돌 ================= */
+function stepPhysics(dt){
+  if(won) return;
+  const tilt = getEffectiveTilt();
+  ball.vx += tilt.x * ACCEL_SCALE * dt;
+  ball.vy += tilt.y * ACCEL_SCALE * dt;
+
+  const damp = Math.pow(FRICTION, dt*60);
+  ball.vx *= damp; ball.vy *= damp;
+
+  const speed = Math.hypot(ball.vx, ball.vy);
+  if(speed > MAX_SPEED){ ball.vx = ball.vx/speed*MAX_SPEED; ball.vy = ball.vy/speed*MAX_SPEED; }
+
+  ball.x += ball.vx*dt;
+  ball.y += ball.vy*dt;
+
+  resolveWallCollisions();
+  resolveWallCollisions();
+
+  for(const hz of hazards){
+    if(Math.hypot(ball.x-hz.x, ball.y-hz.y) < CELL*0.32){
+      respawnBall();
+      setMsg('퐁당! 구멍에 빠졌어요. 출발점에서 다시 시작합니다.', 'bad');
+      return;
+    }
+  }
+
+  if(Math.hypot(ball.x-goalPx.x, ball.y-goalPx.y) < CELL*0.38){
+    won = true;
+    elapsedAtWin = (performance.now()-startTime)/1000;
+    if(levelIdx+1 > unlockedMax){
+      unlockedMax = levelIdx+1;
+      try{ localStorage.setItem(PROGRESS_KEY, String(unlockedMax)); }catch(e){}
+      renderLevelRow();
+    }
+    const isLast = levelIdx === LEVELS.length-1;
+    setMsg(isLast ? `🎉 도착! 모든 레벨을 클리어했어요! (${elapsedAtWin.toFixed(1)}초)` : `🎉 도착! 레벨 클리어! (${elapsedAtWin.toFixed(1)}초) — 다음 레벨을 선택해 보세요.`, 'ok');
+  }
+}
+
+function respawnBall(){
+  const [sr,sc] = maze.startCell;
+  ball.x = (sc*2+1)*CELL + CELL/2;
+  ball.y = (sr*2+1)*CELL + CELL/2;
+  ball.vx = 0; ball.vy = 0;
+}
+
+function resolveWallCollisions(){
+  const g = maze.grid;
+  const minCol = Math.max(0, Math.floor((ball.x-BALL_R)/CELL)-1);
+  const maxCol = Math.min(maze.gridCols-1, Math.floor((ball.x+BALL_R)/CELL)+1);
+  const minRow = Math.max(0, Math.floor((ball.y-BALL_R)/CELL)-1);
+  const maxRow = Math.min(maze.gridRows-1, Math.floor((ball.y+BALL_R)/CELL)+1);
+
+  for(let r=minRow; r<=maxRow; r++){
+    for(let c=minCol; c<=maxCol; c++){
+      if(g[r][c] !== 1) continue;
+      const bx0=c*CELL, by0=r*CELL, bx1=bx0+CELL, by1=by0+CELL;
+      const closestX = Math.max(bx0, Math.min(ball.x, bx1));
+      const closestY = Math.max(by0, Math.min(ball.y, by1));
+      const dx = ball.x-closestX, dy = ball.y-closestY;
+      const distSq = dx*dx+dy*dy;
+      if(distSq < BALL_R*BALL_R && distSq > 1e-9){
+        const dist = Math.sqrt(distSq);
+        const overlap = BALL_R-dist;
+        const nx = dx/dist, ny = dy/dist;
+        ball.x += nx*overlap;
+        ball.y += ny*overlap;
+        const vn = ball.vx*nx + ball.vy*ny;
+        if(vn < 0){
+          ball.vx -= (1+BOUNCE)*vn*nx;
+          ball.vy -= (1+BOUNCE)*vn*ny;
+        }
+      }
+    }
+  }
+}
+
+/* ================= 렌더링 ================= */
+function render(){
+  const g = maze.grid;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  for(let r=0;r<maze.gridRows;r++){
+    for(let c=0;c<maze.gridCols;c++){
+      const x=c*CELL, y=r*CELL;
+      if(g[r][c]===1){
+        ctx.fillStyle = '#6B4A2E';
+        ctx.fillRect(x,y,CELL,CELL);
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.fillRect(x,y,CELL,3);
+      }else{
+        ctx.fillStyle = '#F3DDA8';
+        ctx.fillRect(x,y,CELL,CELL);
+      }
+    }
+  }
+
+  // 시작점
+  const [sr,sc] = maze.startCell;
+  const sx=(sc*2+1)*CELL+CELL/2, sy=(sr*2+1)*CELL+CELL/2;
+  ctx.fillStyle = '#2E9E5B';
+  ctx.beginPath(); ctx.arc(sx,sy,CELL*0.22,0,Math.PI*2); ctx.fill();
+
+  // 함정
+  for(const hz of hazards){
+    const grd = ctx.createRadialGradient(hz.x,hz.y,2,hz.x,hz.y,CELL*0.3);
+    grd.addColorStop(0,'#1a1310');
+    grd.addColorStop(1,'#3a2a1c');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(hz.x,hz.y,CELL*0.3,0,Math.PI*2); ctx.fill();
+  }
+
+  // 도착점 (체커 깃발)
+  ctx.save();
+  ctx.translate(goalPx.x, goalPx.y);
+  ctx.beginPath(); ctx.arc(0,0,CELL*0.34,0,Math.PI*2);
+  ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.strokeStyle = '#2A2015'; ctx.lineWidth=2; ctx.stroke();
+  const n=4;
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n;j++){
+      if((i+j)%2===0){
+        ctx.fillStyle = '#2A2015';
+        const cs = (CELL*0.68)/n;
+        ctx.fillRect(-CELL*0.34+i*cs, -CELL*0.34+j*cs, cs, cs);
+      }
+    }
+  }
+  ctx.restore();
+
+  // 공 (유리구슬 느낌)
+  const bg = ctx.createRadialGradient(ball.x-3, ball.y-3, 1, ball.x, ball.y, BALL_R);
+  bg.addColorStop(0, '#ffffff');
+  bg.addColorStop(0.5, '#C9CEE0');
+  bg.addColorStop(1, '#5B6172');
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth=1; ctx.stroke();
+}
+
+/* ================= 메인 루프 ================= */
+let lastT = null;
+function loop(t){
+  if(lastT===null) lastT = t;
+  let dt = (t-lastT)/1000;
+  lastT = t;
+  dt = Math.min(dt, 0.033);
+
+  stepPhysics(dt);
+  render();
+
+  if(!won){
+    const sec = (performance.now()-startTime)/1000;
+    $('timerLabel').textContent = formatTime(sec);
+  }else{
+    $('timerLabel').textContent = formatTime(elapsedAtWin);
+  }
+
+  rafId = requestAnimationFrame(loop);
+}
+function formatTime(sec){
+  const m = Math.floor(sec/60);
+  const s = Math.floor(sec%60);
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+/* ================= Web Serial ================= */
+let port = null, reader = null;
+
+function updateConnUI(){
+  $('connDot').className = 'conn-dot ' + (serialConnected ? 'on' : 'off');
+  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 보드를 기울여 조작하세요' : '연결 안 됨 (방향키로 조작 중)';
+  $('connectBtn').style.display = serialConnected ? 'none' : 'inline-block';
+  $('disconnectBtn').style.display = serialConnected ? 'inline-block' : 'none';
+}
+
+async function openAndRead(selectedPort){
+  port = selectedPort;
+  await port.open({ baudRate: 115200 });
+  serialConnected = true;
+  updateConnUI();
+  setMsg('아두이노가 연결됐어요. 평평한 바닥에서 "수평 보정"을 눌러 주세요.', 'ok');
+  readLoop();
+}
+
+async function connectSerial(){
+  if(!('serial' in navigator)){
+    alert('이 브라우저는 Web Serial을 지원하지 않습니다. 최신 Chrome 또는 Edge 브라우저에서 열어주세요.');
+    return;
+  }
+  try{
+    const selected = await navigator.serial.requestPort();
+    await openAndRead(selected);
+  }catch(err){
+    console.warn('serial connect cancelled/failed', err);
+  }
+}
+
+async function tryAutoConnect(){
+  if(!('serial' in navigator)) return;
+  try{
+    const ports = await navigator.serial.getPorts();
+    if(ports.length === 1){
+      $('autoConnRow').style.display = 'block';
+      $('autoConnectBtn').onclick = async () => {
+        try{ await openAndRead(ports[0]); }catch(e){ console.warn(e); }
+      };
+    }
+  }catch(e){ /* ignore */ }
+}
+
+let lineBuffer = '';
+async function readLoop(){
+  const textDecoder = new TextDecoderStream();
+  port.readable.pipeTo(textDecoder.writable).catch(()=>{});
+  reader = textDecoder.readable.getReader();
+  try{
+    while(true){
+      const { value, done } = await reader.read();
+      if(done) break;
+      lineBuffer += value;
+      let idx;
+      while((idx = lineBuffer.indexOf('\n')) >= 0){
+        const line = lineBuffer.slice(0, idx).trim();
+        lineBuffer = lineBuffer.slice(idx+1);
+        parseLine(line);
+      }
+    }
+  }catch(err){
+    console.warn('read loop ended', err);
+  }finally{
+    try{ reader.releaseLock(); }catch(e){}
+    serialConnected = false;
+    updateConnUI();
+  }
+}
+
+function parseLine(line){
+  const parts = line.split(',');
+  if(parts.length < 2) return;
+  const x = parseFloat(parts[0]);
+  const y = parseFloat(parts[1]);
+  if(Number.isNaN(x) || Number.isNaN(y)) return;
+  rawTiltX = x; rawTiltY = y;
+}
+
+$('connectBtn').addEventListener('click', connectSerial);
+$('disconnectBtn').addEventListener('click', async () => {
+  try{ if(reader) await reader.cancel(); }catch(e){}
+  try{ if(port) await port.close(); }catch(e){}
+  serialConnected = false;
+  updateConnUI();
+  setMsg('연결을 해제했어요. 방향키로 계속 플레이할 수 있어요.', '');
+});
+
+if('serial' in navigator){
+  navigator.serial.addEventListener('disconnect', (e) => {
+    if(e.target === port){
+      serialConnected = false;
+      updateConnUI();
+      setMsg('아두이노 연결이 끊어졌어요. 방향키로 계속 플레이할 수 있어요.', 'bad');
+    }
+  });
+}
+
+$('calibrateBtn').addEventListener('click', () => {
+  calOffsetX = rawTiltX;
+  calOffsetY = rawTiltY;
+  setMsg('수평 보정 완료! 지금 자세를 기준(0)으로 맞췄어요.', 'ok');
+});
+$('invertXBtn').addEventListener('click', () => {
+  invertX = !invertX;
+  $('invertXBtn').classList.toggle('active', invertX);
+});
+$('invertYBtn').addEventListener('click', () => {
+  invertY = !invertY;
+  $('invertYBtn').classList.toggle('active', invertY);
+});
+$('sensSlider').addEventListener('input', (e) => {
+  sensitivity = Number(e.target.value);
+  $('sensReadout').textContent = sensitivity.toFixed(1);
+});
+
+/* ================= 아두이노 코드 표시 ================= */
+const ARDUINO_CODE = `#include <Wire.h>
+
+const int MPU_ADDR = 0x68;   // AD0을 5V에 연결했다면 0x69로 변경
+
+float axFiltered = 0;
+float ayFiltered = 0;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x6B); // PWR_MGMT_1
+  Wire.write(0x00); // sleep 해제
+  Wire.endTransmission(true);
+}
+
+void loop() {
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x3B); // ACCEL_XOUT_H
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_ADDR, 6, true);
+
+  int16_t rawAx = (Wire.read() << 8) | Wire.read();
+  int16_t rawAy = (Wire.read() << 8) | Wire.read();
+  Wire.read(); Wire.read(); // Z축(사용 안 함)
+
+  float ax = rawAx / 16384.0;
+  float ay = rawAy / 16384.0;
+
+  axFiltered = axFiltered * 0.8 + ax * 0.2;
+  ayFiltered = ayFiltered * 0.8 + ay * 0.2;
+
+  Serial.print(axFiltered, 3);
+  Serial.print(",");
+  Serial.println(ayFiltered, 3);
+
+  delay(20);
+}`;
+$('arduinoCode').textContent = ARDUINO_CODE;
+$('copyCodeBtn').addEventListener('click', async () => {
+  try{
+    await navigator.clipboard.writeText(ARDUINO_CODE);
+    $('copyCodeBtn').textContent = '복사됨!';
+    setTimeout(()=>{ $('copyCodeBtn').textContent = '코드 복사하기'; }, 1500);
+  }catch(e){
+    alert('복사에 실패했어요. 코드를 직접 선택해서 복사해 주세요.');
+  }
+});
+
+/* ================= 시작 ================= */
+updateConnUI();
+tryAutoConnect();
+loadLevel(0);
+rafId = requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
