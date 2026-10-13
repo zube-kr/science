@@ -294,7 +294,6 @@ const LEVELS = [
 const CELL = 34;
 const BALL_R = 9;
 const FRICTION = 0.985;
-const BOUNCE = 0.18;
 const ACCEL_SCALE = 2200;
 const MAX_SPEED = 620;
 
@@ -422,8 +421,11 @@ function stepPhysics(dt){
   ball.x += ball.vx*dt;
   ball.y += ball.vy*dt;
 
-  resolveWallCollisions();
-  resolveWallCollisions();
+  if(checkWallHit()){
+    respawnBall();
+    setMsg('쿵! 벽에 부딪혔어요. 출발점에서 다시 시작합니다.', 'bad');
+    return;
+  }
 
   for(const hz of hazards){
     if(Math.hypot(ball.x-hz.x, ball.y-hz.y) < CELL*0.32){
@@ -453,12 +455,15 @@ function respawnBall(){
   ball.vx = 0; ball.vy = 0;
 }
 
-function resolveWallCollisions(){
+// 벽에 조금이라도 닿으면 바로 실패 처리한다(판정용 원은 살짝 여유를 줘서
+// 그래픽상 아슬아슬하게 스친 정도는 봐준다).
+function checkWallHit(){
   const g = maze.grid;
-  const minCol = Math.max(0, Math.floor((ball.x-BALL_R)/CELL)-1);
-  const maxCol = Math.min(maze.gridCols-1, Math.floor((ball.x+BALL_R)/CELL)+1);
-  const minRow = Math.max(0, Math.floor((ball.y-BALL_R)/CELL)-1);
-  const maxRow = Math.min(maze.gridRows-1, Math.floor((ball.y+BALL_R)/CELL)+1);
+  const hitR = BALL_R * 0.92;
+  const minCol = Math.max(0, Math.floor((ball.x-hitR)/CELL)-1);
+  const maxCol = Math.min(maze.gridCols-1, Math.floor((ball.x+hitR)/CELL)+1);
+  const minRow = Math.max(0, Math.floor((ball.y-hitR)/CELL)-1);
+  const maxRow = Math.min(maze.gridRows-1, Math.floor((ball.y+hitR)/CELL)+1);
 
   for(let r=minRow; r<=maxRow; r++){
     for(let c=minCol; c<=maxCol; c++){
@@ -467,21 +472,10 @@ function resolveWallCollisions(){
       const closestX = Math.max(bx0, Math.min(ball.x, bx1));
       const closestY = Math.max(by0, Math.min(ball.y, by1));
       const dx = ball.x-closestX, dy = ball.y-closestY;
-      const distSq = dx*dx+dy*dy;
-      if(distSq < BALL_R*BALL_R && distSq > 1e-9){
-        const dist = Math.sqrt(distSq);
-        const overlap = BALL_R-dist;
-        const nx = dx/dist, ny = dy/dist;
-        ball.x += nx*overlap;
-        ball.y += ny*overlap;
-        const vn = ball.vx*nx + ball.vy*ny;
-        if(vn < 0){
-          ball.vx -= (1+BOUNCE)*vn*nx;
-          ball.vy -= (1+BOUNCE)*vn*ny;
-        }
-      }
+      if(dx*dx+dy*dy < hitR*hitR) return true;
     }
   }
+  return false;
 }
 
 /* ================= 렌더링 ================= */
