@@ -132,6 +132,11 @@
   .board-row:nth-child(3) .rank{ color:#B07A4A; }
   .board-row .bname{ flex:1; font-weight:700; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .board-row .btime{ font-variant-numeric:tabular-nums; color:var(--ink-soft); font-weight:800; }
+  .board-row .blevel{
+    flex:none; font-size:11px; font-weight:800; padding:2px 7px; border-radius:999px;
+    background:#F1ECE2; color:var(--ink-soft);
+  }
+  .board-row .blevel.full{ background:#FFE7A8; color:#8A5A00; }
   .board-empty{ font-size:12px; color:var(--ink-soft); text-align:center; padding:10px 0; }
 
   .overlay{
@@ -162,6 +167,7 @@
   .clear-steps span.now{ outline:2px solid #1E7A43; }
   .clear-note{ font-size:12px !important; margin-bottom:14px !important; }
   .clear-note.warn{ color:#B4502E !important; }
+  .clear-reg{ font-size:12.5px !important; font-weight:800; color:#1E7A43 !important; margin-bottom:12px !important; }
   .clear-actions{ display:flex; gap:8px; }
   .clear-actions .btn{ flex:1; }
 </style>
@@ -197,7 +203,7 @@
     <div class="side-card">
       <div>
         <div class="side-title"><span class="badge">🏆 명예의 전당</span></div>
-        <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">4개 레벨을 모두 클리어한 총 기록(빠른 순)이에요.</p>
+        <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">1단계부터 이어서 깬 기록이에요. 더 많은 단계를 깬 사람이 위, 같은 단계면 빠른 순이에요.</p>
         <p style="font-size:11px; color:var(--ink-soft); margin-top:4px;" id="boardSourceNote"></p>
         <ul class="board-list" id="leaderList" style="margin-top:10px;"></ul>
       </div>
@@ -270,6 +276,11 @@
     <div class="clear-time" id="clearTime">0.0초</div>
     <div class="clear-steps" id="clearSteps"></div>
     <p class="clear-note" id="clearNote"></p>
+    <form class="name-form" id="clearNameForm">
+      <input type="text" id="clearNameInput" maxlength="12" placeholder="이름을 입력하세요" autocomplete="off" required>
+      <button type="submit" class="btn primary">명예의 전당 등록</button>
+    </form>
+    <p class="clear-reg" id="clearReg"></p>
     <div class="clear-actions">
       <button type="button" class="btn ghost" id="clearRetryBtn">🔄 이 레벨 다시</button>
       <button type="button" class="btn primary" id="clearNextBtn">다음 레벨 ▶</button>
@@ -422,7 +433,7 @@ function saveLeaderboard(list){
 function formatBoardTime(sec){
   const m = Math.floor(sec/60);
   const s = (sec%60).toFixed(1).padStart(4,'0');
-  return m>0 ? `${m}:${s}` : `${s}초`;
+  return m>0 ? `${m}:${s}` : `${(sec%60).toFixed(1)}초`;
 }
 
 async function fetchSharedLeaderboard(){
@@ -432,7 +443,7 @@ async function fetchSharedLeaderboard(){
     if(!res.ok) throw new Error('status ' + res.status);
     const rows = await res.json();
     return rows
-      .map(r => ({ name: String(r.name||'').slice(0,12), totalTime: Number(r.totalTime), date: r.date }))
+      .map(r => ({ name: String(r.name||'').slice(0,12), level: Number(r.level) || LEVELS.length, totalTime: Number(r.totalTime), date: r.date }))
       .filter(r => r.name && !Number.isNaN(r.totalTime));
   }catch(err){
     console.warn('공유 랭킹을 불러오지 못했습니다:', err);
@@ -447,11 +458,25 @@ async function submitToSharedLeaderboard(entry){
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, totalTime: String(entry.totalTime), date: entry.date })
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, level: String(entry.level), totalTime: String(entry.totalTime), date: entry.date })
     });
   }catch(err){
     console.warn('공유 랭킹 전송에 실패했습니다:', err);
   }
+}
+
+/* 정렬: 더 많은 단계를 깬 기록이 위, 같은 단계면 빠른 순.
+   같은 이름은 가장 좋은 기록 하나만 남긴다(단계를 깰 때마다 기록이 쌓이므로). */
+function normalizeBoard(list){
+  const sorted = list
+    .map(e => ({ ...e, level: Number(e.level) || LEVELS.length, totalTime: Number(e.totalTime) }))
+    .filter(e => e.name && !Number.isNaN(e.totalTime))
+    .sort((a,b) => (b.level - a.level) || (a.totalTime - b.totalTime));
+  const seen = new Set();
+  return sorted.filter(e => { if(seen.has(e.name)) return false; seen.add(e.name); return true; });
+}
+function levelTag(level){
+  return level >= LEVELS.length ? `🏁 ${level}단계 완주` : `${level}단계`;
 }
 
 function renderLeaderboardInto(listEl, board, highlightEntry){
@@ -462,9 +487,9 @@ function renderLeaderboardInto(listEl, board, highlightEntry){
   }
   board.slice(0,10).forEach((entry, i) => {
     const li = document.createElement('li');
-    const isMe = highlightEntry && entry.name === highlightEntry.name && entry.totalTime === highlightEntry.totalTime;
+    const isMe = highlightEntry && entry.name === highlightEntry.name && entry.level === highlightEntry.level && entry.totalTime === highlightEntry.totalTime;
     li.className = 'board-row' + (isMe ? ' me' : '');
-    li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="btime">${formatBoardTime(entry.totalTime)}</span>`;
+    li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="blevel${entry.level >= LEVELS.length ? ' full' : ''}">${levelTag(entry.level)}</span><span class="btime">${formatBoardTime(entry.totalTime)}</span>`;
     li.querySelector('.bname').textContent = entry.name;
     listEl.appendChild(li);
   });
@@ -472,15 +497,15 @@ function renderLeaderboardInto(listEl, board, highlightEntry){
 
 async function renderAllLeaderboards(highlightEntry){
   // 1) 빈 화면이 뜨지 않도록 로컬 캐시를 먼저 그린다.
-  const local = loadLeaderboard().sort((a,b) => a.totalTime - b.totalTime);
+  const local = normalizeBoard(loadLeaderboard());
   renderLeaderboardInto($('leaderList'), local, highlightEntry);
   renderLeaderboardInto($('finishLeaderList'), local, highlightEntry);
   if($('boardSourceNote')) $('boardSourceNote').textContent = LEADERBOARD_WEBHOOK_URL ? '🌐 반 전체 랭킹을 불러오는 중...' : '이 기기에만 저장되는 기록이에요.';
 
   // 2) 공유 스프레드시트에서 반 전체 기록을 받아오면 그걸로 교체한다.
-  const shared = await fetchSharedLeaderboard();
+  let shared = await fetchSharedLeaderboard();
   if(shared){
-    shared.sort((a,b) => a.totalTime - b.totalTime);
+    shared = normalizeBoard(shared);
     saveLeaderboard(shared.slice(0,10));
     renderLeaderboardInto($('leaderList'), shared, highlightEntry);
     renderLeaderboardInto($('finishLeaderList'), shared, highlightEntry);
@@ -993,13 +1018,26 @@ function showClearOverlay(idx){
   }).join('');
 
   const note = $('clearNote');
+  const form = $('clearNameForm');
+  const reg = $('clearReg');
+  reg.textContent = '';
+  form.style.display = 'none';
   if(missing.length){
-    // 새로고침 등으로 앞 단계 기록이 이번 도전에 없으면 총 기록을 낼 수 없다.
+    // 새로고침 등으로 앞 단계 기록이 이번 도전에 없으면 이어진 기록을 낼 수 없다.
     note.className = 'clear-note warn';
-    note.textContent = `⚠️ 이번 도전에서 ${missing.join('·')}단계 기록이 없어요. 명예의 전당에 등록하려면 1~4단계를 모두 깨야 해요(이미 깬 단계도 다시 할 수 있어요).`;
+    note.textContent = `⚠️ 이번 도전에서 ${missing.join('·')}단계 기록이 없어요. 명예의 전당에는 1단계부터 이어서 깬 기록만 올라가요(이미 깬 단계도 다시 할 수 있어요).`;
   }else{
+    const rec = currentChainRecord();
     note.className = 'clear-note';
-    note.textContent = `누적 ${sum.toFixed(1)}초 (${doneCount}/${LEVELS.length}) — 4단계까지 모두 클리어하면 총 기록을 명예의 전당에 등록할 수 있어요!`;
+    note.textContent = `누적 ${sum.toFixed(1)}초 (${doneCount}/${LEVELS.length}) — 다음 단계까지 깨면 순위가 더 올라가요!`;
+    pendingRecord = rec;
+    if(playerName){
+      registerRecord(playerName, rec);
+      reg.textContent = `✅ ${playerName} — ${levelTag(rec.level)} · ${formatBoardTime(rec.totalTime)} 기록을 명예의 전당에 올렸어요!`;
+    }else{
+      form.style.display = 'flex';
+      $('clearNameInput').value = '';
+    }
   }
 
   const nextBtn = $('clearNextBtn');
@@ -1012,40 +1050,82 @@ function showClearOverlay(idx){
   }
   $('clearRetryBtn').onclick = () => { hideClearOverlay(); loadLevel(idx); };
   $('clearOverlay').classList.add('show');
-  setTimeout(() => nextBtn.focus(), 50);
+  setTimeout(() => (form.style.display !== 'none' ? $('clearNameInput') : nextBtn).focus(), 50);
 }
 function hideClearOverlay(){ $('clearOverlay').classList.remove('show'); }
 
-/* ================= 완주 기록 저장 ================= */
-let pendingTotalTime = 0;
+$('clearNameForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('clearNameInput').value.trim();
+  if(!name || !pendingRecord) return;
+  playerName = name;
+  registerRecord(name, pendingRecord);
+  $('clearNameForm').style.display = 'none';
+  $('clearReg').textContent = `✅ ${name} — ${levelTag(pendingRecord.level)} · ${formatBoardTime(pendingRecord.totalTime)} 기록을 올렸어요! 다음 단계부터는 자동으로 갱신돼요.`;
+  $('clearNextBtn').focus();
+});
 
-function showFinishOverlay(totalTime){
-  pendingTotalTime = totalTime;
-  $('finishDesc').textContent = `총 기록: ${formatBoardTime(totalTime)} — 이름을 입력하고 랭킹에 등록해 보세요!`;
-  $('nameInput').value = '';
-  renderAllLeaderboards(null);
-  $('finishOverlay').classList.add('show');
-  setTimeout(() => $('nameInput').focus(), 50);
+/* ================= 명예의 전당 기록 등록 =================
+   1단계부터 이어서 깬 단계 수와 그 시간 합계를 기록한다.
+   한 번 이름을 등록하면, 이번 도전에서 다음 단계를 깰 때마다 자동으로 갱신된다. */
+let playerName = '';
+let pendingRecord = null;
+let lastSubmittedKey = '';
+
+function currentChainRecord(){
+  let level = 0, totalTime = 0;
+  while(level < LEVELS.length && levelTimes[level] !== null){
+    totalTime += levelTimes[level];
+    level++;
+  }
+  return { level, totalTime: Math.round(totalTime*10)/10 };
 }
 
-$('nameForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = $('nameInput').value.trim();
-  if(!name) return;
-  const entry = { name, totalTime: pendingTotalTime, date: new Date().toISOString().slice(0,10) };
+function localDateStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function registerRecord(name, rec){
+  if(!rec || rec.level < 1) return;
+  const key = `${name}|${rec.level}|${rec.totalTime}`;
+  if(key === lastSubmittedKey) return; // 같은 기록 중복 전송 방지
+  lastSubmittedKey = key;
+  const entry = { name, level: rec.level, totalTime: rec.totalTime, date: localDateStr() };
 
   // 로컬 캐시에 먼저 반영해 오프라인이어도 내 기록이 바로 보이게 한다.
-  const local = loadLeaderboard();
-  local.push(entry);
-  local.sort((a,b) => a.totalTime - b.totalTime);
-  local.length = Math.min(local.length, 10);
+  const local = normalizeBoard(loadLeaderboard().concat([entry])).slice(0, 30);
   saveLeaderboard(local);
   renderLeaderboardInto($('leaderList'), local, entry);
   renderLeaderboardInto($('finishLeaderList'), local, entry);
-  $('nameForm').style.display = 'none';
 
   await submitToSharedLeaderboard(entry);
   renderAllLeaderboards(entry);
+}
+
+function showFinishOverlay(totalTime){
+  pendingRecord = currentChainRecord();
+  if(playerName){
+    $('nameForm').style.display = 'none';
+    $('finishDesc').textContent = `총 기록: ${formatBoardTime(pendingRecord.totalTime)} — ${playerName} 이름으로 명예의 전당에 올렸어요!`;
+    registerRecord(playerName, pendingRecord);
+  }else{
+    $('nameForm').style.display = 'flex';
+    $('finishDesc').textContent = `총 기록: ${formatBoardTime(pendingRecord.totalTime)} — 이름을 입력하고 랭킹에 등록해 보세요!`;
+    $('nameInput').value = '';
+    renderAllLeaderboards(null);
+  }
+  $('finishOverlay').classList.add('show');
+  if(!playerName) setTimeout(() => $('nameInput').focus(), 50);
+}
+
+$('nameForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('nameInput').value.trim();
+  if(!name || !pendingRecord) return;
+  playerName = name;
+  $('nameForm').style.display = 'none';
+  registerRecord(name, pendingRecord);
 });
 
 $('finishCloseBtn').addEventListener('click', () => {
