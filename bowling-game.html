@@ -18,6 +18,7 @@
   }
   .stage{
     position:relative;
+    container-type:inline-size;
     width:min(100vw, calc(100vh * 16 / 9));
     aspect-ratio:16 / 9;
     box-shadow:0 10px 40px rgba(0,0,0,.5);
@@ -79,7 +80,7 @@
   .ctrl .val{ color:#fff; font-size:clamp(11px,2.1vmin,18px); min-width:6.4em; text-align:center; }
 
   .sound-btn{
-    position:absolute; left:1.1%; top:19%; font-size:clamp(14px,2vw,20px);
+    position:absolute; right:1%; top:24.6%; font-size:clamp(14px,2vw,20px);
     background:rgba(255,255,255,.85); border:2px solid #1D3461; border-radius:10px;
     padding:2px 8px; cursor:pointer;
   }
@@ -97,8 +98,8 @@
     font-family:inherit; font-size:13px; font-weight:800; cursor:pointer;
     border:none; border-radius:9px; padding:9px 16px; background:#1D3461; color:#fff;
   }
-  .board-list{ list-style:none; display:flex; flex-direction:column; gap:5px; max-width:360px; margin:10px auto 0; text-align:left; }
-  .board-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; padding:6px 10px; border-radius:8px; background:#EEF1F8; }
+  .board-list{ list-style:none; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5, auto); grid-auto-flow:column; gap:4px 8px; max-width:540px; margin:10px auto 0; text-align:left; }
+  .board-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; padding:4px 10px; border-radius:8px; background:#EEF1F8; }
   .board-row.me{ background:#FFE3B3; font-weight:800; }
   .board-row .rank{ width:20px; text-align:center; font-weight:800; color:#6B7690; flex:none; }
   .board-row:nth-child(1) .rank{ color:#E8A23F; }
@@ -107,6 +108,31 @@
   .board-row .bname{ flex:1; font-weight:700; color:#1B2438; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .board-row .bscore{ font-variant-numeric:tabular-nums; color:#C8402E; font-weight:800; }
   .board-empty{ font-size:11.5px; color:#6B7690; text-align:center; padding:6px 0; }
+  .board-row .bdate{ font-size:11px; color:#8A93AA; min-width:3em; text-align:right; font-variant-numeric:tabular-nums; }
+  .board-row.empty{ background:transparent; border:1px dashed #D5DBE8; }
+  .board-row.empty .bname{ color:#B4BCCD; font-weight:400; }
+
+  /* ---------- 명예의 전당 (게임 화면 위 금·은·동) ---------- */
+  .hof{
+    position:absolute; pointer-events:none;
+    font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;
+    font-size:clamp(9px,1.7vmin,14px); font-size:1.05cqw;
+    border-radius:.9cqw; padding:.5cqw .85cqw .55cqw;
+  }
+  .hof-title{ font-family:"Jua",sans-serif; font-size:1.2em; text-align:center; margin-bottom:.1em; }
+  .hof-list{ list-style:none; }
+  .hof-row{ display:flex; align-items:center; gap:.45em; line-height:1.55; }
+  .hof-medal{ width:1.3em; text-align:center; }
+  .hof-name{ flex:1; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hof-date{ font-size:.85em; font-variant-numeric:tabular-nums; }
+  .hof-score{ font-weight:800; min-width:3.2em; text-align:right; font-variant-numeric:tabular-nums; }
+  .hof-empty{ font-size:.9em; text-align:center; padding:.3em 0; }
+  .hof{ left:1.1%; top:18.8%; width:16.5%; background:rgba(8,13,30,.82); border:2px solid rgba(255,209,102,.55); }
+  .hof-title{ color:#FFD166; }
+  .hof-name{ color:#FFFFFF; }
+  .hof-date{ color:#8EA0C6; }
+  .hof-score{ color:#FFD166; }
+  .hof-empty{ color:#C9D4F0; }
 </style>
 </head>
 <body>
@@ -114,6 +140,10 @@
 <div class="stage" id="stage">
   <canvas id="game" width="1280" height="720" aria-label="볼링 게임 화면"></canvas>
   <button type="button" class="sound-btn" id="sound-btn" title="소리 켜기/끄기">🔊</button>
+  <div class="hof" id="hof" aria-label="명예의 전당">
+    <div class="hof-title">🏆 명예의 전당</div>
+    <ol class="hof-list" id="hof-list"></ol>
+  </div>
 
   <div class="ctrl-bar disabled" id="ctrl-bar">
     <div class="ctrl"><span class="lbl">위치</span><button type="button" data-act="pos" data-d="-1">◀</button><span class="val" id="v-pos">가운데</span><button type="button" data-act="pos" data-d="1">▶</button></div>
@@ -1324,7 +1354,7 @@ async function fetchSharedLeaderboard(){
     if (!res.ok) throw new Error("status " + res.status);
     const rows = await res.json();
     return rows
-      .map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), date: r.date }))
+      .map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), date: r.date || r.timestamp }))
       .filter(r => r.name && !Number.isNaN(r.score));
   }catch(err){
     console.warn("공유 랭킹을 불러오지 못했습니다:", err);
@@ -1346,19 +1376,54 @@ async function submitToSharedLeaderboard(entry){
   }
 }
 
+function localDateStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function fmtDate(v){
+  if(!v) return "";
+  const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m) return `${Number(m[2])}.${Number(m[3])}`;
+  const t = new Date(v);
+  if(isNaN(t)) return "";
+  return `${t.getMonth() + 1}.${t.getDate()}`;
+}
+
 function renderLeaderboardInto(listEl, board, maxN, highlightEntry){
   listEl.innerHTML = "";
-  if (board.length === 0){
-    listEl.innerHTML = '<div class="board-empty">아직 기록이 없어요. 가장 먼저 도전해 보세요!</div>';
-    return;
-  }
-  board.slice(0, maxN).forEach((entry, i) => {
+  for(let i = 0; i < maxN; i++){
+    const entry = board[i];
     const li = document.createElement("li");
+    if(!entry){
+      li.className = "board-row empty";
+      li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname">—</span><span class="bdate"></span><span class="bscore"></span>`;
+      listEl.appendChild(li);
+      continue;
+    }
     const isMe = highlightEntry && entry.name === highlightEntry.name && entry.score === highlightEntry.score;
     li.className = "board-row" + (isMe ? " me" : "");
-    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bscore">${entry.score}점</span>`;
+    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bdate">${fmtDate(entry.date)}</span><span class="bscore">${entry.score}점</span>`;
     li.querySelector(".bname").textContent = entry.name;
     listEl.appendChild(li);
+  }
+}
+
+function renderHallOfFame(board){
+  const el = document.getElementById("hof-list");
+  if(!el) return;
+  el.innerHTML = "";
+  if(board.length === 0){
+    el.innerHTML = '<li class="hof-empty">아직 기록이 없어요. 첫 주인공이 되어 보세요!</li>';
+    return;
+  }
+  ["🥇", "🥈", "🥉"].forEach((medal, i) => {
+    const entry = board[i];
+    const li = document.createElement("li");
+    li.className = "hof-row";
+    li.innerHTML = `<span class="hof-medal">${medal}</span><span class="hof-name"></span><span class="hof-date">${entry ? fmtDate(entry.date) : ""}</span><span class="hof-score">${entry ? entry.score + "점" : ""}</span>`;
+    li.querySelector(".hof-name").textContent = entry ? entry.name : "—";
+    el.appendChild(li);
   });
 }
 
@@ -1367,6 +1432,7 @@ async function renderAllLeaderboards(highlightEntry){
   const sourceNote = document.getElementById("board-source-note");
   const local = loadLeaderboard().sort((a, b) => b.score - a.score);
   renderLeaderboardInto(leaderList, local, 10, highlightEntry);
+  renderHallOfFame(local);
   if (sourceNote) sourceNote.textContent = "🌐 반 전체 랭킹을 불러오는 중...";
 
   const shared = await fetchSharedLeaderboard();
@@ -1374,6 +1440,7 @@ async function renderAllLeaderboards(highlightEntry){
     shared.sort((a, b) => b.score - a.score);
     saveLeaderboard(shared.slice(0, 10));
     renderLeaderboardInto(leaderList, shared, 10, highlightEntry);
+    renderHallOfFame(shared);
     if (sourceNote) sourceNote.textContent = "🌐 반 전체가 함께 보는 공유 랭킹이에요.";
   } else if (sourceNote){
     sourceNote.textContent = "⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여주고 있어요.";
@@ -1393,6 +1460,7 @@ document.getElementById("name-form").addEventListener("submit", async e => {
   local.length = Math.min(local.length, 10);
   saveLeaderboard(local);
   renderLeaderboardInto(document.getElementById("leader-list"), local, 10, entry);
+  renderHallOfFame(local);
   document.getElementById("name-form").style.display = "none";
 
   await submitToSharedLeaderboard(entry);
@@ -1448,7 +1516,7 @@ function endGame(){
   document.getElementById("final-best").textContent = `이 컴퓨터 최고 기록: ${best}점`;
   document.getElementById("final-detail").textContent = `스트라이크 ${stats.strikes}번 · 스페어 ${stats.spares}번`;
 
-  pendingEntry = { score: total, strikes: stats.strikes, spares: stats.spares, date: new Date().toISOString().slice(0, 10) };
+  pendingEntry = { score: total, strikes: stats.strikes, spares: stats.spares, date: localDateStr() };
   document.getElementById("name-form").style.display = "flex";
   document.getElementById("name-input").value = "";
   renderAllLeaderboards(null);
@@ -1459,6 +1527,7 @@ document.getElementById("start-btn").addEventListener("click", startGame);
 document.getElementById("again-btn").addEventListener("click", startGame);
 
 updateCtrlLabels();
+renderAllLeaderboards(null);
 requestAnimationFrame(frame);
 
 // 개발·검증용 훅
