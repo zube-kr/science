@@ -152,6 +152,18 @@
     font-family:inherit; font-size:13.5px; color:var(--ink);
   }
   .overlay-card .board-list{ text-align:left; margin-bottom:10px; }
+  .clear-time{ font-size:30px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; margin:2px 0 10px; }
+  .clear-steps{ display:flex; justify-content:center; gap:6px; margin-bottom:12px; }
+  .clear-steps span{
+    min-width:52px; padding:6px 4px; border-radius:10px; font-size:11.5px; font-weight:800;
+    background:#F1ECE2; color:var(--ink-soft); line-height:1.35;
+  }
+  .clear-steps span.ok{ background:#DDF3E4; color:#1E7A43; }
+  .clear-steps span.now{ outline:2px solid #1E7A43; }
+  .clear-note{ font-size:12px !important; margin-bottom:14px !important; }
+  .clear-note.warn{ color:#B4502E !important; }
+  .clear-actions{ display:flex; gap:8px; }
+  .clear-actions .btn{ flex:1; }
 </style>
 </head>
 <body>
@@ -248,6 +260,20 @@
     </form>
     <ul class="board-list" id="finishLeaderList"></ul>
     <button type="button" class="btn ghost" id="finishCloseBtn" style="margin-top:12px; width:100%;">닫기</button>
+  </div>
+</div>
+
+<div class="overlay" id="clearOverlay">
+  <div class="overlay-card">
+    <div class="emoji">🎉</div>
+    <h2 id="clearTitle">1단계 클리어!</h2>
+    <div class="clear-time" id="clearTime">0.0초</div>
+    <div class="clear-steps" id="clearSteps"></div>
+    <p class="clear-note" id="clearNote"></p>
+    <div class="clear-actions">
+      <button type="button" class="btn ghost" id="clearRetryBtn">🔄 이 레벨 다시</button>
+      <button type="button" class="btn primary" id="clearNextBtn">다음 레벨 ▶</button>
+    </div>
   </div>
 </div>
 
@@ -610,6 +636,9 @@ function stepPhysics(dt){
     if(isLast && levelTimes.every(t => t !== null)){
       const totalTime = levelTimes.reduce((a,b) => a+b, 0);
       showFinishOverlay(totalTime);
+    }else{
+      // 중간 레벨 클리어(또는 앞 단계 기록이 빠진 채 마지막 레벨 클리어) 팝업
+      showClearOverlay(levelIdx);
     }
   }
 }
@@ -936,6 +965,46 @@ $('copyCodeBtn').addEventListener('click', async () => {
     alert('복사에 실패했어요. 코드를 직접 선택해서 복사해 주세요.');
   }
 });
+
+/* ================= 레벨 클리어 팝업 ================= */
+function showClearOverlay(idx){
+  const isLast = idx === LEVELS.length-1;
+  const missing = [];
+  for(let i=0;i<=idx;i++) if(levelTimes[i] === null) missing.push(i+1);
+  const doneCount = levelTimes.filter(t => t !== null).length;
+  const sum = levelTimes.reduce((a,t) => a + (t||0), 0);
+
+  $('clearTitle').textContent = isLast ? '마지막 레벨 클리어!' : `${LEVELS[idx].name} 클리어!`;
+  $('clearTime').textContent = `${levelTimes[idx].toFixed(1)}초`;
+  $('clearSteps').innerHTML = LEVELS.map((lv,i) => {
+    const t = levelTimes[i];
+    const cls = (t !== null ? 'ok' : '') + (i===idx ? ' now' : '');
+    return `<span class="${cls}">${lv.name}<br>${t !== null ? t.toFixed(1)+'초' : '—'}</span>`;
+  }).join('');
+
+  const note = $('clearNote');
+  if(missing.length){
+    // 새로고침 등으로 앞 단계 기록이 이번 도전에 없으면 총 기록을 낼 수 없다.
+    note.className = 'clear-note warn';
+    note.textContent = `⚠️ 이번 도전에서 ${missing.join('·')}단계 기록이 없어요. 명예의 전당에 등록하려면 1~4단계를 모두 깨야 해요(이미 깬 단계도 다시 할 수 있어요).`;
+  }else{
+    note.className = 'clear-note';
+    note.textContent = `누적 ${sum.toFixed(1)}초 (${doneCount}/${LEVELS.length}) — 4단계까지 모두 클리어하면 총 기록을 명예의 전당에 등록할 수 있어요!`;
+  }
+
+  const nextBtn = $('clearNextBtn');
+  if(!isLast){
+    nextBtn.textContent = '다음 레벨 ▶';
+    nextBtn.onclick = () => { hideClearOverlay(); loadLevel(idx+1); };
+  }else{
+    nextBtn.textContent = `${missing[0]}단계로 ▶`;
+    nextBtn.onclick = () => { hideClearOverlay(); loadLevel(missing[0]-1); };
+  }
+  $('clearRetryBtn').onclick = () => { hideClearOverlay(); loadLevel(idx); };
+  $('clearOverlay').classList.add('show');
+  setTimeout(() => nextBtn.focus(), 50);
+}
+function hideClearOverlay(){ $('clearOverlay').classList.remove('show'); }
 
 /* ================= 완주 기록 저장 ================= */
 let pendingTotalTime = 0;
