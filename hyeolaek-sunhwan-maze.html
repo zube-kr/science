@@ -277,8 +277,8 @@
         </div>
         <div class="ctrl-row">
           <label>민감도
-            <input type="range" id="sensSlider" min="0.5" max="2.5" step="0.1" value="1.2" style="width:110px;">
-            <span id="sensReadout">1.2</span>
+            <input type="range" id="sensSlider" min="0.3" max="2.0" step="0.1" value="0.9" style="width:110px;">
+            <span id="sensReadout">0.9</span>
           </label>
         </div>
         <div class="ctrl-row">
@@ -389,61 +389,59 @@ const CHAMBERS = {
 
 const VESSELS = [
   // 폐순환
-  { id:'pa', name:'폐동맥', kind:'artery', blood:'deox', w:44,
+  { id:'pa', name:'폐동맥', kind:'artery', blood:'deox', w:50,
     pts:[[280,436],[296,406],[300,370],[300,322],[292,296],[262,290],[205,290],[176,284],[166,256],[165,215],[165,186]] },
-  { id:'lungcap', name:'폐의 모세혈관', kind:'capillary', w:32, grad:[165,435,'deox','ox'],
+  { id:'lungcap', name:'폐의 모세혈관', kind:'capillary', w:36, grad:[165,435,'deox','ox'],
     pts:[[165,186],[195,155],[240,143],[300,147],[360,141],[405,155],[435,186]] },
-  { id:'lungcap', name:'폐의 모세혈관', kind:'capillary', w:32, grad:[165,435,'deox','ox'],
-    pts:[[165,186],[215,191],[270,182],[330,193],[385,181],[435,186]] },
-  { id:'lungcap', name:'폐의 모세혈관', kind:'capillary', w:32, grad:[165,435,'deox','ox'],
+  { id:'lungcap', name:'폐의 모세혈관', kind:'capillary', w:36, grad:[165,435,'deox','ox'],
     pts:[[165,186],[195,220],[240,234],[300,228],[360,236],[405,220],[435,186]] },
-  { id:'pv', name:'폐정맥', kind:'vein', blood:'ox', w:44,
+  { id:'pv', name:'폐정맥', kind:'vein', blood:'ox', w:50,
     pts:[[435,186],[438,220],[438,265],[435,302],[424,330],[407,345]] },
 
   // 심장 속 통로(판막)
-  { id:'avR', name:'우심방 → 우심실', kind:'heart', blood:'deox', w:30, pts:[[222,394],[236,442]] },
-  { id:'avL', name:'좌심방 → 좌심실', kind:'heart', blood:'ox', w:30, pts:[[378,394],[368,442]] },
+  { id:'avR', name:'우심방 → 우심실', kind:'heart', blood:'deox', w:34, pts:[[222,394],[236,442]] },
+  { id:'avL', name:'좌심방 → 좌심실', kind:'heart', blood:'ox', w:34, pts:[[378,394],[368,442]] },
 
   // 대동맥과 가지
-  { id:'aorta', name:'대동맥', kind:'artery', blood:'ox', w:44,
+  { id:'aorta', name:'대동맥', kind:'artery', blood:'ox', w:50,
     pts:[[394,442],[425,416],[470,401],[512,396],[530,378]] },
-  { id:'aorta', name:'대동맥(머리로 가는 가지)', kind:'artery', blood:'ox', w:44,
+  { id:'aorta', name:'대동맥(머리로 가는 가지)', kind:'artery', blood:'ox', w:50,
     pts:[[530,378],[531,310],[531,220],[531,130],[524,90],[500,70],[472,66]] },
-  { id:'aorta', name:'대동맥(아래로 가는 가지)', kind:'artery', blood:'ox', w:44,
+  { id:'aorta', name:'대동맥(아래로 가는 가지)', kind:'artery', blood:'ox', w:50,
     pts:[[530,378],[532,450],[531,520],[531,600],[529,660],[512,688],[490,692]] },
-  { id:'aorta', name:'대동맥(소장으로 가는 가지)', kind:'artery', blood:'ox', w:36,
+  { id:'aorta', name:'대동맥(소장으로 가는 가지)', kind:'artery', blood:'ox', w:40,
     pts:[[531,588],[508,588],[484,588]] },
 
   // 머리의 모세혈관
-  { id:'headcap', name:'머리(뇌)의 모세혈관', kind:'capillary', w:32, grad:[472,130,'ox','deox'],
+  { id:'headcap', name:'머리(뇌)의 모세혈관', kind:'capillary', w:36, grad:[472,130,'ox','deox'],
     pts:[[472,66],[442,44],[382,38],[300,44],[220,38],[160,44],[130,66]] },
-  { id:'headcap', name:'머리(뇌)의 모세혈관', kind:'capillary', w:32, grad:[472,130,'ox','deox'],
+  { id:'headcap', name:'머리(뇌)의 모세혈관', kind:'capillary', w:36, grad:[472,130,'ox','deox'],
     pts:[[472,66],[442,88],[382,93],[300,87],[220,93],[160,88],[130,66]] },
 
   // 소장 → 간문맥 → 간 → 간정맥
-  { id:'intcap', name:'소장의 모세혈관', kind:'capillary', w:32, grad:[484,342,'ox','deox'],
+  { id:'intcap', name:'소장의 모세혈관', kind:'capillary', w:36, grad:[484,342,'ox','deox'],
     pts:[[484,588],[458,566],[415,560],[375,566],[342,588]] },
-  { id:'intcap', name:'소장의 모세혈관', kind:'capillary', w:32, grad:[484,342,'ox','deox'],
+  { id:'intcap', name:'소장의 모세혈관', kind:'capillary', w:36, grad:[484,342,'ox','deox'],
     pts:[[484,588],[458,610],[415,616],[375,610],[342,588]] },
-  { id:'portal', name:'간문맥', kind:'vein', blood:'deox', w:36, pts:[[342,588],[316,588],[290,588]] },
-  { id:'livercap', name:'간의 모세혈관', kind:'capillary', w:32, grad:[290,160,'deox','deox'],
+  { id:'portal', name:'간문맥', kind:'vein', blood:'deox', w:40, pts:[[342,588],[316,588],[290,588]] },
+  { id:'livercap', name:'간의 모세혈관', kind:'capillary', w:36, grad:[290,160,'deox','deox'],
     pts:[[290,588],[264,566],[225,560],[186,566],[160,588]] },
-  { id:'livercap', name:'간의 모세혈관', kind:'capillary', w:32, grad:[290,160,'deox','deox'],
+  { id:'livercap', name:'간의 모세혈관', kind:'capillary', w:36, grad:[290,160,'deox','deox'],
     pts:[[290,588],[264,610],[225,616],[186,610],[160,588]] },
-  { id:'hepatic', name:'간정맥', kind:'vein', blood:'deox', w:36, pts:[[160,588],[124,588],[82,588]] },
+  { id:'hepatic', name:'간정맥', kind:'vein', blood:'deox', w:40, pts:[[160,588],[124,588],[82,588]] },
 
   // 다리의 모세혈관
-  { id:'legcap', name:'다리(근육)의 모세혈관', kind:'capillary', w:32, grad:[490,125,'ox','deox'],
+  { id:'legcap', name:'다리(근육)의 모세혈관', kind:'capillary', w:36, grad:[490,125,'ox','deox'],
     pts:[[490,692],[460,671],[400,665],[320,672],[240,665],[160,671],[125,692]] },
-  { id:'legcap', name:'다리(근육)의 모세혈관', kind:'capillary', w:32, grad:[490,125,'ox','deox'],
+  { id:'legcap', name:'다리(근육)의 모세혈관', kind:'capillary', w:36, grad:[490,125,'ox','deox'],
     pts:[[490,692],[460,713],[400,720],[320,713],[240,720],[160,713],[125,692]] },
 
   // 대정맥
-  { id:'ivc', name:'대정맥(아래)', kind:'vein', blood:'deox', w:44,
+  { id:'ivc', name:'대정맥(아래)', kind:'vein', blood:'deox', w:50,
     pts:[[125,692],[96,690],[80,668],[80,610],[80,520],[80,440],[80,376]] },
-  { id:'svc', name:'대정맥(위)', kind:'vein', blood:'deox', w:44,
+  { id:'svc', name:'대정맥(위)', kind:'vein', blood:'deox', w:50,
     pts:[[130,66],[100,72],[83,100],[80,180],[80,280],[80,376]] },
-  { id:'vc', alias:['svc','ivc'], name:'대정맥', kind:'vein', blood:'deox', w:44,
+  { id:'vc', alias:['svc','ivc'], name:'대정맥', kind:'vein', blood:'deox', w:50,
     pts:[[80,376],[120,372],[160,369],[186,368]] },
 ];
 
@@ -817,9 +815,9 @@ VESSELS.forEach(v => {
 
 /* ================= 게임 상태 ================= */
 const BALL_R = 8;
-const FRICTION = 0.985;
-const ACCEL_SCALE = 1300;
-const MAX_SPEED = 360;
+const FRICTION = 0.978;     // 조금 더 빨리 멈추도록(조작 쉽게)
+const ACCEL_SCALE = 950;
+const MAX_SPEED = 250;
 const GRACE_MS = 600;
 
 const PROGRESS_KEY = 'science-bloodmaze-progress';
@@ -914,7 +912,7 @@ async function renderAllLeaderboards(highlightEntry){
 let rawTiltX = 0, rawTiltY = 0;
 let calOffsetX = 0, calOffsetY = 0;
 let invertX = false, invertY = false;
-let sensitivity = 1.2;
+let sensitivity = 0.9;
 let serialConnected = false;
 let sensorEverConnected = false;
 function getEffectiveTilt(){
@@ -922,6 +920,10 @@ function getEffectiveTilt(){
   let tx = rawTiltX - calOffsetX, ty = rawTiltY - calOffsetY;
   if(invertX) tx = -tx;
   if(invertY) ty = -ty;
+  // 아주 작은 기울기(센서 떨림)는 무시해서 평평하게 두면 적혈구가 멈춰 있게 한다.
+  const DEAD = 0.03;
+  tx = Math.sign(tx) * Math.max(0, Math.abs(tx) - DEAD);
+  ty = Math.sign(ty) * Math.max(0, Math.abs(ty) - DEAD);
   tx = Math.max(-1.6, Math.min(1.6, tx));
   ty = Math.max(-1.6, Math.min(1.6, ty));
   return { x:tx*sensitivity, y:ty*sensitivity };
