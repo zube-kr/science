@@ -157,7 +157,7 @@
   <header>
     <div class="eyebrow">쉬어가는 게임 · 아두이노 연동</div>
     <h1>비행기 슈팅 게임 — <span>날아오는 미사일 피하기</span></h1>
-    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 USB로 연결하면, 보드를 기울이는 대로 비행기가 움직여요. 적이 쏘는 빨간 미사일을 피하세요 — 내 비행기는 자동으로 총알을 쏘니까, 적 비행기 밑을 지나가면 저절로 격추됩니다! 센서가 없어도 방향키나 드래그로 똑같이 플레이할 수 있어요. 목숨은 3개, 오래 살아남고 많이 격추할수록 점수가 올라가요.</p>
+    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 USB로 연결하면, 보드를 기울이는 대로 비행기가 움직여요. 적이 쏘는 빨간 미사일을 피하세요 — 내 비행기는 자동으로 총알을 쏘니까, 적 비행기 밑을 지나가면 저절로 격추됩니다! 방향키·마우스로는 움직일 수 없고, <b>아두이노 센서를 연결해야만</b> 게임이 시작돼요. 목숨은 3개, 오래 살아남고 많이 격추할수록 점수가 올라가요.</p>
   </header>
 
   <main>
@@ -199,7 +199,7 @@
       <div>
         <div class="side-title"><span class="tag">아두이노 연결</span></div>
         <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 (방향키/드래그로 조작 중)</span></div>
+          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 — 아두이노를 연결해야 게임이 시작돼요</span></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn accent" id="connectBtn">🔌 아두이노 연결하기</button>
             <button class="btn ghost" id="disconnectBtn" style="display:none;">연결 해제</button>
@@ -232,8 +232,7 @@
         <div class="side-title"><span class="tag">조작 방법</span></div>
         <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
           <div class="legend-item"><span class="ic">📡</span><span><b>아두이노 기울기</b> — 보드를 기울인 방향·세기에 비례해 비행기가 움직여요(연결 시 자동 적용).</span></div>
-          <div class="legend-item"><span class="ic">⌨️</span><span><b>방향키 / WASD</b> — 센서 연결 전에는 이 키로 상하좌우 이동합니다.</span></div>
-          <div class="legend-item"><span class="ic">🖱️</span><span><b>드래그</b> — 마우스나 손가락으로 비행기를 눌러서 끌 수도 있어요.</span></div>
+          <div class="legend-item"><span class="ic">🚫</span><span><b>방향키·마우스 조작 불가</b> — 센서로만 움직일 수 있어요. 연결이 끊기면 게임이 잠시 멈춰요.</span></div>
           <div class="legend-item"><span class="ic">🔫</span><span>총알은 <b>자동으로</b> 발사돼요 — 피하는 데만 집중하세요!</span></div>
         </div>
       </div>
@@ -389,22 +388,6 @@ function resetGame(){
 }
 
 /* ================= 입력 ================= */
-const keyState = { up:false, down:false, left:false, right:false };
-const MOVE_KEYS = {
-  ArrowUp:'up', w:'up', W:'up',
-  ArrowDown:'down', s:'down', S:'down',
-  ArrowLeft:'left', a:'left', A:'left',
-  ArrowRight:'right', d:'right', D:'right'
-};
-window.addEventListener('keydown', (e) => {
-  const dir = MOVE_KEYS[e.key];
-  if(dir){ keyState[dir] = true; e.preventDefault(); }
-});
-window.addEventListener('keyup', (e) => {
-  const dir = MOVE_KEYS[e.key];
-  if(dir){ keyState[dir] = false; e.preventDefault(); }
-});
-
 // 아두이노 기울기 입력
 let rawTiltX = 0, rawTiltY = 0;
 let calOffsetX = 0, calOffsetY = 0;
@@ -421,25 +404,6 @@ function getTilt(){
   ty = Math.max(-1, Math.min(1, ty*sensitivity));
   return { x: tx, y: ty };
 }
-
-let pointerActive = false, pointerX = 0, pointerY = 0;
-function canvasPoint(e){
-  const rect = canvas.getBoundingClientRect();
-  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-  return { x: cx * (W/rect.width), y: cy * (H/rect.height) };
-}
-canvas.addEventListener('pointerdown', (e) => {
-  pointerActive = true;
-  const p = canvasPoint(e);
-  pointerX = p.x; pointerY = p.y;
-});
-window.addEventListener('pointermove', (e) => {
-  if(!pointerActive) return;
-  const p = canvasPoint(e);
-  pointerX = p.x; pointerY = p.y;
-});
-window.addEventListener('pointerup', () => { pointerActive = false; });
 
 /* ================= 업데이트 ================= */
 function spawnEnemy(){
@@ -472,24 +436,14 @@ function updateHUD(){
 
 function update(dt){
   if(gameOver) return;
+  // 아두이노 센서로만 조작한다: 연결 전이거나 연결이 끊기면 게임을 멈춘다.
+  if(!serialConnected) return;
   survivalTime += dt;
 
-  // 이동
-  if(serialConnected){
-    const tilt = getTilt();
-    player.x += tilt.x * PLAYER_SPEED * dt;
-    player.y += tilt.y * PLAYER_SPEED * dt;
-  }else if(pointerActive){
-    const dx = pointerX-player.x, dy = pointerY-player.y;
-    player.x += dx * Math.min(1, dt*10);
-    player.y += dy * Math.min(1, dt*10);
-  }else{
-    let dx = (keyState.right?1:0) - (keyState.left?1:0);
-    let dy = (keyState.down?1:0) - (keyState.up?1:0);
-    const len = Math.hypot(dx,dy) || 1;
-    player.x += (dx/len) * PLAYER_SPEED * dt;
-    player.y += (dy/len) * PLAYER_SPEED * dt;
-  }
+  // 이동(기울기 센서)
+  const tilt = getTilt();
+  player.x += tilt.x * PLAYER_SPEED * dt;
+  player.y += tilt.y * PLAYER_SPEED * dt;
   player.x = Math.max(PLAYER_R+4, Math.min(W-PLAYER_R-4, player.x));
   player.y = Math.max(PLAYER_R+4, Math.min(H-PLAYER_R-4, player.y));
 
@@ -701,6 +655,25 @@ function render(){
     const flash = invulnTimer > 0 && Math.floor(invulnTimer/120)%2===0;
     drawPlayerShip(player.x, player.y, flash);
   }
+
+  // 센서 미연결 안내(게임 일시정지)
+  if(!gameOver && !serialConnected){
+    ctx.fillStyle = 'rgba(22,33,43,.62)';
+    ctx.fillRect(0,0,W,H);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.font = '42px sans-serif';
+    ctx.fillText('🔌', W/2, H/2-62);
+    ctx.font = '800 22px sans-serif';
+    ctx.fillText(survivalTime > 0 ? '센서 연결이 끊겼어요' : '아두이노 센서를 연결하세요', W/2, H/2-8);
+    ctx.font = '600 14.5px sans-serif';
+    ctx.fillStyle = '#D9F0FA';
+    ctx.fillText('"🔌 아두이노 연결하기" 버튼을 누르면', W/2, H/2+26);
+    ctx.fillText(survivalTime > 0 ? '이어서 플레이할 수 있어요.' : '게임이 시작돼요. (방향키·마우스 조작 불가)', W/2, H/2+48);
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+  }
 }
 
 /* ================= 메인 루프 ================= */
@@ -729,7 +702,7 @@ let port = null, reader = null;
 
 function updateConnUI(){
   $('connDot').className = 'conn-dot ' + (serialConnected ? 'on' : 'off');
-  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 보드를 기울여 조작하세요' : '연결 안 됨 (방향키/드래그로 조작 중)';
+  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 보드를 기울여 조작하세요' : '연결 안 됨 — 아두이노를 연결해야 게임이 시작돼요';
   $('connectBtn').style.display = serialConnected ? 'none' : 'inline-block';
   $('disconnectBtn').style.display = serialConnected ? 'inline-block' : 'none';
 }
