@@ -1324,13 +1324,22 @@ async function openAndRead(selectedPort){
   $('boardWrap').scrollIntoView({ behavior:'smooth', block:'center' });
   readLoop();
 }
+/* 포트 열기 실패를 화면에 알려 준다(예전에는 콘솔에만 남아서 "아무 반응이 없는" 것처럼 보였음). */
+function showSerialError(err){
+  console.warn('serial connect cancelled/failed', err);
+  if(err && err.name === 'NotFoundError') return; // 포트 선택 창을 그냥 닫은 경우
+  const msg = '⚠️ 아두이노 포트를 열지 못했어요. 다른 탭이나 창(기울기 미로·비행기 슈팅·혈액 순환 미로 등)이나 아두이노 IDE의 시리얼 모니터가 같은 포트를 쓰고 있으면 모두 닫은 뒤 다시 연결해 주세요. 그래도 안 되면 USB 케이블을 뺐다가 다시 꽂아 보세요.';
+  if(typeof setMsg === 'function') setMsg(msg, 'bad');
+  alert(msg + '\n\n(오류 내용: ' + ((err && (err.name + ': ' + err.message)) || err) + ')');
+}
+
 async function connectSerial(){
   if(!('serial' in navigator)){
     alert('이 브라우저는 Web Serial을 지원하지 않습니다. 최신 Chrome 또는 Edge 브라우저에서 열어주세요.');
     return;
   }
   try{ await openAndRead(await navigator.serial.requestPort()); }
-  catch(err){ console.warn('serial connect cancelled/failed', err); }
+  catch(err){ showSerialError(err); }
 }
 async function tryAutoConnect(){
   if(!('serial' in navigator)) return;
@@ -1338,7 +1347,7 @@ async function tryAutoConnect(){
     const ports = await navigator.serial.getPorts();
     if(ports.length === 1){
       $('autoConnRow').style.display = 'block';
-      $('autoConnectBtn').onclick = async () => { try{ await openAndRead(ports[0]); }catch(e){ console.warn(e); } };
+      $('autoConnectBtn').onclick = async () => { try{ await openAndRead(ports[0]); }catch(e){ showSerialError(e); } };
     }
   }catch(e){}
 }
