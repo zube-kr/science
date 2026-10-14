@@ -74,10 +74,6 @@
   .board-row .bname{ flex:1; font-weight:700; color:#1F3340; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .board-row .bscore{ font-variant-numeric:tabular-nums; color:#B5452F; font-weight:800; }
   .board-empty{ font-size:11.5px; color:#6B7F88; text-align:center; padding:6px 0; }
-  .board-reset{
-    font-size:11px; color:#6B7F88; background:none; border:none; cursor:pointer;
-    text-decoration:underline; padding:2px; margin-top:6px; display:block; margin-left:auto; margin-right:auto;
-  }
 
   .sound-btn{
     position:absolute; right:1.2%; top:2%; font-size:clamp(14px,2vw,20px);
@@ -124,7 +120,6 @@
           <button type="submit">등록</button>
         </form>
         <ul class="board-list" id="leader-list"></ul>
-        <button type="button" class="board-reset" id="reset-board-btn">랭킹 초기화(이 기기 사본만)</button>
       </div>
 
       <button type="button" class="start-btn" id="again-btn">다시 하기</button>
@@ -976,12 +971,6 @@ document.getElementById("name-form").addEventListener("submit", async (e) => {
 
   await submitToSharedLeaderboard(entry);
   renderAllLeaderboards(entry);
-});
-
-document.getElementById("reset-board-btn").addEventListener("click", () => {
-  if(!confirm("이 기기에 저장된 랭킹 사본만 초기화할까요?\n(공유 스프레드시트의 전체 기록은 지워지지 않으며, 선생님이 스프레드시트에서 직접 관리해야 합니다.)")) return;
-  saveLeaderboard([]);
-  renderAllLeaderboards(null);
 });
 
 /* ==========================================================
