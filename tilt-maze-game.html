@@ -172,7 +172,7 @@
   <header>
     <div class="eyebrow">쉬어가는 게임 · 아두이노 연동</div>
     <h1>기울기 미로 게임 — <span>아두이노 센서</span>로 공 굴리기</h1>
-    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 USB로 연결하면, 실제로 보드를 기울이는 대로 화면 속 구슬이 굴러가요. 아두이노가 없어도 방향키(←↑↓→)로 똑같이 플레이할 수 있습니다. 미로 벽에 부딪히지 않고 출발점(초록)에서 도착점(깃발)까지 굴려 보세요!</p>
+    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 USB로 연결하면, 실제로 보드를 기울이는 대로 화면 속 구슬이 굴러가요. 방향키로는 움직일 수 없고, <b>아두이노 센서를 연결해야만</b> 플레이할 수 있어요. 미로 벽에 부딪히지 않고 출발점(초록)에서 도착점(깃발)까지 굴려 보세요!</p>
   </header>
 
   <div class="level-row" id="levelRow"></div>
@@ -205,7 +205,7 @@
       <div>
         <div class="side-title"><span class="badge">아두이노 연결</span></div>
         <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 (방향키로 조작 중)</span></div>
+          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 — 아두이노를 연결해야 게임이 시작돼요</span></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn accent" id="connectBtn">🔌 아두이노 연결하기</button>
             <button class="btn ghost" id="disconnectBtn" style="display:none;">연결 해제</button>
@@ -498,21 +498,7 @@ let calOffsetX = 0, calOffsetY = 0;
 let invertX = false, invertY = false;
 let sensitivity = 1.2;
 let serialConnected = false;
-const keyState = { up:false, down:false, left:false, right:false };
-
-window.addEventListener('keydown', (e) => {
-  if(e.key === 'ArrowUp' || e.key === 'w') keyState.up = true;
-  if(e.key === 'ArrowDown' || e.key === 's') keyState.down = true;
-  if(e.key === 'ArrowLeft' || e.key === 'a') keyState.left = true;
-  if(e.key === 'ArrowRight' || e.key === 'd') keyState.right = true;
-});
-window.addEventListener('keyup', (e) => {
-  if(e.key === 'ArrowUp' || e.key === 'w') keyState.up = false;
-  if(e.key === 'ArrowDown' || e.key === 's') keyState.down = false;
-  if(e.key === 'ArrowLeft' || e.key === 'a') keyState.left = false;
-  if(e.key === 'ArrowRight' || e.key === 'd') keyState.right = false;
-});
-
+let sensorEverConnected = false; // 한 번이라도 연결했었는지(끊김 안내 문구용)
 function getEffectiveTilt(){
   if(serialConnected){
     let tx = (rawTiltX - calOffsetX);
@@ -523,9 +509,7 @@ function getEffectiveTilt(){
     ty = Math.max(-1.6, Math.min(1.6, ty));
     return { x: tx*sensitivity, y: ty*sensitivity };
   }
-  let tx = (keyState.right?1:0) - (keyState.left?1:0);
-  let ty = (keyState.down?1:0) - (keyState.up?1:0);
-  return { x: tx*0.9*sensitivity, y: ty*0.9*sensitivity };
+  return { x:0, y:0 };
 }
 
 /* ================= 레벨 로드 ================= */
@@ -559,7 +543,7 @@ function loadLevel(idx){
   graceTimer = GRACE_MS;
 
   $('levelLabel').textContent = `레벨 ${idx+1} / ${LEVELS.length} · ${lv.name}`;
-  setMsg(serialConnected ? '보드를 기울여 구슬을 굴려 보세요!' : '방향키(←↑↓→)로 구슬을 굴려 보세요!', '');
+  setMsg(serialConnected ? '보드를 기울여 구슬을 굴려 보세요!' : '🔌 아두이노를 연결해야 구슬이 움직여요.', '');
   renderLevelRow();
 }
 
@@ -780,8 +764,15 @@ function loop(t){
   lastT = t;
   dt = Math.min(dt, 0.033);
 
-  stepPhysics(dt);
+  // 아두이노 센서로만 조작한다: 연결 전이거나 끊기면 게임(타이머 포함)을 멈춘다.
+  const paused = !serialConnected && !won;
+  if(paused){
+    startTime += dt*1000;
+  }else{
+    stepPhysics(dt);
+  }
   render();
+  if(paused) drawSensorPause();
 
   if(!won){
     const sec = (performance.now()-startTime)/1000;
@@ -791,6 +782,24 @@ function loop(t){
   }
 
   rafId = requestAnimationFrame(loop);
+}
+function drawSensorPause(){
+  const w = canvas.width, h = canvas.height;
+  ctx.save();
+  ctx.fillStyle = 'rgba(30,20,10,.66)';
+  ctx.fillRect(0,0,w,h);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#fff';
+  ctx.font = '44px sans-serif';
+  ctx.fillText('🔌', w/2, h/2-64);
+  ctx.font = '800 26px sans-serif';
+  ctx.fillText(sensorEverConnected ? '센서 연결이 끊겼어요' : '아두이노 센서를 연결하세요', w/2, h/2-8);
+  ctx.font = '600 16px sans-serif';
+  ctx.fillStyle = '#F3E3C3';
+  ctx.fillText('"🔌 아두이노 연결하기" 버튼을 누르면 게임이 시작돼요.', w/2, h/2+30);
+  ctx.fillText('(방향키 조작 불가 · 연결 전에는 시간이 멈춰 있어요)', w/2, h/2+54);
+  ctx.restore();
 }
 function formatTime(sec){
   const m = Math.floor(sec/60);
@@ -803,7 +812,7 @@ let port = null, reader = null;
 
 function updateConnUI(){
   $('connDot').className = 'conn-dot ' + (serialConnected ? 'on' : 'off');
-  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 보드를 기울여 조작하세요' : '연결 안 됨 (방향키로 조작 중)';
+  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 보드를 기울여 조작하세요' : '연결 안 됨 — 아두이노를 연결해야 게임이 시작돼요';
   $('connectBtn').style.display = serialConnected ? 'none' : 'inline-block';
   $('disconnectBtn').style.display = serialConnected ? 'inline-block' : 'none';
 }
@@ -812,6 +821,7 @@ async function openAndRead(selectedPort){
   port = selectedPort;
   await port.open({ baudRate: 115200 });
   serialConnected = true;
+  sensorEverConnected = true;
   updateConnUI();
   setMsg('아두이노가 연결됐어요. 평평한 바닥에서 "수평 보정"을 눌러 주세요.', 'ok');
   readLoop();
@@ -884,7 +894,7 @@ $('disconnectBtn').addEventListener('click', async () => {
   try{ if(port) await port.close(); }catch(e){}
   serialConnected = false;
   updateConnUI();
-  setMsg('연결을 해제했어요. 방향키로 계속 플레이할 수 있어요.', '');
+  setMsg('연결을 해제했어요. 다시 연결하면 이어서 플레이할 수 있어요.', '');
 });
 
 if('serial' in navigator){
@@ -892,7 +902,7 @@ if('serial' in navigator){
     if(e.target === port){
       serialConnected = false;
       updateConnUI();
-      setMsg('아두이노 연결이 끊어졌어요. 방향키로 계속 플레이할 수 있어요.', 'bad');
+      setMsg('아두이노 연결이 끊어졌어요. 다시 연결하면 이어서 플레이할 수 있어요.', 'bad');
     }
   });
 }

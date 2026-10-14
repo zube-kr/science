@@ -157,7 +157,7 @@
   <header>
     <div class="eyebrow">쉬어가는 게임 · 아두이노 연동</div>
     <h1>초음파 드론 동굴 비행 게임 — <span>손 거리로 조종하기</span></h1>
-    <p class="sub">아두이노 우노 + HC-SR04 초음파 센서를 USB로 연결하면, 센서에서 손이 가까워지고 멀어지는 거리에 따라 드론이 위아래로 움직여요. 동굴 벽에 부딪히지 않게 피하면서 보석을 모으세요! 센서가 없어도 방향키나 드래그로 똑같이 플레이할 수 있어요. 목숨은 3개, 오래 살아남고 보석을 많이 모을수록 점수가 올라가요.</p>
+    <p class="sub">아두이노 우노 + HC-SR04 초음파 센서를 USB로 연결하면, 센서에서 손이 가까워지고 멀어지는 거리에 따라 드론이 위아래로 움직여요. 동굴 벽에 부딪히지 않게 피하면서 보석을 모으세요! 방향키·마우스로는 움직일 수 없고, <b>아두이노 센서를 연결해야만</b> 게임이 시작돼요. 목숨은 3개, 오래 살아남고 보석을 많이 모을수록 점수가 올라가요.</p>
   </header>
 
   <main>
@@ -199,7 +199,7 @@
       <div>
         <div class="side-title"><span class="tag">아두이노 연결</span></div>
         <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 (방향키/드래그로 조작 중)</span></div>
+          <div class="conn-status"><span class="conn-dot off" id="connDot"></span><span id="connLabel">연결 안 됨 — 아두이노를 연결해야 게임이 시작돼요</span></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn accent" id="connectBtn">🔌 아두이노 연결하기</button>
             <button class="btn ghost" id="disconnectBtn" style="display:none;">연결 해제</button>
@@ -228,8 +228,7 @@
         <div class="side-title"><span class="tag">조작 방법</span></div>
         <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px;">
           <div class="legend-item"><span class="ic">📡</span><span><b>손 거리</b> — 센서에 손을 가까이/멀리 하면 드론이 위/아래로 움직여요(연결 시 자동 적용).</span></div>
-          <div class="legend-item"><span class="ic">⌨️</span><span><b>방향키(↑/↓) / W,S</b> — 센서 연결 전에는 이 키로 드론을 위아래로 움직입니다.</span></div>
-          <div class="legend-item"><span class="ic">🖱️</span><span><b>드래그</b> — 마우스나 손가락으로 화면을 눌러서 드론 높이를 바로 옮길 수도 있어요.</span></div>
+          <div class="legend-item"><span class="ic">🚫</span><span><b>방향키·마우스 조작 불가</b> — 센서로만 움직일 수 있어요. 연결이 끊기면 게임이 잠시 멈춰요.</span></div>
         </div>
       </div>
 
@@ -377,30 +376,6 @@ function resetGame(){
 }
 
 /* ================= 입력 ================= */
-const keyState = { up:false, down:false };
-const MOVE_KEYS = {
-  ArrowUp:'up', w:'up', W:'up',
-  ArrowDown:'down', s:'down', S:'down'
-};
-window.addEventListener('keydown', (e) => {
-  const dir = MOVE_KEYS[e.key];
-  if(dir){ keyState[dir] = true; e.preventDefault(); }
-});
-window.addEventListener('keyup', (e) => {
-  const dir = MOVE_KEYS[e.key];
-  if(dir){ keyState[dir] = false; e.preventDefault(); }
-});
-
-let pointerActive = false, pointerY = 0;
-function canvasPoint(e){
-  const rect = canvas.getBoundingClientRect();
-  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-  return cy * (H/rect.height);
-}
-canvas.addEventListener('pointerdown', (e) => { pointerActive = true; pointerY = canvasPoint(e); });
-window.addEventListener('pointermove', (e) => { if(pointerActive) pointerY = canvasPoint(e); });
-window.addEventListener('pointerup', () => { pointerActive = false; });
-
 // 아두이노 거리 입력
 let rawDist = 18;
 let smoothDist = 18;
@@ -449,19 +424,14 @@ function currentSpeed(){
 
 function update(dt){
   if(gameOver) return;
+  // 아두이노 센서로만 조작한다: 연결 전이거나 연결이 끊기면 게임을 멈춘다.
+  if(!serialConnected) return;
   survivalTime += dt;
   score = Math.floor(survivalTime*10) + gems.filter(g=>g.taken).length*0; // 점수는 아래에서 보석 획득 시 별도 가산
 
   // 목표 높이 계산
   smoothDist += (rawDist - smoothDist) * Math.min(1, dt*6);
-  if(serialConnected){
-    player.targetY = getDistTargetY();
-  }else if(pointerActive){
-    player.targetY = pointerY;
-  }else{
-    const dy = (keyState.down?1:0) - (keyState.up?1:0);
-    if(dy !== 0) player.targetY += dy * 260 * dt;
-  }
+  player.targetY = getDistTargetY();
   player.targetY = Math.max(PLAYER_R+10, Math.min(H-PLAYER_R-10, player.targetY));
   player.y += (player.targetY - player.y) * Math.min(1, dt*FOLLOW_LERP);
 
@@ -603,6 +573,25 @@ function render(){
     const flash = invulnTimer > 0 && Math.floor(invulnTimer/120)%2===0;
     drawDrone(player.x, player.y, flash);
   }
+
+  // 센서 미연결 안내(게임 일시정지)
+  if(!gameOver && !serialConnected){
+    ctx.save();
+    ctx.fillStyle = 'rgba(21,17,13,.66)';
+    ctx.fillRect(0,0,W,H);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.font = '42px sans-serif';
+    ctx.fillText('🔌', W/2, H/2-62);
+    ctx.font = '800 22px sans-serif';
+    ctx.fillText(survivalTime > 0 ? '센서 연결이 끊겼어요' : '아두이노 초음파 센서를 연결하세요', W/2, H/2-8);
+    ctx.font = '600 14.5px sans-serif';
+    ctx.fillStyle = '#F3E3C3';
+    ctx.fillText('"🔌 아두이노 연결하기" 버튼을 누르면', W/2, H/2+26);
+    ctx.fillText(survivalTime > 0 ? '이어서 플레이할 수 있어요.' : '게임이 시작돼요. (방향키·마우스 조작 불가)', W/2, H/2+48);
+    ctx.restore();
+  }
 }
 
 /* ================= 메인 루프 ================= */
@@ -631,7 +620,7 @@ let port = null, reader = null;
 
 function updateConnUI(){
   $('connDot').className = 'conn-dot ' + (serialConnected ? 'on' : 'off');
-  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 손 거리로 드론을 조종하세요' : '연결 안 됨 (방향키/드래그로 조작 중)';
+  $('connLabel').textContent = serialConnected ? '아두이노 연결됨 — 손 거리로 드론을 조종하세요' : '연결 안 됨 — 아두이노를 연결해야 게임이 시작돼요';
   $('connectBtn').style.display = serialConnected ? 'none' : 'inline-block';
   $('disconnectBtn').style.display = serialConnected ? 'inline-block' : 'none';
 }
