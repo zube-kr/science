@@ -216,7 +216,7 @@
   <header>
     <div class="eyebrow">Ⅵ. 동물과 에너지 · 순환 · 아두이노 기울기 센서 실험</div>
     <h1>혈액 순환 미로 — <span class="r">적혈구</span>가 되어 <span class="b">혈관</span> 속을 여행해요</h1>
-    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 연결하고 보드를 기울이면, 화면 속 <b>적혈구</b>가 혈관을 따라 굴러가요. <b>동맥·모세혈관·정맥</b>과 <b>심장의 네 방</b>을 지나 목적지까지 가 보세요. <b>혈관 벽에 부딪히면</b> 출발점으로 돌아가요. 심장과 정맥의 <b>판막</b>은 한쪽으로만 열려서 거꾸로는 지나갈 수 없어요!</p>
+    <p class="sub">아두이노 우노 + MPU-6050(GY-521) 기울기 센서를 연결하고 보드를 기울이면, 화면 속 <b>적혈구</b>가 혈관을 따라 굴러가요. <b>동맥·모세혈관·정맥</b>과 <b>심장의 네 방</b>을 지나 목적지까지 가 보세요. 적혈구의 <b>중심점이 혈관 벽에 닿으면</b> 출발점으로 돌아가요(가장자리가 살짝 스치는 건 괜찮아요). 심장과 정맥의 <b>판막</b>은 한쪽으로만 열려서 거꾸로는 지나갈 수 없어요!</p>
   </header>
 
   <div class="level-row" id="levelRow"></div>
@@ -839,6 +839,7 @@ let gasTimer = 0;
 let lastRegionKey = null;
 let valveMsgAt = -Infinity;
 let hitFlash = 0;
+let ballTouching = false;   // 가장자리가 벽에 걸쳤는지(경고 표시용)
 
 /* ================= 명예의 전당 (반 전체 공유 랭킹) ================= */
 const LEADERBOARD_KEY = 'science-bloodmaze-leaderboard';
@@ -937,6 +938,7 @@ function loadLevel(idx){
   const lv = LEVELS[idx];
   const p = startPos();
   ball = { x:p.x, y:p.y, vx:0, vy:0, ox:lv.ox, spin:0 };
+  ballTouching = false;
   progress = 0;
   won = false;
   startTime = performance.now();
@@ -1069,20 +1071,22 @@ function stepPhysics(dt){
     ball.y += ball.vy*dt/steps;
     stepValves(px, py, dt/steps);
 
-    const b = blockedDirs(ball.x, ball.y, BALL_R*0.92);
-    if(b.n){
-      if(graceTimer > 0){
-        // 출발 직후 유예 시간: 실패하지 않고 벽에서 밀어내기만 한다.
+    if(graceTimer > 0){
+      // 출발 직후 유예 시간: 실패하지 않고 벽에서 밀어내기만 한다.
+      const b = blockedDirs(ball.x, ball.y, BALL_R*0.92);
+      if(b.n){
         const l = Math.hypot(b.sx, b.sy) || 1, nx = -b.sx/l, ny = -b.sy/l;
         for(let k=0;k<10 && blockedDirs(ball.x, ball.y, BALL_R*0.92).n; k++){ ball.x += nx; ball.y += ny; }
         const vn = ball.vx*nx + ball.vy*ny;
         if(vn < 0){ ball.vx -= vn*nx; ball.vy -= vn*ny; }
-      }else{
-        hitWall();
-        return;
       }
+    }else if(!open(ball.x, ball.y)){
+      // 난이도 완화: 적혈구 가장자리가 벽에 걸쳐도 괜찮고, 중심점이 벽에 닿아야 실패
+      hitWall();
+      return;
     }
   }
+  ballTouching = blockedDirs(ball.x, ball.y, BALL_R).n > 0;
   ball.spin += speed*dt*0.02;
 
   updateOxygen(dt);
@@ -1209,6 +1213,14 @@ function drawGuide(t){
 
 function drawRBC(){
   const { x, y } = ball;
+  if(ballTouching && !won){
+    // 가장자리가 벽에 걸쳤을 때: 중심이 닿기 전에 미리 경고
+    ctx.save();
+    ctx.strokeStyle = `rgba(242,140,5,${0.55 + 0.35*Math.sin(performance.now()/60)})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(x, y, BALL_R + 5, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
   const col = mixHex('#7A1F3D', '#E3242E', ball.ox);
   const dark = mixHex('#4A0F24', '#9E1219', ball.ox);
   ctx.save();
