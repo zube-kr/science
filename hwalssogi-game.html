@@ -51,6 +51,34 @@
   .start-btn:hover{ background:#3A7248; }
   .start-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #1C3A24; }
 
+  /* ---------- 반 전체 공유 랭킹 ---------- */
+  .board-wrap{ margin-top:16px; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; }
+  .board-title{ font-size:14px; font-weight:800; color:#2F5D3A; }
+  .board-note{ font-size:11px; color:#6B7F88; margin-top:3px; }
+  .name-form{ display:flex; gap:7px; width:100%; max-width:320px; margin:10px auto 0; }
+  .name-form input{
+    flex:1; padding:9px 11px; border:2px solid #2F5D3A; border-radius:9px;
+    font-family:inherit; font-size:13px; color:#1F3340;
+  }
+  .name-form button{
+    font-family:inherit; font-size:13px; font-weight:800; cursor:pointer;
+    border:none; border-radius:9px; padding:9px 16px; background:#2F5D3A; color:#fff;
+  }
+  .board-list{ list-style:none; display:flex; flex-direction:column; gap:5px; max-width:360px; margin:10px auto 0; text-align:left; }
+  .board-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; padding:6px 10px; border-radius:8px; background:#F1EEDD; }
+  .board-row.me{ background:#F8DCD2; font-weight:800; }
+  .board-row .rank{ width:20px; text-align:center; font-weight:800; color:#6B7F88; flex:none; }
+  .board-row:nth-child(1) .rank{ color:#E8A23F; }
+  .board-row:nth-child(2) .rank{ color:#9AA3B5; }
+  .board-row:nth-child(3) .rank{ color:#C98A5D; }
+  .board-row .bname{ flex:1; font-weight:700; color:#1F3340; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .board-row .bscore{ font-variant-numeric:tabular-nums; color:#B5452F; font-weight:800; }
+  .board-empty{ font-size:11.5px; color:#6B7F88; text-align:center; padding:6px 0; }
+  .board-reset{
+    font-size:11px; color:#6B7F88; background:none; border:none; cursor:pointer;
+    text-decoration:underline; padding:2px; margin-top:6px; display:block; margin-left:auto; margin-right:auto;
+  }
+
   .sound-btn{
     position:absolute; right:1.2%; top:2%; font-size:clamp(14px,2vw,20px);
     background:rgba(255,255,255,.75); border:2px solid #2F5D3A; border-radius:10px;
@@ -87,6 +115,18 @@
       <div class="rank" id="final-rank"></div>
       <div class="best" id="final-best"></div>
       <p id="final-detail"></p>
+
+      <div class="board-wrap">
+        <div class="board-title">🏆 반 전체 랭킹 TOP 10</div>
+        <div class="board-note" id="board-source-note"></div>
+        <form class="name-form" id="name-form">
+          <input type="text" id="name-input" maxlength="12" placeholder="이름을 입력하고 랭킹에 등록하세요" autocomplete="off" required>
+          <button type="submit">등록</button>
+        </form>
+        <ul class="board-list" id="leader-list"></ul>
+        <button type="button" class="board-reset" id="reset-board-btn">랭킹 초기화(이 기기 사본만)</button>
+      </div>
+
       <button type="button" class="start-btn" id="again-btn">다시 하기</button>
     </div>
   </div>
@@ -833,6 +873,118 @@ function frame(now){
 }
 
 /* ==========================================================
+   반 전체 공유 랭킹 (다른 쉬어가는 게임들과 같은 스프레드시트 웹 앱 사용)
+   localStorage는 "즉시 표시용 캐시 + 오프라인 대비용 백업"으로만 쓰고,
+   화면에는 가능하면 공유 스프레드시트에서 받아온 반 전체 기록을 보여준다.
+=========================================================== */
+const LEADERBOARD_KEY = "science-hwalssogi-leaderboard";
+const LEADERBOARD_WORKSHEET = "활쏘기_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+
+function loadLeaderboard(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]");
+    if(Array.isArray(raw)) return raw;
+  }catch(e){}
+  return [];
+}
+function saveLeaderboard(list){
+  try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+}
+
+async function fetchSharedLeaderboard(){
+  if(!LEADERBOARD_WEBHOOK_URL) return null;
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if(!res.ok) throw new Error("status " + res.status);
+    const rows = await res.json();
+    return rows
+      .map(r => ({ name: String(r.name||"").slice(0,12), score: Number(r.score), date: r.date }))
+      .filter(r => r.name && !Number.isNaN(r.score));
+  }catch(err){
+    console.warn("공유 랭킹을 불러오지 못했습니다:", err);
+    return null;
+  }
+}
+
+async function submitToSharedLeaderboard(entry){
+  if(!LEADERBOARD_WEBHOOK_URL) return;
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, score: String(entry.score), date: entry.date })
+    });
+  }catch(err){
+    console.warn("공유 랭킹 전송에 실패했습니다:", err);
+  }
+}
+
+function renderLeaderboardInto(listEl, board, maxN, highlightEntry){
+  listEl.innerHTML = "";
+  if(board.length === 0){
+    listEl.innerHTML = '<div class="board-empty">아직 기록이 없어요. 가장 먼저 도전해 보세요!</div>';
+    return;
+  }
+  board.slice(0,maxN).forEach((entry, i) => {
+    const li = document.createElement("li");
+    const isMe = highlightEntry && entry.name === highlightEntry.name && entry.score === highlightEntry.score;
+    li.className = "board-row" + (isMe ? " me" : "");
+    li.innerHTML = `<span class="rank">${i+1}</span><span class="bname"></span><span class="bscore">${entry.score}점</span>`;
+    li.querySelector(".bname").textContent = entry.name;
+    listEl.appendChild(li);
+  });
+}
+
+async function renderAllLeaderboards(highlightEntry){
+  const leaderList = document.getElementById("leader-list");
+  const sourceNote = document.getElementById("board-source-note");
+  const local = loadLeaderboard().sort((a,b) => b.score - a.score);
+  renderLeaderboardInto(leaderList, local, 10, highlightEntry);
+  if(sourceNote) sourceNote.textContent = LEADERBOARD_WEBHOOK_URL ? "🌐 반 전체 랭킹을 불러오는 중..." : "이 기기에만 저장되는 기록이에요.";
+
+  const shared = await fetchSharedLeaderboard();
+  if(shared){
+    shared.sort((a,b) => b.score - a.score);
+    saveLeaderboard(shared.slice(0,10));
+    renderLeaderboardInto(leaderList, shared, 10, highlightEntry);
+    if(sourceNote) sourceNote.textContent = "🌐 반 전체가 함께 보는 공유 랭킹이에요.";
+  }else if(sourceNote){
+    sourceNote.textContent = LEADERBOARD_WEBHOOK_URL
+      ? "⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여주고 있어요."
+      : "이 기기에만 저장되는 기록이에요.";
+  }
+}
+
+let pendingLeaderboardScore = 0;
+
+document.getElementById("name-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nameInput = document.getElementById("name-input");
+  const name = nameInput.value.trim();
+  if(!name) return;
+  const entry = { name, score: pendingLeaderboardScore, date: new Date().toISOString().slice(0,10) };
+
+  const local = loadLeaderboard();
+  local.push(entry);
+  local.sort((a,b) => b.score - a.score);
+  local.length = Math.min(local.length, 10);
+  saveLeaderboard(local);
+  renderLeaderboardInto(document.getElementById("leader-list"), local, 10, entry);
+  document.getElementById("name-form").style.display = "none";
+
+  await submitToSharedLeaderboard(entry);
+  renderAllLeaderboards(entry);
+});
+
+document.getElementById("reset-board-btn").addEventListener("click", () => {
+  if(!confirm("이 기기에 저장된 랭킹 사본만 초기화할까요?\n(공유 스프레드시트의 전체 기록은 지워지지 않으며, 선생님이 스프레드시트에서 직접 관리해야 합니다.)")) return;
+  saveLeaderboard([]);
+  renderAllLeaderboards(null);
+});
+
+/* ==========================================================
    시작·끝
 =========================================================== */
 const intro = document.getElementById("intro");
@@ -861,6 +1013,12 @@ function endGame(){
   document.getElementById("final-best").textContent = `이 컴퓨터 최고 기록: ${best}점`;
   document.getElementById("final-detail").textContent =
     `과녁 명중 ${hitLog.target}번 (정중앙 ${hitLog.bull}번) · 새·잠자리 ${hitLog.creatures}마리`;
+
+  pendingLeaderboardScore = score;
+  document.getElementById("name-form").style.display = "flex";
+  document.getElementById("name-input").value = "";
+  renderAllLeaderboards(null);
+
   result.classList.remove("hidden");
 }
 
