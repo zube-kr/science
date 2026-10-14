@@ -133,7 +133,6 @@
   .board-row .bname{ flex:1; font-weight:700; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .board-row .btime{ font-variant-numeric:tabular-nums; color:var(--ink-soft); font-weight:800; }
   .board-empty{ font-size:12px; color:var(--ink-soft); text-align:center; padding:10px 0; }
-  .board-reset{ font-size:11px; color:var(--ink-soft); background:none; border:none; cursor:pointer; text-decoration:underline; padding:2px; }
 
   .overlay{
     position:fixed; inset:0; background:rgba(20,14,8,.6);
@@ -189,7 +188,6 @@
         <p style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">4개 레벨을 모두 클리어한 총 기록(빠른 순)이에요.</p>
         <p style="font-size:11px; color:var(--ink-soft); margin-top:4px;" id="boardSourceNote"></p>
         <ul class="board-list" id="leaderList" style="margin-top:10px;"></ul>
-        <button type="button" class="board-reset" id="resetBoardBtn" style="margin-top:6px;">랭킹 초기화(이 기기 사본만)</button>
       </div>
 
       <div>
@@ -974,12 +972,6 @@ $('nameForm').addEventListener('submit', async (e) => {
 $('finishCloseBtn').addEventListener('click', () => {
   $('finishOverlay').classList.remove('show');
   $('nameForm').style.display = 'flex';
-});
-
-$('resetBoardBtn').addEventListener('click', () => {
-  if(!confirm('이 기기에 저장된 랭킹 사본만 초기화할까요?\n(공유 스프레드시트의 전체 기록은 지워지지 않으며, 선생님이 스프레드시트에서 직접 관리해야 합니다.)')) return;
-  saveLeaderboard([]);
-  renderAllLeaderboards(null);
 });
 
 /* ================= 시작 ================= */
