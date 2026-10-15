@@ -17,13 +17,20 @@
 }
 
 :root{
-  --cyan:#6ee7ff;
-  --violet:#a78bfa;
-  --gold:#ffe17c;
-  --ink:#eef2ff;
-  --muted:#8b93a8;
-  --panel:rgba(9,14,27,.55);
-  --panel-border:rgba(140,180,255,.16);
+  --bg:#f6f7f9;
+  --surface:#ffffff;
+  --line:#e6e8ed;
+  --ink:#1c2333;
+  --sub:#545d6e;
+  --muted:#8b93a3;
+  --green:#3d9a1f;
+  --green-soft:#eef7e7;
+  --navy:#1f2b7b;
+  --phys:#3b7cf0;
+  --chem:#ef6f2a;
+  --bio:#2f9e48;
+  --earth:#8a5cf0;
+  --int:#dfa000;
   --font-display:"Space Grotesk","Pretendard Variable",sans-serif;
   --font-kr:"Pretendard Variable","Malgun Gothic",sans-serif;
 }
@@ -33,7 +40,8 @@ html,body{
   height:100%;
   overflow:hidden;
   font-family:var(--font-kr);
-  background:#1a2733;
+  background:var(--bg);
+  color:var(--ink);
 }
 
 body{
@@ -41,63 +49,52 @@ body{
 }
 
 /*==============================
-배경(Canvas)
-==============================*/
-#space{
-  position:fixed;
-  left:0;
-  top:0;
-  width:100%;
-  height:100%;
-  z-index:-5;
-}
-
-/*==============================
 왼쪽 메뉴
 ==============================*/
 .sidebar{
-  width:330px;
+  width:300px;
+  flex-shrink:0;
   height:100vh;
-  background:rgba(10,15,28,.72);
-  backdrop-filter:blur(18px);
-  border-right:1px solid rgba(255,255,255,.08);
+  background:var(--surface);
+  border-right:1px solid var(--line);
   overflow-y:auto;
-  padding:25px;
-  color:white;
+  padding:26px 20px;
+  color:var(--ink);
 }
 
 .sidebar::-webkit-scrollbar{
   width:8px;
 }
 .sidebar::-webkit-scrollbar-thumb{
-  background:#444;
+  background:#d5d9e0;
   border-radius:10px;
 }
 
 .logo{
-  font-size:30px;
-  font-weight:300;
+  font-family:var(--font-display);
+  font-size:26px;
+  font-weight:700;
   letter-spacing:2px;
   text-align:center;
-  margin-bottom:25px;
-  color:#ffe17c;
+  margin-bottom:6px;
+  color:var(--navy);
 }
 
 .school{
-  font-size:14px;
+  font-size:13px;
   text-align:center;
-  color:#999;
-  margin-bottom:30px;
+  color:var(--muted);
+  margin-bottom:26px;
 }
 
 .chat-entry{
   cursor:pointer;
   text-align:center;
-  font-size:15px;
+  font-size:14.5px;
   font-weight:600;
   color:var(--ink);
-  background:rgba(140,180,255,.1);
-  border:1px solid var(--panel-border);
+  background:#f3f5f8;
+  border:1px solid var(--line);
   border-radius:12px;
   padding:10px;
   margin-bottom:24px;
@@ -105,42 +102,46 @@ body{
 }
 
 .chat-entry:hover{
-  background:rgba(140,180,255,.2);
+  background:var(--green-soft);
+  color:var(--green);
 }
 
 .grade{
-  margin-bottom:18px;
+  margin-bottom:10px;
 }
 
 .grade summary{
   cursor:pointer;
-  font-size:20px;
-  padding:10px;
-  border-radius:8px;
-  transition:.3s;
+  font-size:16px;
+  font-weight:700;
+  padding:10px 12px;
+  border-radius:10px;
+  transition:.2s;
   list-style:none;
 }
 .grade summary:hover{
-  background:rgba(255,255,255,.08);
+  background:#f3f5f8;
 }
 
 .grade ul{
   list-style:none;
-  padding-left:15px;
+  padding-left:10px;
+  margin-bottom:6px;
 }
 
 .grade li{
-  padding:8px;
-  margin-top:4px;
-  border-radius:6px;
+  padding:8px 10px;
+  margin-top:2px;
+  border-radius:8px;
   cursor:pointer;
-  transition:.25s;
-  font-size:15px;
+  transition:.2s;
+  font-size:14.5px;
+  color:var(--sub);
 }
 .grade li:hover{
-  background:rgba(255,255,255,.08);
-  padding-left:18px;
-  color:#ffe17c;
+  background:var(--green-soft);
+  padding-left:16px;
+  color:var(--green);
 }
 
 .grade li a{
@@ -154,14 +155,14 @@ body{
   margin-left:6px;
   font-size:11px;
   font-weight:700;
-  color:#02040a;
-  background:#ffe17c;
+  color:#fff;
+  background:var(--green);
   padding:2px 9px;
   border-radius:10px;
   vertical-align:middle;
 }
 .quick-link:hover{
-  background:#fff0ab;
+  background:#2f7f15;
 }
 
 /*==============================
@@ -169,179 +170,372 @@ body{
 ==============================*/
 .content{
   flex:1;
+  min-width:0;
   display:flex;
   justify-content:center;
   align-items:center;
   position:relative;
+  background:var(--bg);
 }
 
-/*==============================
-Glass 카드 (HUD 패널)
-==============================*/
-.card{
-  position:relative;
-  width:720px;
-  background:var(--panel);
-  border:1px solid var(--panel-border);
-  backdrop-filter:blur(20px);
-  border-radius:22px;
-  padding:48px 50px 44px;
-  text-align:center;
-  color:var(--ink);
-  box-shadow:0 0 90px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
-  overflow:hidden;
-}
-
-/* 미세한 격자 텍스처 */
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image:
-    linear-gradient(rgba(140,180,255,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(140,180,255,.05) 1px, transparent 1px);
-  background-size:28px 28px;
-  mask-image:radial-gradient(ellipse at center, black 0%, transparent 75%);
-  pointer-events:none;
-}
-
-.eyebrow{
-  position:relative;
-  display:inline-flex;
-  align-items:center;
-  gap:9px;
-  font-family:var(--font-display);
-  font-size:11px;
-  font-weight:500;
-  letter-spacing:2.5px;
-  color:var(--cyan);
-  text-transform:uppercase;
-  margin-bottom:34px;
-}
-
-.eyebrow .dot{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--cyan);
-  box-shadow:0 0 8px 1px var(--cyan);
-  animation:pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot{
-  0%,100%{opacity:1;}
-  50%{opacity:.35;}
-}
-
-.wordmark{
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:14px;
-  margin-bottom:22px;
-}
-
-.atom-icon{
-  width:56px;
-  height:56px;
-  flex-shrink:0;
-}
-.atom-icon .orbit{
-  fill:none;
-  stroke:url(#atomGrad);
-  stroke-width:1.1;
-  opacity:.55;
-}
-.atom-icon .nucleus{
-  fill:url(#atomGrad);
-  filter:drop-shadow(0 0 6px rgba(110,231,255,.8));
-}
-.atom-icon .electron{
-  fill:#fff;
-  filter:drop-shadow(0 0 4px rgba(255,255,255,.9));
-}
-
-.card h1{
-  position:relative;
-  font-family:var(--font-display);
-  font-size:44px;
-  font-weight:600;
-  letter-spacing:6px;
-  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%, var(--gold));
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-}
-
-.card h2{
-  position:relative;
-  font-family:var(--font-kr);
-  font-size:26px;
-  font-weight:700;
-  letter-spacing:-.3px;
-  margin-bottom:18px;
-  color:var(--ink);
-}
-
-.card p{
-  position:relative;
-  font-size:15.5px;
-  font-weight:400;
-  line-height:1.9;
-  color:var(--muted);
-  margin-bottom:38px;
-}
-
-.info{
-  position:relative;
-  display:flex;
-  justify-content:center;
-  gap:14px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  position:relative;
-  padding:13px 26px;
-  background:rgba(255,255,255,.03);
-  border:1px solid var(--panel-border);
-  border-radius:14px;
-  color:var(--ink);
-  font-family:var(--font-kr);
-  font-size:14px;
-  font-weight:600;
-  letter-spacing:.3px;
-  cursor:pointer;
-  transition:.3s;
-}
-.btn:hover{
-  background:rgba(110,231,255,.08);
-  border-color:rgba(110,231,255,.5);
-  color:var(--cyan);
-  transform:translateY(-2px);
-  box-shadow:0 6px 20px rgba(110,231,255,.15);
-}
-
-footer{
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  color:#999;
-  font-size:13px;
-  letter-spacing:2px;
-}
-
-/*==============================
-게시글 목록 화면 (네이버 블로그 스타일)
-==============================*/
 .view{
   display:none;
 }
 .view.active{
   display:block;
 }
+
+/*==============================
+홈(대문) 화면
+==============================*/
+#view-home.active{
+  align-self:stretch;
+  width:100%;
+  height:100vh;
+  overflow-y:auto;
+  background:var(--surface);
+}
+
+.home{
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 32px 40px;
+}
+
+.home-top{
+  font-size:13px;
+  color:var(--sub);
+  padding:16px 0;
+  border-bottom:1px solid var(--line);
+  margin:0 -32px 32px;
+  padding-left:32px;
+}
+
+.hero{
+  display:flex;
+  align-items:center;
+  gap:32px;
+  padding:42px 44px;
+  border-radius:28px;
+  background:linear-gradient(120deg,#eef7e4 0%,#eef4f6 55%,#e8effb 100%);
+}
+
+.hero-text{
+  flex:1;
+  min-width:0;
+}
+
+.hero-badge{
+  display:inline-block;
+  font-size:13px;
+  font-weight:700;
+  color:#2f7f15;
+  background:#fff;
+  border:1px solid #cfe5c2;
+  border-radius:999px;
+  padding:6px 14px;
+  margin-bottom:22px;
+}
+
+.hero h1{
+  font-size:40px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:-1px;
+  color:var(--ink);
+  margin-bottom:18px;
+}
+.hero h1 em{
+  font-style:normal;
+  color:var(--green);
+}
+
+.hero p{
+  font-size:15.5px;
+  line-height:1.8;
+  color:var(--sub);
+  margin-bottom:24px;
+}
+
+.hero-label{
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--sub);
+  margin:0 0 10px;
+}
+
+.chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:20px;
+}
+.chip-row:last-child{
+  margin-bottom:0;
+}
+
+.chip{
+  font-family:var(--font-kr);
+  font-size:15px;
+  font-weight:700;
+  color:var(--ink);
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 20px;
+  min-width:62px;
+  cursor:pointer;
+  transition:.2s;
+}
+.chip:hover{
+  border-color:#b9c3d6;
+  transform:translateY(-1px);
+}
+.chip.active{
+  background:var(--navy);
+  border-color:var(--navy);
+  color:#fff;
+}
+
+.hero-art{
+  flex-shrink:0;
+  width:210px;
+  height:210px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 10px 40px rgba(31,43,123,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-right:60px;
+}
+.hero-art svg{
+  width:200px;
+  height:200px;
+}
+
+.units{
+  margin-top:48px;
+}
+
+.units-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.units-head h2{
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:-.5px;
+}
+.units-head h2 em{
+  font-style:normal;
+  color:var(--green);
+}
+
+.legend{
+  display:flex;
+  gap:14px;
+  font-size:12.5px;
+  color:var(--sub);
+}
+.legend span::before{
+  content:"";
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  margin-right:5px;
+  background:var(--c);
+}
+
+.unit-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:16px;
+}
+
+.unit-card{
+  display:flex;
+  flex-direction:column;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px 20px 18px;
+  background:#fff;
+  transition:.2s;
+}
+.unit-card.ready{
+  cursor:pointer;
+}
+.unit-card.ready:hover,
+.unit-card.ready:focus-visible{
+  border-color:#c9d6c0;
+  box-shadow:0 10px 28px rgba(28,35,51,.08);
+  transform:translateY(-2px);
+  outline:none;
+}
+
+.unit-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.unit-no{
+  font-size:13px;
+  font-weight:700;
+  color:var(--sub);
+}
+
+.area-badge{
+  font-size:11.5px;
+  font-weight:700;
+  color:#fff;
+  background:var(--c);
+  border-radius:999px;
+  padding:3px 10px;
+}
+
+.unit-card h3{
+  font-size:17.5px;
+  font-weight:800;
+  letter-spacing:-.3px;
+  margin-bottom:10px;
+}
+
+.unit-card p{
+  flex:1;
+  font-size:13.5px;
+  line-height:1.7;
+  color:var(--sub);
+  margin-bottom:16px;
+}
+
+.unit-go{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:13.5px;
+  font-weight:700;
+  color:var(--green);
+}
+.unit-go small{
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+}
+.unit-card.soon .unit-go{
+  color:var(--muted);
+}
+
+.unit-card.special{
+  background:var(--green-soft);
+  border-color:#d8ebcb;
+}
+
+.home-panels{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+  margin-top:44px;
+}
+
+.panel{
+  background:#f4f6f2;
+  border-radius:20px;
+  padding:20px 20px 10px;
+}
+
+.panel-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-bottom:12px;
+  border-bottom:1px solid #e2e6df;
+}
+
+.panel-icon{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  background:var(--c);
+}
+
+.panel-head h3{
+  flex:1;
+  font-size:16.5px;
+  font-weight:800;
+}
+
+.panel-more{
+  font-family:var(--font-kr);
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--sub);
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+.panel-more:hover{
+  color:var(--green);
+}
+
+.panel ul{
+  list-style:none;
+}
+
+.panel li{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 2px;
+  border-bottom:1px solid #e2e6df;
+  font-size:14px;
+  cursor:pointer;
+}
+.panel li:last-child{
+  border-bottom:none;
+}
+.panel li:hover .panel-title{
+  color:var(--green);
+}
+
+.panel-title{
+  flex:1;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--ink);
+}
+
+.panel-tag{
+  flex-shrink:0;
+  font-size:12.5px;
+  color:var(--muted);
+}
+
+.home-foot{
+  text-align:center;
+  font-family:var(--font-display);
+  font-size:12px;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-top:40px;
+}
+
+/*==============================
+게시글 목록 화면
+==============================*/
 #view-frame.active{
   display:flex;
   width:100%;
@@ -352,14 +546,14 @@ footer{
 
 .postlist{
   width:820px;
-  max-height:82vh;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  backdrop-filter:blur(18px);
+  max-width:94%;
+  max-height:86vh;
+  background:var(--surface);
+  border:1px solid var(--line);
   border-radius:24px;
-  padding:35px 40px;
-  color:white;
-  box-shadow:0 0 80px rgba(0,0,0,.45);
+  padding:32px 38px;
+  color:var(--ink);
+  box-shadow:0 14px 50px rgba(28,35,51,.07);
   overflow-y:auto;
 }
 
@@ -367,49 +561,51 @@ footer{
   display:flex;
   align-items:center;
   gap:16px;
-  margin-bottom:25px;
-  padding-bottom:20px;
-  border-bottom:1px solid rgba(255,255,255,.15);
+  margin-bottom:18px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line);
 }
 
 .back-btn{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.2);
-  color:white;
+  font-family:var(--font-kr);
+  background:var(--surface);
+  border:1px solid var(--line);
+  color:var(--ink);
   border-radius:20px;
   padding:8px 16px;
   cursor:pointer;
   font-size:14px;
-  transition:.25s;
+  font-weight:600;
+  transition:.2s;
 }
 .back-btn:hover{
-  background:rgba(255,255,255,.18);
+  background:#f3f5f8;
 }
 
 .postlist-title{
-  font-size:24px;
-  font-weight:400;
-  letter-spacing:1px;
-  color:#ffe17c;
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-.3px;
+  color:var(--ink);
 }
 
 .post-item{
   display:flex;
   align-items:center;
   gap:18px;
-  padding:18px 14px;
-  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:16px 14px;
+  border-bottom:1px solid var(--line);
   cursor:pointer;
-  transition:.25s;
-  border-radius:8px;
+  transition:.2s;
+  border-radius:10px;
 }
 .post-item:hover{
-  background:rgba(255,255,255,.08);
-  padding-left:22px;
+  background:var(--green-soft);
+  padding-left:20px;
 }
 .post-item.disabled{
   cursor:default;
-  opacity:.45;
+  opacity:.5;
 }
 .post-item.disabled:hover{
   background:none;
@@ -418,8 +614,8 @@ footer{
 
 .post-num{
   font-size:18px;
-  color:#ffe17c;
-  font-weight:600;
+  color:var(--green);
+  font-weight:800;
   width:28px;
   flex-shrink:0;
 }
@@ -430,13 +626,15 @@ footer{
 }
 
 .post-title{
-  font-size:18px;
+  font-size:17px;
+  font-weight:700;
   margin-bottom:4px;
 }
 
 .post-desc{
   font-size:13px;
-  color:#aaa;
+  line-height:1.6;
+  color:var(--sub);
 }
 
 .post-actions{
@@ -448,24 +646,25 @@ footer{
 }
 
 .post-tag{
-  font-size:11px;
-  color:#02040a;
-  background:#ffe17c;
-  padding:3px 10px;
+  font-size:11.5px;
+  font-weight:700;
+  color:#fff;
+  background:var(--green);
+  padding:4px 11px;
   border-radius:12px;
 }
 .post-tag.soon{
-  background:#555;
-  color:#ccc;
+  background:#e5e7eb;
+  color:#6b7280;
 }
 
 .newtab-btn{
   font-family:inherit;
   font-size:10.5px;
   font-weight:600;
-  color:var(--ink);
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.25);
+  color:var(--sub);
+  background:var(--surface);
+  border:1px solid var(--line);
   border-radius:12px;
   padding:3px 10px;
   cursor:pointer;
@@ -473,13 +672,12 @@ footer{
   transition:.2s;
 }
 .newtab-btn:hover{
-  background:rgba(110,231,255,.15);
-  border-color:rgba(110,231,255,.5);
-  color:var(--cyan);
+  border-color:var(--green);
+  color:var(--green);
 }
 
 /*==============================
-콘텐츠(원소 기호 규칙 등) 임베드 화면
+콘텐츠 임베드 화면
 ==============================*/
 .frameview{
   width:97%;
@@ -500,8 +698,9 @@ footer{
 }
 
 .frameview-title{
-  font-size:18px;
-  color:#ffe17c;
+  font-size:17px;
+  font-weight:700;
+  color:var(--ink);
 }
 
 .frameview iframe{
@@ -509,10 +708,10 @@ footer{
   max-width:1400px;
   flex:1;
   min-height:0;
-  border:none;
-  border-radius:12px;
-  box-shadow:0 0 60px rgba(0,0,0,.5);
-  background:#2c3e50;
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:0 14px 50px rgba(28,35,51,.08);
+  background:#fff;
 }
 
 /*==============================
@@ -524,11 +723,11 @@ footer{
   height:82vh;
   display:flex;
   flex-direction:column;
-  background:var(--panel);
-  border:1px solid var(--panel-border);
-  backdrop-filter:blur(20px);
+  background:var(--surface);
+  border:1px solid var(--line);
   border-radius:22px;
   overflow:hidden;
+  box-shadow:0 14px 50px rgba(28,35,51,.07);
 }
 
 .chatview-header{
@@ -536,24 +735,13 @@ footer{
   align-items:center;
   gap:16px;
   padding:16px 20px;
-  border-bottom:1px solid var(--panel-border);
-}
-
-.chatview-header select{
-  flex:1;
-  background:rgba(255,255,255,.06);
-  color:var(--ink);
-  border:1px solid var(--panel-border);
-  border-radius:10px;
-  padding:8px 12px;
-  font-size:15px;
-  font-family:var(--font-kr);
+  border-bottom:1px solid var(--line);
 }
 
 .chatview-title{
   font-size:16px;
-  font-weight:600;
-  color:#ffe17c;
+  font-weight:800;
+  color:var(--ink);
 }
 
 .chat-messages{
@@ -563,6 +751,7 @@ footer{
   display:flex;
   flex-direction:column;
   gap:10px;
+  background:#fafbfc;
 }
 
 .guestbook-item{
@@ -572,14 +761,15 @@ footer{
   gap:6px 10px;
   padding:11px 14px;
   border-radius:12px;
-  background:rgba(255,255,255,.06);
+  background:var(--surface);
+  border:1px solid var(--line);
   font-size:14px;
   line-height:1.5;
 }
 
 .guestbook-item .gb-name{
   font-weight:700;
-  color:#ffe17c;
+  color:var(--green);
   flex-shrink:0;
 }
 
@@ -599,14 +789,14 @@ footer{
 .guestbook-item .gb-ip{
   font-size:10.5px;
   font-family:monospace;
-  color:#ff8b7a;
+  color:#d9480f;
   flex-shrink:0;
 }
 
 .guestbook-item .gb-del{
   flex-shrink:0;
   background:none;
-  border:1px solid var(--panel-border);
+  border:1px solid var(--line);
   color:var(--muted);
   border-radius:8px;
   padding:3px 9px;
@@ -615,8 +805,8 @@ footer{
   font-family:var(--font-kr);
 }
 .guestbook-item .gb-del:hover{
-  color:#ff8b7a;
-  border-color:#ff8b7a;
+  color:#d9480f;
+  border-color:#d9480f;
 }
 
 .chat-empty{
@@ -631,7 +821,7 @@ footer{
   flex-direction:column;
   gap:10px;
   padding:16px 20px;
-  border-top:1px solid var(--panel-border);
+  border-top:1px solid var(--line);
 }
 
 .guestbook-row{
@@ -641,14 +831,18 @@ footer{
 
 .guestbook-row input{
   flex:1;
-  background:rgba(255,255,255,.06);
+  background:var(--surface);
   color:var(--ink);
-  border:1px solid var(--panel-border);
+  border:1px solid var(--line);
   border-radius:10px;
   padding:10px 14px;
   font-size:14.5px;
   font-family:var(--font-kr);
   min-width:0;
+}
+.guestbook-row input:focus{
+  outline:none;
+  border-color:var(--green);
 }
 
 .guestbook-row input#guestbook-name{
@@ -656,22 +850,45 @@ footer{
 }
 
 .guestbook-row button{
-  background:linear-gradient(120deg, var(--cyan), var(--violet) 65%);
-  color:#0a0f1a;
+  background:var(--green);
+  color:#fff;
   border:none;
   border-radius:10px;
   padding:0 18px;
-  font-weight:600;
+  font-weight:700;
   cursor:pointer;
   font-family:var(--font-kr);
   flex-shrink:0;
+}
+.guestbook-row button:hover{
+  background:#2f7f15;
+}
+
+/*==============================
+좁은 화면(태블릿·휴대폰)
+==============================*/
+@media (max-width:1100px){
+  .hero-art{ margin-right:0; width:170px; height:170px; }
+  .hero-art svg{ width:160px; height:160px; }
+  .home-panels{ grid-template-columns:1fr; }
+}
+
+@media (max-width:860px){
+  html,body{ height:auto; overflow:auto; }
+  body{ flex-direction:column; }
+  .sidebar{ width:100%; height:auto; border-right:none; border-bottom:1px solid var(--line); padding:18px 16px; }
+  .content{ min-height:100vh; }
+  #view-home.active{ height:auto; overflow:visible; }
+  .home{ padding:0 16px 32px; }
+  .home-top{ margin:0 -16px 20px; padding-left:16px; }
+  .hero{ padding:28px 22px; }
+  .hero h1{ font-size:30px; }
+  .hero-art{ display:none; }
 }
 </style>
 </head>
 
 <body>
-
-<canvas id="space"></canvas>
 
 <!-- =======================
 왼쪽 메뉴
@@ -740,56 +957,70 @@ footer{
 ======================== -->
 <div class="content">
 
-  <!-- 홈 화면 -->
+  <!-- 홈(대문) 화면 -->
   <div id="view-home" class="view active">
-    <div class="card">
-      <div class="eyebrow"><span class="dot"></span>AHWA MIDDLE SCHOOL · SCIENCE LAB</div>
+    <div class="home">
+      <div class="home-top">아화중학교 · Ahwa Middle School Science</div>
 
-      <div class="wordmark">
-        <svg class="atom-icon" viewBox="0 0 100 100" aria-hidden="true">
-          <defs>
-            <linearGradient id="atomGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#6ee7ff"/>
-              <stop offset="100%" stop-color="#a78bfa"/>
-            </linearGradient>
-          </defs>
+      <section class="hero">
+        <div class="hero-text">
+          <span class="hero-badge">2022 개정 교육과정 · 중학교 과학</span>
+          <h1>궁금한 것은 <em>실험</em>으로,<br>배운 것은 <em>생활</em>로.</h1>
+          <p>아화중학교 학생들을 위한 과학 수업 공간입니다.<br>학년을 고르고 이번 시간에 배울 단원으로 들어가 보세요.</p>
 
-          <g transform="rotate(0 50 50)">
-            <ellipse class="orbit" cx="50" cy="50" rx="44" ry="17"/>
-            <circle class="electron" r="3">
-              <animateMotion dur="5s" repeatCount="indefinite" path="M6,50 A44,17 0 1 1 94,50 A44,17 0 1 1 6,50"/>
-            </circle>
-          </g>
-          <g transform="rotate(60 50 50)">
-            <ellipse class="orbit" cx="50" cy="50" rx="44" ry="17"/>
-            <circle class="electron" r="3">
-              <animateMotion dur="4s" repeatCount="indefinite" path="M6,50 A44,17 0 1 1 94,50 A44,17 0 1 1 6,50"/>
-            </circle>
-          </g>
-          <g transform="rotate(120 50 50)">
-            <ellipse class="orbit" cx="50" cy="50" rx="44" ry="17"/>
-            <circle class="electron" r="3">
-              <animateMotion dur="6s" repeatCount="indefinite" path="M6,50 A44,17 0 1 1 94,50 A44,17 0 1 1 6,50"/>
-            </circle>
-          </g>
+          <div class="hero-label">중학교</div>
+          <div class="chip-row" id="grade-chips">
+            <button type="button" class="chip" data-grade="1">중1</button>
+            <button type="button" class="chip" data-grade="2">중2</button>
+            <button type="button" class="chip" data-grade="3">중3</button>
+          </div>
 
-          <circle class="nucleus" cx="50" cy="50" r="6"/>
-        </svg>
+          <div class="hero-label">더 둘러보기</div>
+          <div class="chip-row">
+            <button type="button" class="chip" onclick="openSubject('swieo-game')">🎮 쉬어가는 게임</button>
+            <button type="button" class="chip" onclick="openSubject('best-of-sim')">🧪 추천 가상실험</button>
+            <button type="button" class="chip" onclick="openChat()">📖 방명록</button>
+          </div>
+        </div>
 
-        <h1>SCIENCE</h1>
-      </div>
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <g fill="none" stroke-width="3.2">
+              <ellipse cx="100" cy="100" rx="84" ry="32" stroke="#3b7cf0" transform="rotate(30 100 100)"/>
+              <ellipse cx="100" cy="100" rx="84" ry="32" stroke="#3d9a1f" transform="rotate(-30 100 100)"/>
+              <ellipse cx="100" cy="100" rx="84" ry="32" stroke="#ef8a2a" transform="rotate(90 100 100)"/>
+            </g>
+            <circle cx="100" cy="100" r="14" fill="#1f2b7b"/>
+            <g transform="rotate(30 100 100)">
+              <circle r="7" fill="#3b7cf0"><animateMotion dur="6s" repeatCount="indefinite" path="M16,100 A84,32 0 1 1 184,100 A84,32 0 1 1 16,100"/></circle>
+            </g>
+            <g transform="rotate(-30 100 100)">
+              <circle r="7" fill="#3d9a1f"><animateMotion dur="7.5s" repeatCount="indefinite" path="M184,100 A84,32 0 1 1 16,100 A84,32 0 1 1 184,100"/></circle>
+            </g>
+            <g transform="rotate(90 100 100)">
+              <circle r="7" fill="#ef8a2a"><animateMotion dur="5s" repeatCount="indefinite" path="M16,100 A84,32 0 1 1 184,100 A84,32 0 1 1 16,100"/></circle>
+            </g>
+          </svg>
+        </div>
+      </section>
 
-      <h2>과학으로 세상을 읽다</h2>
-      <p>
-        작은 질문 하나가 우주를 향한 첫 걸음이 됩니다.<br>
-        오늘의 궁금증을, 오늘의 원리로 바꿔봅시다.
-      </p>
+      <section class="units">
+        <div class="units-head">
+          <h2><em id="units-grade-name">중학교 1학년</em> 단원</h2>
+          <div class="legend">
+            <span style="--c:var(--phys)">물리</span>
+            <span style="--c:var(--chem)">화학</span>
+            <span style="--c:var(--bio)">생명</span>
+            <span style="--c:var(--earth)">지구</span>
+            <span style="--c:var(--int)">통합</span>
+          </div>
+        </div>
+        <div class="unit-grid" id="unit-grid"></div>
+      </section>
 
-      <div class="info">
-        <div class="btn">중1</div>
-        <div class="btn">중2</div>
-        <div class="btn">중3</div>
-      </div>
+      <section class="home-panels" id="home-panels"></section>
+
+      <div class="home-foot">AHWA MIDDLE SCHOOL SCIENCE</div>
     </div>
   </div>
 
@@ -837,8 +1068,6 @@ footer{
     </div>
   </div>
 
-  <footer>AHWA MIDDLE SCHOOL SCIENCE</footer>
-
 </div>
 
 <!-- ==========================
@@ -867,287 +1096,6 @@ try{
 </script>
 
 <script>
-
-// ==========================
-// Canvas 설정
-// ==========================
-const canvas = document.getElementById("space");
-const ctx = canvas.getContext("2d");
-
-function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
-
-let frame = 0;
-
-// ==========================
-// 별 생성 (제자리에서 밝기만 변화, 이동 없음)
-// ==========================
-const stars = [];
-const STAR_COUNT = 220;
-
-for (let i = 0; i < STAR_COUNT; i++) {
-  stars.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 1.6 + 0.6,
-    phase: Math.random() * Math.PI * 2,
-    speed: 0.01 + Math.random() * 0.02
-  });
-}
-
-function drawStars(){
-  stars.forEach(s => {
-    const a = 0.35 + Math.sin(frame * s.speed + s.phase) * 0.35 + 0.3;
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(255,255,255,${Math.max(0, Math.min(1, a))})`;
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-// ==========================
-// 컬러 스파클 (다이아몬드 반짝임, 제자리 고정)
-// ==========================
-const SPARKLE_COLORS = ["#ff8b7a","#ffd166","#c792ea","#6ee7ff","#ff6f9c","#8de3c4"];
-const sparkles = [];
-const SPARKLE_COUNT = 40;
-
-for (let i = 0; i < SPARKLE_COUNT; i++) {
-  sparkles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 5 + 3,
-    color: SPARKLE_COLORS[Math.floor(Math.random() * SPARKLE_COLORS.length)],
-    filled: Math.random() > 0.4,
-    phase: Math.random() * Math.PI * 2,
-    speed: 0.01 + Math.random() * 0.015
-  });
-}
-
-function drawDiamond(x, y, size, color, filled){
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.beginPath();
-  ctx.moveTo(0, -size);
-  ctx.lineTo(size * 0.55, 0);
-  ctx.lineTo(0, size);
-  ctx.lineTo(-size * 0.55, 0);
-  ctx.closePath();
-
-  if (filled) {
-    ctx.fillStyle = color;
-    ctx.fill();
-  } else {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.3;
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function drawSparkles(){
-  sparkles.forEach(s => {
-    const a = 0.4 + Math.sin(frame * s.speed + s.phase) * 0.35 + 0.25;
-    ctx.globalAlpha = Math.max(0, Math.min(1, a));
-    ctx.shadowColor = s.color;
-    ctx.shadowBlur = s.filled ? 6 : 0;
-    drawDiamond(s.x, s.y, s.size, s.color, s.filled);
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 1;
-  });
-}
-
-// ==========================
-// 은은한 성운 (고정, 아주 느리게 숨쉬듯 변화)
-// ==========================
-const nebula = [];
-for (let i = 0; i < 4; i++) {
-  nebula.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: 220 + Math.random() * 220,
-    phase: Math.random() * Math.PI * 2,
-    color: Math.random() > 0.5 ? "70,120,255" : "120,60,255"
-  });
-}
-
-function drawNebula(){
-  nebula.forEach(n => {
-    const pulse = 0.06 + Math.sin(frame * 0.004 + n.phase) * 0.02;
-    const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
-    grad.addColorStop(0, `rgba(${n.color},${pulse})`);
-    grad.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-// ==========================
-// 은하수 먼지 (고정, 반짝임만)
-// ==========================
-const dust = [];
-for (let i = 0; i < 120; i++) {
-  dust.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 1.4,
-    phase: Math.random() * Math.PI * 2,
-    speed: 0.01 + Math.random() * 0.02
-  });
-}
-
-function drawDust(){
-  dust.forEach(d => {
-    const a = 0.15 + Math.sin(frame * d.speed + d.phase) * 0.15;
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(255,255,255,${Math.max(0, a)})`;
-    ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-// ==========================
-// 아기자기한 우주 그림 (토성, 행성, 우주선)
-// 위치는 화면 비율로 고정, 아주 살짝 위아래로만 둥실둥실
-// ==========================
-function bob(baseY, amp, speed, phase){
-  return baseY + Math.sin(frame * speed + phase) * amp;
-}
-
-// 고리 달린 토성 느낌의 행성 (선 그림 스타일)
-function drawSaturn(cx, cy, r, tilt){
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.strokeStyle = "rgba(255,255,255,0.55)";
-  ctx.lineWidth = 1.4;
-
-  // 몸체
-  ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // 표면 줄무늬
-  for (let i = -1; i <= 1; i++) {
-    ctx.beginPath();
-    ctx.ellipse(0, i * r * 0.35, r * 0.9, r * 0.18, 0, 0, Math.PI * 2);
-    ctx.globalAlpha = 0.35;
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
-
-  // 고리
-  ctx.beginPath();
-  ctx.ellipse(0, 0, r * 1.9, r * 0.55, tilt, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-// 작은 동그란 행성 (달 느낌)
-function drawMoonPlanet(cx, cy, r){
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.strokeStyle = "rgba(255,255,255,0.55)";
-  ctx.lineWidth = 1.3;
-
-  ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // 크레이터 점
-  const dots = [[-r*0.3, -r*0.2, r*0.12], [r*0.25, r*0.15, r*0.16], [r*0.05, -r*0.45, r*0.08]];
-  dots.forEach(([dx, dy, dr]) => {
-    ctx.beginPath();
-    ctx.globalAlpha = 0.4;
-    ctx.arc(dx, dy, dr, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-  });
-
-  ctx.restore();
-}
-
-// 귀여운 우주선(로켓)
-function drawRocket(cx, cy, scale, tilt){
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(tilt);
-  ctx.scale(scale, scale);
-  ctx.strokeStyle = "rgba(255,255,255,0.7)";
-  ctx.lineWidth = 1.6;
-  ctx.lineJoin = "round";
-
-  // 몸체
-  ctx.beginPath();
-  ctx.moveTo(0, -30);
-  ctx.quadraticCurveTo(16, -6, 12, 20);
-  ctx.lineTo(-12, 20);
-  ctx.quadraticCurveTo(-16, -6, 0, -30);
-  ctx.stroke();
-
-  // 창문
-  ctx.beginPath();
-  ctx.arc(0, -6, 6, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // 날개(핀)
-  ctx.beginPath();
-  ctx.moveTo(-12, 12);
-  ctx.lineTo(-24, 26);
-  ctx.lineTo(-10, 22);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(12, 12);
-  ctx.lineTo(24, 26);
-  ctx.lineTo(10, 22);
-  ctx.stroke();
-
-  // 불꽃 (깜빡임)
-  const flameAlpha = 0.5 + Math.sin(frame * 0.15) * 0.3;
-  ctx.globalAlpha = Math.max(0.2, flameAlpha);
-  ctx.beginPath();
-  ctx.moveTo(-6, 20);
-  ctx.quadraticCurveTo(0, 34, 6, 20);
-  ctx.strokeStyle = "rgba(110,231,255,0.9)";
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-
-  ctx.restore();
-}
-
-function drawDoodles(){
-  const w = canvas.width;
-  const h = canvas.height;
-
-  drawSaturn(w * 0.88, h * 0.22, 46, -0.35);
-  drawMoonPlanet(w * 0.08, bob(h * 0.78, 4, 0.02, 0), 30);
-  drawRocket(w * 0.45, bob(h * 0.55, 6, 0.02, 1.5), 1, -0.15);
-}
-
-// ==========================
-// 메인 루프
-// ==========================
-function animate(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawNebula();
-  drawDust();
-  drawStars();
-  drawSparkles();
-  drawDoodles();
-
-  frame++;
-  requestAnimationFrame(animate);
-}
-
-animate();
 
 // ==========================================
 // 메뉴 목록 & 콘텐츠 연동
@@ -1779,6 +1727,170 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
     showView(viewList);
   }
 });
+
+// ==========================================
+// 홈(대문) 화면 — 학년별 단원 카드와 하단 패널
+// ==========================================
+const AREA_VAR = { "물리":"--phys", "화학":"--chem", "생명":"--bio", "지구":"--earth", "통합":"--int" };
+
+const GRADE_UNITS = {
+  1: [
+    { name:"과학과 인류의 지속가능한 삶", area:"통합", desc:"과학이 인류 문명과 함께 발전해 온 과정을 살펴보고, 과학기술로 지속가능한 미래를 만드는 방법을 탐색합니다." },
+    { name:"생물의 구성과 다양성", area:"생명", desc:"세포에서 개체까지 생물의 구성 단계와 생물 다양성, 분류 체계, 보전 방법을 배웁니다." },
+    { name:"열", area:"물리", desc:"온도와 입자 운동, 전도·대류·복사에 의한 열의 이동, 비열과 열팽창을 탐구합니다." },
+    { name:"물질의 상태 변화", area:"화학", key:"mul-sangtae-byeonhwa", desc:"입자 운동으로 고체·액체·기체와 상태 변화를 설명하고, 이때 출입하는 열에너지를 이해합니다." },
+    { name:"힘의 작용", area:"물리", key:"him-jagyong", desc:"중력, 탄성력, 마찰력, 부력 등 여러 힘을 측정하고 생활 속 힘의 작용을 탐구합니다." },
+    { name:"기체의 성질", area:"화학", key:"gi-seongjil", desc:"기체의 압력·부피·온도 사이의 관계를 입자 모형으로 설명합니다." },
+    { name:"태양계", area:"지구", desc:"지구와 달의 크기와 운동, 태양계 행성의 특징과 태양 활동을 탐구합니다." }
+  ],
+  2: [
+    { name:"물질의 특성", area:"화학", key:"mul-teukseong", desc:"밀도·용해도·녹는점·끓는점 같은 물질의 특성으로 물질을 구별하고 혼합물을 분리합니다." },
+    { name:"지권의 변화", area:"지구", key:"jigwon-byeonhwa", desc:"지구 내부 구조와 광물·암석, 풍화와 토양, 판의 운동과 지진·화산을 알아봅니다." },
+    { name:"빛과 파동", area:"물리", key:"bit-pado", desc:"빛의 반사와 굴절, 거울과 렌즈에 생기는 상, 파동의 성질과 소리를 탐구합니다." },
+    { name:"물질의 구성", area:"화학", key:"mul-guseong", desc:"원소와 원자, 분자, 이온을 기호와 모형으로 나타내며 물질을 이루는 입자를 이해합니다." },
+    { name:"식물과 에너지", area:"생명", key:"sikmul-energy", desc:"광합성과 증산 작용, 호흡을 통해 식물이 양분을 만들고 저장·이용하는 과정을 탐구합니다." },
+    { name:"동물과 에너지", area:"생명", key:"dongmul-energy", desc:"소화·순환·호흡·배설 기관이 함께 작용해 에너지를 얻는 과정을 이해합니다." },
+    { name:"전기와 자기", area:"물리", key:"jeongi-jagi", desc:"정전기와 전류·전압·저항의 관계, 전류가 만드는 자기장을 탐구합니다." },
+    { name:"별과 우주", area:"지구", key:"byeol-uju", desc:"별까지의 거리와 밝기, 색과 표면 온도, 우리은하와 우주의 구조를 알아봅니다." }
+  ],
+  3: [
+    { name:"화학 반응", area:"화학", key:"hwahak-banung", desc:"화학 반응식과 질량 보존·일정 성분비 법칙, 반응에서 출입하는 에너지를 다룹니다." },
+    { name:"기권과 날씨", area:"지구", key:"gigwon-nalssi", desc:"기권의 구조와 복사 평형, 구름과 강수, 기압과 바람, 기단과 전선으로 날씨를 이해합니다." },
+    { name:"운동과 에너지", area:"물리", key:"undong-energy", desc:"등속 운동과 자유 낙하 운동을 분석하고 일과 에너지의 관계를 탐구합니다." },
+    { name:"자극과 반응", area:"생명", key:"jageuk-banung", desc:"감각 기관과 신경계, 호르몬이 자극을 받아들이고 반응하는 과정을 알아봅니다." },
+    { name:"생식과 유전", area:"생명", key:"saengsik-yujeon", desc:"세포 분열과 생식, 멘델의 유전 법칙과 사람의 유전을 탐구합니다." },
+    { name:"에너지 전환과 보존", area:"물리", key:"energy-jeonhwan", desc:"역학적 에너지의 전환과 보존, 전기 에너지의 생산과 이용을 탐구합니다." },
+    { name:"우주 탐사", area:"지구", key:"uju-tamsa", desc:"성단과 성운, 우리은하와 우주의 팽창, 우주 탐사의 역사와 성과를 알아봅니다." }
+  ]
+};
+
+const STUDENT_HOME_KEY = { 1:"j1-student-home", 2:"j2-student-home" };
+
+// 최근에 올라온 자료 (단원 키, 글 제목의 일부, 학년 표시)
+const HOME_RECENT = [
+  ["dongmul-energy", "혈액 순환 미로", "중2"],
+  ["swieo-game", "볼링 게임", "게임"],
+  ["uju-tamsa", "성단과 성운", "중3"],
+  ["gi-seongjil", "샤를의 법칙", "중1"],
+  ["energy-jeonhwan", "롤러코스터 크리에이터", "중3"]
+];
+
+function readyCount(key){
+  const s = key && topicsData[key];
+  return s ? s.posts.filter(p => p.ready).length : 0;
+}
+
+function makeUnitCard({ no, name, area, desc, key, special }){
+  const count = readyCount(key);
+  const ready = count > 0;
+  const card = document.createElement("article");
+  card.className = "unit-card " + (ready ? "ready" : "soon") + (special ? " special" : "");
+  card.style.setProperty("--c", `var(${AREA_VAR[area] || "--green"})`);
+  card.innerHTML = `
+    <div class="unit-top">
+      <span class="unit-no"></span>
+      ${area ? `<span class="area-badge">${area}</span>` : ""}
+    </div>
+    <h3></h3>
+    <p></p>
+    <div class="unit-go">${ready ? `<span>학습하러 가기 →</span><small>자료 ${count}개</small>` : "<span>준비 중</span>"}</div>
+  `;
+  card.querySelector(".unit-no").textContent = no;
+  card.querySelector("h3").textContent = name;
+  card.querySelector("p").textContent = desc;
+  if(ready){
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.addEventListener("click", () => openSubject(key));
+    card.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openSubject(key); }
+    });
+  }
+  return card;
+}
+
+function selectGrade(grade){
+  document.querySelectorAll("#grade-chips .chip").forEach(c => {
+    c.classList.toggle("active", c.dataset.grade === String(grade));
+  });
+  document.getElementById("units-grade-name").textContent = `중학교 ${grade}학년`;
+
+  const grid = document.getElementById("unit-grid");
+  grid.innerHTML = "";
+  GRADE_UNITS[grade].forEach((u, i) => {
+    grid.appendChild(makeUnitCard({ ...u, no: String(i + 1).padStart(2, "0") + "단원" }));
+  });
+  if(STUDENT_HOME_KEY[grade]){
+    grid.appendChild(makeUnitCard({
+      no: "★",
+      name: `${grade}학년 학생 홈페이지`,
+      desc: "친구들이 직접 만든 과학 홈페이지를 구경하고 서로 배워 봅시다.",
+      key: STUDENT_HOME_KEY[grade],
+      special: true
+    }));
+  }
+  try{ localStorage.setItem("homeGrade", grade); }catch(e){}
+}
+
+function findPost(key, part){
+  const s = topicsData[key];
+  return s ? s.posts.find(p => p.ready && p.title.includes(part)) : null;
+}
+
+function renderHomePanels(){
+  const games = topicsData["swieo-game"].posts.filter(p => p.ready).slice(-4).reverse();
+  const panels = [
+    {
+      icon:"📌", color:"#fde8e4", title:"최근 올라온 자료",
+      items: HOME_RECENT.map(([key, part, tag]) => ({ key, post: findPost(key, part), tag })).filter(it => it.post)
+    },
+    {
+      icon:"🧪", color:"#e3edfd", title:"추천 가상실험", more:"best-of-sim",
+      items: topicsData["best-of-sim"].posts.filter(p => p.ready).slice(0, 5).map(post => ({ key:"best-of-sim", post, tag:"가상실험" }))
+    },
+    {
+      icon:"🎮", color:"#e5f3dc", title:"쉬어가는 과학 게임", more:"swieo-game",
+      items: games.map(post => ({ key:"swieo-game", post, tag: post.desc.includes("아두이노") ? "아두이노" : "게임" }))
+    }
+  ];
+
+  const wrap = document.getElementById("home-panels");
+  wrap.innerHTML = "";
+  panels.forEach(pn => {
+    const box = document.createElement("div");
+    box.className = "panel";
+    box.innerHTML = `
+      <div class="panel-head">
+        <span class="panel-icon" style="--c:${pn.color}">${pn.icon}</span>
+        <h3></h3>
+        ${pn.more ? `<button type="button" class="panel-more">전체 보기 →</button>` : ""}
+      </div>
+      <ul></ul>
+    `;
+    box.querySelector("h3").textContent = pn.title;
+    if(pn.more) box.querySelector(".panel-more").addEventListener("click", () => openSubject(pn.more));
+    const ul = box.querySelector("ul");
+    pn.items.forEach(({ key, post, tag }) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="panel-title"></span><span class="panel-tag"></span>`;
+      li.querySelector(".panel-title").textContent = post.title.replace(/^\d+\.\s*/, "");
+      li.querySelector(".panel-tag").textContent = tag;
+      li.title = post.title;
+      li.addEventListener("click", () => openQuickLink(key, post));
+      ul.appendChild(li);
+    });
+    wrap.appendChild(box);
+  });
+}
+
+document.querySelectorAll("#grade-chips .chip").forEach(c => {
+  c.addEventListener("click", () => selectGrade(Number(c.dataset.grade)));
+});
+
+let savedGrade = 1;
+try{ savedGrade = Number(localStorage.getItem("homeGrade")) || 1; }catch(e){}
+selectGrade(GRADE_UNITS[savedGrade] ? savedGrade : 1);
+renderHomePanels();
 
 // ==========================================
 // 방명록 (Firestore 실시간 공용 한마디 게시판)
