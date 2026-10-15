@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시안 C · 과학 노선도</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--ink:#14181f;--sub:#646b77;--line:#e4e6ea;--l1:#1fa463;--l2:#2f6fe4;--l3:#f08a1c;--kr:"Pretendard Variable",sans-serif}
+body{font-family:var(--kr);color:var(--ink);background:#fff;min-height:100vh;display:flex}
+
+.side{width:250px;flex-shrink:0;border-right:1px solid var(--line);padding:26px 18px;background:#fafbfc}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;margin-bottom:26px}
+.brand i{width:34px;height:34px;border-radius:50%;border:6px solid var(--ink);display:inline-block;position:relative}
+.brand i::after{content:"";position:absolute;left:-12px;right:-12px;top:5px;height:6px;background:var(--ink)}
+.side h5{font-size:12px;color:var(--sub);margin:18px 0 8px;font-weight:600}
+.lineitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;font-weight:700;font-size:14.5px}
+.lineitem:hover{background:#eef0f3}
+.badge{width:26px;height:26px;border-radius:50%;color:#fff;font-weight:900;font-size:13px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.side .plain{padding:8px 10px;font-size:14px;color:var(--sub);cursor:pointer;border-radius:8px}
+.side .plain:hover{background:#eef0f3;color:var(--ink)}
+
+main{flex:1;min-width:0;padding:32px 40px 44px}
+.hero{display:flex;gap:30px;align-items:center;flex-wrap:wrap}
+.hero-text{flex:1;min-width:300px}
+.hero .eyebrow{display:inline-flex;gap:6px;margin-bottom:16px}
+.hero .eyebrow span{width:40px;height:8px;border-radius:4px}
+.hero h1{font-size:44px;font-weight:900;letter-spacing:-1.5px;line-height:1.2}
+.hero p{margin-top:14px;color:var(--sub);font-size:15.5px;line-height:1.8}
+
+.ticket{width:360px;flex-shrink:0;background:var(--ink);color:#fff;border-radius:18px;padding:20px 22px;position:relative;overflow:hidden}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:#fff;margin-top:-13px}
+.ticket::before{left:-13px}.ticket::after{right:-13px}
+.ticket small{font-size:11.5px;letter-spacing:2px;color:#9aa3b2}
+.ticket .route{display:flex;align-items:center;gap:8px;margin:12px 0 14px;font-size:17px;font-weight:800;white-space:nowrap}
+.ticket .route em{font-style:normal;color:#9aa3b2;font-size:16px}
+.ticket .row{display:flex;justify-content:space-between;border-top:1px dashed #3b4250;padding-top:12px;font-size:12.5px;color:#c4cad6}
+.ticket .row b{display:block;color:#fff;font-size:15px;margin-top:2px}
+.ticket select{background:#262c38;color:#fff;border:none;border-radius:8px;padding:6px 8px;font-family:var(--kr);font-size:13px}
+
+.mapbox{margin-top:30px;border:1px solid var(--line);border-radius:22px;padding:18px 18px 8px;background:
+  radial-gradient(#e9ecf0 1px,transparent 1px) 0 0/18px 18px}
+.maphead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:0 6px}
+.maphead h3{font-size:19px;font-weight:900}
+.maphead .hint{font-size:12.5px;color:var(--sub)}
+.maphead .hint b{display:inline-block;width:12px;height:12px;border-radius:50%;border:3px solid var(--ink);vertical-align:-2px;margin:0 3px 0 10px;background:#fff}
+.maphead .hint i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#c3c8d0;vertical-align:-1px;margin:0 3px 0 10px}
+svg{width:100%;height:auto;display:block}
+.st{cursor:pointer}
+.st:hover circle.ring{stroke-width:7}
+.dim{opacity:.18;transition:.25s}
+g.line{transition:.25s}
+
+.lower{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:20px;margin-top:26px}
+.board{background:#101318;border-radius:16px;padding:16px 20px;color:#ffb648;font-family:"Pretendard Variable",monospace}
+.board h4{display:flex;justify-content:space-between;color:#fff;font-size:15px;margin-bottom:8px}
+.board h4 span{color:#7c8495;font-size:12px;font-weight:500}
+.board li{list-style:none;display:flex;gap:12px;padding:8px 0;border-top:1px solid #222833;font-size:14px;cursor:pointer;letter-spacing:.3px}
+.board li .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 6px rgba(255,182,72,.45)}
+.board li .g{width:44px;color:#fff;font-weight:700}
+.board li .s{color:#6be38d;font-size:12.5px}
+.transfer{border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.transfer h4{display:flex;align-items:center;gap:8px;font-size:15.5px;margin-bottom:6px}
+.transfer h4 .badge{width:auto;padding:0 9px;border-radius:13px;height:22px;font-size:11.5px}
+.transfer li{list-style:none;padding:8px 0;border-top:1px solid var(--line);font-size:14px;display:flex;gap:8px;cursor:pointer}
+.transfer li span:first-child{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.transfer li:hover span:first-child{color:var(--l2)}
+.transfer li .tag{font-size:12px;color:var(--sub)}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="brand"><i></i>아화중 과학 노선도</div>
+  <h5>노선</h5>
+  <div class="lineitem" data-g="1"><span class="badge" style="background:var(--l1)">1</span>중학교 1학년</div>
+  <div class="lineitem" data-g="2"><span class="badge" style="background:var(--l2)">2</span>중학교 2학년</div>
+  <div class="lineitem" data-g="3"><span class="badge" style="background:var(--l3)">3</span>중학교 3학년</div>
+  <h5>환승역 · 개발자료</h5>
+  <div class="plain">🎮 쉬어가는 게임</div><div class="plain">🧪 추천 가상실험</div><div class="plain">★ 학생 홈페이지</div>
+  <h5>기타</h5>
+  <div class="plain">📖 방명록</div>
+</aside>
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <div class="eyebrow"><span style="background:var(--l1)"></span><span style="background:var(--l2)"></span><span style="background:var(--l3)"></span></div>
+      <h1>오늘은 어느 역에서<br>내릴까요?</h1>
+      <p>학년마다 하나의 노선, 단원마다 하나의 역.<br>불이 켜진 역에는 탐구 자료가 기다리고 있어요. 노선을 골라 탑승해 보세요.</p>
+    </div>
+    <div class="ticket">
+      <small>SCIENCE PASS · 승차권</small>
+      <div class="route"><span class="badge" id="tBadge" style="background:var(--l1)">1</span><span id="tFrom">중학교 1학년</span><em>→</em><span id="tTo"></span></div>
+      <div class="row"><div>노선 선택<b><select id="pick"><option value="1">1호선 · 중1</option><option value="2">2호선 · 중2</option><option value="3">3호선 · 중3</option></select></b></div><div>운행 중인 역<b id="tOpen"></b></div><div>전체 역<b id="tAll"></b></div></div>
+    </div>
+  </section>
+
+  <section class="mapbox">
+    <div class="maphead"><h3>과학 단원 노선도</h3><div class="hint"><b></b>자료가 있는 역 <i></i>공사 중(준비 중)</div></div>
+    <svg id="map" viewBox="0 0 1150 420"></svg>
+  </section>
+
+  <section class="lower">
+    <div class="board"><h4>🚉 도착 안내 · 최근 올라온 자료 <span>NEW ARRIVALS</span></h4><ul id="recent"></ul></div>
+    <div class="transfer"><h4><span class="badge" style="background:#7a56e8">환승</span>추천 가상실험</h4><ul id="sims"></ul></div>
+    <div class="transfer"><h4><span class="badge" style="background:#e5484d">환승</span>쉬어가는 게임</h4><ul id="games"></ul></div>
+  </section>
+</main>
+<script>
+// 시안 공통 데이터 (실제 사이트 index.html 의 단원/자료 수를 옮겨 놓은 것)
+const AREA = { 물리:"#3b7cf0", 화학:"#ef6f2a", 생명:"#2f9e48", 지구:"#8a5cf0", 통합:"#d99a00" };
+const UNITS = {
+  1: [
+    { sym:"인", name:"과학과 인류의 지속가능한 삶", area:"통합", n:0, desc:"과학이 인류 문명과 함께 발전해 온 과정과 지속가능한 미래" },
+    { sym:"생", name:"생물의 구성과 다양성", area:"생명", n:0, desc:"세포에서 개체까지, 생물 다양성과 분류·보전" },
+    { sym:"열", name:"열", area:"물리", n:0, desc:"온도와 입자 운동, 열의 이동, 비열과 열팽창" },
+    { sym:"상", name:"물질의 상태 변화", area:"화학", n:4, desc:"입자 운동으로 보는 상태 변화와 열에너지 출입" },
+    { sym:"힘", name:"힘의 작용", area:"물리", n:7, desc:"중력·탄성력·마찰력·부력을 측정하고 탐구" },
+    { sym:"기", name:"기체의 성질", area:"화학", n:1, desc:"기체의 압력·부피·온도 관계를 입자 모형으로" },
+    { sym:"태", name:"태양계", area:"지구", n:0, desc:"지구와 달의 운동, 태양계 행성과 태양 활동" }
+  ],
+  2: [
+    { sym:"특", name:"물질의 특성", area:"화학", n:1, desc:"밀도·용해도·끓는점으로 물질 구별하기" },
+    { sym:"지", name:"지권의 변화", area:"지구", n:0, desc:"지구 내부 구조, 암석, 판의 운동과 지진·화산" },
+    { sym:"빛", name:"빛과 파동", area:"물리", n:0, desc:"빛의 반사·굴절, 렌즈와 상, 파동과 소리" },
+    { sym:"원", name:"물질의 구성", area:"화학", n:1, desc:"원소·원자·분자·이온을 기호와 모형으로" },
+    { sym:"식", name:"식물과 에너지", area:"생명", n:5, desc:"광합성과 증산 작용, 양분의 저장과 이용" },
+    { sym:"동", name:"동물과 에너지", area:"생명", n:6, desc:"소화·순환·호흡·배설이 함께 만드는 에너지" },
+    { sym:"전", name:"전기와 자기", area:"물리", n:0, desc:"전류·전압·저항, 전류가 만드는 자기장" },
+    { sym:"별", name:"별과 우주", area:"지구", n:0, desc:"별의 거리와 밝기, 우리은하와 우주" }
+  ],
+  3: [
+    { sym:"반", name:"화학 반응", area:"화학", n:0, desc:"화학 반응식, 질량 보존과 일정 성분비 법칙" },
+    { sym:"날", name:"기권과 날씨", area:"지구", n:0, desc:"구름과 강수, 기압과 바람, 기단과 전선" },
+    { sym:"운", name:"운동과 에너지", area:"물리", n:0, desc:"등속·자유 낙하 운동, 일과 에너지" },
+    { sym:"감", name:"자극과 반응", area:"생명", n:1, desc:"감각 기관과 신경계, 호르몬의 작용" },
+    { sym:"유", name:"생식과 유전", area:"생명", n:4, desc:"세포 분열과 생식, 멘델의 유전 법칙" },
+    { sym:"에", name:"에너지 전환과 보존", area:"물리", n:2, desc:"역학적 에너지의 전환과 보존" },
+    { sym:"우", name:"우주 탐사", area:"지구", n:1, desc:"성단과 성운, 우주 탐사의 역사와 성과" }
+  ]
+};
+const RECENT = [
+  ["중2", "혈액 순환 미로 — 적혈구의 여행"],
+  ["게임", "볼링 게임"],
+  ["중3", "성단과 성운 — 세 가지 성운의 차이"],
+  ["중1", "샤를의 법칙 — 아두이노 실험"],
+  ["중3", "롤러코스터 크리에이터"]
+];
+const SIMS = ["힘의 3요소 — 알까기 게임", "가상 공간에서의 힘과 운동", "놀이기구에서 힘의 작용", "뇌의 구조", "롤러코스터 크리에이터"];
+const GAMES = [["볼링 게임","게임"],["초음파 드론 동굴 비행","아두이노"],["비행기 슈팅 게임","아두이노"],["기울기 미로 게임","아두이노"]];
+
+const LC={1:'#1fa463',2:'#2f6fe4',3:'#f08a1c'};
+const Y={1:90,2:210,3:330}, HUB={x:1000,y:210};
+const svg=document.getElementById('map'), NS='http://www.w3.org/2000/svg';
+const mk=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e;};
+const groups={};
+function wrap(name){ if(name.length<=8) return [name]; const s=name.split(' '); let a='',b=''; s.forEach(w=>{ if((a+' '+w).trim().length<=8 && !b) a=(a+' '+w).trim(); else b=(b+' '+w).trim(); }); return b?[a,b]:[name.slice(0,8),name.slice(8)]; }
+[1,2,3].forEach(g=>{
+  const G=mk('g',{class:'line'}); groups[g]=G;
+  const units=UNITS[g], x0=120, x1=850, step=(x1-x0)/(units.length-1), y=Y[g];
+  // 노선(굵은 선): 마지막 역에서 45도로 꺾여 환승역으로
+  const bendX=x1+ (g===2?0:Math.abs(HUB.y-y)*0.0)+20;
+  const d=g===2?`M60 ${y} H${HUB.x}`:`M60 ${y} H${bendX} L${bendX+Math.abs(HUB.y-y)} ${HUB.y} H${HUB.x}`;
+  mk('path',{d,fill:'none',stroke:LC[g],'stroke-width':12,'stroke-linecap':'round','stroke-linejoin':'round'},G);
+  // 노선 번호 배지
+  mk('circle',{cx:40,cy:y,r:20,fill:LC[g]},G);
+  const tb=mk('text',{x:40,y:y+7,'text-anchor':'middle','font-size':20,'font-weight':900,fill:'#fff'},G); tb.textContent=g;
+  units.forEach((u,i)=>{
+    const x=x0+step*i, up=i%2===0;
+    const S=mk('g',{class:'st'},G);
+    if(u.n){
+      mk('circle',{class:'ring',cx:x,cy:y,r:12,fill:'#fff',stroke:'#14181f','stroke-width':5},S);
+      mk('circle',{cx:x+13,cy:y-13,r:9,fill:LC[g]},S);
+      const c=mk('text',{x:x+13,y:y-9.5,'text-anchor':'middle','font-size':11,'font-weight':800,fill:'#fff'},S); c.textContent=u.n;
+    }else{
+      mk('circle',{cx:x,cy:y,r:6,fill:'#c3c8d0',stroke:'#fff','stroke-width':2},S);
+    }
+    const lines=wrap(u.name), ty=up? y-30-(lines.length-1)*15 : y+36;
+    lines.forEach((ln,k)=>{ const t=mk('text',{x,y:ty+k*15,'text-anchor':'middle','font-size':13,'font-weight':u.n?800:500,fill:u.n?'#14181f':'#9aa1ab'},S); t.textContent=ln; });
+    const tt=mk('title',{},S); tt.textContent=`${u.name} — ${u.n?('자료 '+u.n+'개'):'준비 중'}`;
+  });
+});
+// 환승역
+mk('rect',{x:HUB.x-14,y:HUB.y-150,width:28,height:300,rx:14,fill:'#fff',stroke:'#14181f','stroke-width':5});
+[['🎮',HUB.y-110,'쉬어가는 게임'],['🧪',HUB.y,'가상실험'],['★',HUB.y+110,'학생 홈페이지']].forEach(([ic,y,l])=>{
+  const t=mk('text',{x:HUB.x,y:y+6,'text-anchor':'middle','font-size':16}); t.textContent=ic;
+  const n=mk('text',{x:HUB.x+26,y:y+5,'font-size':13,'font-weight':800,fill:'#14181f'}); n.textContent=l;
+});
+const hl=mk('text',{x:HUB.x,y:HUB.y-166,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#646b77'}); hl.textContent='환승역 · 개발자료';
+
+function choose(g){
+  [1,2,3].forEach(k=>groups[k].classList.toggle('dim',k!==g));
+  const u=UNITS[g], open=u.filter(x=>x.n);
+  document.getElementById('tBadge').textContent=g; document.getElementById('tBadge').style.background=LC[g];
+  document.getElementById('tFrom').textContent=`중학교 ${g}학년`;
+  document.getElementById('tTo').textContent=(open.sort((a,b)=>b.n-a.n)[0]||u[0]).name+'역';
+  document.getElementById('tOpen').textContent=open.length+'개'; document.getElementById('tAll').textContent=u.length+'개';
+  document.getElementById('pick').value=g;
+}
+document.getElementById('pick').onchange=e=>choose(+e.target.value);
+document.querySelectorAll('.lineitem').forEach(el=>el.onclick=()=>choose(+el.dataset.g));
+choose(1);
+document.getElementById('recent').innerHTML=RECENT.map(([g,t],i)=>`<li><span class="g">${g}</span><span class="t">${t}</span><span class="s">${i<2?'도착':'곧 도착'}</span></li>`).join('');
+document.getElementById('sims').innerHTML=SIMS.slice(0,4).map(t=>`<li><span>${t}</span></li>`).join('');
+document.getElementById('games').innerHTML=GAMES.map(([t,g])=>`<li><span>${t}</span><span class="tag">${g}</span></li>`).join('');
+</script>
+</body>
+</html>
