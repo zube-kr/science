@@ -373,7 +373,37 @@ function generateMaze(cols, rows, seed, extraOpenCount){
     [openCells[i],openCells[j]] = [openCells[j],openCells[i]];
   }
 
-  return { grid, gridCols, gridRows, startCell:[0,0], goalCell:[rows-1,cols-1], openCellsShuffled:openCells };
+  // 구멍이 출발점→도착점 길 위에 놓이면 통로를 완전히 막아 레벨을 깰 수 없게 된다
+  // (통로 폭보다 구멍 판정 범위가 넓음). 그래서 해답 경로 위의 칸은 후보에서 빼고,
+  // 경로 바로 옆 갈림길 칸을 앞쪽에 두어 '옆길로 새면 빠지는' 위치에 오도록 한다.
+  const solution = solvePath(grid, [1,1], [(rows-1)*2+1, (cols-1)*2+1]);
+  const onPath = new Set(solution.filter(([gr,gc]) => gr%2===1 && gc%2===1).map(([gr,gc]) => `${(gr-1)/2},${(gc-1)/2}`));
+  const nearPath = (r,c) => [[0,1],[0,-1],[1,0],[-1,0]].some(([dr,dc]) =>
+    onPath.has(`${r+dr},${c+dc}`) && grid[r*2+1+dr][c*2+1+dc] === 0);
+  const safeCells = openCells.filter(([r,c]) => !onPath.has(`${r},${c}`));
+  safeCells.sort((a,b) => (nearPath(b[0],b[1]) ? 1 : 0) - (nearPath(a[0],a[1]) ? 1 : 0));
+
+  return { grid, gridCols, gridRows, startCell:[0,0], goalCell:[rows-1,cols-1], openCellsShuffled:safeCells };
+}
+
+// 격자(0=통로, 1=벽)에서 BFS로 최단 경로를 찾아 [행,열] 목록으로 돌려준다.
+function solvePath(grid, from, to){
+  const R = grid.length, C = grid[0].length;
+  const prev = new Map([[from.join(','), null]]);
+  const q = [from];
+  while(q.length){
+    const cur = q.shift();
+    if(cur[0]===to[0] && cur[1]===to[1]) break;
+    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nr = cur[0]+dr, nc = cur[1]+dc, k = nr+','+nc;
+      if(nr<0 || nc<0 || nr>=R || nc>=C || grid[nr][nc] || prev.has(k)) continue;
+      prev.set(k, cur);
+      q.push([nr,nc]);
+    }
+  }
+  const path = [];
+  for(let p = to; p; p = prev.get(p.join(','))) path.unshift(p);
+  return path;
 }
 
 /* ================= 레벨 정의 ================= */
