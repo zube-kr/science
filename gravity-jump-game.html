@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중력 점프 — 쉬어가는 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:#04060F;
+    font-family:"Jua","Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    color:#1B2438;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .stage{
+    position:relative;
+    container-type:inline-size;
+    width:min(100vw, calc(100vh * 16 / 9));
+    aspect-ratio:16 / 9;
+    box-shadow:0 10px 40px rgba(0,0,0,.6);
+    user-select:none;
+  }
+  canvas{ display:block; width:100%; height:100%; touch-action:none; user-select:none; cursor:pointer; }
+
+  .overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,18,.62); backdrop-filter:blur(3px);
+  }
+  .overlay.hidden{ display:none; }
+  .panel{
+    background:#FFFBEF; border:4px solid #2B2350; border-radius:22px;
+    padding:clamp(14px,2.6vw,28px) clamp(18px,4vw,40px); max-width:min(620px, 92%);
+    text-align:center; box-shadow:0 14px 34px rgba(0,0,0,.45);
+    max-height:94%; overflow-y:auto;
+  }
+  .panel h1{ font-size:clamp(28px,5vw,48px); color:#2B2350; letter-spacing:.04em; }
+  .panel p{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:clamp(12px,1.6vw,15px); line-height:1.75; margin-top:8px; color:#3D3A5C; }
+  .panel ul{ text-align:left; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:clamp(12px,1.45vw,14px); line-height:1.8; margin:10px auto 0; max-width:480px; color:#3D3A5C; padding-left:18px; }
+  .panel b{ color:#C46A12; }
+  .score-big{ font-size:clamp(40px,8vw,72px); color:#C46A12; margin-top:4px; }
+  .rank-msg{ font-size:clamp(18px,3vw,26px); margin-top:2px; color:#2B2350; }
+  .best{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; color:#6E6A8C; margin-top:4px; }
+  .start-btn{
+    margin-top:16px; font-family:inherit; font-size:clamp(18px,2.4vw,22px); cursor:pointer;
+    background:#2B2350; color:#FFE08A; border:none; border-radius:14px; padding:10px 34px;
+    box-shadow:0 4px 0 #15102E; transition:transform .1s;
+  }
+  .start-btn:hover{ background:#3A3070; }
+  .start-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #15102E; }
+
+  .suit-pick{ display:flex; justify-content:center; gap:10px; margin-top:12px; align-items:center; }
+  .suit-pick span{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; color:#3D3A5C; font-weight:700; }
+  .suit-chip{
+    width:30px; height:30px; border-radius:50%; border:3px solid transparent; cursor:pointer;
+    box-shadow:inset -5px -6px 8px rgba(0,0,0,.3), inset 4px 4px 6px rgba(255,255,255,.4);
+  }
+  .suit-chip.picked{ border-color:#F2B233; transform:scale(1.12); }
+
+  .sound-btn{
+    position:absolute; right:1%; bottom:2%; font-size:clamp(14px,2vw,20px);
+    background:rgba(255,255,255,.85); border:2px solid #2B2350; border-radius:10px;
+    padding:2px 8px; cursor:pointer;
+  }
+
+  /* ---------- 반 전체 공유 랭킹 ---------- */
+  .board-wrap{ margin-top:14px; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; }
+  .board-title{ font-size:14px; font-weight:800; color:#2B2350; }
+  .board-note{ font-size:11px; color:#6E6A8C; margin-top:3px; }
+  .name-form{ display:flex; gap:7px; width:100%; max-width:320px; margin:10px auto 0; }
+  .name-form input{
+    flex:1; padding:9px 11px; border:2px solid #2B2350; border-radius:9px;
+    font-family:inherit; font-size:13px; color:#1B2438;
+  }
+  .name-form button{
+    font-family:inherit; font-size:13px; font-weight:800; cursor:pointer;
+    border:none; border-radius:9px; padding:9px 16px; background:#2B2350; color:#fff;
+  }
+  .board-list{ list-style:none; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5, auto); grid-auto-flow:column; gap:4px 8px; max-width:540px; margin:10px auto 0; text-align:left; }
+  .board-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; padding:4px 10px; border-radius:8px; background:#F1EEF8; }
+  .board-row.me{ background:#FFE3B3; font-weight:800; }
+  .board-row .rank{ width:20px; text-align:center; font-weight:800; color:#6E6A8C; flex:none; }
+  .board-row:nth-child(1) .rank{ color:#E8A23F; }
+  .board-row:nth-child(2) .rank{ color:#9AA3B5; }
+  .board-row:nth-child(3) .rank{ color:#C98A5D; }
+  .board-row .bname{ flex:1; font-weight:700; color:#1B2438; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .board-row .bscore{ font-variant-numeric:tabular-nums; color:#C46A12; font-weight:800; }
+  .board-row .bdate{ font-size:11px; color:#8F8AAA; min-width:3em; text-align:right; font-variant-numeric:tabular-nums; }
+  .board-row.empty{ background:transparent; border:1px dashed #DAD5E8; }
+  .board-row.empty .bname{ color:#B9B4CC; font-weight:400; }
+
+  /* ---------- 명예의 전당 (게임 화면 오른쪽 위 금·은·동) ---------- */
+  .hof{
+    position:absolute; pointer-events:none;
+    right:1.1%; top:1.6%; width:16.5%;
+    font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;
+    font-size:clamp(9px,1.7vmin,14px); font-size:1.05cqw;
+    border-radius:.9cqw; padding:.5cqw .85cqw .55cqw;
+    background:rgba(10,8,30,.78); border:2px solid rgba(255,214,110,.55);
+  }
+  .hof-title{ font-family:"Jua",sans-serif; font-size:1.2em; text-align:center; margin-bottom:.1em; color:#FFD66E; }
+  .hof-list{ list-style:none; }
+  .hof-row{ display:flex; align-items:center; gap:.45em; line-height:1.55; }
+  .hof-medal{ width:1.3em; text-align:center; }
+  .hof-name{ flex:1; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#fff; }
+  .hof-date{ font-size:.85em; font-variant-numeric:tabular-nums; color:#A49ECB; }
+  .hof-score{ font-weight:800; min-width:3.2em; text-align:right; font-variant-numeric:tabular-nums; color:#FFD66E; }
+  .hof-empty{ font-size:.9em; text-align:center; padding:.3em 0; color:#D4CFF0; }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <canvas id="game" width="1280" height="720" aria-label="중력 점프 게임 화면"></canvas>
+  <button type="button" class="sound-btn" id="sound-btn" title="소리 켜기/끄기">🔊</button>
+  <div class="hof" id="hof" aria-label="명예의 전당">
+    <div class="hof-title">🏆 명예의 전당</div>
+    <ol class="hof-list" id="hof-list"></ol>
+  </div>
+
+  <div class="overlay" id="intro">
+    <div class="panel">
+      <h1>🪐 중력 점프</h1>
+      <p>행성 위를 달리는 우주 비행사를 점프시켜 다음 행성으로 건너가세요! 행성 주변의 빛나는 테두리는 <b>중력이 미치는 범위</b>예요. 그 안에 들어가면 행성 쪽으로 끌려가요.</p>
+      <ul>
+        <li><b>점프</b> — 화면을 누르거나 스페이스바. 서 있는 방향(바깥쪽)으로 뛰어올라요.</li>
+        <li><b>부스터</b> — 공중에서 한 번 더 누르면 날아가는 방향으로 한 번 더 가속해요(점프마다 1번).</li>
+        <li>새 행성에 착지하면 <b>+100점</b>, 별 ⭐을 먹으면 <b>+50점</b>이고 산소도 채워져요.</li>
+        <li>산소가 다 떨어지면 끝! 빨간 <b>우주 괴물</b>·<b>소행성</b>에 부딪히거나 <b>블랙홀</b>에 빨려 들어가면 목숨을 잃어요.</li>
+        <li>팁: 큰 행성일수록 중력 범위가 넓어요. 점선 미리보기를 보고 타이밍을 맞추세요.</li>
+      </ul>
+      <div class="suit-pick" id="suit-pick"><span>우주복 색깔</span></div>
+      <button type="button" class="start-btn" id="start-btn">시작하기</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="result">
+    <div class="panel">
+      <h1 id="final-title">🪐 게임 끝!</h1>
+      <div class="score-big" id="final-score">0점</div>
+      <div class="rank-msg" id="final-rank"></div>
+      <div class="best" id="final-best"></div>
+      <p id="final-detail"></p>
+
+      <div class="board-wrap">
+        <div class="board-title">🏆 반 전체 랭킹 TOP 10</div>
+        <div class="board-note" id="board-source-note"></div>
+        <form class="name-form" id="name-form">
+          <input type="text" id="name-input" maxlength="12" placeholder="이름을 입력하고 랭킹에 등록하세요" autocomplete="off" required>
+          <button type="submit">등록</button>
+        </form>
+        <ul class="board-list" id="leader-list"></ul>
+      </div>
+
+      <button type="button" class="start-btn" id="again-btn">다시 하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   화면 설정 (게임 좌표: 1280×720, 세계 좌표는 픽셀 단위)
+   오른쪽으로 갈수록 새 행성이 나타나는 가로 진행형 우주.
+=========================================================== */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const VW = 1280, VH = 720;
+
+function setupCanvas(){
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = VW * dpr;
+  canvas.height = VH * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+setupCanvas();
+
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const TAU = Math.PI * 2;
+const angDiff = (a, b) => { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
+
+/* ==========================================================
+   물리 상수
+   - 행성 표면 중력 G0는 모두 같고, 중력 범위(중력장)는 반지름에 비례한다.
+     → 큰 행성일수록 멀리서도 끌어당긴다.
+   - 중력 크기는 거리의 제곱에 반비례(만유인력): a = G0·R² / r²
+=========================================================== */
+const G0 = 760;              // 행성 표면에서의 중력 가속도(px/s²)
+const FIELD_K = 2.6;         // 중력 범위 = 반지름 × FIELD_K
+const PLAYER_R = 13;
+const WALK_SPEED = 95;       // 행성 위를 달리는 속력(px/s)
+const JUMP_SPEED = 470;
+const BOOST_SPEED = 165;
+const MAX_FLIGHT = 5.2;      // 이보다 오래 날면 '우주 미아'
+const MAX_OUTSIDE = 2.3;     // 어느 중력 범위에도 없는 시간이 이보다 길면 '우주 미아'
+const O2_MAX = 30, O2_PLANET = 6, O2_STAR = 2;
+const LIVES = 3;
+const BAND_Y = 265;          // 행성이 놓이는 세로 범위(±)
+const STEP = 1 / 120;
+
+const PLANET_TYPES = {
+  moon:  { name: "달",     base: "#F4C65A", light: "#FFF1B8", dark: "#B9781F", glow: "255,214,110", crater: "rgba(150,95,25,.35)" },
+  ice:   { name: "얼음",   base: "#7FC8F8", light: "#E3F6FF", dark: "#2F78B5", glow: "140,210,255", crater: "rgba(40,100,160,.3)" },
+  lava:  { name: "용암",   base: "#F27B50", light: "#FFD2A8", dark: "#9B2F1A", glow: "255,140,90",  crater: "rgba(110,25,10,.4)" },
+  gas:   { name: "가스",   base: "#B79CFF", light: "#EEE5FF", dark: "#5D3FB0", glow: "190,160,255", crater: "rgba(80,50,160,.25)" },
+  rock:  { name: "암석",   base: "#AEB8C8", light: "#EEF2F8", dark: "#5A6577", glow: "200,215,235", crater: "rgba(60,70,90,.35)" },
+  forest:{ name: "숲",     base: "#6FCF8E", light: "#D8FBE3", dark: "#2B7A4B", glow: "140,240,170", crater: "rgba(30,90,50,.3)" }
+};
+const SUITS = [
+  { base: "#F7F7FB", trim: "#F2B233", visor: "#2F9BFF" },
+  { base: "#FFB3C7", trim: "#E2457A", visor: "#5C3BFF" },
+  { base: "#B7F0C8", trim: "#2E9E5B", visor: "#FF8A3D" },
+  { base: "#C9D4FF", trim: "#3F5BD9", visor: "#00C2B8" }
+];
+let suit = SUITS[0];
+
+/* ==========================================================
+   소리 (Web Audio로 직접 합성)
+=========================================================== */
+let actx = null, soundOn = true;
+function audio(){
+  if (!soundOn) return null;
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === "suspended") actx.resume();
+  } catch (e) { return null; }
+  return actx;
+}
+function tone(freq, dur, type = "sine", vol = .14, slideTo){
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, a.currentTime);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, a.currentTime + dur);
+  g.gain.setValueAtTime(vol, a.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001, a.currentTime + dur);
+  o.connect(g).connect(a.destination);
+  o.start(); o.stop(a.currentTime + dur);
+}
+const SFX = {
+  jump(){ tone(330, .22, "triangle", .13, 720); },
+  boost(){ tone(220, .3, "sawtooth", .06, 900); tone(440, .25, "triangle", .06, 1200); },
+  land(){ tone(140, .14, "sine", .2, 70); },
+  newPlanet(){ [523, 784].forEach((f, i) => setTimeout(() => tone(f, .18, "triangle", .12), i * 90)); },
+  star(){ [988, 1319, 1760].forEach((f, i) => setTimeout(() => tone(f, .12, "sine", .1), i * 55)); },
+  hit(){ tone(180, .5, "sawtooth", .12, 50); },
+  lost(){ tone(600, .9, "sine", .1, 90); },
+  over(){ [392, 330, 262].forEach((f, i) => setTimeout(() => tone(f, .32, "triangle", .12), i * 180)); },
+  warn(){ tone(880, .08, "square", .04); }
+};
+document.getElementById("sound-btn").addEventListener("click", e => {
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? "🔊" : "🔇";
+});
+
+/* ==========================================================
+   배경 별 (시차 스크롤 3겹)
+=========================================================== */
+const BG_LAYERS = [0.08, 0.2, 0.42].map((par, li) => ({
+  par,
+  stars: Array.from({ length: 90 - li * 20 }, () => ({
+    x: Math.random() * 2600, y: Math.random() * 1600,
+    r: rand(.5, 1.2) + li * .45, tw: Math.random() * TAU, sp: rand(1, 3)
+  }))
+}));
+const NEBULAE = Array.from({ length: 6 }, (_, i) => ({
+  x: i * 700 + rand(0, 300), y: rand(-300, 300), r: rand(260, 420),
+  c: ["120,70,200", "40,110,200", "200,80,140", "60,160,170", "160,120,60", "90,60,180"][i]
+}));
+
+/* ==========================================================
+   월드 상태
+=========================================================== */
+let planets = [], starsItems = [], blackHoles = [], particles = [], popups = [];
+let chainLast = null, chainCount = 0, planetSeq = 0;
+let player = null, lastPlanet = null;
+let cam = { x: 0, y: 0 };
+let score = 0, planetsReached = 0, starsGot = 0, lives = LIVES, o2 = O2_MAX;
+let phase = "intro", overTimer = 0, playTime = 0, shake = 0, hintT = 0, lowO2Beep = 0;
+let gameOverReason = "";
+
+function makePlanet(x, y, R, type){
+  const t = PLANET_TYPES[type];
+  const craters = Array.from({ length: Math.round(R / 14) }, () => {
+    const a = Math.random() * TAU, d = Math.random() * R * .7;
+    return { x: Math.cos(a) * d, y: Math.sin(a) * d, r: rand(R * .07, R * .18) };
+  });
+  return {
+    id: planetSeq++, x, y, R, Rf: R * FIELD_K, GM: G0 * R * R, type, t, craters,
+    visited: false, flagAng: null, spinRot: Math.random() * TAU,
+    ring: type === "gas" ? rand(-.5, .5) : null,
+    monster: null, sats: []
+  };
+}
+
+function overlapsAny(x, y, R, margin){
+  for (const p of planets) if (Math.hypot(p.x - x, p.y - y) < p.R + R + margin) return true;
+  for (const b of blackHoles) if (Math.hypot(b.x - x, b.y - y) < b.core + R + 150) return true;
+  return false;
+}
+
+function pickType(d){
+  const r = Math.random();
+  if (d < .15) return r < .6 ? "moon" : r < .8 ? "forest" : "rock";
+  const pool = ["moon", "moon", "ice", "gas", "rock", "forest", "lava"];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function addStarsBetween(a, b, n){
+  // 두 행성 표면 사이의 빈 공간에 별을 놓는다(살짝 바깥으로 휜 위치).
+  const dx = b.x - a.x, dy = b.y - a.y, dist = Math.hypot(dx, dy);
+  const ux = dx / dist, uy = dy / dist;
+  const s0 = a.R + 20, s1 = dist - b.R - 20;
+  const bend = rand(-45, 45);
+  for (let i = 0; i < n; i++){
+    const t = n === 1 ? .5 : .3 + .4 * i / (n - 1);
+    const s = lerp(s0, s1, t);
+    const off = bend * Math.sin(t * Math.PI);
+    starsItems.push({ x: a.x + ux * s - uy * off, y: a.y + uy * s + ux * off, got: false, bob: Math.random() * TAU });
+  }
+}
+
+function addChainPlanet(){
+  const idx = chainCount;
+  const d = Math.min(1, idx / 40);
+  if (!chainLast){
+    const p = makePlanet(0, 40, 82, "moon");
+    planets.push(p); chainLast = p; chainCount++;
+    return;
+  }
+  const prev = chainLast;
+  let placed = null;
+  for (let tries = 0; tries < 60 && !placed; tries++){
+    const R = rand(lerp(62, 42, d), lerp(92, 72, d));
+    const gap = lerp(70, 165, d) + rand(0, 70) + (tries > 30 ? 30 : 0);
+    let ang = rand(-1.05, 1.05) - (prev.y / BAND_Y) * .55;
+    ang = clamp(ang, -1.25, 1.25);
+    const dist = prev.R + R + gap;
+    const x = prev.x + Math.cos(ang) * dist, y = prev.y + Math.sin(ang) * dist;
+    if (Math.abs(y) > BAND_Y) continue;
+    if (x < prev.x + 90) continue;
+    if (overlapsAny(x, y, R, 70)) continue;
+    placed = makePlanet(x, y, R, idx < 2 ? "moon" : pickType(d));
+  }
+  if (!placed) placed = makePlanet(prev.x + prev.R + 150 + 70, 0, 60, "moon");
+  const p = placed;
+
+  // 위험 요소는 난이도(d)에 따라 늘어난다
+  if (idx >= 4 && Math.random() < lerp(.2, .55, d) || p.type === "lava" && idx >= 3){
+    p.monster = { ang: Math.random() * TAU, dir: Math.random() < .5 ? -1 : 1, speed: lerp(38, 70, d), wob: 0 };
+  }
+  if (idx >= 6 && Math.random() < lerp(.12, .45, d)){
+    const n = Math.random() < d * .6 ? 2 : 1;
+    for (let i = 0; i < n; i++){
+      p.sats.push({ rad: p.R + rand(46, 72), ang: Math.random() * TAU + i * Math.PI, w: (Math.random() < .5 ? -1 : 1) * rand(.7, 1.3), r: rand(11, 15), rot: 0 });
+    }
+  }
+  planets.push(p);
+  addStarsBetween(prev, p, Math.random() < .5 ? 1 : 2);
+
+  // 가끔 옆길 보너스 행성(별이 더 많음)
+  if (idx >= 3 && Math.random() < .28){
+    for (let tries = 0; tries < 25; tries++){
+      const side = Math.random() < .5 ? -1 : 1;
+      const R = rand(36, 52);
+      const a = side * rand(1.2, 1.9);
+      const dist = p.R + R + rand(90, 150);
+      const x = p.x + Math.cos(a) * dist * .6 - 40, y = p.y + Math.sin(a) * dist;
+      if (Math.abs(y) > BAND_Y + 40 || overlapsAny(x, y, R, 70)) continue;
+      const s = makePlanet(x, y, R, "forest");
+      planets.push(s);
+      addStarsBetween(p, s, 2);
+      break;
+    }
+  }
+
+  // 블랙홀: 직선 경로에서 비켜난 곳에 놓아 궤도를 휘게 만든다
+  if (idx >= 12 && Math.random() < lerp(.05, .22, d)){
+    const mx = (prev.x + p.x) / 2, my = (prev.y + p.y) / 2;
+    const dx = p.x - prev.x, dy = p.y - prev.y, L = Math.hypot(dx, dy);
+    const side = my > 0 ? -1 : 1;
+    const off = rand(210, 260);
+    const bx = mx - dy / L * off * side, by = my + dx / L * off * side;
+    let ok = Math.abs(by) < BAND_Y + 120;
+    for (const q of planets) if (Math.hypot(q.x - bx, q.y - by) < q.R + 150) ok = false;
+    if (ok) blackHoles.push({ x: bx, y: by, core: 24, Rf: 230, GM: 2.6e6, rot: 0 });
+  }
+
+  chainLast = p; chainCount++;
+}
+
+function ensureWorld(){
+  while (!chainLast || chainLast.x < cam.x + VW * 1.4) addChainPlanet();
+  // 화면 왼쪽으로 한참 지나간 것들은 정리(마지막 착지 행성은 남김)
+  const cut = cam.x - VW * 1.2;
+  planets = planets.filter(p => p.x + p.Rf > cut || p === lastPlanet || (player && player.planet === p));
+  starsItems = starsItems.filter(s => s.x > cut && !s.gone);
+  blackHoles = blackHoles.filter(b => b.x + b.Rf > cut);
+}
+
+/* ==========================================================
+   플레이어
+=========================================================== */
+function standPos(p, ang){
+  return { x: p.x + Math.cos(ang) * (p.R + PLAYER_R), y: p.y + Math.sin(ang) * (p.R + PLAYER_R) };
+}
+
+function placeOn(p, ang, dir){
+  const pos = standPos(p, ang);
+  player = Object.assign(player || {}, {
+    state: "stand", planet: p, ang, dir: dir || 1,
+    x: pos.x, y: pos.y, vx: 0, vy: 0, flyT: 0, outT: 0, boost: 0, walkT: player ? player.walkT : 0,
+    rot: ang + Math.PI / 2
+  });
+}
+
+function gravityAt(x, y){
+  let ax = 0, ay = 0, inField = false;
+  for (const p of planets){
+    const dx = p.x - x, dy = p.y - y, r = Math.hypot(dx, dy);
+    if (r >= p.Rf || r < 1) continue;
+    inField = true;
+    // 중력 범위 가장자리에서는 부드럽게 0으로 줄어든다
+    const edge = clamp((p.Rf - r) / (p.Rf * .18), 0, 1);
+    const a = p.GM / (r * r) * edge;
+    ax += dx / r * a; ay += dy / r * a;
+  }
+  for (const b of blackHoles){
+    const dx = b.x - x, dy = b.y - y, r = Math.hypot(dx, dy);
+    if (r >= b.Rf || r < 1) continue;
+    inField = true;
+    const edge = clamp((b.Rf - r) / (b.Rf * .25), 0, 1);
+    const a = Math.min(b.GM / (r * r), 4200) * edge;
+    ax += dx / r * a; ay += dy / r * a;
+  }
+  return { ax, ay, inField };
+}
+
+function jumpVelocity(){
+  const nx = Math.cos(player.ang), ny = Math.sin(player.ang);
+  const tx = -ny * player.dir, ty = nx * player.dir;
+  return { vx: nx * JUMP_SPEED + tx * WALK_SPEED, vy: ny * JUMP_SPEED + ty * WALK_SPEED };
+}
+
+function doJump(){
+  if (phase !== "play" || !player || player.state === "dead") return;
+  if (player.state === "stand"){
+    const v = jumpVelocity();
+    const nx = Math.cos(player.ang), ny = Math.sin(player.ang);
+    player.state = "fly";
+    player.x += nx * 2; player.y += ny * 2;
+    player.vx = v.vx; player.vy = v.vy;
+    player.flyT = 0; player.outT = 0; player.boost = 1;
+    player.leftPlanet = player.planet; player.planet = null;
+    puff(player.x - nx * 10, player.y - ny * 10, "255,255,255", 8, 90);
+    SFX.jump();
+    hintT = Math.max(hintT, 0);
+  } else if (player.state === "fly" && player.boost > 0){
+    const sp = Math.hypot(player.vx, player.vy) || 1;
+    player.vx += player.vx / sp * BOOST_SPEED;
+    player.vy += player.vy / sp * BOOST_SPEED;
+    player.boost = 0;
+    puff(player.x - player.vx / sp * 12, player.y - player.vy / sp * 12, "255,170,60", 14, 140);
+    SFX.boost();
+  }
+}
+
+function land(p){
+  const ang = Math.atan2(player.y - p.y, player.x - p.x);
+  const tang = player.vx * -Math.sin(ang) + player.vy * Math.cos(ang);
+  const dir = Math.abs(tang) > 8 ? Math.sign(tang) : (player.dir || 1);
+  placeOn(p, ang, dir);
+  lastPlanet = p;
+  SFX.land();
+  puff(player.x, player.y, `${p.t.glow}`, 10, 70);
+  // 착지 지점 근처의 괴물은 반대편으로 비켜 준다(착지 즉시 실패 방지)
+  if (p.monster && Math.abs(angDiff(p.monster.ang, ang)) * p.R < 150) p.monster.ang = ang + Math.PI;
+  if (!p.visited){
+    p.visited = true; p.flagAng = ang;
+    planetsReached++;
+    score += 100;
+    o2 = Math.min(O2_MAX, o2 + O2_PLANET);
+    popups.push({ x: player.x, y: player.y - 30, text: "+100", color: "#FFD66E", t: 0 });
+    SFX.newPlanet();
+  }
+}
+
+function loseLife(reason){
+  if (player.state === "dead" || player.invuln > 0) return;
+  lives--;
+  shake = 14;
+  puff(player.x, player.y, "255,110,90", 26, 220);
+  popups.push({ x: player.x, y: player.y - 30, text: reason, color: "#FF8A7A", t: 0 });
+  player.state = "dead"; player.deadT = 0; player.deadReason = reason;
+  if (reason === "우주 미아!") SFX.lost(); else SFX.hit();
+}
+
+function respawn(){
+  const p = lastPlanet;
+  // 다음 행성 쪽을 바라보는 위치에서 다시 시작
+  let target = null;
+  for (const q of planets) if (!q.visited && q.x > p.x && (!target || q.x < target.x)) target = q;
+  const ang = target ? Math.atan2(target.y - p.y, target.x - p.x) - .9 : -Math.PI / 2;
+  placeOn(p, ang, 1);
+  player.invuln = 1.6;
+  if (p.monster && Math.abs(angDiff(p.monster.ang, ang)) * p.R < 170) p.monster.ang = ang + Math.PI;
+}
+
+/* ==========================================================
+   한 스텝 진행
+=========================================================== */
+function step(dt){
+  playTime += dt;
+  for (const p of planets){
+    p.spinRot += dt * .05;
+    if (p.monster){
+      const m = p.monster;
+      m.ang += m.dir * m.speed / (p.R + 12) * dt;
+      m.wob += dt * 9;
+    }
+    for (const s of p.sats){ s.ang += s.w * dt; s.rot += dt * 2; }
+  }
+  for (const b of blackHoles) b.rot += dt;
+
+  o2 -= dt;
+  if (o2 <= 0){ o2 = 0; endGame("산소가 바닥났어요!"); return; }
+  if (o2 < 8){ lowO2Beep -= dt; if (lowO2Beep <= 0){ SFX.warn(); lowO2Beep = 1; } }
+
+  if (player.invuln > 0) player.invuln -= dt;
+
+  if (player.state === "dead"){
+    player.deadT += dt;
+    if (player.deadT > 1.1){
+      if (lives <= 0) endGame(player.deadReason === "우주 미아!" ? "우주 미아가 되었어요!" : "목숨을 모두 잃었어요!");
+      else respawn();
+    }
+    return;
+  }
+
+  if (player.state === "stand"){
+    const p = player.planet;
+    player.ang += player.dir * WALK_SPEED / (p.R + PLAYER_R) * dt;
+    const pos = standPos(p, player.ang);
+    player.x = pos.x; player.y = pos.y;
+    player.rot = player.ang + Math.PI / 2;
+    player.walkT += dt;
+    if (p.monster && player.invuln <= 0){
+      if (Math.abs(angDiff(p.monster.ang, player.ang)) * (p.R + 12) < 24) loseLife("괴물에게 잡혔어요!");
+    }
+    return;
+  }
+
+  // 비행: 중력 합력으로 속도·위치 갱신(반암시적 오일러)
+  const g = gravityAt(player.x, player.y);
+  player.vx += g.ax * dt; player.vy += g.ay * dt;
+  player.x += player.vx * dt; player.y += player.vy * dt;
+  player.flyT += dt;
+  player.outT = g.inField ? 0 : player.outT + dt;
+  player.rot = Math.atan2(player.vy, player.vx) + Math.PI / 2;
+  if (Math.random() < .5) particles.push({ x: player.x, y: player.y, vx: rand(-15, 15), vy: rand(-15, 15), life: .5, max: .5, c: "255,230,160", r: 2.2 });
+
+  for (const p of planets){
+    const r = Math.hypot(player.x - p.x, player.y - p.y);
+    if (r <= p.R + PLAYER_R){ land(p); return; }
+    if (player.invuln <= 0){
+      for (const s of p.sats){
+        const sx = p.x + Math.cos(s.ang) * s.rad, sy = p.y + Math.sin(s.ang) * s.rad;
+        if (Math.hypot(player.x - sx, player.y - sy) < s.r + PLAYER_R - 2){ loseLife("소행성 충돌!"); return; }
+      }
+      if (p.monster){
+        const mx = p.x + Math.cos(p.monster.ang) * (p.R + 12), my = p.y + Math.sin(p.monster.ang) * (p.R + 12);
+        if (Math.hypot(player.x - mx, player.y - my) < 24){ loseLife("괴물에게 잡혔어요!"); return; }
+      }
+    }
+  }
+  for (const b of blackHoles){
+    if (Math.hypot(player.x - b.x, player.y - b.y) < b.core + PLAYER_R * .5){ loseLife("블랙홀에 빨려 들어갔어요!"); return; }
+  }
+  for (const s of starsItems){
+    if (!s.got && Math.hypot(player.x - s.x, player.y - s.y) < 28){
+      s.got = true; starsGot++; score += 50;
+      o2 = Math.min(O2_MAX, o2 + O2_STAR);
+      popups.push({ x: s.x, y: s.y - 20, text: "+50", color: "#FFF3A0", t: 0 });
+      puff(s.x, s.y, "255,230,120", 12, 120);
+      SFX.star();
+    }
+  }
+  if (player.flyT > MAX_FLIGHT || player.outT > MAX_OUTSIDE || Math.abs(player.y) > 1100) loseLife("우주 미아!");
+}
+
+/* 서 있는 지금 점프하면 어디로 날아갈지 미리 계산(점선 미리보기) */
+function predictPath(){
+  const v = jumpVelocity();
+  let x = player.x + Math.cos(player.ang) * 2, y = player.y + Math.sin(player.ang) * 2, vx = v.vx, vy = v.vy;
+  const pts = [];
+  // 실제 비행과 똑같은 시간 간격(STEP)으로 계산해야 미리보기와 실제 궤도가 어긋나지 않는다
+  const dt = STEP;
+  for (let i = 0; i < 124; i++){
+    const g = gravityAt(x, y);
+    vx += g.ax * dt; vy += g.ay * dt; x += vx * dt; y += vy * dt;
+    if (i % 6 === 0) pts.push({ x, y });
+    let hit = false;
+    for (const p of planets) if (Math.hypot(x - p.x, y - p.y) <= p.R + PLAYER_R){ hit = true; break; }
+    if (hit){ pts.push({ x, y, end: true }); break; }
+  }
+  return pts;
+}
+
+function puff(x, y, c, n, sp){
+  for (let i = 0; i < n; i++){
+    const a = Math.random() * TAU, s = rand(.3, 1) * sp;
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(.4, .8), max: .8, c, r: rand(1.5, 3.5) });
+  }
+}
+
+/* ==========================================================
+   그리기
+=========================================================== */
+function roundRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawBackground(t){
+  const g = ctx.createLinearGradient(0, 0, 0, VH);
+  g.addColorStop(0, "#0B0A24"); g.addColorStop(.55, "#120F33"); g.addColorStop(1, "#06061A");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+  for (const n of NEBULAE){
+    const span = 4200;
+    let nx = ((n.x - cam.x * .05) % span + span) % span - 600;
+    const ny = VH / 2 + n.y - cam.y * .05;
+    const rg = ctx.createRadialGradient(nx, ny, 0, nx, ny, n.r);
+    rg.addColorStop(0, `rgba(${n.c},.22)`); rg.addColorStop(1, `rgba(${n.c},0)`);
+    ctx.fillStyle = rg; ctx.fillRect(nx - n.r, ny - n.r, n.r * 2, n.r * 2);
+  }
+  for (const L of BG_LAYERS){
+    for (const s of L.stars){
+      const x = ((s.x - cam.x * L.par) % 2600 + 2600) % 2600 - 600;
+      const y = ((s.y - cam.y * L.par) % 1600 + 1600) % 1600 - 440;
+      if (x < -5 || x > VW + 5 || y < -5 || y > VH + 5) continue;
+      const a = .45 + .4 * Math.sin(t * s.sp + s.tw);
+      ctx.fillStyle = `rgba(255,250,235,${a})`;
+      ctx.beginPath(); ctx.arc(x, y, s.r, 0, TAU); ctx.fill();
+    }
+  }
+}
+
+function drawField(p, t){
+  const rg = ctx.createRadialGradient(p.x, p.y, p.R, p.x, p.y, p.Rf);
+  rg.addColorStop(0, `rgba(${p.t.glow},.20)`);
+  rg.addColorStop(.6, `rgba(${p.t.glow},.06)`);
+  rg.addColorStop(1, `rgba(${p.t.glow},0)`);
+  ctx.fillStyle = rg;
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.Rf, 0, TAU); ctx.fill();
+  ctx.save();
+  ctx.strokeStyle = `rgba(${p.t.glow},.32)`;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 10]);
+  ctx.lineDashOffset = -t * 14;
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.Rf, 0, TAU); ctx.stroke();
+  ctx.restore();
+}
+
+function drawPlanet(p){
+  const t = p.t;
+  // 고리(가스 행성) 뒤쪽
+  if (p.ring !== null){
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.ring);
+    ctx.strokeStyle = "rgba(230,215,255,.55)"; ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.ellipse(0, 0, p.R * 1.65, p.R * .42, 0, Math.PI, TAU); ctx.stroke();
+    ctx.restore();
+  }
+  const bg = ctx.createRadialGradient(p.x - p.R * .35, p.y - p.R * .4, p.R * .1, p.x, p.y, p.R);
+  bg.addColorStop(0, t.light); bg.addColorStop(.55, t.base); bg.addColorStop(1, t.dark);
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.R, 0, TAU); ctx.fill();
+
+  ctx.save();
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.R, 0, TAU); ctx.clip();
+  if (p.type === "gas"){
+    for (let i = -3; i <= 3; i++){
+      ctx.fillStyle = i % 2 ? "rgba(255,255,255,.12)" : "rgba(70,40,150,.14)";
+      ctx.fillRect(p.x - p.R, p.y + i * p.R * .28 - p.R * .08, p.R * 2, p.R * .16);
+    }
+  } else {
+    for (const c of p.craters){
+      const cx = p.x + Math.cos(p.spinRot) * c.x - Math.sin(p.spinRot) * c.y;
+      const cy = p.y + Math.sin(p.spinRot) * c.x + Math.cos(p.spinRot) * c.y;
+      ctx.fillStyle = t.crater;
+      ctx.beginPath(); ctx.arc(cx, cy, c.r, 0, TAU); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.12)";
+      ctx.beginPath(); ctx.arc(cx - c.r * .25, cy - c.r * .25, c.r * .55, 0, TAU); ctx.fill();
+    }
+  }
+  if (p.type === "forest"){
+    for (let i = 0; i < 9; i++){
+      const a = i / 9 * TAU + p.spinRot * 2;
+      ctx.fillStyle = "rgba(30,110,60,.55)";
+      ctx.beginPath(); ctx.arc(p.x + Math.cos(a) * p.R * .98, p.y + Math.sin(a) * p.R * .98, p.R * .16, 0, TAU); ctx.fill();
+    }
+  }
+  if (p.type === "lava"){
+    ctx.strokeStyle = "rgba(255,230,120,.55)"; ctx.lineWidth = 2;
+    for (let i = 0; i < 4; i++){
+      const a = i * 1.7 + p.spinRot;
+      ctx.beginPath();
+      ctx.moveTo(p.x + Math.cos(a) * p.R * .2, p.y + Math.sin(a) * p.R * .2);
+      ctx.quadraticCurveTo(p.x + Math.cos(a + .5) * p.R * .6, p.y + Math.sin(a + .5) * p.R * .6, p.x + Math.cos(a + .2) * p.R, p.y + Math.sin(a + .2) * p.R);
+      ctx.stroke();
+    }
+  }
+  // 그늘
+  const sh = ctx.createRadialGradient(p.x - p.R * .5, p.y - p.R * .5, p.R * .6, p.x, p.y, p.R * 1.25);
+  sh.addColorStop(0, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,20,.45)");
+  ctx.fillStyle = sh; ctx.fillRect(p.x - p.R, p.y - p.R, p.R * 2, p.R * 2);
+  ctx.restore();
+
+  ctx.strokeStyle = `rgba(${t.glow},.8)`; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.R, 0, TAU); ctx.stroke();
+
+  if (p.ring !== null){
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.ring);
+    ctx.strokeStyle = "rgba(240,228,255,.75)"; ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.ellipse(0, 0, p.R * 1.65, p.R * .42, 0, 0, Math.PI); ctx.stroke();
+    ctx.restore();
+  }
+
+  // 처음 착지한 곳에 깃발
+  if (p.flagAng !== null){
+    const a = p.flagAng;
+    const bx = p.x + Math.cos(a) * p.R, by = p.y + Math.sin(a) * p.R;
+    const tx = p.x + Math.cos(a) * (p.R + 30), ty = p.y + Math.sin(a) * (p.R + 30);
+    ctx.strokeStyle = "#E8E8F0"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke();
+    const px = -Math.sin(a), py = Math.cos(a);
+    ctx.fillStyle = suit.trim;
+    ctx.beginPath(); ctx.moveTo(tx, ty);
+    ctx.lineTo(tx + px * 15 - Math.cos(a) * 4, ty + py * 15 - Math.sin(a) * 4);
+    ctx.lineTo(tx - Math.cos(a) * 9, ty - Math.sin(a) * 9);
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+function drawMonster(p, t){
+  const m = p.monster;
+  const a = m.ang;
+  const r = p.R + 12 + Math.abs(Math.sin(m.wob)) * 3;
+  const x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(a + Math.PI / 2);
+  ctx.fillStyle = "#E23D3D";
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++){
+    const aa = i / 10 * TAU, rr = i % 2 ? 9 : 14;
+    ctx.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr);
+  }
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#FF6B6B"; ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(-3.5, -2, 3.2, 0, TAU); ctx.arc(3.5, -2, 3.2, 0, TAU); ctx.fill();
+  ctx.fillStyle = "#1A0A0A";
+  ctx.beginPath(); ctx.arc(-3.5 + m.dir, -2, 1.5, 0, TAU); ctx.arc(3.5 + m.dir, -2, 1.5, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "#5A0F0F"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(-4, 4); ctx.lineTo(-2, 2.5); ctx.lineTo(0, 4); ctx.lineTo(2, 2.5); ctx.lineTo(4, 4); ctx.stroke();
+  ctx.restore();
+}
+
+function drawSat(p, s){
+  const x = p.x + Math.cos(s.ang) * s.rad, y = p.y + Math.sin(s.ang) * s.rad;
+  ctx.strokeStyle = "rgba(200,200,220,.12)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(p.x, p.y, s.rad, 0, TAU); ctx.stroke();
+  ctx.save(); ctx.translate(x, y); ctx.rotate(s.rot);
+  const g = ctx.createRadialGradient(-s.r * .3, -s.r * .3, 1, 0, 0, s.r);
+  g.addColorStop(0, "#C9C2B8"); g.addColorStop(1, "#5E5650");
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  for (let i = 0; i < 9; i++){
+    const aa = i / 9 * TAU, rr = s.r * (i % 3 ? 1 : .8);
+    ctx.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr);
+  }
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(60,50,45,.6)";
+  ctx.beginPath(); ctx.arc(s.r * .25, s.r * .1, s.r * .25, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+function drawBlackHole(b, t){
+  const rg = ctx.createRadialGradient(b.x, b.y, b.core, b.x, b.y, b.Rf);
+  rg.addColorStop(0, "rgba(255,140,60,.25)"); rg.addColorStop(.35, "rgba(140,60,200,.10)"); rg.addColorStop(1, "rgba(60,20,120,0)");
+  ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(b.x, b.y, b.Rf, 0, TAU); ctx.fill();
+  ctx.save();
+  ctx.strokeStyle = "rgba(200,120,255,.35)"; ctx.setLineDash([3, 9]); ctx.lineDashOffset = t * 30;
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.Rf, 0, TAU); ctx.stroke();
+  ctx.restore();
+  for (let i = 0; i < 4; i++){
+    ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.rot * (1.4 + i * .3) + i);
+    ctx.strokeStyle = `rgba(255,${150 + i * 25},${80 + i * 30},${.55 - i * .1})`;
+    ctx.lineWidth = 3 - i * .5;
+    ctx.beginPath(); ctx.ellipse(0, 0, b.core * (1.9 + i * .55), b.core * (.7 + i * .2), 0, 0, TAU * .8); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.core, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "rgba(255,200,120,.9)"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.core + 1, 0, TAU); ctx.stroke();
+}
+
+function drawStar(s, t){
+  if (s.got) return;
+  const y = s.y + Math.sin(t * 3 + s.bob) * 4;
+  const glow = ctx.createRadialGradient(s.x, y, 2, s.x, y, 26);
+  glow.addColorStop(0, "rgba(255,240,150,.55)"); glow.addColorStop(1, "rgba(255,240,150,0)");
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(s.x, y, 26, 0, TAU); ctx.fill();
+  ctx.save(); ctx.translate(s.x, y); ctx.rotate(Math.sin(t * 2 + s.bob) * .3);
+  ctx.fillStyle = "#FFD84D"; ctx.strokeStyle = "#FFF6C2"; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++){
+    const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 5.5 : 12;
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawPlayer(t){
+  if (!player || player.state === "dead") return;
+  if (player.invuln > 0 && Math.floor(player.invuln * 10) % 2 === 0) return;
+  const flying = player.state === "fly";
+  ctx.save();
+  ctx.translate(player.x, player.y);
+  ctx.rotate(player.rot);
+  ctx.scale(player.dir < 0 && !flying ? -1 : 1, 1);
+  const leg = flying ? .5 : Math.sin(player.walkT * 14) * .6;
+  // 다리
+  ctx.strokeStyle = suit.base; ctx.lineWidth = 5; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(-3, 6); ctx.lineTo(-3 + Math.sin(leg) * 7, 13); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(3, 6); ctx.lineTo(3 - Math.sin(leg) * 7, 13); ctx.stroke();
+  // 배낭
+  ctx.fillStyle = suit.trim;
+  roundRect(-12, -6, 6, 13, 2); ctx.fill();
+  if (flying && player.boost === 0){
+    ctx.fillStyle = `rgba(255,${150 + Math.random() * 80},60,.85)`;
+    ctx.beginPath(); ctx.moveTo(-12, 7); ctx.lineTo(-9, 16 + Math.random() * 8); ctx.lineTo(-6, 7); ctx.fill();
+  }
+  // 몸
+  ctx.fillStyle = suit.base;
+  roundRect(-8, -5, 16, 14, 5); ctx.fill();
+  ctx.fillStyle = suit.trim; ctx.fillRect(-8, 2, 16, 2.5);
+  // 팔
+  ctx.strokeStyle = suit.base; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(6, -1); ctx.lineTo(10, flying ? -9 : 5 + leg * 3); ctx.stroke();
+  // 헬멧
+  ctx.fillStyle = suit.base;
+  ctx.beginPath(); ctx.arc(0, -12, 10, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,.18)"; ctx.lineWidth = 1; ctx.stroke();
+  const vg = ctx.createLinearGradient(0, -18, 6, -6);
+  vg.addColorStop(0, "#BFE6FF"); vg.addColorStop(1, suit.visor);
+  ctx.fillStyle = vg;
+  roundRect(-2, -17, 11, 9, 4); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.75)";
+  ctx.beginPath(); ctx.arc(2, -14, 1.8, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+function drawPreview(t){
+  if (!player || player.state !== "stand" || phase !== "play") return;
+  const pts = predictPath();
+  for (let i = 0; i < pts.length; i++){
+    const q = pts[i];
+    const a = .85 * (1 - i / (pts.length + 4));
+    ctx.fillStyle = q.end ? `rgba(130,255,170,.9)` : `rgba(255,240,190,${a})`;
+    ctx.beginPath(); ctx.arc(q.x, q.y, q.end ? 5 : 2.6, 0, TAU); ctx.fill();
+  }
+}
+
+function drawHUD(t){
+  // 점수판
+  ctx.fillStyle = "rgba(10,8,30,.78)";
+  roundRect(14, 12, 262, 96, 14); ctx.fill();
+  ctx.strokeStyle = "rgba(255,214,110,.55)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = "#FFD66E"; ctx.font = "22px Jua, sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  ctx.fillText("점수", 30, 44);
+  ctx.fillStyle = "#fff"; ctx.font = "34px Jua, sans-serif";
+  ctx.fillText(String(score), 92, 46);
+  ctx.font = "18px Jua, sans-serif"; ctx.fillStyle = "#D8D2FF";
+  ctx.fillText(`🪐 ${planetsReached}   ⭐ ${starsGot}`, 30, 78);
+  let hearts = "";
+  for (let i = 0; i < LIVES; i++) hearts += i < lives ? "❤️" : "🖤";
+  ctx.font = "18px sans-serif";
+  ctx.fillText(hearts, 30, 100);
+  ctx.font = "15px Jua, sans-serif"; ctx.fillStyle = player && player.state === "fly" && player.boost > 0 ? "#FFB45A" : "rgba(255,255,255,.35)";
+  ctx.fillText("🚀 부스터", 168, 100);
+
+  // 산소 게이지
+  const w = 380, x = VW / 2 - w / 2, y = 22;
+  const f = o2 / O2_MAX;
+  ctx.fillStyle = "rgba(10,8,30,.78)";
+  roundRect(x - 70, y - 8, w + 84, 40, 20); ctx.fill();
+  ctx.fillStyle = "#BFE6FF"; ctx.font = "18px Jua, sans-serif"; ctx.textAlign = "left";
+  ctx.fillText("산소", x - 56, y + 18);
+  ctx.fillStyle = "rgba(255,255,255,.12)";
+  roundRect(x, y, w, 20, 10); ctx.fill();
+  const low = o2 < 8;
+  const og = ctx.createLinearGradient(x, 0, x + w, 0);
+  if (low){ og.addColorStop(0, "#FF5A5A"); og.addColorStop(1, "#FF9F6B"); }
+  else { og.addColorStop(0, "#3FD0FF"); og.addColorStop(1, "#7DF0C6"); }
+  if (!low || Math.floor(t * 4) % 2 === 0){
+    ctx.fillStyle = og;
+    roundRect(x, y, Math.max(20, w * f), 20, 10); ctx.fill();
+  }
+  ctx.fillStyle = "#fff"; ctx.font = "15px Jua, sans-serif"; ctx.textAlign = "right";
+  ctx.fillText(`${Math.ceil(o2)}초`, x + w - 8, y + 16);
+
+  // 안내
+  if (hintT > 0 && phase === "play"){
+    const a = Math.min(1, hintT);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = "rgba(10,8,30,.75)";
+    roundRect(VW / 2 - 300, VH - 74, 600, 46, 23); ctx.fill();
+    ctx.fillStyle = "#FFF3C4"; ctx.font = "20px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("화면을 누르면 점프! 공중에서 한 번 더 누르면 부스터 🚀", VW / 2, VH - 44);
+    ctx.globalAlpha = 1;
+  }
+  ctx.textAlign = "left";
+}
+
+function render(t){
+  drawBackground(t);
+  ctx.save();
+  let sx = 0, sy = 0;
+  if (shake > 0){ sx = rand(-shake, shake); sy = rand(-shake, shake); }
+  ctx.translate(VW / 2 - cam.x + sx, VH / 2 - cam.y + sy);
+
+  for (const p of planets) drawField(p, t);
+  for (const b of blackHoles) drawBlackHole(b, t);
+  for (const p of planets) for (const s of p.sats) drawSat(p, s);
+  for (const p of planets) drawPlanet(p);
+  for (const p of planets) if (p.monster) drawMonster(p, t);
+  for (const s of starsItems) drawStar(s, t);
+  drawPreview(t);
+  for (const q of particles){
+    ctx.fillStyle = `rgba(${q.c},${Math.max(0, q.life / q.max)})`;
+    ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, TAU); ctx.fill();
+  }
+  drawPlayer(t);
+  for (const pp of popups){
+    ctx.globalAlpha = Math.max(0, 1 - pp.t / 1.2);
+    ctx.fillStyle = pp.color; ctx.font = "26px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.strokeStyle = "rgba(0,0,0,.5)"; ctx.lineWidth = 4;
+    ctx.strokeText(pp.text, pp.x, pp.y - pp.t * 40);
+    ctx.fillText(pp.text, pp.x, pp.y - pp.t * 40);
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+  if (phase !== "intro") drawHUD(t);
+}
+
+/* ==========================================================
+   메인 루프
+=========================================================== */
+let lastT = null, acc = 0;
+function frame(now){
+  const t = now / 1000;
+  if (lastT === null) lastT = t;
+  let dt = Math.min(.05, t - lastT);
+  lastT = t;
+
+  if (phase === "play"){
+    acc += dt;
+    while (acc >= STEP && phase === "play"){ step(STEP); acc -= STEP; }
+    if (hintT > 0) hintT -= dt * (player && player.state === "fly" ? 2 : .35);
+  } else if (phase === "intro"){
+    // 시작 화면에서도 행성들이 살아 움직이게
+    for (const p of planets){ if (p.monster) p.monster.ang += p.monster.dir * .5 * dt; for (const s of p.sats) s.ang += s.w * dt; }
+    if (player && player.state === "stand"){
+      player.ang += player.dir * WALK_SPEED / (player.planet.R + PLAYER_R) * dt;
+      const pos = standPos(player.planet, player.ang);
+      player.x = pos.x; player.y = pos.y; player.rot = player.ang + Math.PI / 2; player.walkT += dt;
+    }
+  }
+  for (const q of particles){ q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= .96; q.vy *= .96; q.life -= dt; }
+  particles = particles.filter(q => q.life > 0);
+  for (const pp of popups) pp.t += dt;
+  popups = popups.filter(pp => pp.t < 1.2);
+  if (shake > 0) shake = Math.max(0, shake - dt * 40);
+
+  if (player){
+    const tx = player.x + 230, ty = player.y * .55;
+    cam.x = lerp(cam.x, tx, 1 - Math.pow(.02, dt));
+    cam.y = lerp(cam.y, ty, 1 - Math.pow(.05, dt));
+  }
+  ensureWorld();
+  render(t);
+  requestAnimationFrame(frame);
+}
+
+/* ==========================================================
+   입력
+=========================================================== */
+canvas.addEventListener("pointerdown", e => { e.preventDefault(); doJump(); });
+window.addEventListener("keydown", e => {
+  if (e.repeat) return;
+  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "Enter"){
+    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    if (phase === "play"){ e.preventDefault(); doJump(); }
+  }
+});
+
+/* ==========================================================
+   반 전체 공유 랭킹 (다른 쉬어가는 게임들과 같은 스프레드시트 웹 앱 사용)
+=========================================================== */
+const LEADERBOARD_KEY = "science-gravityjump-leaderboard";
+const LEADERBOARD_WORKSHEET = "중력점프_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+
+function loadLeaderboard(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]");
+    if (Array.isArray(raw)) return raw;
+  }catch(e){}
+  return [];
+}
+function saveLeaderboard(list){
+  try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+}
+
+async function fetchSharedLeaderboard(){
+  if (!LEADERBOARD_WEBHOOK_URL) return null;
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if (!res.ok) throw new Error("status " + res.status);
+    const rows = await res.json();
+    return rows
+      .map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), date: r.date || r.timestamp }))
+      .filter(r => r.name && !Number.isNaN(r.score));
+  }catch(err){
+    console.warn("공유 랭킹을 불러오지 못했습니다:", err);
+    return null;
+  }
+}
+
+async function submitToSharedLeaderboard(entry){
+  if (!LEADERBOARD_WEBHOOK_URL) return;
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, score: String(entry.score), planets: String(entry.planets), stars: String(entry.stars), date: entry.date })
+    });
+  }catch(err){
+    console.warn("공유 랭킹 전송에 실패했습니다:", err);
+  }
+}
+
+function localDateStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function fmtDate(v){
+  if(!v) return "";
+  const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m) return `${Number(m[2])}.${Number(m[3])}`;
+  const t = new Date(v);
+  if(isNaN(t)) return "";
+  return `${t.getMonth() + 1}.${t.getDate()}`;
+}
+
+function renderLeaderboardInto(listEl, board, maxN, highlightEntry){
+  listEl.innerHTML = "";
+  for(let i = 0; i < maxN; i++){
+    const entry = board[i];
+    const li = document.createElement("li");
+    if(!entry){
+      li.className = "board-row empty";
+      li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname">—</span><span class="bdate"></span><span class="bscore"></span>`;
+      listEl.appendChild(li);
+      continue;
+    }
+    const isMe = highlightEntry && entry.name === highlightEntry.name && entry.score === highlightEntry.score;
+    li.className = "board-row" + (isMe ? " me" : "");
+    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bdate">${fmtDate(entry.date)}</span><span class="bscore">${entry.score}점</span>`;
+    li.querySelector(".bname").textContent = entry.name;
+    listEl.appendChild(li);
+  }
+}
+
+function renderHallOfFame(board){
+  const el = document.getElementById("hof-list");
+  if(!el) return;
+  el.innerHTML = "";
+  if(board.length === 0){
+    el.innerHTML = '<li class="hof-empty">아직 기록이 없어요. 첫 주인공이 되어 보세요!</li>';
+    return;
+  }
+  ["🥇", "🥈", "🥉"].forEach((medal, i) => {
+    const entry = board[i];
+    const li = document.createElement("li");
+    li.className = "hof-row";
+    li.innerHTML = `<span class="hof-medal">${medal}</span><span class="hof-name"></span><span class="hof-date">${entry ? fmtDate(entry.date) : ""}</span><span class="hof-score">${entry ? entry.score + "점" : ""}</span>`;
+    li.querySelector(".hof-name").textContent = entry ? entry.name : "—";
+    el.appendChild(li);
+  });
+}
+
+async function renderAllLeaderboards(highlightEntry){
+  const leaderList = document.getElementById("leader-list");
+  const sourceNote = document.getElementById("board-source-note");
+  const local = loadLeaderboard().sort((a, b) => b.score - a.score);
+  renderLeaderboardInto(leaderList, local, 10, highlightEntry);
+  renderHallOfFame(local);
+  if (sourceNote) sourceNote.textContent = "🌐 반 전체 랭킹을 불러오는 중...";
+
+  const shared = await fetchSharedLeaderboard();
+  if (shared){
+    shared.sort((a, b) => b.score - a.score);
+    saveLeaderboard(shared.slice(0, 10));
+    renderLeaderboardInto(leaderList, shared, 10, highlightEntry);
+    renderHallOfFame(shared);
+    if (sourceNote) sourceNote.textContent = "🌐 반 전체가 함께 보는 공유 랭킹이에요.";
+  } else if (sourceNote){
+    sourceNote.textContent = "⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여주고 있어요.";
+  }
+}
+
+let pendingEntry = null;
+document.getElementById("name-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = document.getElementById("name-input").value.trim();
+  if (!name || !pendingEntry) return;
+  const entry = { ...pendingEntry, name };
+
+  const local = loadLeaderboard();
+  local.push(entry);
+  local.sort((a, b) => b.score - a.score);
+  local.length = Math.min(local.length, 10);
+  saveLeaderboard(local);
+  renderLeaderboardInto(document.getElementById("leader-list"), local, 10, entry);
+  renderHallOfFame(local);
+  document.getElementById("name-form").style.display = "none";
+
+  await submitToSharedLeaderboard(entry);
+  renderAllLeaderboards(entry);
+});
+
+/* ==========================================================
+   시작 · 끝
+=========================================================== */
+const intro = document.getElementById("intro");
+const result = document.getElementById("result");
+
+const pick = document.getElementById("suit-pick");
+SUITS.forEach((c, i) => {
+  const chip = document.createElement("button");
+  chip.type = "button";
+  chip.className = "suit-chip" + (i === 0 ? " picked" : "");
+  chip.style.background = `radial-gradient(circle at 35% 30%, #fff, ${c.base} 45%, ${c.trim})`;
+  chip.title = "우주복 색깔";
+  chip.addEventListener("click", () => {
+    suit = c;
+    pick.querySelectorAll(".suit-chip").forEach(el => el.classList.remove("picked"));
+    chip.classList.add("picked");
+  });
+  pick.appendChild(chip);
+});
+
+function resetWorld(){
+  planets = []; starsItems = []; blackHoles = []; particles = []; popups = [];
+  chainLast = null; chainCount = 0; planetSeq = 0;
+  player = null;
+  addChainPlanet();
+  const first = planets[0];
+  first.visited = true;
+  lastPlanet = first;
+  placeOn(first, -Math.PI / 2 + .35, 1);
+  player.invuln = 0;
+  cam.x = player.x + 230; cam.y = player.y * .55;
+  ensureWorld();
+}
+
+function startGame(){
+  audio();
+  resetWorld();
+  score = 0; planetsReached = 0; starsGot = 0; lives = LIVES; o2 = O2_MAX;
+  playTime = 0; acc = 0; hintT = 4; lowO2Beep = 0;
+  phase = "play";
+  intro.classList.add("hidden"); result.classList.add("hidden");
+}
+
+function endGame(reason){
+  if (phase !== "play") return;
+  phase = "over";
+  gameOverReason = reason;
+  SFX.over();
+  let best = 0;
+  try { best = Number(localStorage.getItem("gravityjump-best") || 0); } catch (e) {}
+  if (score > best){ best = score; try { localStorage.setItem("gravityjump-best", String(score)); } catch (e) {} }
+  document.getElementById("final-title").textContent = "🪐 " + reason;
+  document.getElementById("final-score").textContent = `${score}점`;
+  document.getElementById("final-rank").textContent =
+    score >= 3000 ? "🏆 은하계 최고의 우주 비행사!" : score >= 2000 ? "🥇 베테랑 우주 비행사예요!" : score >= 1200 ? "🚀 중력을 자유자재로 다루네요!" : score >= 600 ? "👍 좋아요, 조금만 더!" : "💪 다시 도전해 볼까요?";
+  document.getElementById("final-best").textContent = `이 컴퓨터 최고 기록: ${best}점`;
+  document.getElementById("final-detail").textContent = `새 행성 ${planetsReached}개 착지 · 별 ${starsGot}개 · 비행 시간 ${Math.floor(playTime)}초`;
+
+  pendingEntry = { score, planets: planetsReached, stars: starsGot, date: localDateStr() };
+  document.getElementById("name-form").style.display = "flex";
+  document.getElementById("name-input").value = "";
+  renderAllLeaderboards(null);
+  setTimeout(() => result.classList.remove("hidden"), 700);
+}
+
+document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("again-btn").addEventListener("click", startGame);
+
+resetWorld();
+renderAllLeaderboards(null);
+requestAnimationFrame(frame);
+
+// 개발·검증용 훅
+window.__gravity = {
+  get state(){ return { phase, score, planetsReached, starsGot, lives, o2, player: player && { state: player.state, x: player.x, y: player.y, ang: player.ang, planetId: player.planet && player.planet.id } }; },
+  get planets(){ return planets; },
+  jump: doJump, step, predictPath, endGame,
+  setO2(v){ o2 = v; }
+};
+</script>
+</body>
+</html>
