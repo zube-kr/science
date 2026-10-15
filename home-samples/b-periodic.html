@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시안 B · 과학 주기율표</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f4f5f2;--ink:#161a22;--sub:#5f6672;--line:#dfe2e6;--mono:"Space Grotesk","Pretendard Variable",sans-serif;--kr:"Pretendard Variable",sans-serif}
+body{font-family:var(--kr);color:var(--ink);background:var(--bg);min-height:100vh;display:flex}
+
+.rail{width:84px;flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:22px 0;gap:14px}
+.rail .logo{width:52px;height:52px;border:2px solid #fff;color:#fff;font-family:var(--mono);font-weight:700;font-size:22px;
+  display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:12px}
+.rail .logo small{position:absolute;top:2px;left:4px;font-size:9px}
+.rail button{width:56px;height:56px;border-radius:14px;border:none;background:#262c38;color:#cfd5e1;font-family:var(--kr);font-size:11px;cursor:pointer;line-height:1.3}
+.rail button b{display:block;font-size:17px;color:#fff;font-family:var(--mono)}
+.rail button:hover{background:#3a4252}
+
+main{flex:1;min-width:0;padding:34px 44px 44px}
+.top{display:flex;gap:40px;align-items:stretch}
+.intro{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--sub);margin-bottom:14px}
+.intro h1{font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:1.2}
+.intro h1 u{text-decoration:none;box-shadow:inset 0 -14px 0 #c8f1d5}
+.intro p{margin-top:16px;font-size:15.5px;line-height:1.8;color:var(--sub)}
+
+/* 오른쪽 큰 원소 카드 = 선택한 단원 상세 */
+.detail{width:330px;flex-shrink:0;border:3px solid var(--ink);background:#fff;padding:18px 20px;position:relative;box-shadow:8px 8px 0 var(--ink)}
+.detail .num{font-family:var(--mono);font-size:22px;font-weight:700}
+.detail .cnt{position:absolute;right:20px;top:18px;font-family:var(--mono);font-size:13px;color:var(--sub);text-align:right}
+.detail .sym{font-size:96px;font-weight:900;line-height:1;margin:6px 0 4px}
+.detail h2{font-size:20px;font-weight:800}
+.detail .grp{font-family:var(--mono);font-size:12px;letter-spacing:1px;margin:4px 0 10px}
+.detail p{font-size:13.5px;line-height:1.7;color:var(--sub);min-height:46px}
+.detail .go{display:inline-block;margin-top:12px;background:var(--ink);color:#fff;padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer}
+.detail .go.off{background:#c9cdd3;cursor:default}
+
+/* 주기율표 */
+.table-head{display:flex;justify-content:space-between;align-items:flex-end;margin:46px 0 14px;flex-wrap:wrap;gap:10px}
+.table-head h3{font-size:20px;font-weight:800}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--sub)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.ptable{display:grid;grid-template-columns:56px repeat(8,minmax(0,1fr));gap:8px}
+.period{font-family:var(--mono);font-size:13px;color:var(--sub);display:flex;flex-direction:column;justify-content:center;align-items:center;line-height:1.2}
+.period b{font-size:20px;color:var(--ink)}
+.el{aspect-ratio:1/1.05;background:var(--c);border:2px solid transparent;padding:7px 8px;cursor:pointer;position:relative;transition:.15s;min-width:0}
+.el .n{font-family:var(--mono);font-size:12px;font-weight:700}
+.el .c{position:absolute;right:8px;top:7px;font-family:var(--mono);font-size:11px}
+.el .s{font-size:34px;font-weight:900;text-align:center;line-height:1.25;margin-top:2px}
+.el .t{font-size:11.5px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.el:hover,.el.sel{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 6px 0 var(--ink)}
+.el.empty{background:repeating-linear-gradient(45deg,#fff 0 6px,#f1f2f4 6px 12px);color:#9aa1ab;border:2px dashed #c9cdd3}
+.el.empty:hover,.el.empty.sel{border-style:solid}
+.blank{visibility:hidden}
+
+/* 특별 계열 (개발자료) */
+.series{display:grid;grid-template-columns:56px repeat(4,minmax(0,1fr)) 1fr;gap:8px;margin-top:22px;align-items:stretch}
+.series .lab{font-family:var(--mono);font-size:11px;color:var(--sub);display:flex;align-items:center;justify-content:center;text-align:center}
+.xtile{background:#161a22;color:#fff;padding:12px 14px;cursor:pointer;display:flex;gap:12px;align-items:center}
+.xtile b{font-family:var(--mono);font-size:26px;width:44px;height:44px;border:1.5px solid #fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.xtile span{font-size:13.5px;font-weight:700}
+.xtile:hover{background:#2b3240}
+
+.log{margin-top:40px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.log section{background:#fff;border:1px solid var(--line);padding:18px 20px}
+.log h4{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--sub);margin-bottom:10px}
+.log li{list-style:none;display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;cursor:pointer}
+.log li span:first-child{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log li:hover span:first-child{text-decoration:underline}
+.log li .tag{font-family:var(--mono);font-size:11.5px;color:var(--sub)}
+.log li::before{content:"→";font-family:var(--mono);color:#2f9e48}
+</style>
+</head>
+<body>
+<nav class="rail">
+  <div class="logo"><small>21</small>Sc</div>
+  <button><b>1</b>중학교</button><button><b>2</b>중학교</button><button><b>3</b>중학교</button>
+  <button><b>🎮</b>게임</button><button><b>✎</b>방명록</button>
+</nav>
+<main>
+  <div class="top">
+    <div class="intro">
+      <div class="kicker">AHWA MIDDLE SCHOOL · PERIODIC TABLE OF SCIENCE</div>
+      <h1>세상의 모든 물질은 원소로,<br>모든 배움은 <u>단원</u>으로.</h1>
+      <p>아화중학교 과학 단원을 주기율표처럼 정리했어요. 한 줄(주기)이 한 학년입니다.<br>칸을 누르면 오른쪽 카드에서 단원을 자세히 볼 수 있어요.</p>
+    </div>
+    <div class="detail" id="detail"></div>
+  </div>
+
+  <div class="table-head">
+    <h3>아화중 과학 단원 주기율표</h3>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="ptable" id="ptable"></div>
+
+  <div class="series">
+    <div class="lab">개발자료<br>계열</div>
+    <div class="xtile"><b>Gm</b><span>쉬어가는 게임</span></div>
+    <div class="xtile"><b>Vx</b><span>추천 가상실험</span></div>
+    <div class="xtile"><b>St</b><span>학생 홈페이지</span></div>
+    <div class="xtile"><b>Gb</b><span>방명록</span></div>
+  </div>
+
+  <div class="log">
+    <section><h4>RECENT · 최근 올라온 자료</h4><ul id="recent"></ul></section>
+    <section><h4>SIMULATION · 추천 가상실험</h4><ul id="sims"></ul></section>
+    <section><h4>BREAK · 쉬어가는 게임</h4><ul id="games"></ul></section>
+  </div>
+</main>
+<script>
+// 시안 공통 데이터 (실제 사이트 index.html 의 단원/자료 수를 옮겨 놓은 것)
+const AREA = { 물리:"#3b7cf0", 화학:"#ef6f2a", 생명:"#2f9e48", 지구:"#8a5cf0", 통합:"#d99a00" };
+const UNITS = {
+  1: [
+    { sym:"인", name:"과학과 인류의 지속가능한 삶", area:"통합", n:0, desc:"과학이 인류 문명과 함께 발전해 온 과정과 지속가능한 미래" },
+    { sym:"생", name:"생물의 구성과 다양성", area:"생명", n:0, desc:"세포에서 개체까지, 생물 다양성과 분류·보전" },
+    { sym:"열", name:"열", area:"물리", n:0, desc:"온도와 입자 운동, 열의 이동, 비열과 열팽창" },
+    { sym:"상", name:"물질의 상태 변화", area:"화학", n:4, desc:"입자 운동으로 보는 상태 변화와 열에너지 출입" },
+    { sym:"힘", name:"힘의 작용", area:"물리", n:7, desc:"중력·탄성력·마찰력·부력을 측정하고 탐구" },
+    { sym:"기", name:"기체의 성질", area:"화학", n:1, desc:"기체의 압력·부피·온도 관계를 입자 모형으로" },
+    { sym:"태", name:"태양계", area:"지구", n:0, desc:"지구와 달의 운동, 태양계 행성과 태양 활동" }
+  ],
+  2: [
+    { sym:"특", name:"물질의 특성", area:"화학", n:1, desc:"밀도·용해도·끓는점으로 물질 구별하기" },
+    { sym:"지", name:"지권의 변화", area:"지구", n:0, desc:"지구 내부 구조, 암석, 판의 운동과 지진·화산" },
+    { sym:"빛", name:"빛과 파동", area:"물리", n:0, desc:"빛의 반사·굴절, 렌즈와 상, 파동과 소리" },
+    { sym:"원", name:"물질의 구성", area:"화학", n:1, desc:"원소·원자·분자·이온을 기호와 모형으로" },
+    { sym:"식", name:"식물과 에너지", area:"생명", n:5, desc:"광합성과 증산 작용, 양분의 저장과 이용" },
+    { sym:"동", name:"동물과 에너지", area:"생명", n:6, desc:"소화·순환·호흡·배설이 함께 만드는 에너지" },
+    { sym:"전", name:"전기와 자기", area:"물리", n:0, desc:"전류·전압·저항, 전류가 만드는 자기장" },
+    { sym:"별", name:"별과 우주", area:"지구", n:0, desc:"별의 거리와 밝기, 우리은하와 우주" }
+  ],
+  3: [
+    { sym:"반", name:"화학 반응", area:"화학", n:0, desc:"화학 반응식, 질량 보존과 일정 성분비 법칙" },
+    { sym:"날", name:"기권과 날씨", area:"지구", n:0, desc:"구름과 강수, 기압과 바람, 기단과 전선" },
+    { sym:"운", name:"운동과 에너지", area:"물리", n:0, desc:"등속·자유 낙하 운동, 일과 에너지" },
+    { sym:"감", name:"자극과 반응", area:"생명", n:1, desc:"감각 기관과 신경계, 호르몬의 작용" },
+    { sym:"유", name:"생식과 유전", area:"생명", n:4, desc:"세포 분열과 생식, 멘델의 유전 법칙" },
+    { sym:"에", name:"에너지 전환과 보존", area:"물리", n:2, desc:"역학적 에너지의 전환과 보존" },
+    { sym:"우", name:"우주 탐사", area:"지구", n:1, desc:"성단과 성운, 우주 탐사의 역사와 성과" }
+  ]
+};
+const RECENT = [
+  ["중2", "혈액 순환 미로 — 적혈구의 여행"],
+  ["게임", "볼링 게임"],
+  ["중3", "성단과 성운 — 세 가지 성운의 차이"],
+  ["중1", "샤를의 법칙 — 아두이노 실험"],
+  ["중3", "롤러코스터 크리에이터"]
+];
+const SIMS = ["힘의 3요소 — 알까기 게임", "가상 공간에서의 힘과 운동", "놀이기구에서 힘의 작용", "뇌의 구조", "롤러코스터 크리에이터"];
+const GAMES = [["볼링 게임","게임"],["초음파 드론 동굴 비행","아두이노"],["비행기 슈팅 게임","아두이노"],["기울기 미로 게임","아두이노"]];
+
+const tint=c=>c+'2e';
+document.getElementById('legend').innerHTML=Object.entries(AREA).map(([k,c])=>`<span style="--c:${tint(c)};border-left:3px solid ${c};padding-left:2px">${k}</span>`).join('');
+const pt=document.getElementById('ptable');
+let num=0, cells=[];
+[1,2,3].forEach(g=>{
+  pt.insertAdjacentHTML('beforeend',`<div class="period"><b>${g}</b>주기<br>중${g}</div>`);
+  for(let i=0;i<8;i++){
+    const u=UNITS[g][i];
+    if(!u){pt.insertAdjacentHTML('beforeend','<div class="el blank"></div>');continue;}
+    num++;
+    const el=document.createElement('div');
+    el.className='el'+(u.n?'':' empty');
+    if(u.n) el.style.setProperty('--c',tint(AREA[u.area]));
+    el.innerHTML=`<div class="n">${num}</div><div class="c">${u.n?u.n:''}</div><div class="s" style="color:${u.n?AREA[u.area]:'inherit'}">${u.sym}</div><div class="t">${u.name}</div>`;
+    const data={...u,num,g,i};
+    el.onclick=()=>pick(data,el);
+    pt.appendChild(el); cells.push([data,el]);
+  }
+});
+function pick(u,el){
+  cells.forEach(([,e])=>e.classList.remove('sel')); el.classList.add('sel');
+  const c=AREA[u.area];
+  document.getElementById('detail').innerHTML=`
+    <div class="num">${u.num}</div><div class="cnt">자료<br><b style="font-size:20px;color:var(--ink)">${u.n}</b></div>
+    <div class="sym" style="color:${c}">${u.sym}</div>
+    <h2>${u.name}</h2><div class="grp" style="color:${c}">${u.area} · ${u.g}주기(중${u.g}) ${u.i+1}단원</div>
+    <p>${u.desc}</p>
+    <div class="go${u.n?'':' off'}">${u.n?'학습하러 가기 →':'준비 중입니다'}</div>`;
+}
+const first=cells.find(([u])=>u.n===7)||cells[0]; pick(first[0],first[1]);
+const fill=(id,rows)=>{document.getElementById(id).innerHTML=rows.map(([t,g])=>`<li><span>${t}</span><span class="tag">${g}</span></li>`).join('');};
+fill('recent',RECENT.map(([g,t])=>[t,g])); fill('sims',SIMS.slice(0,5).map(t=>[t,'SIM'])); fill('games',GAMES);
+</script>
+</body>
+</html>
