@@ -204,6 +204,14 @@ body{
   color:#7c83a8;
   stroke-width:1.7;
 }
+.grade li .unum{
+  font-family:var(--font-display);
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--brand);
+  min-width:12px;
+  margin-right:-4px;
+}
 .grade li:hover{
   background:#f3f2ff;
   color:var(--brand);
@@ -1122,13 +1130,13 @@ body{
   <details class="grade" open>
     <summary><span class="gnum" style="--c:linear-gradient(135deg,#14b8a6,#3b82f6)">1</span>중학교 1학년</summary>
     <ul>
-      <li><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 13.6c2.6.2 4.5 2.1 4.5 4.9"/></svg>과학과 인류</li>
-      <li><svg class="ico" viewBox="0 0 24 24"><path d="M5 19c0-8.3 6-14 15-14 0 9-6 15-14.5 15"/><path d="M5 19l8-8"/></svg>생물의 다양성</li>
-      <li><svg class="ico" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg>열과 우리 생활</li>
-      <li onclick="openSubject('mul-sangtae-byeonhwa')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>물질의 상태 변화</li>
-      <li onclick="openSubject('him-jagyong')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)"/></svg>힘의 작용</li>
-      <li onclick="openSubject('gi-seongjil')"><svg class="ico" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h16a3 3 0 1 1-3 3"/><path d="M3 16h8"/></svg>기체의 성질</li>
-      <li><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M5.2 15.8C2.6 17.6 1.6 19.3 2.4 20.1c1.4 1.4 7.2-1.4 12.4-6.6S22.9 3.5 21.5 2.1c-.8-.8-2.5.2-4.3 2.8"/></svg>태양계</li>
+      <li><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 13.6c2.6.2 4.5 2.1 4.5 4.9"/></svg><span class="unum">1</span>과학과 인류</li>
+      <li><svg class="ico" viewBox="0 0 24 24"><path d="M5 19c0-8.3 6-14 15-14 0 9-6 15-14.5 15"/><path d="M5 19l8-8"/></svg><span class="unum">2</span>생물의 다양성</li>
+      <li><svg class="ico" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg><span class="unum">3</span>열과 우리 생활</li>
+      <li onclick="openSubject('mul-sangtae-byeonhwa')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg><span class="unum">4</span>물질의 상태 변화</li>
+      <li onclick="openSubject('him-jagyong')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)"/></svg><span class="unum">5</span>힘의 작용</li>
+      <li onclick="openSubject('gi-seongjil')"><svg class="ico" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h16a3 3 0 1 1-3 3"/><path d="M3 16h8"/></svg><span class="unum">6</span>기체의 성질</li>
+      <li><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M5.2 15.8C2.6 17.6 1.6 19.3 2.4 20.1c1.4 1.4 7.2-1.4 12.4-6.6S22.9 3.5 21.5 2.1c-.8-.8-2.5.2-4.3 2.8"/></svg><span class="unum">7</span>태양계</li>
       <li onclick="openSubject('j1-student-home')"><svg class="ico" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>1학년 학생홈페이지</li>
     </ul>
   </details>
@@ -1136,14 +1144,14 @@ body{
   <details class="grade">
     <summary><span class="gnum" style="--c:linear-gradient(135deg,#6366f1,#a855f7)">2</span>중학교 2학년</summary>
     <ul>
-      <li onclick="openSubject('mul-teukseong')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3c3.5 4.4 6 7.7 6 11a6 6 0 0 1-12 0c0-3.3 2.5-6.6 6-11z"/></svg>물질의 특성</li>
-      <li onclick="openSubject('jigwon-byeonhwa')"><svg class="ico" viewBox="0 0 24 24"><path d="M2.5 20 9 8l4 7 2.5-4L21.5 20z"/><path d="M7.3 11.2 9 13l1.6-2"/></svg>지권의 변화</li>
-      <li onclick="openSubject('bit-pado')"><svg class="ico" viewBox="0 0 24 24"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3.5-3.5 5-1.5"/><path d="M2 18c2.5-3 5-3 7.5 0s5 3 7.5 0"/></svg>빛과 파동</li>
-      <li onclick="openSubject('mul-guseong')"><svg class="ico" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="17" cy="6" r="2.5"/><circle cx="12" cy="17" r="3"/><path d="M8.2 8.3 10.5 14.6M15.6 8.1 13.4 14.4M8.5 7 14.5 6.2"/></svg>물질의 구성 <span class="quick-link" onclick="event.stopPropagation(); openQuickLink('mul-guseong', {title:'주기율표', url: PERIODIC_TABLE_URL, ready:true})">주기율표</span></li>
-      <li onclick="openSubject('sikmul-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12C12 8 9.5 6 5 6c0 4 2.5 6 7 6z"/><path d="M12 14c0-4 2.5-6 7-6 0 4-2.5 6-7 6z"/></svg>식물과 에너지</li>
-      <li onclick="openSubject('dongmul-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/><path d="M3.5 12h4l1.5-2.5 2 5 1.5-2.5h2"/></svg>동물과 에너지</li>
-      <li onclick="openSubject('jeongi-jagi')"><svg class="ico" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>전기와 자기</li>
-      <li onclick="openSubject('byeol-uju')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>별과 우주</li>
+      <li onclick="openSubject('mul-teukseong')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3c3.5 4.4 6 7.7 6 11a6 6 0 0 1-12 0c0-3.3 2.5-6.6 6-11z"/></svg><span class="unum">1</span>물질의 특성</li>
+      <li onclick="openSubject('jigwon-byeonhwa')"><svg class="ico" viewBox="0 0 24 24"><path d="M2.5 20 9 8l4 7 2.5-4L21.5 20z"/><path d="M7.3 11.2 9 13l1.6-2"/></svg><span class="unum">2</span>지권의 변화</li>
+      <li onclick="openSubject('bit-pado')"><svg class="ico" viewBox="0 0 24 24"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3.5-3.5 5-1.5"/><path d="M2 18c2.5-3 5-3 7.5 0s5 3 7.5 0"/></svg><span class="unum">3</span>빛과 파동</li>
+      <li onclick="openSubject('mul-guseong')"><svg class="ico" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="17" cy="6" r="2.5"/><circle cx="12" cy="17" r="3"/><path d="M8.2 8.3 10.5 14.6M15.6 8.1 13.4 14.4M8.5 7 14.5 6.2"/></svg><span class="unum">4</span>물질의 구성 <span class="quick-link" onclick="event.stopPropagation(); openQuickLink('mul-guseong', {title:'주기율표', url: PERIODIC_TABLE_URL, ready:true})">주기율표</span></li>
+      <li onclick="openSubject('sikmul-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12C12 8 9.5 6 5 6c0 4 2.5 6 7 6z"/><path d="M12 14c0-4 2.5-6 7-6 0 4-2.5 6-7 6z"/></svg><span class="unum">5</span>식물과 에너지</li>
+      <li onclick="openSubject('dongmul-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/><path d="M3.5 12h4l1.5-2.5 2 5 1.5-2.5h2"/></svg><span class="unum">6</span>동물과 에너지</li>
+      <li onclick="openSubject('jeongi-jagi')"><svg class="ico" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg><span class="unum">7</span>전기와 자기</li>
+      <li onclick="openSubject('byeol-uju')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg><span class="unum">8</span>별과 우주</li>
       <li onclick="openSubject('j2-student-home')"><svg class="ico" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>2학년 학생홈페이지</li>
     </ul>
   </details>
@@ -1151,13 +1159,13 @@ body{
   <details class="grade">
     <summary><span class="gnum" style="--c:linear-gradient(135deg,#f43f5e,#ec4899)">3</span>중학교 3학년</summary>
     <ul>
-      <li onclick="openSubject('hwahak-banung')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>화학 반응</li>
-      <li onclick="openSubject('gigwon-nalssi')"><svg class="ico" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.3 4.4 4.4 0 0 0 7 18z"/></svg>기권과 날씨</li>
-      <li onclick="openSubject('undong-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/><circle cx="12" cy="18" r="1.3"/></svg>운동과 에너지</li>
-      <li onclick="openSubject('jageuk-banung')"><svg class="ico" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>자극과 반응</li>
-      <li onclick="openSubject('saengsik-yujeon')"><svg class="ico" viewBox="0 0 24 24"><path d="M7 3c0 6 10 6 10 12s-10 6-10 6"/><path d="M17 3c0 6-10 6-10 12s10 6 10 6"/><path d="M8.5 7h7M8.5 17h7"/></svg>생식과 유전</li>
-      <li onclick="openSubject('energy-jeonhwan')"><svg class="ico" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.3 4.9"/><path d="M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/></svg>에너지 전환</li>
-      <li onclick="openSubject('uju-tamsa')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2.5c3.5 2.5 5 6 5 10l-2.5 3h-5L7 12.5c0-4 1.5-7.5 5-10z"/><circle cx="12" cy="9" r="1.8"/><path d="M9.5 15.5 8 20l4-2 4 2-1.5-4.5"/></svg>우주 탐사</li>
+      <li onclick="openSubject('hwahak-banung')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg><span class="unum">1</span>화학 반응</li>
+      <li onclick="openSubject('gigwon-nalssi')"><svg class="ico" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.3 4.4 4.4 0 0 0 7 18z"/></svg><span class="unum">2</span>기권과 날씨</li>
+      <li onclick="openSubject('undong-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/><circle cx="12" cy="18" r="1.3"/></svg><span class="unum">3</span>운동과 에너지</li>
+      <li onclick="openSubject('jageuk-banung')"><svg class="ico" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="unum">4</span>자극과 반응</li>
+      <li onclick="openSubject('saengsik-yujeon')"><svg class="ico" viewBox="0 0 24 24"><path d="M7 3c0 6 10 6 10 12s-10 6-10 6"/><path d="M17 3c0 6-10 6-10 12s10 6 10 6"/><path d="M8.5 7h7M8.5 17h7"/></svg><span class="unum">5</span>생식과 유전</li>
+      <li onclick="openSubject('energy-jeonhwan')"><svg class="ico" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.3 4.9"/><path d="M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/></svg><span class="unum">6</span>에너지 전환</li>
+      <li onclick="openSubject('uju-tamsa')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg><span class="unum">7</span>별과 우주</li>
     </ul>
   </details>
 
@@ -1995,7 +2003,7 @@ const topicsData = {
     ]
   },
   "uju-tamsa": {
-    title: "⑦ 우주 탐사",
+    title: "⑦ 별과 우주",
     posts: [
       {
         title: "성단과 성운 — 세 가지 성운의 차이",
@@ -2138,7 +2146,7 @@ const GRADE_UNITS = {
     { name:"자극과 반응", area:"생명", key:"jageuk-banung", desc:"감각 기관과 신경계, 호르몬이 자극을 받아들이고 반응하는 과정을 알아봅니다." },
     { name:"생식과 유전", area:"생명", key:"saengsik-yujeon", desc:"세포 분열과 생식, 멘델의 유전 법칙과 사람의 유전을 탐구합니다." },
     { name:"에너지 전환과 보존", area:"물리", key:"energy-jeonhwan", desc:"역학적 에너지의 전환과 보존, 전기 에너지의 생산과 이용을 탐구합니다." },
-    { name:"우주 탐사", area:"지구", key:"uju-tamsa", desc:"성단과 성운, 우리은하와 우주의 팽창, 우주 탐사의 역사와 성과를 알아봅니다." }
+    { name:"별과 우주", area:"지구", key:"uju-tamsa", desc:"별까지의 거리와 밝기, 성단과 성운, 우리은하와 우주의 팽창을 알아봅니다." }
   ]
 };
 
