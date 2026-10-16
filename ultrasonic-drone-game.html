@@ -149,6 +149,22 @@
   }
 
   footer{ max-width:1180px; margin:4px auto 0; color:#D8CBB4; font-size:11px; text-align:center; }
+
+  /* ---------- 센서 값 미리 확인(거리 게이지) ---------- */
+  .sensor-gauge{ background:#F6F8FB; border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+  .sg-title{ font-size:12.5px; font-weight:800; color:var(--ink); display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; }
+  .sg-title small{ font-size:11px; font-weight:600; color:var(--ink-soft); }
+  .sg-sub{ font-size:12px; font-weight:700; color:var(--ink-soft); }
+  .sg-sub b{ color:var(--ink); }
+  .sg-big{ font-size:20px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; margin-top:4px; }
+  .sg-big small{ font-size:12px; color:var(--ink-soft); }
+  .dist-track{ position:relative; height:16px; border-radius:9px; background:#E4E9F0; margin:8px 0 18px; }
+  .dist-zone{ position:absolute; top:0; bottom:0; background:rgba(79,168,224,.35); border-radius:9px; }
+  .dist-ptr{ position:absolute; top:-4px; width:6px; height:24px; margin-left:-3px; border-radius:3px; background:#D8493B; box-shadow:0 1px 3px rgba(0,0,0,.35); transition:left .06s linear; }
+  .dist-ptr.off{ background:#C9D2DD; box-shadow:none; }
+  .dist-mark{ position:absolute; top:19px; transform:translateX(-50%); font-size:10.5px; font-weight:700; color:var(--ink-soft); white-space:nowrap; }
+  .dist-scale{ position:absolute; top:19px; font-size:10px; color:#9AA7B4; }
+  .sg-hint{ font-size:11px; color:var(--ink-soft); line-height:1.5; }
 </style>
 </head>
 <body>
@@ -208,7 +224,19 @@
             <button class="btn ghost" id="autoConnectBtn">⚡ 이전에 연결했던 아두이노로 바로 연결</button>
           </div>
 
-          <div class="dist-readout">실시간 거리: <b id="distReadout">-</b> cm</div>
+          <div class="sensor-gauge" id="sensorGauge">
+            <div class="sg-title">📡 센서 값 미리 확인 <small>센서 앞에서 손을 가까이·멀리 움직여 보세요</small></div>
+            <div class="sg-big">거리 <span id="distReadout">-</span> <small>cm</small></div>
+            <div class="sg-sub">드론 높이: <b id="sgHeight">-</b></div>
+            <div class="dist-track" id="distTrack">
+              <div class="dist-zone" id="distZone"></div>
+              <div class="dist-ptr off" id="distPtr"></div>
+              <span class="dist-scale" id="distScaleMax" style="right:0;">60cm</span>
+              <span class="dist-mark" id="distNearMark">가까이</span>
+              <span class="dist-mark" id="distFarMark">멀리</span>
+            </div>
+            <div class="sg-hint" id="sgHint">아두이노를 연결하면 실시간 거리가 표시돼요. 파란 구간이 드론이 움직이는 범위예요.</div>
+          </div>
 
           <div class="ctrl-row">
             <button type="button" class="toggle-btn" id="setNearBtn">📍 지금 거리 = 가까이</button>
@@ -684,6 +712,37 @@ async function readLoop(){
     updateConnUI();
   }
 }
+
+/* ================= 센서 값 미리 확인(거리 게이지) ================= */
+function updateSensorGauge(){
+  const on = serialConnected;
+  const scaleMax = Math.max(60, Math.ceil((maxDist + 10) / 10) * 10);
+  const pct = v => Math.max(0, Math.min(100, v / scaleMax * 100));
+  $('distScaleMax').textContent = scaleMax + 'cm';
+  $('distZone').style.left = pct(minDist) + '%';
+  $('distZone').style.width = (pct(maxDist) - pct(minDist)) + '%';
+  $('distNearMark').style.left = pct(minDist) + '%';
+  $('distNearMark').textContent = `가까이 ${minDist.toFixed(0)}`;
+  $('distFarMark').style.left = pct(maxDist) + '%';
+  $('distFarMark').textContent = `멀리 ${maxDist.toFixed(0)}`;
+  const ptr = $('distPtr');
+  ptr.classList.toggle('off', !on);
+  ptr.style.left = pct(on ? rawDist : 0) + '%';
+  $('distReadout').textContent = on ? rawDist.toFixed(1) : '-';
+  if(on){
+    let t = (rawDist - minDist) / (maxDist - minDist || 1);
+    t = Math.max(0, Math.min(1, t));
+    if(invertY) t = 1 - t;
+    $('sgHeight').textContent = t < .2 ? '맨 위 ⬆' : t > .8 ? '맨 아래 ⬇' : `${Math.round(100 - t*100)}%`;
+    $('sgHint').textContent = rawDist < minDist ? '손이 "가까이" 범위보다 가까워요 — 드론이 끝까지 붙어 있어요.'
+      : rawDist > maxDist ? '손이 "멀리" 범위보다 멀어요 — 드론이 끝까지 붙어 있어요.'
+      : '✅ 손 거리가 파란 구간 안에 있어요. 손을 움직이면 드론이 따라 움직여요.';
+  } else {
+    $('sgHeight').textContent = '-';
+    $('sgHint').textContent = '아두이노를 연결하면 실시간 거리가 표시돼요. 파란 구간이 드론이 움직이는 범위예요.';
+  }
+}
+setInterval(updateSensorGauge, 60);
 
 function parseLine(line){
   const d = parseFloat(line);
