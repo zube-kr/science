@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>동물과 에너지 — 호흡 기관 탐험 워크시트</title>
+<style>
+  :root{
+    --bg:#F2F8FC;
+    --card:#FFFFFF;
+    --ink:#1F2E3A;
+    --ink-soft:#627583;
+    --line:#D3E2EE;
+
+    --pri:#2F7FC0;
+    --pri-soft:#E6F1FA;
+    --sec:#C95D73;
+    --sec-soft:#FBE8EC;
+    --plasma:#E9B949;
+    --plasma-soft:#FFF5DA;
+
+    --ok:#2E9E5B;
+    --err:#D8493B;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FAFDFF 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+
+  .wrap{ max-width:1000px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--pri),var(--sec)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:760px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(20,50,80,.06);
+  }
+
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.6; }
+
+  .read-text{ font-size:13.5px; line-height:1.9; color:var(--ink); margin-bottom:10px; }
+  .read-text b{ color:var(--pri); font-weight:800; }
+  .read-text:last-child{ margin-bottom:0; }
+
+  /* ---------- 시뮬레이션 ---------- */
+  .sim-frame{
+    width:100%; aspect-ratio:16 / 9; min-height:360px; border:1.5px solid var(--line);
+    border-radius:14px; overflow:hidden; background:#1B1216;
+  }
+  .sim-frame iframe{ width:100%; height:100%; border:0; display:block; }
+  .sim-actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  .sim-note{ font-size:12px; color:var(--ink-soft); line-height:1.6; }
+
+  /* ---------- 탐험 순서 ---------- */
+  .steps{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:2px 0 4px; }
+  .step{
+    display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800;
+    padding:6px 11px; border-radius:999px; background:#EAF3FA; color:var(--ink);
+  }
+  .step i{
+    font-style:normal; width:18px; height:18px; border-radius:50%; background:var(--pri); color:#fff;
+    display:inline-flex; align-items:center; justify-content:center; font-size:10.5px;
+  }
+  .step-arrow{ color:#9DB6C9; font-weight:800; }
+
+  /* ---------- 혈구 도감 ---------- */
+  .cell-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media (max-width:820px){ .cell-grid{ grid-template-columns:repeat(2,1fr); } }
+  .cell-box{
+    border:1.5px solid var(--line); border-radius:14px; background:#FAFDFF; padding:10px 10px 12px;
+    display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;
+  }
+  .cell-box svg{ width:100%; max-width:130px; height:96px; }
+  .cell-name{ font-size:14px; font-weight:800; }
+  .cell-sub{ font-size:11.5px; color:var(--ink-soft); line-height:1.6; }
+
+  /* ---------- 개념 정리 표 ---------- */
+  .concept-block-title{
+    display:inline-block; font-size:13px; font-weight:800; color:#fff;
+    background:var(--pri); padding:4px 12px; border-radius:8px 8px 0 0;
+  }
+  .concept-body{ border:1.5px solid var(--pri); border-radius:0 12px 12px 12px; padding:14px 16px; overflow-x:auto; }
+  table.result-table{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:600px; }
+  table.result-table th, table.result-table td{
+    border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:middle; line-height:1.7;
+  }
+  table.result-table th{ background:var(--pri-soft); font-weight:800; }
+  table.result-table td.given{ color:var(--ink-soft); }
+  table.result-table td.cellname{ font-weight:800; white-space:nowrap; }
+  table.result-table input.blank-input{ width:84px; }
+
+  /* ---------- 메모 상자 ---------- */
+  textarea.memo{
+    width:100%; min-height:92px; resize:vertical; font-family:inherit; font-size:13px; line-height:1.7;
+    border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; background:#FAFDFF; color:var(--ink);
+  }
+  .memo-label{ display:block; font-size:12.5px; font-weight:800; margin:12px 0 6px; }
+  .memo-label:first-of-type{ margin-top:0; }
+
+  /* ---------- 워크시트 공통 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#F8FBFE;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+
+  .q-group{
+    display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color:var(--pri);
+    margin:18px 0 0; padding-top:14px; border-top:2px solid var(--pri-soft);
+  }
+  .q-group:first-of-type{ margin-top:0; padding-top:0; border-top:none; }
+  .q-group small{ font-weight:600; color:var(--ink-soft); font-size:11.5px; }
+
+  .q{ border-top:1px dashed var(--line); padding:14px 2px 4px; }
+  .q-group + .q{ border-top:none; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:11px; font-weight:800; margin-right:6px; flex-shrink:0;
+  }
+  .q-text{ font-size:14px; line-height:2.1; }
+  .blank-input{
+    display:inline-block; width:110px; border:none; border-bottom:2px solid var(--ink);
+    text-align:center; font-family:inherit; font-size:13.5px; padding:2px 4px; background:transparent;
+  }
+  .blank-check{ display:inline-block; margin-left:4px; font-size:11.5px; font-weight:700; white-space:nowrap; }
+  .blank-check.ok{ color:var(--ok); }
+  .blank-check.bad{ color:var(--err); }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; flex-wrap:wrap; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:4px 12px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--pri); color:var(--pri); background:var(--pri-soft); }
+  .q-feedback{ display:block; margin-top:6px; font-size:12.5px; font-weight:700; min-height:18px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--err); }
+
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s; text-decoration:none; display:inline-block;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#34495B; }
+  .btn.ghost{ background:#E7EEF4; color:var(--ink-soft); }
+  .btn.ghost:hover{ background:#DBE6EF; color:var(--ink); }
+  .btn.pri{ background:var(--pri); color:#fff; }
+  .btn.pri:hover{ background:#2268A0; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+
+  footer{ max-width:1000px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+
+  /* ---------- 호흡 기관 그림 ---------- */
+  .fig-row{ display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:16px; align-items:start; }
+  @media (max-width:820px){ .fig-row{ grid-template-columns:1fr; } }
+  .fig-box{
+    border:1.5px solid var(--line); border-radius:14px; background:#FAFDFF; padding:10px;
+  }
+  .fig-box svg{ width:100%; height:auto; display:block; }
+  .fig-cap{ font-size:12px; color:var(--ink-soft); line-height:1.7; margin-top:6px; text-align:center; }
+  .organ-list{ display:flex; flex-direction:column; gap:8px; }
+  .organ-item{
+    display:flex; gap:10px; align-items:flex-start; padding:9px 11px; border:1.5px solid var(--line);
+    border-radius:12px; background:#FAFDFF; font-size:12.5px; line-height:1.65;
+  }
+  .organ-item b{ display:block; font-size:13.5px; margin-bottom:1px; }
+  .organ-dot{ width:12px; height:12px; border-radius:50%; margin-top:5px; flex:none; }
+
+  /* ---------- 호흡 운동 모형 ---------- */
+  .model-row{ display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); gap:18px; align-items:center; }
+  @media (max-width:760px){ .model-row{ grid-template-columns:1fr; } }
+  .model-btns{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .model-btns .btn{ padding:9px 16px; font-size:13px; }
+  .btn.pri.off{ background:#E7EEF4; color:var(--ink-soft); }
+  .state-box{
+    border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; background:#FAFDFF;
+    font-size:13px; line-height:1.85; min-height:150px;
+  }
+  .state-box b{ color:var(--pri); }
+  .state-box .tag{
+    display:inline-block; font-size:11px; font-weight:800; color:#fff; background:var(--sec);
+    padding:2px 9px; border-radius:999px; margin-bottom:4px;
+  }
+
+  textarea.memo.short{ min-height:70px; }
+  .disease-grid{ display:grid; grid-template-columns:160px 1fr; gap:8px; margin-bottom:8px; }
+  @media (max-width:560px){ .disease-grid{ grid-template-columns:1fr; } }
+  .disease-grid input{
+    font-family:inherit; font-size:13px; border:1.5px solid var(--line); border-radius:10px;
+    padding:9px 11px; background:#FAFDFF; color:var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅵ. 동물과 에너지 · 호흡 기관</div>
+    <h1>숨 쉬는 몸속 여행 — <span>호흡 기관 탐험 워크시트</span></h1>
+    <p class="sub">코로 들어온 공기가 어디를 지나 어떻게 폐포까지 가는지, 우리는 어떻게 숨을 쉬는지(호흡 운동), 폐포에서 산소와 이산화 탄소는 어떻게 교환되는지, 미세 먼지는 왜 위험한지 알아봅니다. 시뮬레이션을 체험한 뒤 워크시트를 완성하고 제출하면 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록돼요.</p>
+  </header>
+
+  <!-- 시뮬레이션 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--sec)">시뮬레이션</span>호흡 기관 체험</div>
+    <div class="card-hint">아래 체험 화면에서 호흡 기관의 위치와 기능, 호흡 운동 실험, 기체 교환, 미세 먼지의 영향을 차례로 살펴보세요. 체험이 끝나면 아래 워크시트를 풀어요.</div>
+
+    <div class="steps">
+      <span class="step"><i>1</i>호흡계의 구조</span><span class="step-arrow">→</span>
+      <span class="step"><i>2</i>호흡 운동 실험</span><span class="step-arrow">→</span>
+      <span class="step"><i>3</i>기체 교환</span><span class="step-arrow">→</span>
+      <span class="step"><i>4</i>가래·기침과 미세 먼지</span>
+    </div>
+    <p class="read-text" style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 12px;">
+      <b>살펴볼 것</b>: ① 호흡 기관(코·기관·기관지·폐·폐포)의 위치와 각 부분의 기능 · ② 호흡 운동의 원리를 알아보는 가상 실험을 하고 우리 몸의 호흡 운동과 연결해 보기 · ③ 폐포와 모세혈관 사이에서 산소와 이산화 탄소가 어떻게 이동하는지 · ④ 호흡계에서 불순물을 걸러 내는 과정과 미세 먼지가 호흡계 질병을 늘리는 까닭
+    </p>
+
+    <div class="sim-frame">
+      <iframe id="sim-frame" src="https://e.tsherpa.co.kr/webdata/multimedia/eduvr/webgl_06/index.html"
+        title="호흡 기관 체험" allow="fullscreen; accelerometer; gyroscope; xr-spatial-tracking" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="sim-actions">
+      <a class="btn pri" href="https://e.tsherpa.co.kr/webdata/multimedia/eduvr/webgl_06/index.html" target="_blank" rel="noopener">새창으로 크게 열기 ↗</a>
+      <span class="sim-note">화면이 작거나 열리지 않으면 새창으로 열어서 체험해 보세요.</span>
+    </div>
+  </section>
+
+  <!-- 생각 열기 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">생각 열기</span>하늘이 뿌연 날에는 왜 목이 아플까?</div>
+    <div class="card-hint">하늘이 뿌연 날에는 목이 아프고 기침이 자주 나지요? 미세 먼지 때문에 호흡기에 문제가 생기는 사람이 많아요.</div>
+    <p class="read-text">미세 먼지에 관한 신문 기사(서울신문, 2019)의 내용을 간추리면 다음과 같아요.</p>
+    <p class="read-text" style="padding-left:12px; border-left:4px solid var(--pri-soft); font-size:13px;">
+      · 대기 오염(자동차 배기가스, 공장 매연 등)으로 인한 사망자는 세계 보건 기구(WHO)의 추산보다 훨씬 많은 것으로 나타났다. 전문가들은 "흡연은 피할 수 있지만 오염된 공기는 피할 수 없다"고 지적한다.<br>
+      · 조기 사망의 대부분은 입자 크기가 <b>2.5 ㎛ 이하인 초미세 먼지(PM2.5)</b> 때문이며, 초미세 먼지는 호흡기를 통해 <b>혈액까지 침투</b>할 수 있어 건강에 미치는 영향이 매우 크다.<br>
+      · 유럽의 미세 먼지와 대기 오염 물질은 대부분 화석 연료에서 나온다.
+    </p>
+    <label class="memo-label" for="memo-dust" style="margin-top:14px;">미세 먼지는 우리 몸의 어느 곳에 어떤 나쁜 영향을 줄까요? 생각을 적어 보세요.</label>
+    <textarea class="memo short" id="memo-dust" placeholder="예) 코와 기관의 점막이 자극을 받아 기침이 난다. 폐포까지 들어가면 ..."></textarea>
+  </section>
+
+  <!-- 호흡 기관의 구조 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--pri)">구조</span>호흡 기관의 위치와 기능</div>
+    <div class="card-hint">코로 들어온 공기는 <b>코 → 인두 → 기관 → 기관지 → 폐(폐포)</b> 순서로 이동해요. 그림을 보며 각 기관의 위치와 기능을 확인하세요.</div>
+
+    <div class="fig-row">
+      <div class="fig-box">
+        <svg viewBox="0 0 380 360" role="img" aria-label="호흡 기관의 구조 그림">
+          <defs>
+            <linearGradient id="lungG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBC9CC"/><stop offset="1" stop-color="#EE9EA8"/></linearGradient>
+          </defs>
+          <!-- 갈비뼈 -->
+          <g fill="none" stroke="#E4D3BE" stroke-width="6" stroke-linecap="round" opacity=".75">
+            <path d="M118 128 C58 138 34 190 42 232"/><path d="M118 156 C56 170 32 224 42 268"/><path d="M122 184 C66 200 48 250 62 296"/>
+            <path d="M182 128 C242 138 266 190 258 232"/><path d="M182 156 C244 170 268 224 258 268"/><path d="M178 184 C234 200 252 250 238 296"/>
+          </g>
+          <!-- 가로막 -->
+          <path d="M40 338 Q150 296 260 338 L260 350 Q150 310 40 350 Z" fill="#D9A66C" stroke="#A97A44" stroke-width="1.5"/>
+          <!-- 폐 -->
+          <path d="M142 112 C98 108 56 148 52 228 C50 286 72 312 108 311 C132 310 142 296 142 270 Z" fill="url(#lungG)" stroke="#CF7C88" stroke-width="2"/>
+          <path d="M158 112 C202 108 244 148 248 228 C250 286 228 312 192 311 C168 310 158 296 158 270 Z" fill="url(#lungG)" stroke="#CF7C88" stroke-width="2"/>
+          <!-- 코 -->
+          <path d="M150 10 C130 10 122 28 127 46 C130 58 140 64 150 64 C160 64 170 58 173 46 C178 28 170 10 150 10 Z" fill="#F4C6C0" stroke="#C98C84" stroke-width="2"/>
+          <ellipse cx="140" cy="56" rx="5.5" ry="4" fill="#A9645D"/><ellipse cx="160" cy="56" rx="5.5" ry="4" fill="#A9645D"/>
+          <path d="M150 20 L150 50" stroke="#D9A29A" stroke-width="2"/>
+          <!-- 인두 · 기관 -->
+          <rect x="142" y="62" width="16" height="30" rx="6" fill="#F0B3AA" stroke="#C98C84" stroke-width="1.5"/>
+          <path d="M150 90 L150 162" stroke="#C98C84" stroke-width="21" stroke-linecap="round"/>
+          <path d="M150 90 L150 162" stroke="#F3BDB5" stroke-width="17" stroke-linecap="round"/>
+          <g stroke="#D58E85" stroke-width="1.6" stroke-linecap="round">
+            <path d="M142 100h16"/><path d="M142 108h16"/><path d="M142 116h16"/><path d="M142 124h16"/><path d="M142 132h16"/><path d="M142 140h16"/><path d="M142 148h16"/>
+          </g>
+          <!-- 기관지와 가지 -->
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <g stroke="#C98C84" stroke-width="13"><path d="M150 162 C140 176 120 190 102 214"/><path d="M150 162 C160 176 180 190 198 214"/></g>
+            <g stroke="#F3BDB5" stroke-width="9"><path d="M150 162 C140 176 120 190 102 214"/><path d="M150 162 C160 176 180 190 198 214"/></g>
+            <g stroke="#F0A9A0" stroke-width="5">
+              <path d="M120 188 C100 188 84 196 76 214"/><path d="M110 204 C112 226 108 246 98 262"/><path d="M102 214 C92 232 84 250 82 270"/>
+              <path d="M180 188 C200 188 216 196 224 214"/><path d="M190 204 C188 226 192 246 202 262"/><path d="M198 214 C208 232 216 250 218 270"/>
+            </g>
+          </g>
+          <!-- 폐포 송이 -->
+          <g fill="#FFE3E5" stroke="#CF7C88" stroke-width="1.4">
+            <circle cx="96" cy="268" r="6"/><circle cx="106" cy="272" r="6"/><circle cx="100" cy="279" r="6"/>
+            <circle cx="204" cy="268" r="6"/><circle cx="194" cy="272" r="6"/><circle cx="200" cy="279" r="6"/>
+            <circle cx="80" cy="274" r="6"/><circle cx="220" cy="274" r="6"/>
+          </g>
+
+          <!-- 이름표 -->
+          <g font-size="12.5" font-weight="800" font-family="inherit">
+            <g stroke="#6B8196" stroke-width="1.2" fill="none"><path d="M174 38 H290"/><path d="M159 100 H290"/><path d="M185 192 H290"/><path d="M226 232 H290"/><path d="M206 280 H290"/><path d="M230 344 H290"/><path d="M46 150 H4"/></g>
+            <g fill="#1F2E3A">
+              <text x="296" y="42">코</text><text x="296" y="104">기관</text><text x="296" y="196">기관지</text>
+              <text x="296" y="236">폐</text><text x="296" y="284">폐포</text><text x="296" y="348">가로막</text><text x="6" y="144">갈비뼈</text>
+            </g>
+          </g>
+        </svg>
+        <div class="fig-cap">호흡 기관의 구조 (앞에서 본 모습)</div>
+      </div>
+
+      <div class="organ-list">
+        <div class="organ-item"><span class="organ-dot" style="background:#F4C6C0; border:2px solid #C98C84"></span><div><b>코</b>코털과 끈끈한 점액이 먼지를 걸러 내고, 들어온 공기를 따뜻하고 촉촉하게 만들어요.</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#F3BDB5; border:2px solid #C98C84"></span><div><b>기관</b>공기가 지나가는 관이에요. 안쪽 벽의 섬모와 점액이 먼지와 세균을 붙잡아 입 쪽으로 밀어 올려요(가래).</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#F0A9A0; border:2px solid #C98C84"></span><div><b>기관지</b>기관이 둘로 갈라져 폐로 들어가고, 폐 안에서 더 가늘게 갈라져 폐포로 이어져요.</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#EE9EA8; border:2px solid #CF7C88"></span><div><b>폐</b>가슴 속 좌우에 하나씩 있어요. 근육이 없어서 스스로 움직이지 못하고, 갈비뼈와 가로막의 움직임에 따라 부피가 변해요.</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#FFE3E5; border:2px solid #CF7C88"></span><div><b>폐포</b>기관지 끝에 달린 작은 공기 주머니예요. 모세혈관이 감싸고 있어서 산소와 이산화 탄소가 교환돼요. 수가 매우 많아 공기와 닿는 표면적이 넓어요.</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#D9A66C; border:2px solid #A97A44"></span><div><b>가로막(횡격막)</b>폐 아래에서 가슴 속 공간(흉강)과 배 속 공간을 나누는 막 모양의 근육이에요.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 호흡 운동 모형 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--pri)">실험</span>호흡 운동 모형 — 고무막을 당겨 보자</div>
+    <div class="card-hint">페트병과 Y자관, 고무풍선, 고무막으로 만든 호흡 운동 모형이에요. 버튼을 눌러 고무막을 아래로 당기거나 놓아 보고, 풍선이 어떻게 변하는지 관찰하세요.</div>
+
+    <div class="model-row">
+      <div class="fig-box">
+        <svg viewBox="0 0 300 310" id="model-svg" role="img" aria-label="호흡 운동 모형">
+          <!-- 들어가는 공기 화살표 -->
+          <g id="m-air-in" opacity="0"><path d="M150 6 V30" stroke="#2F7FC0" stroke-width="3" stroke-linecap="round"/><path d="M142 22 L150 32 L158 22" fill="none" stroke="#2F7FC0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <g id="m-air-out" opacity="0"><path d="M150 32 V8" stroke="#C95D73" stroke-width="3" stroke-linecap="round"/><path d="M142 16 L150 6 L158 16" fill="none" stroke="#C95D73" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <!-- 페트병 -->
+          <path d="M124 34 L124 74 C124 86 82 90 82 112 L82 246 L218 246 L218 112 C218 90 176 86 176 74 L176 34 Z" fill="rgba(196,224,244,.35)" stroke="#6A8CA8" stroke-width="3" stroke-linejoin="round"/>
+          <!-- Y자관 -->
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M150 36 V82 M150 82 L122 124 M150 82 L178 124" stroke="#6A8CA8" stroke-width="11"/>
+            <path d="M150 36 V82 M150 82 L122 124 M150 82 L178 124" stroke="#DCEEFA" stroke-width="7"/>
+          </g>
+          <!-- 풍선 -->
+          <ellipse id="m-b1" cx="122" cy="144" rx="16" ry="22" fill="rgba(238,120,142,.88)" stroke="#C0536A" stroke-width="2"/>
+          <ellipse id="m-b2" cx="178" cy="144" rx="16" ry="22" fill="rgba(238,120,142,.88)" stroke="#C0536A" stroke-width="2"/>
+          <!-- 고무막 -->
+          <path id="m-sheet" d="M80 246 Q150 246 220 246 Z" fill="#E6C7A0" stroke="#7B5A36" stroke-width="3" stroke-linejoin="round"/>
+          <g id="m-pull">
+            <line id="m-rope" x1="150" y1="246" x2="150" y2="270" stroke="#555" stroke-width="3"/>
+            <circle id="m-knob" cx="150" cy="276" r="8" fill="#8D6E4B" stroke="#4A3A28" stroke-width="2"/>
+          </g>
+          <!-- 이름표 -->
+          <g font-size="11.5" font-weight="800" fill="#1F2E3A" font-family="inherit">
+            <text x="226" y="60">Y자관</text><text x="226" y="150">고무풍선</text><text x="226" y="210">페트병 속 공간</text><text x="8" y="286">고무막</text>
+            <path d="M224 56 L158 60" stroke="#6B8196" stroke-width="1.2"/><path d="M224 146 L198 144" stroke="#6B8196" stroke-width="1.2"/><path d="M224 206 L200 200" stroke="#6B8196" stroke-width="1.2"/><path d="M46 282 L90 252" stroke="#6B8196" stroke-width="1.2"/>
+          </g>
+        </svg>
+      </div>
+
+      <div>
+        <div class="model-btns">
+          <button type="button" class="btn pri off" id="m-pull-btn">⬇ 고무막을 아래로 당기기</button>
+          <button type="button" class="btn pri" id="m-release-btn">⬆ 고무막 놓기</button>
+        </div>
+        <div class="state-box" id="m-state"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 기체 교환 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--pri)">기체 교환</span>폐포와 모세혈관 사이의 산소와 이산화 탄소</div>
+    <div class="card-hint">호흡 운동을 하는 까닭은 폐포에서 산소와 이산화 탄소를 교환하기 위해서예요. 움직이는 점을 따라가 보세요.</div>
+    <div class="fig-row">
+      <div class="fig-box">
+        <svg viewBox="0 0 380 230" role="img" aria-label="폐포와 모세혈관의 기체 교환">
+          <defs>
+            <path id="p-o2" d="M118 104 L208 104"/>
+            <path id="p-co2" d="M208 148 L118 148"/>
+          </defs>
+          <!-- 폐포 -->
+          <circle cx="112" cy="116" r="84" fill="#FFF1F2" stroke="#D98A96" stroke-width="3"/>
+          <text x="112" y="62" text-anchor="middle" font-size="13" font-weight="800" fill="#B04B5E">폐포</text>
+          <text x="112" y="80" text-anchor="middle" font-size="10.5" fill="#8D5360">(공기가 들어 있음)</text>
+          <!-- 모세혈관 -->
+          <path d="M206 6 C224 66 224 166 206 226" fill="none" stroke="#B5455B" stroke-width="40" stroke-linecap="round"/>
+          <path d="M206 6 C224 66 224 166 206 226" fill="none" stroke="#F7B9C4" stroke-width="34" stroke-linecap="round"/>
+          <g fill="#C8333F" stroke="#8E1F2B" stroke-width="1.5"><ellipse cx="217" cy="52" rx="10" ry="7" transform="rotate(70 217 52)"/><ellipse cx="222" cy="116" rx="10" ry="7" transform="rotate(90 222 116)"/><ellipse cx="217" cy="182" rx="10" ry="7" transform="rotate(110 217 182)"/></g>
+          <!-- 움직이는 기체 -->
+          <g font-size="9.5" font-weight="800" text-anchor="middle" fill="#fff">
+            <g><circle r="11" fill="#EE7B1F"/><text y="3.5">O₂</text>
+              <animateMotion dur="3.2s" repeatCount="indefinite" begin="0s"><mpath href="#p-o2"/></animateMotion></g>
+            <g><circle r="11" fill="#EE7B1F"/><text y="3.5">O₂</text>
+              <animateMotion dur="3.2s" repeatCount="indefinite" begin="-1.6s"><mpath href="#p-o2"/></animateMotion></g>
+            <g><circle r="11" fill="#6F7F8E"/><text y="3.5">CO₂</text>
+              <animateMotion dur="3.2s" repeatCount="indefinite" begin="-0.8s"><mpath href="#p-co2"/></animateMotion></g>
+            <g><circle r="11" fill="#6F7F8E"/><text y="3.5">CO₂</text>
+              <animateMotion dur="3.2s" repeatCount="indefinite" begin="-2.4s"><mpath href="#p-co2"/></animateMotion></g>
+          </g>
+          <!-- 설명 -->
+          <g font-size="12" font-weight="800" font-family="inherit">
+            <text x="258" y="60" fill="#B5455B">모세혈관</text>
+            <text x="258" y="78" font-size="10.5" font-weight="600" fill="#627583">(혈액이 흐르는 얇은 혈관)</text>
+            <circle cx="268" cy="118" r="7" fill="#EE7B1F"/><text x="282" y="122" fill="#1F2E3A">산소(O₂)</text>
+            <circle cx="268" cy="140" r="7" fill="#6F7F8E"/><text x="282" y="144" fill="#1F2E3A">이산화 탄소(CO₂)</text>
+          </g>
+        </svg>
+        <div class="fig-cap">폐포 벽과 모세혈관 벽은 모두 매우 얇아서 기체가 쉽게 지나갈 수 있어요.</div>
+      </div>
+
+      <div class="organ-list">
+        <div class="organ-item"><span class="organ-dot" style="background:#EE7B1F"></span><div><b>산소</b>폐포 안 공기에 산소가 많아요. 산소는 폐포에서 모세혈관 속 혈액으로 이동하고, 적혈구가 이를 온몸으로 운반해요.</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#6F7F8E"></span><div><b>이산화 탄소</b>온몸을 돌고 온 혈액에는 이산화 탄소가 많아요. 이산화 탄소는 모세혈관에서 폐포로 이동해 날숨으로 몸 밖으로 나가요.</div></div>
+        <div class="organ-item"><span class="organ-dot" style="background:#2F7FC0"></span><div><b>확산</b>기체는 농도가 높은 쪽에서 낮은 쪽으로 퍼져 나가요. 이런 현상을 확산이라고 하고, 폐포에서의 기체 교환은 확산으로 일어나요.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 개념정리 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--pri)">개념정리</span>호흡 기관의 기능 정리표</div>
+    <div class="card-hint">위의 그림과 설명, 체험한 내용을 떠올리며 표의 빈칸을 채워 보세요.</div>
+
+    <div class="concept-block">
+      <div class="concept-block-title">호흡 기관의 기능</div>
+      <div class="concept-body">
+        <table class="result-table">
+          <thead><tr><th style="width:90px">기관</th><th>하는 일(기능)</th></tr></thead>
+          <tbody>
+            <tr><td class="cellname">코</td><td class="given">코털과 끈끈한 점액이 공기 속 <input type="text" class="blank-input" id="t1" placeholder="OO" data-answers="먼지|이물질" data-show="먼지"> 를 걸러 내고, 공기를 따뜻하고 촉촉하게 한다.</td></tr>
+            <tr><td class="cellname">기관</td><td class="given">안쪽 벽의 <input type="text" class="blank-input" id="t2" placeholder="OO" data-answers="섬모" data-show="섬모"> 와 점액이 먼지와 세균을 걸러 낸다.</td></tr>
+            <tr><td class="cellname">기관지</td><td class="given">기관에서 갈라져 <input type="text" class="blank-input" id="t3" placeholder="O" data-answers="폐" data-show="폐"> 로 이어지는 관이다.</td></tr>
+            <tr><td class="cellname">폐</td><td class="given">근육이 없어 스스로 움직이지 못하며, 갈비뼈와 <input type="text" class="blank-input" id="t4" placeholder="OOO" data-answers="가로막|횡격막" data-show="가로막(횡격막)"> 의 움직임으로 부피가 변한다.</td></tr>
+            <tr><td class="cellname">폐포</td><td class="given"><input type="text" class="blank-input" id="t5" placeholder="OOOO" data-answers="모세혈관" data-show="모세혈관"> 이 둘러싸고 있어 산소와 이산화 탄소가 교환된다.</td></tr>
+            <tr><td class="cellname">폐포</td><td class="given">수많은 폐포 덕분에 공기와 닿는 <input type="text" class="blank-input" id="t6" placeholder="OOO" data-answers="표면적" data-show="표면적"> 이 매우 넓어 기체 교환이 효율적이다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="concept-block" style="margin-top:18px;">
+      <div class="concept-block-title">호흡 운동 모형과 우리 몸</div>
+      <div class="concept-body">
+        <table class="result-table" style="min-width:520px;">
+          <thead><tr><th style="width:90px">모형</th><th>Y자관</th><th>고무풍선</th><th>고무막</th><th>페트병 속 공간</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="cellname">우리 몸</td>
+              <td><input type="text" class="blank-input" id="t7" placeholder="OO" data-answers="기관|기관지" data-show="기관(기관지)"></td>
+              <td><input type="text" class="blank-input" id="t8" placeholder="O" data-answers="폐" data-show="폐"></td>
+              <td><input type="text" class="blank-input" id="t9" placeholder="OOO" data-answers="가로막|횡격막" data-show="가로막(횡격막)"></td>
+              <td><input type="text" class="blank-input" id="t10" placeholder="OO" data-answers="흉강|가슴" data-show="흉강(가슴 속 공간)"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 워크시트 -->
+  <section class="card">
+    <div class="card-title"><span class="badge" style="background:var(--sec)">워크시트</span>체험 내용 정리와 스스로 점검</div>
+    <div class="card-hint">정답을 입력하고 <b>제출하고 채점받기</b>를 누르면 개념정리표와 함께 바로 채점되고, 선생님 스프레드시트에도 자동으로 기록됩니다. 글로 쓰는 칸은 채점하지 않고 선생님께 그대로 전달돼요.</div>
+
+    <div class="ws-student">
+      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+
+    <label class="memo-label" for="memo-exp">체험 내용 — 시뮬레이션에서 무엇을 보고 알게 되었나요? (호흡 기관의 위치, 호흡 운동 실험 결과 등)</label>
+    <textarea class="memo" id="memo-exp" placeholder="예) 코로 들어온 공기가 기관과 기관지를 지나 폐포까지 가는 것을 보았다. 고무막을 당기니 풍선이 ..."></textarea>
+
+    <div class="q-group">체험 ① 호흡 기관의 구조와 기능 <small>공기가 지나가는 길</small></div>
+    <div class="q" id="q1">
+      <div class="q-text">
+        <span class="q-num">1</span>
+        코로 들어온 공기는 인두 →
+        <input type="text" class="blank-input" placeholder="OO" data-answers="기관" data-show="기관">
+        → 기관지 → 폐포의 순서로 이동한다.
+      </div>
+      <span class="q-feedback" id="q1-feedback"></span>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-text">
+        <span class="q-num">2</span>
+        폐는 근육이 없어서 스스로
+        <span class="choice-group" data-answer="움직일 수 없다">
+          <button type="button" class="choice-btn" data-value="움직일 수 있다">움직일 수 있다</button>
+          <button type="button" class="choice-btn" data-value="움직일 수 없다">움직일 수 없다</button>
+        </span>
+        . 그래서 갈비뼈와
+        <input type="text" class="blank-input" placeholder="OOO" data-answers="가로막|횡격막" data-show="가로막(횡격막)">
+        의 움직임으로 폐의 부피가 변한다.
+      </div>
+      <span class="q-feedback" id="q2-feedback"></span>
+    </div>
+
+    <div class="q" id="q3">
+      <div class="q-text">
+        <span class="q-num">3</span>
+        기관 안쪽 벽의 섬모는 먼지와 세균이 붙은 점액을
+        <span class="choice-group" data-answer="입 쪽(위쪽)으로">
+          <button type="button" class="choice-btn" data-value="입 쪽(위쪽)으로">입 쪽(위쪽)으로</button>
+          <button type="button" class="choice-btn" data-value="폐 쪽(아래쪽)으로">폐 쪽(아래쪽)으로</button>
+        </span>
+        밀어 올리고, 이것이 모이면
+        <input type="text" class="blank-input" placeholder="OO" data-answers="가래" data-show="가래">
+        가 되어 기침으로 몸 밖으로 나간다.
+      </div>
+      <span class="q-feedback" id="q3-feedback"></span>
+    </div>
+
+    <div class="q-group">체험 ② 호흡 운동의 원리 <small>모형과 우리 몸 연결하기</small></div>
+    <div class="q" id="q4">
+      <div class="q-text">
+        <span class="q-num">4</span>
+        모형에서 고무막을 아래로 당기면 페트병 속 공간의 부피는
+        <span class="choice-group" data-answer="커지고">
+          <button type="button" class="choice-btn" data-value="커지고">커지고</button>
+          <button type="button" class="choice-btn" data-value="작아지고">작아지고</button>
+        </span>
+        압력은
+        <span class="choice-group" data-answer="낮아져">
+          <button type="button" class="choice-btn" data-value="높아져">높아져</button>
+          <button type="button" class="choice-btn" data-value="낮아져">낮아져</button>
+        </span>
+        공기가 Y자관으로 들어가 고무풍선이 부풀어 오른다.
+      </div>
+      <span class="q-feedback" id="q4-feedback"></span>
+    </div>
+
+    <div class="q" id="q5">
+      <div class="q-text">
+        <span class="q-num">5</span>
+        <b>들숨</b> : 숨을 들이쉴 때 갈비뼈는
+        <span class="choice-group" data-answer="올라가고">
+          <button type="button" class="choice-btn" data-value="올라가고">올라가고</button>
+          <button type="button" class="choice-btn" data-value="내려가고">내려가고</button>
+        </span>
+        가로막은
+        <span class="choice-group" data-answer="내려가서">
+          <button type="button" class="choice-btn" data-value="내려가서">내려가서</button>
+          <button type="button" class="choice-btn" data-value="올라가서">올라가서</button>
+        </span>
+        흉강(가슴 속 공간)의 부피가 커지고, 폐 속 압력이 낮아져 공기가 몸 안으로 들어온다.
+      </div>
+      <span class="q-feedback" id="q5-feedback"></span>
+    </div>
+
+    <div class="q" id="q6">
+      <div class="q-text">
+        <span class="q-num">6</span>
+        <b>날숨</b> : 숨을 내쉴 때 갈비뼈는
+        <span class="choice-group" data-answer="내려가고">
+          <button type="button" class="choice-btn" data-value="올라가고">올라가고</button>
+          <button type="button" class="choice-btn" data-value="내려가고">내려가고</button>
+        </span>
+        가로막은
+        <span class="choice-group" data-answer="올라가서">
+          <button type="button" class="choice-btn" data-value="내려가서">내려가서</button>
+          <button type="button" class="choice-btn" data-value="올라가서">올라가서</button>
+        </span>
+        흉강의 부피가 작아지고, 폐 속 압력이 높아져 공기가 몸 밖으로 나간다.
+      </div>
+      <span class="q-feedback" id="q6-feedback"></span>
+    </div>
+
+    <div class="q-group">체험 ③ 기체 교환 <small>폐포와 모세혈관 사이</small></div>
+    <div class="q" id="q7">
+      <div class="q-text">
+        <span class="q-num">7</span>
+        산소는
+        <span class="choice-group" data-answer="폐포 → 모세혈관">
+          <button type="button" class="choice-btn" data-value="모세혈관 → 폐포">모세혈관 → 폐포</button>
+          <button type="button" class="choice-btn" data-value="폐포 → 모세혈관">폐포 → 모세혈관</button>
+        </span>
+        으로, 이산화 탄소는
+        <span class="choice-group" data-answer="모세혈관 → 폐포">
+          <button type="button" class="choice-btn" data-value="폐포 → 모세혈관">폐포 → 모세혈관</button>
+          <button type="button" class="choice-btn" data-value="모세혈관 → 폐포">모세혈관 → 폐포</button>
+        </span>
+        으로 이동한다.
+      </div>
+      <span class="q-feedback" id="q7-feedback"></span>
+    </div>
+
+    <div class="q" id="q8">
+      <div class="q-text">
+        <span class="q-num">8</span>
+        이렇게 기체가 농도가 높은 쪽에서 낮은 쪽으로 퍼져 나가는 현상을
+        <input type="text" class="blank-input" placeholder="OO" data-answers="확산" data-show="확산">
+        이라고 한다.
+      </div>
+      <span class="q-feedback" id="q8-feedback"></span>
+    </div>
+
+    <div class="q" id="q9">
+      <div class="q-text">
+        <span class="q-num">9</span>
+        폐포에서 기체 교환을 마치고 나온 혈액은
+        <span class="choice-group" data-answer="산소가 많은">
+          <button type="button" class="choice-btn" data-value="산소가 많은">산소가 많은</button>
+          <button type="button" class="choice-btn" data-value="이산화 탄소가 많은">이산화 탄소가 많은</button>
+        </span>
+        혈액이 되어 폐정맥을 따라
+        <input type="text" class="blank-input" placeholder="OOO" data-answers="좌심방" data-show="좌심방">
+        으로 들어간다.
+      </div>
+      <span class="q-feedback" id="q9-feedback"></span>
+    </div>
+
+    <div class="q-group">체험 ④ 가래·기침과 미세 먼지 <small>호흡계 질병</small></div>
+    <div class="q" id="q10">
+      <div class="q-text">
+        <span class="q-num">10</span>
+        초미세 먼지(PM2.5)는 지름이
+        <input type="text" class="blank-input" style="width:70px" placeholder="O.O" data-answers="2.5|2,5" data-show="2.5">
+        ㎛ 이하로 매우 작아서 호흡기를 통해
+        <span class="choice-group" data-answer="혈액까지 침투할 수 있다">
+          <button type="button" class="choice-btn" data-value="혈액까지 침투할 수 있다">혈액까지 침투할 수 있다</button>
+          <button type="button" class="choice-btn" data-value="코에서 모두 걸러진다">코에서 모두 걸러진다</button>
+        </span>
+        .
+      </div>
+      <span class="q-feedback" id="q10-feedback"></span>
+    </div>
+
+    <div class="q" id="q11">
+      <div class="q-text">
+        <span class="q-num">11</span>
+        다음 중 호흡 기관에 생기는 질병이 <b>아닌</b> 것은?
+        <span class="choice-group" data-answer="위염">
+          <button type="button" class="choice-btn" data-value="기관지염">기관지염</button>
+          <button type="button" class="choice-btn" data-value="천식">천식</button>
+          <button type="button" class="choice-btn" data-value="폐렴">폐렴</button>
+          <button type="button" class="choice-btn" data-value="위염">위염</button>
+        </span>
+      </div>
+      <span class="q-feedback" id="q11-feedback"></span>
+    </div>
+
+    <label class="memo-label" style="margin-top:22px;">호흡계에 생길 수 있는 질병을 찾아 적어 보세요. (종류와 설명)</label>
+    <div class="disease-grid"><input type="text" id="dis1-name" placeholder="질병 이름 1"><input type="text" id="dis1-desc" placeholder="어떤 병인지 설명"></div>
+    <div class="disease-grid"><input type="text" id="dis2-name" placeholder="질병 이름 2"><input type="text" id="dis2-desc" placeholder="어떤 병인지 설명"></div>
+    <div class="disease-grid"><input type="text" id="dis3-name" placeholder="질병 이름 3"><input type="text" id="dis3-desc" placeholder="어떤 병인지 설명"></div>
+
+    <label class="memo-label" for="memo-feel">체험 후 느낌 — 체험하면서 느낀 점이나 더 알고 싶은 내용을 적어 보세요.</label>
+    <textarea class="memo" id="memo-feel" placeholder="예) 폐포가 이렇게 많은 줄 몰랐다. 미세 먼지가 많은 날에는 ..."></textarea>
+
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">다시 풀기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>AHWA MIDDLE SCHOOL SCIENCE · 동물과 에너지 (호흡 기관 탐험 워크시트)</footer>
+</div>
+
+<!-- ==========================================================
+  ▣ 학생 제출을 구글 스프레드시트로 자동 저장하는 방법 (선생님용)
+
+  다른 워크시트와 같은 웹훅 주소를 재사용하도록 미리 연결해 두었습니다.
+  제출값의 worksheet 필드("6_호흡기관")로 어떤 워크시트에서 온 응답인지
+  구분되고, 해당 이름의 시트(탭)가 자동으로 만들어져 저장됩니다.
+  글로 쓴 칸(미세 먼지 생각, 체험 내용, 호흡계 질병 조사, 체험 후 느낌)은
+  채점하지 않고 그대로 열에 기록됩니다.
+  주소를 다른 스프레드시트로 바꾸고 싶다면 아래 SPREADSHEET_WEBHOOK_URL
+  값만 바꿔주시면 됩니다. (비워두면 학생 화면에서 채점만 되고 전송은 생략됩니다.)
+=========================================================== -->
+<script>
+const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+</script>
+
+<script>
+/* ==========================================================
+   호흡 운동 모형 (고무막 당기기 / 놓기)
+=========================================================== */
+const modelEls = {
+  b1: document.getElementById("m-b1"), b2: document.getElementById("m-b2"),
+  sheet: document.getElementById("m-sheet"), rope: document.getElementById("m-rope"), knob: document.getElementById("m-knob"),
+  airIn: document.getElementById("m-air-in"), airOut: document.getElementById("m-air-out"),
+  pullBtn: document.getElementById("m-pull-btn"), releaseBtn: document.getElementById("m-release-btn"),
+  state: document.getElementById("m-state")
+};
+let modelT = 0, modelTarget = 0, modelRaf = null;
+
+function drawModel(t){
+  const rx = 16 + 17 * t, ry = 22 + 27 * t;
+  modelEls.b1.setAttribute("rx", rx); modelEls.b1.setAttribute("ry", ry); modelEls.b1.setAttribute("cy", 124 + ry);
+  modelEls.b2.setAttribute("rx", rx); modelEls.b2.setAttribute("ry", ry); modelEls.b2.setAttribute("cy", 124 + ry);
+  const apex = 246 + 36 * t;
+  modelEls.sheet.setAttribute("d", `M80 246 Q150 ${246 + 72 * t} 220 246 Z`);
+  modelEls.rope.setAttribute("y1", apex); modelEls.rope.setAttribute("y2", apex + 24);
+  modelEls.knob.setAttribute("cy", apex + 30);
+}
+function stepModel(){
+  const d = modelTarget - modelT;
+  if(Math.abs(d) < 0.005){ modelT = modelTarget; drawModel(modelT); modelRaf = null; return; }
+  modelT += d * 0.12;
+  drawModel(modelT);
+  modelRaf = requestAnimationFrame(stepModel);
+}
+function setModel(target){
+  modelTarget = target;
+  modelEls.pullBtn.classList.toggle("off", target !== 1);
+  modelEls.releaseBtn.classList.toggle("off", target !== 0);
+  modelEls.airIn.setAttribute("opacity", target === 1 ? 1 : 0);
+  modelEls.airOut.setAttribute("opacity", target === 0 && modelT > 0.05 ? 1 : 0);
+  modelEls.state.innerHTML = target === 1
+    ? `<span class="tag">고무막을 아래로 당겼을 때</span><br>페트병 속 공간의 <b>부피가 커지고</b>, 속의 <b>압력이 낮아져요.</b><br>그래서 바깥 공기가 Y자관을 통해 들어와 <b>고무풍선이 부풀어 올라요.</b><br>(우리 몸의 <b>들숨</b>과 같은 원리예요.)`
+    : `<span class="tag">고무막을 놓았을 때</span><br>페트병 속 공간의 <b>부피가 작아지고</b>, 속의 <b>압력이 높아져요.</b><br>그래서 풍선 속 공기가 Y자관을 통해 밖으로 나가 <b>고무풍선이 오그라들어요.</b><br>(우리 몸의 <b>날숨</b>과 같은 원리예요.)`;
+  if(!modelRaf) modelRaf = requestAnimationFrame(stepModel);
+}
+modelEls.pullBtn.addEventListener("click", () => setModel(1));
+modelEls.releaseBtn.addEventListener("click", () => setModel(0));
+drawModel(0);
+setModel(0);
+modelEls.airOut.setAttribute("opacity", 0);
+
+/* ==========================================================
+   워크시트 채점 & 스프레드시트 자동 전송
+   - 빈칸: data-answers(정답 후보, | 로 구분) / data-show(틀렸을 때 보여 줄 정답)
+   - 선택: .choice-group 의 data-answer
+=========================================================== */
+document.querySelectorAll(".choice-group").forEach(group => {
+  group.querySelectorAll(".choice-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("picked"));
+      btn.classList.add("picked");
+    });
+  });
+});
+
+function pickedValue(group){
+  const picked = group.querySelector(".choice-btn.picked");
+  return picked ? picked.dataset.value : "";
+}
+function normalize(str){ return (str || "").trim().replace(/\s+/g, ""); }
+function blankMatches(inputVal, answers){
+  const v = normalize(inputVal);
+  return answers.some(a => v === normalize(a) || v.includes(normalize(a)));
+}
+function setFeedback(id, ok, correctText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? "✅ 정답이에요!" : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = "q-feedback " + (ok ? "ok" : "bad");
+}
+function markBlank(input, ok, correctText){
+  input.style.color = ok ? "" : "var(--err)";
+  let check = input.nextElementSibling;
+  if(!check || !check.classList.contains("blank-check")){
+    check = document.createElement("span");
+    check.className = "blank-check";
+    input.insertAdjacentElement("afterend", check);
+  }
+  check.textContent = ok ? "✅" : `❌ (정답: ${correctText})`;
+  check.className = "blank-check " + (ok ? "ok" : "bad");
+}
+
+const submitBtn = document.getElementById("ws-submit");
+const resetBtn = document.getElementById("ws-reset");
+const wsResult = document.getElementById("ws-result");
+const wsStatus = document.getElementById("ws-status");
+
+const tableInputs = [...document.querySelectorAll("td input[data-answers]")];
+const questions = [...document.querySelectorAll(".q")];
+
+function qParts(q){
+  return [
+    ...[...q.querySelectorAll(".choice-group")].map(g => ({ kind:"choice", el:g, value:pickedValue(g), answer:g.dataset.answer })),
+    ...[...q.querySelectorAll("input.blank-input")].map(i => ({ kind:"blank", el:i, value:i.value, answers:i.dataset.answers.split("|"), answer:i.dataset.show }))
+  ];
+}
+
+submitBtn.addEventListener("click", async () => {
+  const name = document.getElementById("ws-name").value.trim();
+  const grade = document.getElementById("ws-grade").value.trim();
+  const classNum = document.getElementById("ws-class").value.trim();
+  const number = document.getElementById("ws-number").value.trim();
+
+  if(!name){ alert("이름을 입력해 주세요."); return; }
+
+  const allFilled =
+    tableInputs.every(i => i.value.trim() !== "") &&
+    questions.every(q => qParts(q).every(p => (p.value || "").trim() !== ""));
+  if(!allFilled){ alert("모든 문항에 답해 주세요. (글로 쓰는 칸은 비워도 돼요.)"); return; }
+
+  const answers = {};
+  const results = {};
+
+  tableInputs.forEach(i => {
+    const ok = blankMatches(i.value, i.dataset.answers.split("|"));
+    results[i.id] = ok;
+    answers[i.id] = i.value.trim();
+    markBlank(i, ok, i.dataset.show);
+  });
+
+  questions.forEach(q => {
+    const parts = qParts(q);
+    const ok = parts.every(p => p.kind === "choice" ? p.value === p.answer : blankMatches(p.value, p.answers));
+    results[q.id] = ok;
+    answers[q.id] = parts.map(p => p.value.trim()).join(" / ");
+    setFeedback(q.id + "-feedback", ok, parts.map(p => p.answer).join(" / "));
+  });
+
+  const correct = Object.values(results).filter(Boolean).length;
+  const total = Object.keys(results).length;
+  wsResult.textContent = `${correct} / ${total} 개 정답 (개념정리표 ${tableInputs.length} + 워크시트 ${questions.length})`;
+  wsResult.className = "ws-result " + (correct === total ? "ok" : "");
+
+  submitBtn.disabled = true;
+  wsStatus.textContent = "제출 중...";
+
+  const val = id => document.getElementById(id).value.trim();
+  const payload = {
+    worksheet: "6_호흡기관",
+    grade, classNum, number, name,
+    ...answers,
+    memo_dust: val("memo-dust"),
+    memo_exp: val("memo-exp"),
+    disease1: [val("dis1-name"), val("dis1-desc")].filter(Boolean).join(" : "),
+    disease2: [val("dis2-name"), val("dis2-desc")].filter(Boolean).join(" : "),
+    disease3: [val("dis3-name"), val("dis3-desc")].filter(Boolean).join(" : "),
+    memo_feel: val("memo-feel"),
+    score: String(correct),
+    total: String(total)
+  };
+
+  if(!SPREADSHEET_WEBHOOK_URL){
+    wsStatus.textContent = "채점 완료! (아직 스프레드시트 연동 주소가 설정되지 않아 결과가 저장되진 않았어요.)";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  try{
+    await fetch(SPREADSHEET_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload)
+    });
+    wsStatus.textContent = "채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.";
+  }catch(err){
+    console.error("스프레드시트 전송 오류:", err);
+    wsStatus.textContent = "채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.";
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  document.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.style.color = ""; });
+  document.querySelectorAll(".blank-check").forEach(c => c.remove());
+  document.querySelectorAll(".choice-btn.picked").forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(".q-feedback").forEach(f => { f.textContent = ""; f.className = "q-feedback"; });
+  document.querySelectorAll("textarea.memo, .disease-grid input").forEach(t => { t.value = ""; });
+  wsResult.textContent = "";
+  wsResult.className = "ws-result";
+  wsStatus.textContent = "";
+});
+</script>
+
+</body>
+</html>
