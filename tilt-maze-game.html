@@ -170,6 +170,26 @@
   .clear-reg{ font-size:12.5px !important; font-weight:800; color:#1E7A43 !important; margin-bottom:12px !important; }
   .clear-actions{ display:flex; gap:8px; }
   .clear-actions .btn{ flex:1; }
+
+  /* ---------- 센서 값 미리 확인(게이지) ---------- */
+  .sensor-gauge{ background:#F6F8FB; border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+  .sg-title{ font-size:12.5px; font-weight:800; color:var(--ink); display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; }
+  .sg-title small{ font-size:11px; font-weight:600; color:var(--ink-soft); }
+  .sg-body{ display:flex; gap:12px; align-items:center; margin-top:8px; }
+  .sg-bars{ flex:1; display:flex; flex-direction:column; gap:7px; min-width:0; }
+  .sg-row{ display:grid; grid-template-columns:4.4em 1fr 3em; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft); font-weight:700; }
+  .sg-bar{ position:relative; height:12px; border-radius:7px; background:#E4E9F0; overflow:hidden; }
+  .sg-bar::after{ content:""; position:absolute; left:50%; top:0; bottom:0; width:2px; margin-left:-1px; background:rgba(0,0,0,.25); }
+  .sg-bar i{ position:absolute; top:0; bottom:0; left:50%; width:0; background:linear-gradient(90deg,#4FA8E0,#2E7DD1); border-radius:7px; }
+  .sg-bar.hi i{ background:linear-gradient(90deg,#F2A33B,#D8493B); }
+  .sg-val{ text-align:right; font-variant-numeric:tabular-nums; color:var(--ink); }
+  .sg-pad{ position:relative; width:66px; height:66px; flex:none; border-radius:50%; background:radial-gradient(circle, #fff 0 55%, #E4E9F0 56% 100%); border:2px solid var(--line); }
+  .sg-pad::before, .sg-pad::after{ content:""; position:absolute; background:rgba(0,0,0,.15); }
+  .sg-pad::before{ left:50%; top:6px; bottom:6px; width:1px; }
+  .sg-pad::after{ top:50%; left:6px; right:6px; height:1px; }
+  .sg-dot{ position:absolute; width:16px; height:16px; margin:-8px 0 0 -8px; left:50%; top:50%; border-radius:50%; background:radial-gradient(circle at 35% 35%, #fff, #2E7DD1 60%, #1A4F8F); box-shadow:0 2px 4px rgba(0,0,0,.3); transition:left .06s linear, top .06s linear; }
+  .sg-dot.off{ background:#C9D2DD; box-shadow:none; }
+  .sg-hint{ font-size:11px; color:var(--ink-soft); margin-top:6px; line-height:1.5; }
 </style>
 </head>
 <body>
@@ -218,6 +238,19 @@
           </div>
           <div id="autoConnRow" style="display:none;">
             <button class="btn ghost" id="autoConnectBtn">⚡ 이전에 연결했던 아두이노로 바로 연결</button>
+          </div>
+
+          <div class="sensor-gauge" id="sensorGauge">
+            <div class="sg-title">📡 센서 값 미리 확인 <small>보드를 기울여 막대와 공이 움직이는지 확인하세요</small></div>
+            <div class="sg-body">
+              <div class="sg-bars">
+                <div class="sg-row"><span>X (좌우)</span><div class="sg-bar" id="sgXbar"><i id="sgX"></i></div><span class="sg-val" id="sgXv">-</span></div>
+                <div class="sg-row"><span>Y (앞뒤)</span><div class="sg-bar" id="sgYbar"><i id="sgY"></i></div><span class="sg-val" id="sgYv">-</span></div>
+                <div class="sg-row" id="sgZrow" style="display:none;"><span>Z 가속도</span><div class="sg-bar" id="sgZbar"><i id="sgZ"></i></div><span class="sg-val" id="sgZv">-</span></div>
+              </div>
+              <div class="sg-pad" title="수평계: 기울인 방향으로 공이 움직여요"><div class="sg-dot off" id="sgDot"></div></div>
+            </div>
+            <div class="sg-hint" id="sgHint">아두이노를 연결하면 실시간 값이 표시돼요. 보드를 평평하게 두고 "수평 보정"을 누르면 막대가 가운데(0)로 맞춰져요.</div>
           </div>
 
           <div class="ctrl-row">
@@ -943,6 +976,35 @@ async function readLoop(){
   }
 }
 
+/* ================= 센서 값 미리 확인(게이지) =================
+   게임에서 실제로 쓰는 값(보정·반전·민감도 적용 후)을 막대와 수평계로 보여준다. */
+let rawTiltZ = null;   // 3번째 값(Z 가속도)을 보내는 스케치일 때만 표시
+function setGaugeBar(id, v){
+  const el = $(id), f = Math.max(-1, Math.min(1, v));
+  el.style.left = f >= 0 ? '50%' : (50 + f*50) + '%';
+  el.style.width = Math.abs(f)*50 + '%';
+  el.parentElement.classList.toggle('hi', Math.abs(f) >= .95);
+}
+function updateSensorGauge(){
+  const on = serialConnected;
+  const t = on ? getEffectiveTilt() : { x:0, y:0 };
+  const gx = Math.max(-1, Math.min(1, t.x)), gy = Math.max(-1, Math.min(1, t.y));
+  setGaugeBar('sgX', gx); setGaugeBar('sgY', gy);
+  $('sgXv').textContent = on ? gx.toFixed(2) : '-';
+  $('sgYv').textContent = on ? gy.toFixed(2) : '-';
+  const showZ = on && rawTiltZ !== null;
+  $('sgZrow').style.display = showZ ? '' : 'none';
+  if(showZ){ setGaugeBar('sgZ', rawTiltZ - 1); $('sgZv').textContent = rawTiltZ.toFixed(2) + 'g'; }
+  const dot = $('sgDot');
+  dot.classList.toggle('off', !on);
+  dot.style.left = (50 + gx*40) + '%';
+  dot.style.top = (50 + gy*40) + '%';
+  $('sgHint').textContent = on
+    ? (Math.abs(gx) < .05 && Math.abs(gy) < .05 ? '✅ 수평 상태예요. 보드를 기울이면 막대가 그 방향으로 늘어나요.' : '보드를 기울인 방향으로 막대와 공이 움직이면 정상이에요. 반대로 움직이면 "축 반전"을 눌러 주세요.')
+    : '아두이노를 연결하면 실시간 값이 표시돼요. 보드를 평평하게 두고 "수평 보정"을 누르면 막대가 가운데(0)로 맞춰져요.';
+}
+setInterval(updateSensorGauge, 60);
+
 function parseLine(line){
   const parts = line.split(',');
   if(parts.length < 2) return;
@@ -950,6 +1012,8 @@ function parseLine(line){
   const y = parseFloat(parts[1]);
   if(Number.isNaN(x) || Number.isNaN(y)) return;
   rawTiltX = x; rawTiltY = y;
+  const z = parts.length >= 3 ? parseFloat(parts[2]) : NaN;
+  rawTiltZ = Number.isNaN(z) ? null : z;
 }
 
 $('connectBtn').addEventListener('click', connectSerial);
