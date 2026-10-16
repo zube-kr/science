@@ -476,8 +476,7 @@ function land(p){
   lastPlanet = p;
   SFX.land();
   puff(player.x, player.y, `${p.t.glow}`, 10, 70);
-  // 착지 지점 근처의 괴물은 반대편으로 비켜 준다(착지 즉시 실패 방지)
-  if (p.monster && Math.abs(angDiff(p.monster.ang, ang)) * p.R < 150) p.monster.ang = ang + Math.PI;
+  avoidMonster(p);
   if (!p.visited){
     p.visited = true; p.flagAng = ang;
     planetsReached++;
@@ -486,6 +485,18 @@ function land(p){
     popups.push({ x: player.x, y: player.y - 30, text: "+100", color: "#FFD66E", t: 0 });
     SFX.newPlanet();
   }
+}
+
+// 착지·부활 지점 가까이에 괴물이 있으면, 괴물을 순간이동시키지 않고
+// 우주 비행사와 괴물이 서로 반대 방향으로 달리게 해서 바로 부딪히지 않게 한다.
+function avoidMonster(p){
+  const m = p.monster;
+  if (!m) return;
+  const d = angDiff(player.ang, m.ang);           // 괴물 기준으로 비행사가 있는 쪽(+/-)
+  if (Math.abs(d) * (p.R + 12) > 200) return;
+  const away = d >= 0 ? 1 : -1;
+  player.dir = away;
+  if (m.dir !== -away){ m.dir = -away; m.alert = .8; }
 }
 
 function loseLife(reason){
@@ -503,10 +514,12 @@ function respawn(){
   // 다음 행성 쪽을 바라보는 위치에서 다시 시작
   let target = null;
   for (const q of planets) if (!q.visited && q.x > p.x && (!target || q.x < target.x)) target = q;
-  const ang = target ? Math.atan2(target.y - p.y, target.x - p.x) - .9 : -Math.PI / 2;
+  let ang = target ? Math.atan2(target.y - p.y, target.x - p.x) - .9 : -Math.PI / 2;
+  // 괴물 바로 옆이면 괴물 반대편에서 다시 시작(괴물은 그 자리 그대로)
+  if (p.monster && Math.abs(angDiff(p.monster.ang, ang)) * (p.R + 12) < 200) ang = p.monster.ang + Math.PI;
   placeOn(p, ang, 1);
   player.invuln = 1.6;
-  if (p.monster && Math.abs(angDiff(p.monster.ang, ang)) * p.R < 170) p.monster.ang = ang + Math.PI;
+  avoidMonster(p);
 }
 
 /* ==========================================================
@@ -520,6 +533,7 @@ function step(dt){
       const m = p.monster;
       m.ang += m.dir * m.speed / (p.R + 12) * dt;
       m.wob += dt * 9;
+      if (m.alert > 0) m.alert -= dt;
     }
     for (const s of p.sats){ s.ang += s.w * dt; s.rot += dt * 2; }
   }
@@ -769,6 +783,13 @@ function drawMonster(p, t){
   ctx.beginPath(); ctx.arc(-3.5 + m.dir, -2, 1.5, 0, TAU); ctx.arc(3.5 + m.dir, -2, 1.5, 0, TAU); ctx.fill();
   ctx.strokeStyle = "#5A0F0F"; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(-4, 4); ctx.lineTo(-2, 2.5); ctx.lineTo(0, 4); ctx.lineTo(2, 2.5); ctx.lineTo(4, 4); ctx.stroke();
+  if (m.alert > 0){
+    // 방향을 바꿀 때 머리 위에 "!" 표시
+    ctx.globalAlpha = Math.min(1, m.alert * 2);
+    ctx.fillStyle = "#FFE45C"; ctx.font = "18px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("!", 0, -17);
+    ctx.globalAlpha = 1; ctx.textAlign = "left";
+  }
   ctx.restore();
 }
 
