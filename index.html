@@ -17,20 +17,23 @@
 }
 
 :root{
-  --bg:#f6f7f9;
+  --bg:#f5f6fb;
   --surface:#ffffff;
-  --line:#e6e8ed;
-  --ink:#1c2333;
-  --sub:#545d6e;
-  --muted:#8b93a3;
-  --green:#3d9a1f;
-  --green-soft:#eef7e7;
-  --navy:#1f2b7b;
-  --phys:#3b7cf0;
-  --chem:#ef6f2a;
-  --bio:#2f9e48;
-  --earth:#8a5cf0;
-  --int:#dfa000;
+  --line:#e4e6f0;
+  --ink:#1b1f3b;
+  --sub:#565d78;
+  --muted:#8c92aa;
+  --brand:#4f46e5;
+  --brand-dark:#3730a3;
+  --brand-soft:#eef0ff;
+  --gold:#f5b70a;
+  --night1:#0f1435;
+  --night2:#272f86;
+  --phys:#4f7cff;
+  --chem:#ff7849;
+  --bio:#1fb37a;
+  --earth:#9b6bff;
+  --int:#f2a516;
   --font-display:"Space Grotesk","Pretendard Variable",sans-serif;
   --font-kr:"Pretendard Variable","Malgun Gothic",sans-serif;
 }
@@ -71,13 +74,51 @@ body{
 }
 
 .logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
   font-family:var(--font-display);
   font-size:26px;
   font-weight:700;
   letter-spacing:2px;
-  text-align:center;
   margin-bottom:6px;
-  color:var(--navy);
+  color:var(--ink);
+}
+.logo svg{
+  width:34px;
+  height:34px;
+}
+.logo span{
+  background:linear-gradient(100deg, var(--brand), #9b6bff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.gnum{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  margin-right:10px;
+  font-family:var(--font-display);
+  font-size:14px;
+  font-weight:700;
+  color:#fff;
+  background:var(--c);
+  vertical-align:middle;
+}
+.gnum .ico{
+  width:15px;
+  height:15px;
+}
+
+.chat-entry .ico,
+.grade li .ico{
+  margin-right:6px;
 }
 
 .school{
@@ -102,8 +143,8 @@ body{
 }
 
 .chat-entry:hover{
-  background:var(--green-soft);
-  color:var(--green);
+  background:var(--brand-soft);
+  color:var(--brand);
 }
 
 .grade{
@@ -139,9 +180,9 @@ body{
   color:var(--sub);
 }
 .grade li:hover{
-  background:var(--green-soft);
+  background:var(--brand-soft);
   padding-left:16px;
-  color:var(--green);
+  color:var(--brand);
 }
 
 .grade li a{
@@ -156,13 +197,13 @@ body{
   font-size:11px;
   font-weight:700;
   color:#fff;
-  background:var(--green);
+  background:var(--brand);
   padding:2px 9px;
   border-radius:10px;
   vertical-align:middle;
 }
 .quick-link:hover{
-  background:#2f7f15;
+  background:var(--brand-dark);
 }
 
 /*==============================
@@ -193,74 +234,118 @@ body{
   width:100%;
   height:100vh;
   overflow-y:auto;
-  background:var(--surface);
+  background:var(--bg);
 }
 
 .home{
-  max-width:1120px;
+  max-width:1240px;
   margin:0 auto;
   padding:0 32px 40px;
 }
 
 .home-top{
+  display:flex;
+  align-items:center;
+  gap:8px;
   font-size:13px;
   color:var(--sub);
   padding:16px 0;
-  border-bottom:1px solid var(--line);
-  margin:0 -32px 32px;
-  padding-left:32px;
+  margin-bottom:24px;
+}
+.home-top::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 0 4px rgba(245,183,10,.18);
 }
 
+.ico{
+  width:1.15em;
+  height:1.15em;
+  flex-shrink:0;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  vertical-align:-.2em;
+}
+
+/* 히어로: 밤하늘 */
 .hero{
+  position:relative;
+  overflow:hidden;
   display:flex;
   align-items:center;
   gap:32px;
-  padding:42px 44px;
+  padding:44px 48px;
   border-radius:28px;
-  background:linear-gradient(120deg,#eef7e4 0%,#eef4f6 55%,#e8effb 100%);
+  color:#fff;
+  background:
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(255,255,255,.9) 50%, transparent 51%),
+    radial-gradient(1px 1px at 28% 70%, rgba(255,255,255,.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 46% 14%, rgba(255,255,255,.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 86%, rgba(255,255,255,.6) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 70% 30%, rgba(255,255,255,.85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 78%, rgba(255,255,255,.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 12%, rgba(255,255,255,.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 36% 42%, rgba(255,255,255,.5) 50%, transparent 51%),
+    radial-gradient(600px 320px at 85% 20%, rgba(124,92,255,.45), transparent 70%),
+    radial-gradient(500px 300px at 10% 110%, rgba(18,181,165,.28), transparent 70%),
+    linear-gradient(135deg, var(--night1) 0%, var(--night2) 100%);
+  box-shadow:0 20px 50px rgba(20,24,70,.25);
 }
 
 .hero-text{
+  position:relative;
   flex:1;
   min-width:0;
 }
 
 .hero-badge{
-  display:inline-block;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
   font-size:13px;
-  font-weight:700;
-  color:#2f7f15;
-  background:#fff;
-  border:1px solid #cfe5c2;
+  font-weight:600;
+  color:#d6daff;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
   border-radius:999px;
   padding:6px 14px;
   margin-bottom:22px;
 }
+.hero-badge .ico{ color:var(--gold); }
 
 .hero h1{
-  font-size:40px;
+  font-size:42px;
   font-weight:800;
-  line-height:1.3;
+  line-height:1.28;
   letter-spacing:-1px;
-  color:var(--ink);
-  margin-bottom:18px;
+  margin-bottom:16px;
 }
 .hero h1 em{
   font-style:normal;
-  color:var(--green);
+  background:linear-gradient(100deg, #ffd34d, #ff9f43);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
 }
 
 .hero p{
   font-size:15.5px;
   line-height:1.8;
-  color:var(--sub);
-  margin-bottom:24px;
+  color:#c4c9ea;
+  margin-bottom:26px;
 }
 
 .hero-label{
   font-size:12.5px;
   font-weight:600;
-  color:var(--sub);
+  letter-spacing:.5px;
+  color:#959ccc;
   margin:0 0 10px;
 }
 
@@ -275,47 +360,49 @@ body{
 }
 
 .chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
   font-family:var(--font-kr);
   font-size:15px;
   font-weight:700;
-  color:var(--ink);
-  background:#fff;
-  border:1px solid var(--line);
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.2);
   border-radius:14px;
   padding:12px 20px;
   min-width:62px;
+  justify-content:center;
   cursor:pointer;
   transition:.2s;
 }
 .chip:hover{
-  border-color:#b9c3d6;
+  background:rgba(255,255,255,.16);
   transform:translateY(-1px);
 }
 .chip.active{
-  background:var(--navy);
-  border-color:var(--navy);
-  color:#fff;
+  background:var(--gold);
+  border-color:var(--gold);
+  color:var(--night1);
+  box-shadow:0 6px 18px rgba(245,183,10,.35);
 }
 
 .hero-art{
+  position:relative;
   flex-shrink:0;
-  width:210px;
-  height:210px;
-  border-radius:50%;
-  background:#fff;
-  box-shadow:0 10px 40px rgba(31,43,123,.08);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-right:60px;
+  width:250px;
+  height:250px;
+  margin-right:30px;
 }
 .hero-art svg{
-  width:200px;
-  height:200px;
+  width:100%;
+  height:100%;
+  overflow:visible;
 }
 
+/* 단원 */
 .units{
-  margin-top:48px;
+  margin-top:46px;
 }
 
 .units-head{
@@ -334,7 +421,9 @@ body{
 }
 .units-head h2 em{
   font-style:normal;
-  color:var(--green);
+  color:var(--brand);
+  background:linear-gradient(transparent 62%, rgba(245,183,10,.35) 62%);
+  padding:0 2px;
 }
 
 .legend{
@@ -346,66 +435,91 @@ body{
 .legend span::before{
   content:"";
   display:inline-block;
-  width:8px;
-  height:8px;
-  border-radius:50%;
+  width:9px;
+  height:9px;
+  border-radius:3px;
   margin-right:5px;
   background:var(--c);
 }
 
 .unit-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
   gap:16px;
 }
 
 .unit-card{
+  position:relative;
   display:flex;
   flex-direction:column;
   border:1px solid var(--line);
-  border-radius:18px;
+  border-radius:20px;
   padding:20px 20px 18px;
-  background:#fff;
+  background:var(--surface);
   transition:.2s;
+  overflow:hidden;
+}
+.unit-card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:4px;
+  background:var(--c);
+  opacity:.85;
 }
 .unit-card.ready{
   cursor:pointer;
 }
 .unit-card.ready:hover,
 .unit-card.ready:focus-visible{
-  border-color:#c9d6c0;
-  box-shadow:0 10px 28px rgba(28,35,51,.08);
-  transform:translateY(-2px);
+  border-color:var(--c);
+  box-shadow:0 14px 30px rgba(27,31,59,.10);
+  transform:translateY(-3px);
   outline:none;
 }
 
 .unit-top{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  margin-bottom:10px;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.area-icon{
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--c);
+  background:#f1f2f8;
+  background:color-mix(in srgb, var(--c) 14%, #fff);
+  font-size:18px;
+}
+
+.area-name{
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--c);
 }
 
 .unit-no{
-  font-size:13px;
+  margin-left:auto;
+  font-family:var(--font-display);
+  font-size:26px;
   font-weight:700;
-  color:var(--sub);
-}
-
-.area-badge{
-  font-size:11.5px;
-  font-weight:700;
-  color:#fff;
-  background:var(--c);
-  border-radius:999px;
-  padding:3px 10px;
+  color:#e3e5ef;
+  line-height:1;
 }
 
 .unit-card h3{
   font-size:17.5px;
   font-weight:800;
   letter-spacing:-.3px;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 
 .unit-card p{
@@ -422,22 +536,37 @@ body{
   justify-content:space-between;
   font-size:13.5px;
   font-weight:700;
-  color:var(--green);
+  color:var(--brand);
+  padding-top:12px;
+  border-top:1px dashed var(--line);
+}
+.unit-go span{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
 .unit-go small{
   font-size:12px;
-  font-weight:600;
-  color:var(--muted);
+  font-weight:700;
+  color:var(--brand);
+  background:var(--brand-soft);
+  border-radius:999px;
+  padding:3px 9px;
 }
+.unit-card.ready:hover .unit-go .ico{
+  transform:translateX(3px);
+}
+.unit-go .ico{ transition:.2s; }
 .unit-card.soon .unit-go{
   color:var(--muted);
 }
 
 .unit-card.special{
-  background:var(--green-soft);
-  border-color:#d8ebcb;
+  background:linear-gradient(135deg,#fff8e1,#fff);
+  border-color:#f3e2a9;
 }
 
+/* 하단 패널 */
 .home-panels{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -446,9 +575,10 @@ body{
 }
 
 .panel{
-  background:#f4f6f2;
+  background:var(--surface);
+  border:1px solid var(--line);
   border-radius:20px;
-  padding:20px 20px 10px;
+  padding:18px 20px 8px;
 }
 
 .panel-head{
@@ -456,17 +586,18 @@ body{
   align-items:center;
   gap:10px;
   padding-bottom:12px;
-  border-bottom:1px solid #e2e6df;
+  border-bottom:1px solid var(--line);
 }
 
 .panel-icon{
-  width:30px;
-  height:30px;
-  border-radius:50%;
+  width:34px;
+  height:34px;
+  border-radius:11px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:15px;
+  font-size:17px;
+  color:#fff;
   background:var(--c);
 }
 
@@ -486,7 +617,7 @@ body{
   cursor:pointer;
 }
 .panel-more:hover{
-  color:var(--green);
+  color:var(--brand);
 }
 
 .panel ul{
@@ -498,15 +629,23 @@ body{
   align-items:center;
   gap:10px;
   padding:11px 2px;
-  border-bottom:1px solid #e2e6df;
+  border-bottom:1px solid #eff0f5;
   font-size:14px;
   cursor:pointer;
+}
+.panel li::before{
+  content:"";
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--c);
+  flex-shrink:0;
 }
 .panel li:last-child{
   border-bottom:none;
 }
 .panel li:hover .panel-title{
-  color:var(--green);
+  color:var(--brand);
 }
 
 .panel-title{
@@ -520,8 +659,12 @@ body{
 
 .panel-tag{
   flex-shrink:0;
-  font-size:12.5px;
-  color:var(--muted);
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--sub);
+  background:#f2f3f8;
+  border-radius:999px;
+  padding:2px 8px;
 }
 
 .home-foot{
@@ -600,7 +743,7 @@ body{
   border-radius:10px;
 }
 .post-item:hover{
-  background:var(--green-soft);
+  background:var(--brand-soft);
   padding-left:20px;
 }
 .post-item.disabled{
@@ -614,7 +757,7 @@ body{
 
 .post-num{
   font-size:18px;
-  color:var(--green);
+  color:var(--brand);
   font-weight:800;
   width:28px;
   flex-shrink:0;
@@ -649,7 +792,7 @@ body{
   font-size:11.5px;
   font-weight:700;
   color:#fff;
-  background:var(--green);
+  background:var(--brand);
   padding:4px 11px;
   border-radius:12px;
 }
@@ -672,8 +815,8 @@ body{
   transition:.2s;
 }
 .newtab-btn:hover{
-  border-color:var(--green);
-  color:var(--green);
+  border-color:var(--brand);
+  color:var(--brand);
 }
 
 /*==============================
@@ -769,7 +912,7 @@ body{
 
 .guestbook-item .gb-name{
   font-weight:700;
-  color:var(--green);
+  color:var(--brand);
   flex-shrink:0;
 }
 
@@ -842,7 +985,7 @@ body{
 }
 .guestbook-row input:focus{
   outline:none;
-  border-color:var(--green);
+  border-color:var(--brand);
 }
 
 .guestbook-row input#guestbook-name{
@@ -850,7 +993,7 @@ body{
 }
 
 .guestbook-row button{
-  background:var(--green);
+  background:var(--brand);
   color:#fff;
   border:none;
   border-radius:10px;
@@ -861,15 +1004,14 @@ body{
   flex-shrink:0;
 }
 .guestbook-row button:hover{
-  background:#2f7f15;
+  background:var(--brand-dark);
 }
 
 /*==============================
 좁은 화면(태블릿·휴대폰)
 ==============================*/
 @media (max-width:1100px){
-  .hero-art{ margin-right:0; width:170px; height:170px; }
-  .hero-art svg{ width:160px; height:160px; }
+  .hero-art{ margin-right:0; width:190px; height:190px; }
   .home-panels{ grid-template-columns:1fr; }
 }
 
@@ -895,11 +1037,11 @@ body{
 ======================== -->
 <div class="sidebar">
 
-  <div class="logo" onclick="goHome()" style="cursor:pointer;">🔬 SCIENCE</div>
+  <div class="logo" onclick="goHome()" style="cursor:pointer;"><svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="10" fill="#4f46e5"/><ellipse cx="17" cy="17" rx="16" ry="5" fill="none" stroke="#f5b70a" stroke-width="2.4" transform="rotate(-20 17 17)"/><circle cx="13" cy="13" r="3" fill="rgba(255,255,255,.35)"/></svg><span>SCIENCE</span></div>
   <div class="school">아화중학교 과학수업</div>
 
   <details class="grade" open>
-    <summary>📘 중학교 1학년</summary>
+    <summary><span class="gnum" style="--c:#12b5a5">1</span>중학교 1학년</summary>
     <ul>
       <li>① 과학과 인류</li>
       <li>② 생물의 다양성</li>
@@ -913,7 +1055,7 @@ body{
   </details>
 
   <details class="grade">
-    <summary>📗 중학교 2학년</summary>
+    <summary><span class="gnum" style="--c:#4f46e5">2</span>중학교 2학년</summary>
     <ul>
       <li onclick="openSubject('mul-teukseong')">① 물질의 특성</li>
       <li onclick="openSubject('jigwon-byeonhwa')">② 지권의 변화</li>
@@ -928,7 +1070,7 @@ body{
   </details>
 
   <details class="grade">
-    <summary>📕 중학교 3학년</summary>
+    <summary><span class="gnum" style="--c:#f0617a">3</span>중학교 3학년</summary>
     <ul>
       <li onclick="openSubject('hwahak-banung')">① 화학 반응</li>
       <li onclick="openSubject('gigwon-nalssi')">② 기권과 날씨</li>
@@ -941,14 +1083,14 @@ body{
   </details>
 
   <details class="grade">
-    <summary>🗂️ 개발자료</summary>
+    <summary><span class="gnum" style="--c:#f5b70a"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>개발자료</summary>
     <ul>
-      <li onclick="openSubject('swieo-game')">🎮 쉬어가는 게임</li>
-      <li onclick="openSubject('best-of-sim')">🧪 추천 가상실험 모음</li>
+      <li onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</li>
+      <li onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험 모음</li>
     </ul>
   </details>
 
-  <div class="chat-entry" onclick="openChat()">📖 방명록</div>
+  <div class="chat-entry" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</div>
 
 </div>
 
@@ -964,9 +1106,9 @@ body{
 
       <section class="hero">
         <div class="hero-text">
-          <span class="hero-badge">2022 개정 교육과정 · 중학교 과학</span>
-          <h1>궁금한 것은 <em>실험</em>으로,<br>배운 것은 <em>생활</em>로.</h1>
-          <p>아화중학교 학생들을 위한 과학 수업 공간입니다.<br>학년을 고르고 이번 시간에 배울 단원으로 들어가 보세요.</p>
+          <span class="hero-badge"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>2022 개정 교육과정 · 중학교 과학</span>
+          <h1>작은 질문 하나가<br><em>우주</em>를 향한 첫 걸음.</h1>
+          <p>아화중학교 과학 수업 공간에 오신 것을 환영해요.<br>학년을 고르고 이번 시간에 배울 단원으로 출발해 보세요.</p>
 
           <div class="hero-label">중학교</div>
           <div class="chip-row" id="grade-chips">
@@ -977,28 +1119,52 @@ body{
 
           <div class="hero-label">더 둘러보기</div>
           <div class="chip-row">
-            <button type="button" class="chip" onclick="openSubject('swieo-game')">🎮 쉬어가는 게임</button>
-            <button type="button" class="chip" onclick="openSubject('best-of-sim')">🧪 추천 가상실험</button>
-            <button type="button" class="chip" onclick="openChat()">📖 방명록</button>
+            <button type="button" class="chip" onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</button>
+            <button type="button" class="chip" onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험</button>
+            <button type="button" class="chip" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</button>
           </div>
         </div>
 
         <div class="hero-art" aria-hidden="true">
-          <svg viewBox="0 0 200 200">
-            <g fill="none" stroke-width="3.2">
-              <ellipse cx="100" cy="100" rx="84" ry="32" stroke="#3b7cf0" transform="rotate(30 100 100)"/>
-              <ellipse cx="100" cy="100" rx="84" ry="32" stroke="#3d9a1f" transform="rotate(-30 100 100)"/>
-              <ellipse cx="100" cy="100" rx="84" ry="32" stroke="#ef8a2a" transform="rotate(90 100 100)"/>
+          <svg viewBox="0 0 250 250">
+            <defs>
+              <radialGradient id="planetGrad" cx="35%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#9d8bff"/>
+                <stop offset="55%" stop-color="#5b46e0"/>
+                <stop offset="100%" stop-color="#241a78"/>
+              </radialGradient>
+              <radialGradient id="planetGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="55%" stop-color="rgba(140,120,255,.45)"/>
+                <stop offset="100%" stop-color="rgba(140,120,255,0)"/>
+              </radialGradient>
+              <linearGradient id="ringGrad" x1="0" x2="1">
+                <stop offset="0%" stop-color="#ffd34d" stop-opacity=".2"/>
+                <stop offset="50%" stop-color="#ffd34d"/>
+                <stop offset="100%" stop-color="#ff9f43" stop-opacity=".3"/>
+              </linearGradient>
+              <clipPath id="ringBack"><rect x="0" y="0" width="250" height="125"/></clipPath>
+              <clipPath id="ringFront"><rect x="0" y="125" width="250" height="125"/></clipPath>
+            </defs>
+            <!-- 달이 도는 궤도 -->
+            <ellipse cx="125" cy="125" rx="118" ry="44" fill="none" stroke="rgba(255,255,255,.18)" stroke-dasharray="3 6" transform="rotate(-18 125 125)"/>
+            <circle cx="125" cy="125" r="92" fill="url(#planetGlow)"/>
+            <g transform="rotate(-18 125 125)">
+              <ellipse cx="125" cy="125" rx="96" ry="22" fill="none" stroke="url(#ringGrad)" stroke-width="7" clip-path="url(#ringBack)"/>
             </g>
-            <circle cx="100" cy="100" r="14" fill="#1f2b7b"/>
-            <g transform="rotate(30 100 100)">
-              <circle r="7" fill="#3b7cf0"><animateMotion dur="6s" repeatCount="indefinite" path="M16,100 A84,32 0 1 1 184,100 A84,32 0 1 1 16,100"/></circle>
+            <circle cx="125" cy="125" r="62" fill="url(#planetGrad)"/>
+            <path d="M72 112 Q125 100 178 116" stroke="rgba(255,255,255,.18)" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M70 136 Q125 126 180 140" stroke="rgba(20,10,80,.25)" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <g transform="rotate(-18 125 125)">
+              <ellipse cx="125" cy="125" rx="96" ry="22" fill="none" stroke="url(#ringGrad)" stroke-width="7" clip-path="url(#ringFront)"/>
             </g>
-            <g transform="rotate(-30 100 100)">
-              <circle r="7" fill="#3d9a1f"><animateMotion dur="7.5s" repeatCount="indefinite" path="M184,100 A84,32 0 1 1 16,100 A84,32 0 1 1 184,100"/></circle>
+            <g transform="rotate(-18 125 125)">
+              <circle r="9" fill="#e9ecff">
+                <animateMotion dur="9s" repeatCount="indefinite" path="M7,125 A118,44 0 1 1 243,125 A118,44 0 1 1 7,125"/>
+              </circle>
             </g>
-            <g transform="rotate(90 100 100)">
-              <circle r="7" fill="#ef8a2a"><animateMotion dur="5s" repeatCount="indefinite" path="M16,100 A84,32 0 1 1 184,100 A84,32 0 1 1 16,100"/></circle>
+            <g fill="#ffd34d">
+              <path d="M210 30 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"><animate attributeName="opacity" values="1;.3;1" dur="2.4s" repeatCount="indefinite"/></path>
+              <path d="M36 196 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z"><animate attributeName="opacity" values=".4;1;.4" dur="3s" repeatCount="indefinite"/></path>
             </g>
           </svg>
         </div>
@@ -1051,7 +1217,7 @@ body{
     <div class="chatview">
       <div class="chatview-header">
         <button class="back-btn" onclick="goHome()">← 홈</button>
-        <div class="chatview-title">📖 방명록</div>
+        <div class="chatview-title"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg> 방명록</div>
         <button class="back-btn" id="admin-toggle-btn" style="margin-left:auto;">🔒 관리자</button>
       </div>
       <div class="chat-messages" id="guestbook-list"></div>
@@ -1742,6 +1908,21 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
 // ==========================================
 const AREA_VAR = { "물리":"--phys", "화학":"--chem", "생명":"--bio", "지구":"--earth", "통합":"--int" };
 
+// 홈 화면에서 쓰는 선 아이콘 (분야·패널·버튼)
+const ICON_PATHS = {
+  "물리": '<path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/>',
+  "화학": '<path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/>',
+  "생명": '<path d="M5 19c0-8.3 6-14 15-14 0 9-6 15-14.5 15"/><path d="M5 19l8-8"/>',
+  "지구": '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  "통합": '<path d="M7 8.5a3.5 3.5 0 1 0 0 7c2.3 0 3.5-1.8 5-3.5s2.7-3.5 5-3.5a3.5 3.5 0 1 1 0 7c-2.3 0-3.5-1.8-5-3.5S9.3 8.5 7 8.5z"/>',
+  star:  '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  spark: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
+  game:  '<rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/>'
+};
+const icon = name => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ""}</svg>`;
+
 const GRADE_UNITS = {
   1: [
     { name:"과학과 인류의 지속가능한 삶", area:"통합", desc:"과학이 인류 문명과 함께 발전해 온 과정을 살펴보고, 과학기술로 지속가능한 미래를 만드는 방법을 탐색합니다." },
@@ -1794,15 +1975,16 @@ function makeUnitCard({ no, name, area, desc, key, special }){
   const ready = count > 0;
   const card = document.createElement("article");
   card.className = "unit-card " + (ready ? "ready" : "soon") + (special ? " special" : "");
-  card.style.setProperty("--c", `var(${AREA_VAR[area] || "--green"})`);
+  card.style.setProperty("--c", `var(${AREA_VAR[area] || "--gold"})`);
   card.innerHTML = `
     <div class="unit-top">
+      <span class="area-icon">${icon(area || "star")}</span>
+      <span class="area-name">${area || "학생 작품"}</span>
       <span class="unit-no"></span>
-      ${area ? `<span class="area-badge">${area}</span>` : ""}
     </div>
     <h3></h3>
     <p></p>
-    <div class="unit-go">${ready ? `<span>학습하러 가기 →</span><small>자료 ${count}개</small>` : "<span>준비 중</span>"}</div>
+    <div class="unit-go">${ready ? `<span>학습하러 가기 ${icon("arrow")}</span><small>자료 ${count}</small>` : `<span>${icon("clock")} 준비 중</span>`}</div>
   `;
   card.querySelector(".unit-no").textContent = no;
   card.querySelector("h3").textContent = name;
@@ -1827,11 +2009,11 @@ function selectGrade(grade){
   const grid = document.getElementById("unit-grid");
   grid.innerHTML = "";
   GRADE_UNITS[grade].forEach((u, i) => {
-    grid.appendChild(makeUnitCard({ ...u, no: String(i + 1).padStart(2, "0") + "단원" }));
+    grid.appendChild(makeUnitCard({ ...u, no: String(i + 1).padStart(2, "0") }));
   });
   if(STUDENT_HOME_KEY[grade]){
     grid.appendChild(makeUnitCard({
-      no: "★",
+      no: "",
       name: `${grade}학년 학생 홈페이지`,
       desc: "친구들이 직접 만든 과학 홈페이지를 구경하고 서로 배워 봅시다.",
       key: STUDENT_HOME_KEY[grade],
@@ -1850,15 +2032,15 @@ function renderHomePanels(){
   const games = topicsData["swieo-game"].posts.filter(p => p.ready).slice(-4).reverse();
   const panels = [
     {
-      icon:"📌", color:"#fde8e4", title:"최근 올라온 자료",
+      icon:"spark", color:"var(--gold)", title:"최근 올라온 자료",
       items: HOME_RECENT.map(([key, part, tag]) => ({ key, post: findPost(key, part), tag })).filter(it => it.post)
     },
     {
-      icon:"🧪", color:"#e3edfd", title:"추천 가상실험", more:"best-of-sim",
+      icon:"화학", color:"var(--brand)", title:"추천 가상실험", more:"best-of-sim",
       items: topicsData["best-of-sim"].posts.filter(p => p.ready).slice(0, 5).map(post => ({ key:"best-of-sim", post, tag:"가상실험" }))
     },
     {
-      icon:"🎮", color:"#e5f3dc", title:"쉬어가는 과학 게임", more:"swieo-game",
+      icon:"game", color:"#f0617a", title:"쉬어가는 과학 게임", more:"swieo-game",
       items: games.map(post => ({ key:"swieo-game", post, tag: post.desc.includes("아두이노") ? "아두이노" : "게임" }))
     }
   ];
@@ -1868,9 +2050,10 @@ function renderHomePanels(){
   panels.forEach(pn => {
     const box = document.createElement("div");
     box.className = "panel";
+    box.style.setProperty("--c", pn.color);
     box.innerHTML = `
       <div class="panel-head">
-        <span class="panel-icon" style="--c:${pn.color}">${pn.icon}</span>
+        <span class="panel-icon">${icon(pn.icon)}</span>
         <h3></h3>
         ${pn.more ? `<button type="button" class="panel-more">전체 보기 →</button>` : ""}
       </div>
