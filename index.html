@@ -316,6 +316,34 @@ body{
   padding:16px 0;
   margin-bottom:24px;
 }
+.school-link{
+  margin-left:auto;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-size:13.5px;
+  font-weight:700;
+  color:var(--brand-dark);
+  text-decoration:none;
+  background:#fff;
+  border:1px solid #e3e1fb;
+  border-radius:999px;
+  padding:8px 14px;
+  box-shadow:0 4px 12px rgba(79,70,229,.08);
+  transition:.2s;
+}
+.school-link:hover{
+  background:var(--brand);
+  border-color:var(--brand);
+  color:#fff;
+  transform:translateY(-1px);
+}
+.school-link .ext{
+  width:.95em;
+  height:.95em;
+  opacity:.7;
+}
 .home-top::before{
   content:"";
   width:8px;
@@ -1099,7 +1127,7 @@ body{
   .content{ min-height:100vh; }
   #view-home.active{ height:auto; overflow:visible; }
   .home{ padding:0 16px 32px; }
-  .home-top{ margin:0 -16px 20px; padding-left:16px; }
+  .home-top{ flex-wrap:wrap; row-gap:10px; margin:0 0 16px; }
   .hero{ padding:28px 22px; }
   .hero h1{ font-size:30px; }
   .hero-art{ display:none; }
@@ -1192,7 +1220,14 @@ body{
   <!-- 홈(대문) 화면 -->
   <div id="view-home" class="view active">
     <div class="home">
-      <div class="home-top">아화중학교 · Ahwa Middle School Science</div>
+      <div class="home-top">
+        <span>아화중학교 · Ahwa Middle School Science</span>
+        <a class="school-link" href="https://school.gyo6.net/ahwams/main.do?sysId=ahwams" target="_blank" rel="noopener">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/></svg>
+          아화중학교 홈페이지
+          <svg class="ico ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+        </a>
+      </div>
 
       <section class="hero">
         <div class="hero-text">
