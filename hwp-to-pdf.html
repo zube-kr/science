@@ -324,10 +324,18 @@ const ICON_PRINT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 
+const fileKey = f => `${f.name}|${f.size}|${f.lastModified}`;
+
 function addFiles(list){
+  const skipped = [];
   for(const file of list){
     if(!/\.(hwp|hwpx)$/i.test(file.name)){
       alert(`'${file.name}'은(는) 한글 파일(.hwp, .hwpx)이 아니에요.`);
+      continue;
+    }
+    // 이미 목록에 있는 같은 파일은 다시 넣지 않는다
+    if(items.some(i => fileKey(i.file) === fileKey(file))){
+      skipped.push(file.name);
       continue;
     }
     const it = { id: nextId++, file, doc: null, pages: 0, sizes: [], busy: false };
@@ -360,6 +368,7 @@ function addFiles(list){
     items.push(it);
     openItem(it);
   }
+  if(skipped.length) alert(`이미 목록에 있는 파일이라 다시 넣지 않았어요:\n${skipped.join("\n")}`);
   refreshList();
 }
 
@@ -554,9 +563,9 @@ drop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ 
 fileInput.addEventListener("change", () => { addFiles([...fileInput.files]); fileInput.value = ""; });
 ["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
-drop.addEventListener("drop", e => addFiles([...e.dataTransfer.files]));
 // 영역 밖에 떨어뜨려도 브라우저가 파일을 열어 버리지 않도록
 window.addEventListener("dragover", e => e.preventDefault());
+// 끌어다 놓기는 여기 한 곳에서만 처리한다 (상자 위에 놓아도 이벤트가 window까지 올라오므로 두 번 추가되지 않게)
 window.addEventListener("drop", e => { e.preventDefault(); if(!drop.classList.contains("disabled")) addFiles([...e.dataTransfer.files]); });
 
 document.querySelectorAll("#quality button").forEach(b => b.addEventListener("click", () => {
