@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HWP → PDF 변환기</title>
+<style>
+/* 문서 글자 폭 측정과 그림 렌더링이 같은 글꼴을 쓰도록, 웹폰트를 불러오지 않고 시스템 글꼴만 사용한다. */
+*{ margin:0; padding:0; box-sizing:border-box; }
+:root{
+  --ink:#1b1f3b; --sub:#565d78; --muted:#8c92aa; --line:#e4e6f0;
+  --brand:#4f46e5; --brand-dark:#3730a3; --brand-soft:#eef0ff;
+  --ok:#16a34a; --err:#dc2626; --gold:#f5b70a;
+  --font:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+}
+html,body{ min-height:100%; }
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background:linear-gradient(135deg,#f1f0ff 0%,#f7f5ff 50%,#eef4ff 100%);
+  padding:28px 20px 48px;
+}
+.wrap{ max-width:980px; margin:0 auto; }
+
+.head{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.logo{
+  width:54px; height:54px; border-radius:16px; flex-shrink:0;
+  background:linear-gradient(135deg,#6366f1,#a855f7);
+  display:flex; align-items:center; justify-content:center; color:#fff;
+  box-shadow:0 10px 24px rgba(99,82,240,.3);
+}
+.logo svg{ width:30px; height:30px; }
+.head h1{ font-size:26px; font-weight:800; letter-spacing:-.5px; }
+.head h1 em{ font-style:normal; background:linear-gradient(100deg,#4f46e5,#a855f7); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.head p{ font-size:14px; color:var(--sub); margin-top:4px; }
+
+.notice{
+  display:flex; align-items:flex-start; gap:10px;
+  background:#ecfdf5; border:1px solid #bbf7d0; color:#166534;
+  border-radius:14px; padding:12px 16px; font-size:13.5px; line-height:1.6; margin-bottom:16px;
+}
+.notice svg{ width:18px; height:18px; flex-shrink:0; margin-top:2px; }
+
+.card{
+  background:#fff; border:1px solid var(--line); border-radius:22px;
+  box-shadow:0 10px 30px rgba(79,70,229,.07); padding:22px;
+  margin-bottom:16px;
+}
+
+.engine{ display:flex; align-items:center; gap:10px; font-size:13px; color:var(--sub); margin-bottom:14px; }
+.engine .dot{ width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 4px rgba(245,183,10,.18); }
+.engine.ready .dot{ background:var(--ok); box-shadow:0 0 0 4px rgba(22,163,74,.15); }
+.engine.fail .dot{ background:var(--err); box-shadow:0 0 0 4px rgba(220,38,38,.15); }
+
+.drop{
+  border:2.5px dashed #c7c3f5; border-radius:18px; background:#faf9ff;
+  padding:38px 20px; text-align:center; cursor:pointer; transition:.2s;
+}
+.drop:hover, .drop.over{ border-color:var(--brand); background:var(--brand-soft); }
+.drop .big{ width:58px; height:58px; margin:0 auto 12px; color:var(--brand); }
+.drop b{ display:block; font-size:18px; margin-bottom:6px; }
+.drop span{ font-size:13.5px; color:var(--sub); }
+.drop .pick{
+  display:inline-block; margin-top:16px; padding:11px 22px; border-radius:999px;
+  background:var(--brand); color:#fff; font-weight:700; font-size:14.5px;
+  box-shadow:0 8px 18px rgba(79,70,229,.25);
+}
+.drop.disabled{ opacity:.55; pointer-events:none; }
+
+.opts{ display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center; margin-top:16px; font-size:13.5px; color:var(--sub); }
+.opts label{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+.opts .grp{ display:inline-flex; gap:6px; align-items:center; }
+.seg{ display:inline-flex; background:#f2f3f8; border-radius:999px; padding:3px; }
+.seg button{ border:none; background:none; font:inherit; font-size:13px; font-weight:700; color:var(--sub); padding:6px 12px; border-radius:999px; cursor:pointer; }
+.seg button.on{ background:#fff; color:var(--brand); box-shadow:0 2px 6px rgba(0,0,0,.08); }
+
+.list-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+.list-head h2{ font-size:17px; }
+.files{ list-style:none; }
+.file{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:14px 4px; border-top:1px solid #eff0f5;
+}
+.file:first-child{ border-top:none; }
+.ficon{
+  width:42px; height:48px; border-radius:9px; flex-shrink:0;
+  background:linear-gradient(160deg,#4f9bff,#3b6ff0); color:#fff;
+  font-size:11px; font-weight:800; display:flex; align-items:flex-end; justify-content:center; padding-bottom:7px;
+}
+.ficon.x{ background:linear-gradient(160deg,#34d399,#0ea5a4); }
+.finfo{ flex:1; min-width:180px; }
+.fname{ font-weight:700; font-size:14.5px; word-break:break-all; }
+.fmeta{ font-size:12.5px; color:var(--muted); margin-top:3px; }
+.fmeta.err{ color:var(--err); }
+.fmeta.ok{ color:var(--ok); }
+.bar{ height:6px; background:#eef0f6; border-radius:4px; overflow:hidden; margin-top:7px; display:none; }
+.bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#6366f1,#a855f7); transition:width .15s; }
+.file.busy .bar{ display:block; }
+.factions{ display:flex; gap:8px; flex-wrap:wrap; }
+.btn{
+  font:inherit; font-size:13.5px; font-weight:700; border-radius:999px; padding:9px 15px; cursor:pointer;
+  border:1px solid var(--line); background:#fff; color:var(--ink); display:inline-flex; align-items:center; gap:6px; transition:.15s;
+}
+.btn svg{ width:16px; height:16px; }
+.btn:hover{ border-color:#c7c3f5; background:#faf9ff; }
+.btn.primary{ background:var(--brand); border-color:var(--brand); color:#fff; }
+.btn.primary:hover{ background:var(--brand-dark); }
+.btn:disabled{ opacity:.5; cursor:default; }
+.btn.icon{ padding:9px; }
+.empty{ text-align:center; color:var(--muted); font-size:13.5px; padding:16px 0 6px; }
+
+.preview h2{ font-size:17px; margin-bottom:4px; }
+.preview .sub{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+.pages{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+.pg{ background:#f6f7fb; border-radius:12px; padding:8px; text-align:center; }
+.pg img{ width:100%; height:auto; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); border-radius:3px; display:block; }
+.pg span{ display:block; font-size:12px; color:var(--muted); margin-top:6px; }
+.more{ text-align:center; font-size:13px; color:var(--sub); margin-top:12px; }
+
+.tips{ font-size:13px; color:var(--sub); line-height:1.75; }
+.tips h3{ font-size:15px; color:var(--ink); margin-bottom:8px; }
+.tips li{ margin-left:18px; }
+.tips b{ color:var(--ink); }
+.credit{ font-size:11.5px; color:var(--muted); text-align:center; margin-top:14px; }
+.credit a{ color:inherit; }
+
+/* 인쇄: 변환한 쪽만 종이 크기에 꼭 맞게 출력 (브라우저 'PDF로 저장'용) */
+#printArea{ display:none; }
+@media print{
+  body{ background:#fff; padding:0; }
+  .wrap{ display:none !important; }
+  #printArea{ display:block; }
+  #printArea img{ display:block; width:100%; height:100%; break-after:page; }
+  #printArea img:last-child{ break-after:auto; }
+}
+
+@media (max-width:600px){
+  body{ padding:18px 12px 36px; }
+  .head h1{ font-size:21px; }
+  .card{ padding:16px; border-radius:18px; }
+  .drop{ padding:28px 14px; }
+  .factions{ width:100%; }
+  .factions .btn{ flex:1; justify-content:center; }
+}
+</style>
+<style id="printPageStyle"></style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+    </div>
+    <div>
+      <h1><em>HWP → PDF</em> 변환기</h1>
+      <p>한글 문서(.hwp, .hwpx)를 끌어다 놓으면 PDF로 바꿔 드려요.</p>
+    </div>
+  </header>
+
+  <div class="notice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    <div>파일은 <b>서버로 올라가지 않고 이 컴퓨터의 브라우저 안에서만</b> 변환돼요. 학생 정보가 들어 있는 문서도 안심하고 변환할 수 있어요.</div>
+  </div>
+
+  <section class="card">
+    <div class="engine" id="engine"><span class="dot"></span><span id="engineText">변환 엔진을 불러오는 중이에요… (처음 한 번은 약 12MB를 내려받아요)</span></div>
+
+    <div class="drop disabled" id="drop" tabindex="0" role="button" aria-label="한글 파일 선택">
+      <svg class="big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M20 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/></svg>
+      <b>여기에 한글 파일을 끌어다 놓으세요</b>
+      <span>.hwp · .hwpx 파일, 여러 개도 한 번에 넣을 수 있어요</span><br>
+      <span class="pick">파일 선택하기</span>
+    </div>
+    <input type="file" id="fileInput" accept=".hwp,.hwpx" multiple hidden>
+
+    <div class="opts">
+      <div class="grp">PDF 화질
+        <div class="seg" id="quality">
+          <button type="button" data-q="2" class="on">보통</button>
+          <button type="button" data-q="3">고화질</button>
+        </div>
+      </div>
+      <label><input type="checkbox" id="autoDownload" checked> 변환이 끝나면 바로 내려받기</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="list-head">
+      <h2>변환할 파일</h2>
+      <button type="button" class="btn" id="downloadAll" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>
+        모두 PDF로 받기
+      </button>
+    </div>
+    <ul class="files" id="files"></ul>
+    <div class="empty" id="empty">아직 넣은 파일이 없어요.</div>
+  </section>
+
+  <section class="card preview" id="preview" hidden>
+    <h2 id="previewTitle">미리보기</h2>
+    <div class="sub">PDF에 들어갈 모습이에요. 글꼴이 없는 컴퓨터에서는 비슷한 글꼴로 바뀌어 보일 수 있어요.</div>
+    <div class="pages" id="pages"></div>
+    <div class="more" id="more"></div>
+  </section>
+
+  <section class="card tips">
+    <h3>도움말</h3>
+    <ul>
+      <li><b>PDF 받기</b>: 각 쪽을 그림으로 바꿔 PDF 한 개로 바로 내려받아요. 어느 컴퓨터에서 열어도 모양이 똑같아요. (PDF 안의 글자를 복사할 수는 없어요)</li>
+      <li><b>인쇄로 저장</b>: 인쇄 창이 열리면 대상(프린터)을 <b>'PDF로 저장'</b>으로 고르세요. 글자가 더 선명하고, PDF에서 글자를 복사·검색할 수 있어요.</li>
+      <li>한컴 글꼴(함초롬바탕 등)이 설치된 컴퓨터에서 변환하면 원본과 가장 비슷해요.</li>
+      <li>아주 복잡한 표·도형·특수 글꼴은 원본과 조금 다르게 보일 수 있어요. 중요한 문서는 미리보기를 꼭 확인하세요.</li>
+      <li>암호가 걸린 문서는 변환할 때 암호를 물어봐요.</li>
+    </ul>
+    <p class="credit">변환 엔진: <a href="https://github.com/edwardkim/rhwp" target="_blank" rel="noopener">rhwp</a> (MIT) · PDF 생성: <a href="https://github.com/parallax/jsPDF" target="_blank" rel="noopener">jsPDF</a> (MIT)<br>"한글", "HWP"는 한글과컴퓨터의 등록 상표이며, 이 페이지는 한글과컴퓨터와 관련이 없습니다.</p>
+  </section>
+
+</div>
+
+<div id="printArea"></div>
+
+<script type="module">
+const RHWP_VERSION = "0.8.7";
+const RHWP_BASES = [
+  `https://cdn.jsdelivr.net/npm/@rhwp/core@${RHWP_VERSION}/`,
+  `https://unpkg.com/@rhwp/core@${RHWP_VERSION}/`
+];
+const JSPDF_URLS = [
+  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+  "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"
+];
+const PREVIEW_LIMIT = 24;
+const PX_TO_PT = 72 / 96;   // SVG는 96dpi 픽셀 단위
+const PX_TO_MM = 25.4 / 96;
+
+const $ = id => document.getElementById(id);
+const engineBox = $("engine"), engineText = $("engineText");
+const drop = $("drop"), fileInput = $("fileInput");
+const filesEl = $("files"), emptyEl = $("empty"), downloadAllBtn = $("downloadAll");
+
+let HwpDocument = null;
+let quality = 2;
+const items = [];   // { id, file, doc, pages, sizes, li, ... }
+let nextId = 1;
+
+/* ---------- 글자 폭 측정 (rhwp가 줄바꿈 계산에 사용) ---------- */
+let measureCtx = null, lastFont = "";
+globalThis.measureTextWidth = (font, text) => {
+  if(!measureCtx) measureCtx = document.createElement("canvas").getContext("2d");
+  if(font !== lastFont){ measureCtx.font = font; lastFont = font; }
+  return measureCtx.measureText(text).width;
+};
+
+/* ---------- 변환 엔진 불러오기 ---------- */
+async function loadEngine(){
+  for(const base of RHWP_BASES){
+    try{
+      const mod = await import(base + "rhwp.js");
+      await mod.default({ module_or_path: base + "rhwp_bg.wasm" });
+      HwpDocument = mod.HwpDocument;
+      return true;
+    }catch(e){
+      console.warn("변환 엔진 불러오기 실패:", base, e);
+    }
+  }
+  return false;
+}
+
+let jspdfPromise = null;
+function loadJsPDF(){
+  if(window.jspdf) return Promise.resolve(window.jspdf.jsPDF);
+  if(jspdfPromise) return jspdfPromise;
+  jspdfPromise = (async () => {
+    for(const url of JSPDF_URLS){
+      try{
+        await new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = url; s.onload = resolve; s.onerror = reject;
+          document.head.appendChild(s);
+        });
+        if(window.jspdf) return window.jspdf.jsPDF;
+      }catch(e){ console.warn("jsPDF 불러오기 실패:", url); }
+    }
+    jspdfPromise = null;
+    throw new Error("PDF 만들기 도구를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.");
+  })();
+  return jspdfPromise;
+}
+
+/* ---------- 유틸 ---------- */
+const tick = () => new Promise(r => setTimeout(r, 0));
+const fmtSize = b => b < 1024*1024 ? `${Math.max(1, Math.round(b/1024))}KB` : `${(b/1024/1024).toFixed(1)}MB`;
+const baseName = name => name.replace(/\.(hwpx?|HWPX?)$/,"");
+
+function svgSize(svg){
+  const m = svg.match(/<svg[^>]*?\swidth="([\d.]+)"[^>]*?\sheight="([\d.]+)"/);
+  return m ? { w: parseFloat(m[1]), h: parseFloat(m[2]) } : { w: 793.7, h: 1122.5 };
+}
+function svgUrl(svg){
+  return URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+}
+function loadImage(url){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("쪽 그림을 만들지 못했어요."));
+    img.src = url;
+  });
+}
+function saveBlob(blob, name){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ---------- 파일 목록 ---------- */
+const ICON_DL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>';
+const ICON_PRINT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>';
+const ICON_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+function addFiles(list){
+  for(const file of list){
+    if(!/\.(hwp|hwpx)$/i.test(file.name)){
+      alert(`'${file.name}'은(는) 한글 파일(.hwp, .hwpx)이 아니에요.`);
+      continue;
+    }
+    const it = { id: nextId++, file, doc: null, pages: 0, sizes: [], busy: false };
+    it.li = document.createElement("li");
+    it.li.className = "file";
+    it.li.innerHTML = `
+      <div class="ficon ${/x$/i.test(file.name) ? "x" : ""}">${/x$/i.test(file.name) ? "HWPX" : "HWP"}</div>
+      <div class="finfo">
+        <div class="fname"></div>
+        <div class="fmeta">불러오는 중…</div>
+        <div class="bar"><i></i></div>
+      </div>
+      <div class="factions">
+        <button type="button" class="btn primary" data-act="pdf" disabled>${ICON_DL}PDF 받기</button>
+        <button type="button" class="btn" data-act="print" disabled>${ICON_PRINT}인쇄로 저장</button>
+        <button type="button" class="btn icon" data-act="view" title="미리보기" disabled>${ICON_EYE}</button>
+        <button type="button" class="btn icon" data-act="remove" title="목록에서 지우기">${ICON_X}</button>
+      </div>`;
+    it.li.querySelector(".fname").textContent = file.name;
+    it.li.addEventListener("click", e => {
+      const b = e.target.closest("button[data-act]");
+      if(!b || b.disabled) return;
+      const act = b.dataset.act;
+      if(act === "pdf") makePdf(it);
+      else if(act === "print") printDoc(it);
+      else if(act === "view") showPreview(it);
+      else if(act === "remove") removeItem(it);
+    });
+    filesEl.appendChild(it.li);
+    items.push(it);
+    openItem(it);
+  }
+  refreshList();
+}
+
+function refreshList(){
+  emptyEl.hidden = items.length > 0;
+  downloadAllBtn.hidden = items.filter(i => i.doc).length < 2;
+}
+
+function setMeta(it, text, cls){
+  const m = it.li.querySelector(".fmeta");
+  m.textContent = text;
+  m.className = "fmeta" + (cls ? " " + cls : "");
+}
+function setProgress(it, frac){
+  it.li.querySelector(".bar i").style.width = Math.round(frac * 100) + "%";
+}
+function setBusy(it, busy){
+  it.busy = busy;
+  it.li.classList.toggle("busy", busy);
+  it.li.querySelectorAll("button[data-act]").forEach(b => {
+    if(b.dataset.act !== "remove") b.disabled = busy || !it.doc;
+  });
+}
+
+async function openItem(it, password){
+  setBusy(it, true);
+  setMeta(it, "문서를 읽는 중…");
+  await tick();
+  try{
+    const buf = new Uint8Array(await it.file.arrayBuffer());
+    it.doc = password ? HwpDocument.openWithPassword(buf, password) : new HwpDocument(buf);
+    it.pages = it.doc.pageCount();
+    it.sizes = [];
+    setBusy(it, false);
+    setMeta(it, `${fmtSize(it.file.size)} · ${it.pages}쪽`);
+    refreshList();
+    if(!previewItem) showPreview(it);
+    if($("autoDownload").checked) makePdf(it);
+  }catch(e){
+    console.error(e);
+    it.doc = null;
+    setBusy(it, false);
+    const msg = String(e && (e.message || e));
+    if(/암호|password|encrypt|비밀번호/i.test(msg) && password === undefined){
+      const pw = prompt(`'${it.file.name}'은(는) 암호가 걸린 문서예요. 암호를 입력하세요.`);
+      if(pw) return openItem(it, pw);
+      setMeta(it, "암호가 필요한 문서예요.", "err");
+      return;
+    }
+    setMeta(it, "이 파일은 열 수 없어요. 한글 문서가 맞는지, 손상되지 않았는지 확인해 주세요.", "err");
+  }
+}
+
+function removeItem(it){
+  const i = items.indexOf(it);
+  if(i >= 0) items.splice(i, 1);
+  try{ it.doc && it.doc.free(); }catch(e){}
+  it.li.remove();
+  if(previewItem === it){ $("preview").hidden = true; previewItem = null; }
+  refreshList();
+}
+
+/* ---------- 쪽 렌더링 ---------- */
+function renderSvg(it, i){
+  const svg = it.doc.renderPageSvg(i);
+  it.sizes[i] = svgSize(svg);
+  return svg;
+}
+
+/* ---------- PDF 받기 (쪽을 그림으로 바꿔 PDF 한 개로) ---------- */
+async function makePdf(it){
+  if(it.busy || !it.doc) return;
+  setBusy(it, true);
+  setProgress(it, 0);
+  setMeta(it, "PDF 만드는 중…");
+  try{
+    const JsPDF = await loadJsPDF();
+    let pdf = null;
+    const canvas = document.createElement("canvas");
+    const c = canvas.getContext("2d");
+    for(let i = 0; i < it.pages; i++){
+      setMeta(it, `PDF 만드는 중… ${i + 1} / ${it.pages}쪽`);
+      await tick();
+      const svg = renderSvg(it, i);
+      const { w, h } = it.sizes[i];
+      const url = svgUrl(svg);
+      const img = await loadImage(url);
+      canvas.width = Math.round(w * quality);
+      canvas.height = Math.round(h * quality);
+      c.fillStyle = "#fff";
+      c.fillRect(0, 0, canvas.width, canvas.height);
+      c.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      const jpg = canvas.toDataURL("image/jpeg", 0.92);
+      const pw = w * PX_TO_PT, ph = h * PX_TO_PT, orient = pw > ph ? "l" : "p";
+      if(!pdf) pdf = new JsPDF({ unit: "pt", format: [pw, ph], orientation: orient, compress: true });
+      else pdf.addPage([pw, ph], orient);
+      pdf.addImage(jpg, "JPEG", 0, 0, pw, ph, undefined, "FAST");
+      setProgress(it, (i + 1) / it.pages);
+    }
+    saveBlob(pdf.output("blob"), baseName(it.file.name) + ".pdf");
+    setMeta(it, `${fmtSize(it.file.size)} · ${it.pages}쪽 · PDF로 변환했어요 ✓`, "ok");
+  }catch(e){
+    console.error(e);
+    setMeta(it, "PDF를 만들지 못했어요: " + (e.message || e), "err");
+  }finally{
+    setBusy(it, false);
+  }
+}
+
+/* ---------- 인쇄로 저장 (글자가 선명한 벡터 PDF) ---------- */
+let printUrls = [];
+async function printDoc(it){
+  if(it.busy || !it.doc) return;
+  setBusy(it, true);
+  setProgress(it, 0);
+  const area = $("printArea");
+  printUrls.forEach(u => URL.revokeObjectURL(u));
+  printUrls = [];
+  area.innerHTML = "";
+  const kinds = new Map();
+  try{
+    for(let i = 0; i < it.pages; i++){
+      setMeta(it, `인쇄 준비 중… ${i + 1} / ${it.pages}쪽`);
+      await tick();
+      const svg = renderSvg(it, i);
+      const { w, h } = it.sizes[i];
+      const key = `${(w * PX_TO_MM).toFixed(1)}mm ${(h * PX_TO_MM).toFixed(1)}mm`;
+      if(!kinds.has(key)) kinds.set(key, "pg" + kinds.size);
+      const url = svgUrl(svg);
+      printUrls.push(url);
+      const img = new Image();
+      img.src = url;
+      img.style.page = kinds.get(key);
+      img.style.width = key.split(" ")[0];
+      img.style.height = key.split(" ")[1];
+      area.appendChild(img);
+      setProgress(it, (i + 1) / it.pages);
+    }
+    // 쪽마다 종이 크기를 맞춘다 (가로·세로가 섞인 문서도 그대로)
+    let css = "@page{ margin:0; }";
+    for(const [size, name] of kinds) css += `@page ${name}{ size:${size}; margin:0; }`;
+    if(kinds.size === 1) css += `@page{ size:${[...kinds.keys()][0]}; margin:0; }`;
+    $("printPageStyle").textContent = css;
+    await Promise.all([...area.querySelectorAll("img")].map(img => img.decode().catch(() => {})));
+    setMeta(it, `${fmtSize(it.file.size)} · ${it.pages}쪽 · 인쇄 창에서 'PDF로 저장'을 고르세요`, "ok");
+    setBusy(it, false);
+    window.print();
+  }catch(e){
+    console.error(e);
+    setMeta(it, "인쇄를 준비하지 못했어요: " + (e.message || e), "err");
+    setBusy(it, false);
+  }
+}
+
+/* ---------- 미리보기 ---------- */
+let previewItem = null, previewUrls = [];
+async function showPreview(it){
+  if(!it.doc) return;
+  previewItem = it;
+  previewUrls.forEach(u => URL.revokeObjectURL(u));
+  previewUrls = [];
+  const box = $("pages");
+  box.innerHTML = "";
+  $("preview").hidden = false;
+  $("previewTitle").textContent = `미리보기 — ${it.file.name}`;
+  const n = Math.min(it.pages, PREVIEW_LIMIT);
+  $("more").textContent = it.pages > n ? `처음 ${n}쪽만 보여 드려요. PDF에는 ${it.pages}쪽이 모두 들어가요.` : "";
+  for(let i = 0; i < n; i++){
+    if(previewItem !== it) return;
+    await tick();
+    const url = svgUrl(renderSvg(it, i));
+    previewUrls.push(url);
+    const d = document.createElement("div");
+    d.className = "pg";
+    d.innerHTML = `<img alt="${i + 1}쪽"><span>${i + 1}쪽</span>`;
+    d.querySelector("img").src = url;
+    box.appendChild(d);
+  }
+}
+
+/* ---------- 모두 받기 ---------- */
+downloadAllBtn.addEventListener("click", async () => {
+  for(const it of items.slice()){
+    if(it.doc) await makePdf(it);
+  }
+});
+
+/* ---------- 파일 넣기 ---------- */
+drop.addEventListener("click", () => fileInput.click());
+drop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener("change", () => { addFiles([...fileInput.files]); fileInput.value = ""; });
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => addFiles([...e.dataTransfer.files]));
+// 영역 밖에 떨어뜨려도 브라우저가 파일을 열어 버리지 않도록
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => { e.preventDefault(); if(!drop.classList.contains("disabled")) addFiles([...e.dataTransfer.files]); });
+
+document.querySelectorAll("#quality button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("#quality button").forEach(x => x.classList.toggle("on", x === b));
+  quality = Number(b.dataset.q);
+}));
+
+/* ---------- 시작 ---------- */
+(async () => {
+  const ok = await loadEngine();
+  if(ok){
+    engineBox.classList.add("ready");
+    engineText.textContent = "변환 준비가 끝났어요. 한글 파일을 넣어 보세요.";
+    drop.classList.remove("disabled");
+    loadJsPDF().catch(() => {});
+  }else{
+    engineBox.classList.add("fail");
+    engineText.textContent = "변환 엔진을 불러오지 못했어요. 인터넷 연결을 확인한 뒤 새로고침해 주세요.";
+  }
+})();
+refreshList();
+</script>
+</body>
+</html>

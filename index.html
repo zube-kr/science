@@ -1224,6 +1224,7 @@ body{
     <ul>
       <li onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</li>
       <li onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험 모음</li>
+      <li onclick="openSubject('teacher-tools')"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>HWP → PDF 변환기</li>
     </ul>
   </details>
 
@@ -1633,6 +1634,9 @@ const GRAVITY_JUMP_URL = "gravity-jump-game.html";
 // ⚠️ space-astronaut-game.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SPACE_ASTRONAUT_URL = "space-astronaut-game.html";
 
+// 개발자료 · 선생님 도구
+const HWP_TO_PDF_URL = "hwp-to-pdf.html";
+
 const topicsData = {
   "swieo-game": {
     title: "🎮 쉬어가는 게임",
@@ -1683,6 +1687,17 @@ const topicsData = {
         title: "🧑‍🚀 우주 유영 3D 게임",
         desc: "아두이노 우노 + MPU-6050 센서를 USB로 연결해 X·Y축 기울기로 우주인을 움직이고, Z축으로 빠르게 비틀어 회전 대시를 쓰는 3D 게임입니다. 소행성과 우주 잔해를 피하며 크리스털·에너지 링을 모으세요. 센서를 연결해야만 플레이할 수 있어요.",
         url: SPACE_ASTRONAUT_URL,
+        ready: true
+      }
+    ]
+  },
+  "teacher-tools": {
+    title: "🛠️ 선생님 도구",
+    posts: [
+      {
+        title: "📄 HWP → PDF 변환기",
+        desc: "한글 문서(.hwp, .hwpx)를 끌어다 놓으면 PDF로 바꿔 줍니다. 파일은 서버로 올라가지 않고 이 컴퓨터의 브라우저 안에서만 변환돼요.",
+        url: HWP_TO_PDF_URL,
         ready: true
       }
     ]
