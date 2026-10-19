@@ -1619,6 +1619,9 @@ const PLANE_SHOOTING_URL = "plane-shooting-game.html";
 // ⚠️ charles-law-arduino.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const CHARLES_LAW_ARDUINO_URL = "charles-law-arduino.html";
 
+// ⚠️ boyle-law.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
+const BOYLE_LAW_URL = "boyle-law.html";
+
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
 
@@ -1817,7 +1820,13 @@ const topicsData = {
     title: "⑥ 기체의 성질",
     posts: [
       {
-        title: "1. 샤를의 법칙 — 아두이노로 온도와 기체 부피 측정하기",
+        title: "1. 보일 법칙 — 추를 올려 압력과 기체 부피 관계 알아보기",
+        desc: "보일 법칙 실험 장치에 250 g 추를 하나씩 올리며 기체의 부피 변화를 측정하고, 값을 입력하면 압력-부피 그래프가 자동으로 그려지는 실험 워크시트입니다. 다른 모둠 결과와 비교하고 압력×부피가 일정한지 확인해요.",
+        url: BOYLE_LAW_URL,
+        ready: true
+      },
+      {
+        title: "2. 샤를의 법칙 — 아두이노로 온도와 기체 부피 측정하기",
         desc: "아두이노 우노에 온도센서·초음파센서를 연결해 USB로 직접 연결하고, 물 온도를 바꿔가며 실시간으로 측정한 데이터로 온도와 기체 부피의 관계를 그래프로 확인하는 실험 워크시트입니다.",
         url: CHARLES_LAW_ARDUINO_URL,
         ready: true
@@ -2253,10 +2262,10 @@ const STUDENT_HOME_KEY = { 1:"j1-student-home", 2:"j2-student-home" };
 
 // 최근에 올라온 자료 (단원 키, 글 제목의 일부, 학년 표시)
 const HOME_RECENT = [
+  ["gi-seongjil", "보일 법칙", "중1"],
   ["dongmul-energy", "혈액 순환 미로", "중2"],
   ["swieo-game", "볼링 게임", "게임"],
   ["uju-tamsa", "성단과 성운", "중3"],
-  ["gi-seongjil", "샤를의 법칙", "중1"],
   ["energy-jeonhwan", "롤러코스터 크리에이터", "중3"]
 ];
 
