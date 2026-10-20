@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>팽창하는 우주 — 풍선으로 보는 대폭발 우주론</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+    --space:#05070F;
+
+    --red:#D8493B;
+    --red-soft:#FBE6E2;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --violet:#7A4FD0;
+    --violet-soft:#EFE8FB;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+  @media (max-width:600px){ body{ padding:14px 12px 32px; } section.card{ padding:16px 14px 18px !important; } }
+  .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--violet),var(--red)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:820px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.65; }
+  .card p.body-text{ font-size:13px; line-height:1.85; margin-bottom:10px; }
+  .card p.body-text b{ color:var(--violet); }
+  .note{
+    font-size:11.5px; color:var(--ink-soft); background:#FBFAF6; border:1px solid var(--line);
+    border-radius:12px; padding:10px 13px; line-height:1.7; margin-top:8px;
+  }
+  .note b{ color:var(--ink); }
+  .render-note{ font-size:11px; color:var(--ink-soft); margin:2px 0 12px; }
+
+  /* ---------- 캔버스 공통 ---------- */
+  .cv-box{ position:relative; border-radius:14px; overflow:hidden; margin-bottom:10px; }
+  .cv-box canvas{ display:block; width:100%; }
+  .cv-box.dark{ background:var(--space); }
+  .cv-box.drag{ touch-action:none; cursor:grab; user-select:none; }
+  .cv-box.drag:active{ cursor:grabbing; }
+  .cv-hint{ position:absolute; right:12px; bottom:8px; font-size:11px; color:#8A93A8; pointer-events:none; }
+  .fig-caption{ font-size:12px; color:var(--ink-soft); text-align:center; margin:-2px 0 10px; }
+  .fig-caption b{ color:var(--violet); }
+
+  /* ---------- 버튼 / 툴바 ---------- */
+  .toolbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toolbar .grow{ flex:1; }
+  .tbtn{
+    font-family:inherit; font-size:12.8px; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:10px; padding:8px 13px; transition:.15s; line-height:1.25;
+  }
+  .tbtn small{ display:block; font-size:10.5px; font-weight:600; opacity:.75; margin-top:2px; }
+  .tbtn:hover{ border-color:#BDB5A2; color:var(--ink); }
+  .tbtn.active{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .tbtn.violet.active{ background:var(--violet); border-color:var(--violet); }
+  .tbtn.red.active{ background:var(--red); border-color:var(--red); }
+  .tbtn.blue.active{ background:var(--blue); border-color:var(--blue); }
+  .tbtn.primary{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .tbtn.measure{ border-color:#E7C54A; background:#FFF8DA; color:#7A5B00; }
+  .tbtn.measure.active{ background:#E7B416; border-color:#E7B416; color:#fff; }
+  .tlabel{ font-size:12px; font-weight:800; color:var(--ink-soft); margin-right:2px; }
+  .chk{ display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:var(--ink-soft); cursor:pointer; user-select:none; }
+  .chk input{ width:16px; height:16px; accent-color:var(--ink); }
+  .range-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:10px; }
+  .range-row input[type=range]{ flex:1; min-width:180px; accent-color:var(--violet); }
+  .range-row .end{ font-size:11.5px; }
+  .range-row .end.b{ color:var(--blue); } .range-row .end.r{ color:var(--red); }
+
+  /* ---------- 풍선 실험 ---------- */
+  .readout{
+    display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center;
+    background:#FFF8DA; border:1px solid #F0DE95; border-radius:12px; padding:10px 14px;
+    font-size:13px; font-weight:700; color:#6A5000; margin-bottom:12px; min-height:44px;
+  }
+  .readout .big{ font-size:18px; font-weight:800; color:#B07D00; }
+  .steps{ font-size:12.5px; line-height:1.85; margin:2px 0 12px; padding-left:20px; color:var(--ink); }
+  .steps b{ color:var(--violet); }
+  table.exp{ width:100%; border-collapse:collapse; font-size:12.8px; margin:6px 0 8px; }
+  table.exp th, table.exp td{ border-bottom:1px solid #C9D2E3; padding:8px 6px; text-align:center; }
+  table.exp thead th{ background:#DDE3EE; font-weight:800; border-top:2px solid #7E8CA8; }
+  table.exp tbody th{ background:#EEF1F7; font-weight:800; width:24%; }
+  table.exp td + td, table.exp th + td{ border-left:1px dashed #B8C1D3; }
+  table.exp input{
+    width:84px; max-width:100%; font-family:inherit; font-size:14px; font-weight:700; text-align:center;
+    border:1.5px solid var(--line); border-radius:8px; padding:6px 4px; background:#FBFAF6;
+  }
+  table.exp input.ok{ border-color:var(--ok); background:#E8F6EE; }
+  table.exp input.bad{ border-color:var(--bad); background:#FBE6E2; }
+  @media (max-width:600px){ table.exp{ font-size:11.5px; } table.exp input{ width:60px; font-size:13px; } }
+
+  /* ---------- 스펙트럼 / 연동 시뮬레이션 ---------- */
+  .uni-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:12px; }
+  @media (max-width:760px){ .uni-grid{ grid-template-columns:1fr; } }
+  .panel-label{
+    position:absolute; left:12px; top:10px; font-size:12px; font-weight:800; color:#C9D3F0;
+    pointer-events:none; text-shadow:0 1px 4px #000;
+  }
+  .panel-label span{ display:block; font-size:11px; font-weight:600; opacity:.8; margin-top:2px; }
+  .gal-info{
+    display:grid; grid-template-columns:minmax(240px, 330px) 1fr; gap:10px 16px; align-items:center;
+    background:#FBFAF6; border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:12px;
+  }
+  @media (max-width:600px){ .gal-info{ grid-template-columns:1fr; } }
+  .gal-info .stats{ font-size:12.5px; line-height:1.8; min-width:220px; }
+  .gal-info .stats b{ font-size:14px; }
+  .gal-info .stats .v{ font-weight:800; color:var(--red); }
+  .gal-info .spec-cell{ min-width:0; }
+  .gal-info canvas{ width:100%; display:block; border-radius:8px; }
+
+  .observe-box{ background:#F3F0E6; border-radius:12px; padding:12px 16px; font-size:12.8px; line-height:1.75; margin:4px 0 12px; }
+  .observe-box ol{ margin:4px 0 0; padding-left:20px; }
+  .observe-box b{ color:var(--violet); }
+
+  /* ---------- 문항 공통 ---------- */
+  .q-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; line-height:2.1; margin:10px 0; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%;
+    background:var(--ink); color:#fff; font-size:11px; font-weight:800; margin-right:4px; flex-shrink:0;
+  }
+  select.blank{
+    font-family:inherit; font-size:12.8px; border:1px solid var(--line); border-radius:8px;
+    padding:6px 8px; background:#FBFAF6; color:var(--ink); font-weight:700;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; flex-wrap:wrap; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:5px 13px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--violet); color:var(--violet); background:var(--violet-soft); }
+  .q-feedback{ display:block; margin-top:4px; margin-left:26px; font-size:12px; font-weight:700; min-height:16px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .check-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:none; background:#F1EEE5; color:var(--ink-soft); border-radius:8px; padding:7px 14px; margin-top:8px;
+  }
+  .check-btn:hover{ background:#E7E3D6; color:var(--ink); }
+  .sub-title{ font-size:13.5px; font-weight:800; margin:16px 0 4px; display:flex; align-items:center; gap:6px; }
+  .sub-title .tag{ font-size:10.5px; font-weight:800; color:#fff; background:var(--violet); border-radius:999px; padding:2px 8px; }
+
+  /* ---------- 학생 정보 / 제출 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+  textarea.essay{
+    width:100%; min-height:90px; font-family:inherit; font-size:13px; line-height:1.7;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+  footer{ max-width:1080px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅶ. 별과 우주 · 팽창하는 우주</div>
+    <h1>팽창하는 우주 — <span>풍선으로 보는 대폭발 우주론</span></h1>
+    <p class="sub">고무풍선 가상 실험으로 우주 팽창을 흉내 내 보고, 움직이는 별의 빛이 어떻게 적색 편이·청색 편이를 일으키는지 3D 시뮬레이션으로 확인하자. 마지막으로 풍선 우주 위의 은하들을 직접 관측하며 허블이 발견한 "멀리 있는 은하일수록 더 빨리 멀어진다"는 법칙을 찾아보자.</p>
+  </header>
+
+  <!-- 1. 배움 자료 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">1</span>배움 자료 · 팽창하는 우주와 대폭발 우주론</div>
+    <p class="body-text">풍선 표면에 있는 붙임 딱지들이 풍선의 팽창으로 멀어지듯이, 대부분의 외부 은하들도 <b>우주의 팽창</b>으로 서로 멀어지고 있다. 이때 우주는 <b>특별한 중심 없이</b> 모든 방향으로 팽창하고 있다.</p>
+    <p class="body-text">현재 우주가 팽창한다는 사실을 바탕으로 시간을 거꾸로 돌린다고 가정하면, 과거로 갈수록 우주는 점점 작아지다가 결국 한 점에 모일 것이다. 이처럼 우주는 모든 물질과 에너지가 모인 한 점에서 대폭발로 시작하였으며 지금도 계속 팽창하고 있다는 이론을 <b>대폭발 우주론</b>이라고 한다.</p>
+    <div class="cv-box"><canvas id="figExpand" aria-label="팽창하는 우주 모형 그림"></canvas></div>
+    <p class="fig-caption"><b>그림</b> 팽창하는 우주 모형 — 은하 자체의 크기는 그대로이고, 은하 사이의 <b>공간</b>이 늘어난다.</p>
+  </section>
+
+  <!-- 2. 가상 실험: 우주 팽창 실험하기 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">2</span>가상 실험 · 우주 팽창 실험하기 (고무풍선)</div>
+    <p class="card-hint">목표: 우주가 팽창하고 있음을 이해한다. 실제 고무풍선 대신 화면 속 풍선으로 실험해 보자. 풍선을 드래그하면 돌려 볼 수 있다.</p>
+    <ol class="steps">
+      <li>고무풍선에 바람을 <b>약간</b> 넣은 후, 번호가 적힌 붙임 딱지를 붙인다. (처음 화면)</li>
+      <li><b>줄자로 재기</b> 버튼을 누르거나 붙임 딱지 두 개를 차례로 눌러, 붙임 딱지 사이의 거리를 각각 잰다.</li>
+      <li><b>크게 불기</b>를 눌러 고무풍선을 더 크게 분 다음, 붙임 딱지 사이의 거리를 다시 잰다.</li>
+    </ol>
+
+    <div class="toolbar">
+      <span class="tlabel">풍선</span>
+      <button type="button" class="tbtn violet active" data-balloon="small">약간 불기<small>지름 16 cm</small></button>
+      <button type="button" class="tbtn violet" data-balloon="big">크게 불기<small>지름 28 cm</small></button>
+      <span class="grow"></span>
+      <span class="tlabel">줄자로 재기</span>
+      <button type="button" class="tbtn measure" data-pair="0,1">1과 2</button>
+      <button type="button" class="tbtn measure" data-pair="0,2">1과 3</button>
+      <button type="button" class="tbtn measure" data-pair="1,2">2와 3</button>
+    </div>
+    <div class="cv-box drag" id="balloonBox">
+      <canvas id="balloonCv" aria-label="고무풍선 가상 실험"></canvas>
+      <div class="cv-hint">드래그하면 풍선을 돌려 볼 수 있어요</div>
+    </div>
+    <div class="readout" id="balloonReadout">줄자로 잴 두 붙임 딱지를 고르세요.</div>
+
+    <div class="sub-title"><span class="tag">정리하기</span>1. 붙임 딱지 사이의 거리를 써 보자. (소수 첫째 자리까지)</div>
+    <table class="exp">
+      <thead>
+        <tr><th>구분</th><th>붙임 딱지 1과 2<br>사이의 거리(cm)</th><th>붙임 딱지 1과 3<br>사이의 거리(cm)</th><th>붙임 딱지 2와 3<br>사이의 거리(cm)</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>고무풍선을<br>약간 불었을 때</th>
+          <td><input type="number" step="0.1" inputmode="decimal" id="t_small_12"></td>
+          <td><input type="number" step="0.1" inputmode="decimal" id="t_small_13"></td>
+          <td><input type="number" step="0.1" inputmode="decimal" id="t_small_23"></td></tr>
+        <tr><th>고무풍선을<br>크게 불었을 때</th>
+          <td><input type="number" step="0.1" inputmode="decimal" id="t_big_12"></td>
+          <td><input type="number" step="0.1" inputmode="decimal" id="t_big_13"></td>
+          <td><input type="number" step="0.1" inputmode="decimal" id="t_big_23"></td></tr>
+      </tbody>
+    </table>
+    <button class="check-btn" id="checkTable">표 확인</button>
+    <span class="q-feedback" id="tableFeedback"></span>
+
+    <div class="sub-title"><span class="tag">정리하기</span>2. 실험 결과를 해석해 보자.</div>
+    <div class="q-row"><span class="q-num">1</span>고무풍선을 크게 불면 붙임 딱지 사이의 거리는 모두
+      <span class="choice-group" id="qB1">
+        <button type="button" class="choice-btn" data-value="멀어진다">멀어진다</button>
+        <button type="button" class="choice-btn" data-value="가까워진다">가까워진다</button>
+        <button type="button" class="choice-btn" data-value="변하지 않는다">변하지 않는다</button>
+      </span>
+    </div>
+    <div class="q-row"><span class="q-num">2</span>처음에 서로 멀리 떨어져 있던 붙임 딱지일수록 거리가
+      <span class="choice-group" id="qB2">
+        <button type="button" class="choice-btn" data-value="더 많이">더 많이</button>
+        <button type="button" class="choice-btn" data-value="더 적게">더 적게</button>
+      </span>
+      늘어난다.
+    </div>
+    <div class="q-row"><span class="q-num">3</span>어느 붙임 딱지에서 보아도 다른 딱지들은 모두 멀어진다. 즉, 풍선의 팽창에는 특별한 중심이
+      <span class="choice-group" id="qB3">
+        <button type="button" class="choice-btn" data-value="없다">없다</button>
+        <button type="button" class="choice-btn" data-value="있다">있다</button>
+      </span>
+    </div>
+    <button class="check-btn" id="checkB">정답 확인</button>
+    <span class="q-feedback" id="bFeedback"></span>
+  </section>
+
+  <!-- 3. 3D 시뮬레이션: 도플러 효과 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">3</span>3D 시뮬레이션 · 도플러 효과 — 적색 편이와 청색 편이</div>
+    <p class="card-hint">구급차가 다가올 때는 사이렌 소리가 높게, 멀어질 때는 낮게 들린다. 빛도 마찬가지로, 빛을 내는 천체가 움직이면 앞쪽으로 나가는 빛의 파장은 <b>짧아지고</b> 뒤쪽으로 나가는 빛의 파장은 <b>길어진다</b>. 별의 움직임을 골라 지구에 도달하는 빛과 스펙트럼선이 어떻게 달라지는지 관찰해 보자.</p>
+
+    <div class="toolbar">
+      <button type="button" class="tbtn dop-preset active" data-beta="0">별이 정지해 있을 때</button>
+      <button type="button" class="tbtn blue dop-preset" data-beta="-0.25">별이 지구와 가까워질 때</button>
+      <button type="button" class="tbtn red dop-preset" data-beta="0.25">별이 지구와 멀어질 때</button>
+      <span class="grow"></span>
+      <button type="button" class="tbtn primary" id="dopPlay">⏸ 일시정지</button>
+    </div>
+    <div class="range-row">
+      <span class="end b">◀ 지구와 가까워짐</span>
+      <input type="range" id="dopSpeed" min="-25" max="25" step="1" value="0" aria-label="별의 속도">
+      <span class="end r">지구와 멀어짐 ▶</span>
+    </div>
+    <div class="cv-box dark drag" id="dopBox">
+      <canvas id="dopCv" aria-label="도플러 효과 3D 시뮬레이션"></canvas>
+      <div class="cv-hint">드래그하면 보는 각도를 바꿀 수 있어요</div>
+    </div>
+    <div class="cv-box dark"><canvas id="dopSpec" aria-label="관측된 스펙트럼"></canvas></div>
+    <p class="render-note">※ 실제 천체의 속도는 빛보다 훨씬 느려 파장 변화가 매우 작지만, 여기서는 잘 보이도록 빛의 속도의 최대 25%까지 과장했습니다.</p>
+
+    <div class="observe-box">
+      <b>관찰 포인트</b>
+      <ol>
+        <li>별에서 퍼져 나가는 고리 하나하나가 빛의 <b>파면</b>(마루)이다. 별이 움직이면 고리의 중심이 조금씩 옮겨 가서, 앞쪽은 고리 간격이 촘촘하고 뒤쪽은 넓어진다.</li>
+        <li>지구에서 <b>멀어지는</b> 별의 빛은 파장이 길어져 붉은색 쪽으로, <b>다가오는</b> 별의 빛은 파장이 짧아져 파란색 쪽으로 치우친다.</li>
+        <li>스펙트럼의 검은 선(흡수선)이 원래 위치(점선)에서 얼마나 옮겨 갔는지를 재면, 별이 얼마나 빠르게 멀어지거나 다가오는지 알 수 있다.</li>
+      </ol>
+    </div>
+
+    <div class="q-row"><span class="q-num">1</span>별이 지구와 멀어질 때 지구에 도달하는 빛의 파장은
+      <span class="choice-group" id="qD1">
+        <button type="button" class="choice-btn" data-value="길어진다">길어진다</button>
+        <button type="button" class="choice-btn" data-value="짧아진다">짧아진다</button>
+      </span>
+    </div>
+    <div class="q-row"><span class="q-num">2</span>별이 지구와 멀어질 때 스펙트럼선은
+      <span class="choice-group" id="qD2">
+        <button type="button" class="choice-btn" data-value="붉은색">붉은색</button>
+        <button type="button" class="choice-btn" data-value="파란색">파란색</button>
+      </span>
+      쪽으로 치우친다.
+    </div>
+    <div class="q-row"><span class="q-num">3</span>2번처럼 스펙트럼선이 치우치는 현상을
+      <span class="choice-group" id="qD3">
+        <button type="button" class="choice-btn" data-value="적색 편이">적색 편이</button>
+        <button type="button" class="choice-btn" data-value="청색 편이">청색 편이</button>
+      </span>
+      라고 한다.
+    </div>
+    <button class="check-btn" id="checkD">정답 확인</button>
+    <span class="q-feedback" id="dFeedback"></span>
+  </section>
+
+  <!-- 4. 연동 시뮬레이션: 풍선 우주와 허블 법칙 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">4</span>연동 시뮬레이션 · 풍선 우주에서 허블 법칙 찾기</div>
+    <p class="card-hint">허블은 1929년 외부 은하들의 스펙트럼을 관측하여 대부분 <b>적색 편이</b>가 나타난다는 사실과, <b>멀리 있는 은하일수록 적색 편이가 크다</b>(더 빨리 멀어진다)는 사실을 발견하였다. 왼쪽 풍선 우주의 표면이 우주 공간, 표면의 은하들이 붙임 딱지라고 생각하고 <b>팽창 시작</b>을 눌러 보자. 은하를 누르면 그 은하의 거리·후퇴 속도·스펙트럼이 오른쪽 그래프와 아래 패널에 함께 표시된다.</p>
+
+    <div class="toolbar">
+      <button type="button" class="tbtn primary" id="uniPlay">▶ 팽창 시작</button>
+      <button type="button" class="tbtn" id="uniReset">↺ 처음으로</button>
+      <button type="button" class="tbtn violet" id="uniObserve">선택한 은하에서 관측하기</button>
+      <span class="grow"></span>
+      <label class="chk"><input type="checkbox" id="uniArrows" checked> 후퇴 속도 화살표</label>
+      <label class="chk"><input type="checkbox" id="uniColors" checked> 적색 편이 색 표시</label>
+    </div>
+    <div class="uni-grid">
+      <div class="cv-box dark drag" id="uniBox">
+        <canvas id="uniCv" aria-label="팽창하는 풍선 우주"></canvas>
+        <div class="panel-label" id="uniHud">풍선 우주<span>우주의 크기 1.00배 · 경과 시간 0억 년</span></div>
+        <div class="cv-hint">드래그: 회전 · 탭: 은하 선택</div>
+      </div>
+      <div class="cv-box dark" id="hubBox">
+        <canvas id="hubCv" aria-label="은하의 거리와 후퇴 속도 그래프"></canvas>
+      </div>
+    </div>
+    <div class="gal-info">
+      <div class="stats" id="galStats"><b>은하를 선택해 보세요</b><br>풍선 우주나 그래프에서 은하를 누르면 정보가 나타납니다.</div>
+      <div class="spec-cell"><canvas id="galSpec" aria-label="선택한 은하의 스펙트럼"></canvas></div>
+    </div>
+    <p class="render-note">※ 풍선 표면을 따라 잰 거리를 은하까지의 거리(Mpc)로, 거리가 늘어나는 빠르기를 후퇴 속도(km/s)로 나타냈습니다. 1 Mpc(메가파섹)는 약 326만 광년입니다.</p>
+
+    <div class="observe-box">
+      <b>관찰 포인트</b>
+      <ol>
+        <li>팽창이 시작되면 모든 은하가 관측자 은하로부터 멀어지고, 그래프의 점들은 <b>원점을 지나는 직선</b> 위에 늘어선다. → 거리가 먼 은하일수록 후퇴 속도가 빠르다.</li>
+        <li>은하 하나를 고른 뒤 <b>선택한 은하에서 관측하기</b>를 눌러 관측자를 바꿔 보자. 어느 은하에서 보아도 그래프는 똑같이 원점을 지나는 직선이 된다. → 우주에는 특별한 중심이 없다.</li>
+        <li>은하 자체의 크기는 변하지 않는다. 늘어나는 것은 은하 사이의 공간(풍선의 고무막)이다.</li>
+      </ol>
+    </div>
+
+    <div class="q-row"><span class="q-num">1</span>대부분의 외부 은하의 스펙트럼에서는
+      <span class="choice-group" id="qH1">
+        <button type="button" class="choice-btn" data-value="적색 편이">적색 편이</button>
+        <button type="button" class="choice-btn" data-value="청색 편이">청색 편이</button>
+      </span>
+      가 나타난다. 즉, 외부 은하들은 우리은하로부터 멀어지고 있다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>거리가 먼 은하일수록 후퇴 속도가
+      <span class="choice-group" id="qH2">
+        <button type="button" class="choice-btn" data-value="빠르다">빠르다</button>
+        <button type="button" class="choice-btn" data-value="느리다">느리다</button>
+      </span>
+    </div>
+    <div class="q-row"><span class="q-num">3</span>관측자 은하를 바꾸어도 거리–후퇴 속도 그래프는
+      <span class="choice-group" id="qH3">
+        <button type="button" class="choice-btn" data-value="원점을 지나는 직선">원점을 지나는 직선</button>
+        <button type="button" class="choice-btn" data-value="관측자마다 다른 모양">관측자마다 다른 모양</button>
+      </span>
+      이다. 따라서 우주는 특별한 중심 없이 팽창한다.
+    </div>
+    <button class="check-btn" id="checkH">정답 확인</button>
+    <span class="q-feedback" id="hFeedback"></span>
+  </section>
+
+  <!-- 5. 스스로 점검 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">5</span>스스로 점검</div>
+    <div class="q-row"><span class="q-num">1</span>우주는 모든 물질과 에너지가 모인 한 점에서
+      <select class="blank" id="qS1"><option value="">-선택-</option><option>대폭발</option><option>수축</option><option>충돌</option></select>
+      로 시작하여 지금도 계속 팽창하고 있다는 이론을
+      <select class="blank" id="qS2"><option value="">-선택-</option><option>대폭발 우주론</option><option>정상 우주론</option><option>지동설</option></select>
+      이라고 한다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>우주 팽창 실험에서 고무풍선의 표면은 우주를, 붙임 딱지는
+      <select class="blank" id="qS3"><option value="">-선택-</option><option>은하</option><option>행성</option><option>성운</option></select>
+      를 나타낸다.
+    </div>
+    <button class="check-btn" id="checkS">정답 확인</button>
+    <span class="q-feedback" id="sFeedback"></span>
+  </section>
+
+  <!-- 6. 창의적 사고력 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">6</span>창의적 사고력</div>
+    <p class="card-hint">시간을 거꾸로 돌려 과거로 가면 우주는 어떻게 될까? 풍선 실험과 허블의 관측 결과(적색 편이, 거리와 후퇴 속도의 관계)를 이용하여 대폭발 우주론의 근거를 설명해 보자.</p>
+    <textarea class="essay" id="essayAnswer" placeholder="생각한 내용을 자유롭게 적어 보세요."></textarea>
+    <p class="card-hint" style="margin-top:8px; margin-bottom:0;">이 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
+  </section>
+
+  <!-- 제출 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">제출</span>학생 정보를 입력하고 채점받기</div>
+    <div class="ws-student">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>2026 아화중학교 3학년 과학 · Ⅶ. 별과 우주 · 팽창하는 우주</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+// 모든 워크시트가 공유하는 Apps Script 웹 앱 URL (Code.gs)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+
+/* ==========================================================
+   공용 수학 / 캔버스 도우미
+=========================================================== */
+const clamp = (v,a,b) => v<a ? a : (v>b ? b : v);
+const lerp = (a,b,t) => a + (b-a)*t;
+const TAU = Math.PI*2;
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function makeGauss(rnd){
+  return function(){
+    let u = 0, v = 0;
+    while(u === 0) u = rnd();
+    while(v === 0) v = rnd();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(TAU*v);
+  };
+}
+
+// 캔버스를 화면 너비에 맞추고, 그림은 논리 좌표(W×H)로 그린다.
+function setupCanvas(canvas, aspectFn, opts = {}){
+  const ctx = canvas.getContext('2d');
+  const box = canvas.parentElement;
+  const st = { canvas, ctx, W:960, H:540, k:1, dirty:true, visible:true, onResize:null };
+  let lastW = 0;
+  function fit(){
+    const cssW = box.clientWidth;
+    if(!cssW || cssW === lastW) return;
+    lastW = cssW;
+    const asp = aspectFn(cssW);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cssH = Math.round(cssW * asp);
+    canvas.style.height = cssH + 'px';
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    st.W = clamp(cssW, opts.minW || 560, opts.maxW || 960);
+    st.H = st.W * asp;
+    st.k = canvas.width / st.W;
+    if(st.onResize) st.onResize();
+    st.dirty = true;
+  }
+  st.begin = () => ctx.setTransform(st.k, 0, 0, st.k, 0, 0);
+  st.toLocal = (e) => {
+    const r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * st.W / r.width, (e.clientY - r.top) * st.H / r.height];
+  };
+  new ResizeObserver(fit).observe(box);
+  new IntersectionObserver(es => { st.visible = es[0].isIntersecting; if(st.visible) st.dirty = true; }).observe(canvas);
+  st.fit = fit;
+  fit();
+  return st;
+}
+
+// 드래그로 돌리기 + 탭(짧게 누르기) 구분
+function attachDrag(box, st, onDrag, onTap){
+  let d = null;
+  box.addEventListener('pointerdown', e => {
+    d = { x:e.clientX, y:e.clientY, lx:e.clientX, ly:e.clientY, moved:false };
+    box.setPointerCapture(e.pointerId);
+  });
+  box.addEventListener('pointermove', e => {
+    if(!d) return;
+    if(Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) d.moved = true;
+    if(d.moved) onDrag(e.clientX - d.lx, e.clientY - d.ly);
+    d.lx = e.clientX; d.ly = e.clientY;
+  });
+  box.addEventListener('pointerup', e => {
+    if(d && !d.moved && onTap) onTap(st.toLocal(e));
+    d = null;
+  });
+  box.addEventListener('pointercancel', () => { d = null; });
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
+}
+const FONT = (px, w = 700) => `${w} ${px}px "Pretendard","Noto Sans KR",sans-serif`;
+function outlinedText(ctx, text, x, y, fill, stroke = 'rgba(3,4,12,0.85)', lw = 3.5){
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = lw; ctx.strokeStyle = stroke; ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill; ctx.fillText(text, x, y);
+}
+
+/* ==========================================================
+   빛의 파장(nm) → 색 / 스펙트럼 띠
+=========================================================== */
+function nmToRGB(nm){
+  let r = 0, g = 0, b = 0;
+  const w = clamp(nm, 380, 780);
+  if(w < 440){ r = -(w-440)/60; b = 1; }
+  else if(w < 490){ g = (w-440)/50; b = 1; }
+  else if(w < 510){ g = 1; b = -(w-510)/20; }
+  else if(w < 580){ r = (w-510)/70; g = 1; }
+  else if(w < 645){ r = 1; g = -(w-645)/65; }
+  else { r = 1; }
+  const f = w < 420 ? 0.35 + 0.65*(w-380)/40 : (w > 700 ? 0.35 + 0.65*(780-w)/80 : 1);
+  return [r, g, b].map(c => Math.round(255 * Math.pow(c*f, 0.8)));
+}
+const rgba = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+// o = { min, max, line, ref } — line: 관측된 흡수선, ref: 원래 위치(점선)
+function drawSpectrum(ctx, x, y, w, h, o){
+  const g = ctx.createLinearGradient(x, 0, x + w, 0);
+  for(let i=0; i<=40; i++){
+    const nm = o.min + (o.max - o.min) * i/40;
+    g.addColorStop(i/40, rgba(nmToRGB(nm)));
+  }
+  ctx.save();
+  roundRect(ctx, x, y, w, h, 4);
+  ctx.fillStyle = g; ctx.fill();
+  ctx.clip();
+  const X = nm => x + (nm - o.min) / (o.max - o.min) * w;
+  if(o.ref != null){
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(10,10,14,0.85)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(X(o.ref), y); ctx.lineTo(X(o.ref), y + h); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(o.line != null){
+    ctx.fillStyle = '#0B0B10';
+    ctx.fillRect(X(o.line) - 2, y, 4, h);
+  }
+  ctx.restore();
+  if(o.ref != null && o.line != null && Math.abs(X(o.line) - X(o.ref)) > 12){
+    const x0 = X(o.ref), x1 = X(o.line), ym = y + h/2, dir = Math.sign(x1 - x0);
+    ctx.strokeStyle = '#0B0B10'; ctx.fillStyle = '#0B0B10'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x0 + dir*3, ym); ctx.lineTo(x1 - dir*8, ym); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1 - dir*3, ym); ctx.lineTo(x1 - dir*10, ym - 5); ctx.lineTo(x1 - dir*10, ym + 5); ctx.closePath(); ctx.fill();
+  }
+}
+
+/* ==========================================================
+   은하 그림(입자 렌더링) — 1번 그림과 4번 풍선 우주에서 함께 사용
+=========================================================== */
+const TONE = new Float32Array(1024);
+for(let k=0; k<1024; k++) TONE[k] = 1 - Math.exp(-k/1024 * 6);
+
+function makeGalaxySprite(seed, kind, tint, incl){
+  const S = 72, cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  const ctx = cv.getContext('2d'), img = ctx.createImageData(S, S), acc = new Float32Array(S*S*3);
+  const rnd = mulberry32(seed), g = makeGauss(rnd);
+  const c = S/2, R = S*0.42, rot = rnd()*TAU, cr = Math.cos(rot), sr = Math.sin(rot), ci = Math.cos(incl);
+  const put = (x, y, col, br) => {
+    const px = (c + x*cr - y*sr) | 0, py = (c + (x*sr + y*cr)*ci) | 0;
+    if(px < 0 || py < 0 || px >= S || py >= S) return;
+    const i = (py*S + px)*3;
+    acc[i] += col[0]*br; acc[i+1] += col[1]*br; acc[i+2] += col[2]*br;
+  };
+  if(kind === 'spiral'){
+    const r0 = R*0.12;
+    for(let k=0; k<2600; k++){
+      const r = r0 + (R - r0)*Math.pow(rnd(), 0.85);
+      const th = (k & 1)*Math.PI + Math.log(r/r0)/0.42 + g()*0.3;
+      put(r*Math.cos(th) + g()*R*0.035, r*Math.sin(th) + g()*R*0.035, tint, 0.55);
+    }
+    for(let k=0; k<900; k++){
+      const r = R*Math.pow(rnd(), 0.7), th = rnd()*TAU;
+      put(r*Math.cos(th), r*Math.sin(th), tint, 0.22);
+    }
+    for(let k=0; k<1100; k++) put(g()*R*0.12, g()*R*0.12, [1, 0.92, 0.78], 0.7);
+  } else {
+    for(let k=0; k<3600; k++) put(g()*R*0.3, g()*R*0.2, tint, 0.42);
+  }
+  const d = img.data;
+  for(let p=0; p<S*S; p++){
+    const i = p*3, q = p*4;
+    const r = TONE[Math.min(1023, (acc[i]*120)|0)], gg = TONE[Math.min(1023, (acc[i+1]*120)|0)], b = TONE[Math.min(1023, (acc[i+2]*120)|0)];
+    const m = Math.max(r, gg, b);
+    if(m <= 0) continue;
+    d[q] = 255*r/m; d[q+1] = 255*gg/m; d[q+2] = 255*b/m; d[q+3] = 255*m;
+  }
+  ctx.putImageData(img, 0, 0);
+  return cv;
+}
+const GAL_SPRITES = [
+  makeGalaxySprite(11, 'spiral',     [0.55, 0.75, 1.0], 0.5),
+  makeGalaxySprite(23, 'spiral',     [1.0, 0.62, 0.35], 0.9),
+  makeGalaxySprite(37, 'spiral',     [1.0, 0.55, 0.78], 0.3),
+  makeGalaxySprite(41, 'spiral',     [0.45, 1.0, 0.85], 1.0),
+  makeGalaxySprite(53, 'elliptical', [1.0, 0.86, 0.58], 0.4),
+  makeGalaxySprite(67, 'spiral',     [0.75, 0.85, 1.0], 0.1),
+  makeGalaxySprite(79, 'elliptical', [1.0, 0.75, 0.5],  0.9)
+];
+
+/* ==========================================================
+   1. 팽창하는 우주 모형 그림
+=========================================================== */
+(function(){
+  const st = setupCanvas($('figExpand'), w => w < 600 ? 0.5 : 0.38, { minW:960, maxW:960 });
+  const ctx = st.ctx;
+  // 같은 은하 배치가 우주의 크기에 따라 넓게 퍼진다 (은하 그림의 크기는 그대로)
+  const LAYOUT = [[-0.55,-0.42,0],[0.08,-0.64,3],[0.56,-0.3,1],[-0.66,0.16,2],[-0.06,-0.04,4],[0.52,0.28,5],[-0.32,0.6,6],[0.2,0.62,2],[0.66,-0.66,4]];
+  const CIRCLES = [{ x:205, y:290, r:38 }, { x:330, y:266, r:58 }, { x:505, y:228, r:90 }, { x:768, y:190, r:138 }];
+
+  function universe(cx, cy, r, seed){
+    const rnd = mulberry32(seed);
+    ctx.save();
+    ctx.shadowColor = 'rgba(30,30,50,0.35)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 5;
+    const g = ctx.createRadialGradient(cx - r*0.3, cy - r*0.3, r*0.1, cx, cy, r);
+    g.addColorStop(0, '#272A3B'); g.addColorStop(1, '#090A12');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r*0.94, 0, TAU); ctx.clip();
+    for(let k=0; k<Math.round(r*0.9); k++){
+      const a = rnd()*TAU, q = Math.sqrt(rnd())*r;
+      ctx.fillStyle = `rgba(220,225,255,${0.25 + rnd()*0.5})`;
+      ctx.fillRect(cx + q*Math.cos(a), cy + q*Math.sin(a), 1.1, 1.1);
+    }
+    LAYOUT.forEach(([u, v, s]) => {
+      const gx = cx + u*r*0.78, gy = cy + v*r*0.78, sz = 22;
+      ctx.drawImage(GAL_SPRITES[s], gx - sz/2, gy - sz/2, sz, sz);
+    });
+    ctx.restore();
+    const rim = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+    rim.addColorStop(0, '#9A9AA4'); rim.addColorStop(1, '#45454E');
+    ctx.strokeStyle = rim; ctx.lineWidth = Math.max(4, r*0.09);
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+  }
+
+  function draw(){
+    st.begin();
+    ctx.clearRect(0, 0, st.W, st.H);
+    const oy = (st.H - 365)/2;
+    ctx.save();
+    ctx.translate(0, oy);
+
+    // 시간의 흐름 화살표
+    const ax0 = 150, ay0 = 232, ax1 = 612, ay1 = 40, ang = Math.atan2(ay1 - ay0, ax1 - ax0);
+    const ag = ctx.createLinearGradient(ax0, ay0, ax1, ay1);
+    ag.addColorStop(0, 'rgba(160,150,225,0.1)'); ag.addColorStop(1, '#7466CC');
+    ctx.strokeStyle = ag; ctx.lineWidth = 11;
+    ctx.beginPath(); ctx.moveTo(ax0, ay0); ctx.lineTo(ax1 - 16*Math.cos(ang), ay1 - 16*Math.sin(ang)); ctx.stroke();
+    ctx.fillStyle = '#7466CC';
+    ctx.beginPath();
+    ctx.moveTo(ax1 + 6*Math.cos(ang), ay1 + 6*Math.sin(ang));
+    ctx.lineTo(ax1 - 22*Math.cos(ang) + 14*Math.sin(ang), ay1 - 22*Math.sin(ang) - 14*Math.cos(ang));
+    ctx.lineTo(ax1 - 22*Math.cos(ang) - 14*Math.sin(ang), ay1 - 22*Math.sin(ang) + 14*Math.cos(ang));
+    ctx.closePath(); ctx.fill();
+    ctx.font = FONT(15, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#3E3A63';
+    ctx.fillText('시간의', 352, 104); ctx.fillText('흐름', 352, 124);
+
+    // 대폭발
+    const bx = 62, by = 300;
+    ctx.save();
+    ctx.translate(bx, by);
+    for(let i=0; i<18; i++){
+      const a = i/18*TAU, L = i % 2 ? 30 : 46;
+      const rg = ctx.createRadialGradient(0, 0, 0, 0, 0, L);
+      rg.addColorStop(0, 'rgba(255,230,120,0.95)'); rg.addColorStop(1, 'rgba(255,200,60,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.moveTo(0, 0);
+      ctx.lineTo(L*Math.cos(a - 0.09), L*Math.sin(a - 0.09)); ctx.lineTo(L*Math.cos(a + 0.09), L*Math.sin(a + 0.09));
+      ctx.closePath(); ctx.fill();
+    }
+    const core = ctx.createRadialGradient(0, 0, 0, 0, 0, 26);
+    core.addColorStop(0, '#FFFFFF'); core.addColorStop(0.35, '#FFF1A6'); core.addColorStop(0.7, 'rgba(255,190,60,0.7)'); core.addColorStop(1, 'rgba(255,170,40,0)');
+    ctx.fillStyle = core; ctx.beginPath(); ctx.arc(0, 0, 26, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.font = FONT(14, 800); ctx.fillStyle = '#232A35';
+    ctx.fillText('대폭발', bx, by - 56);
+
+    // 막 시작된 뜨겁고 빽빽한 우주
+    (function(){
+      const cx = 122, cy = 296, r = 22, rnd = mulberry32(5);
+      ctx.save();
+      ctx.fillStyle = '#14151F'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, r*0.92, 0, TAU); ctx.clip();
+      const cols = ['#FF7A59','#FFD25A','#7FD4FF','#B48CFF','#7CF0B5','#FFFFFF'];
+      for(let k=0; k<90; k++){
+        const a = rnd()*TAU, q = Math.sqrt(rnd())*r;
+        ctx.fillStyle = cols[k % cols.length];
+        ctx.beginPath(); ctx.arc(cx + q*Math.cos(a), cy + q*Math.sin(a), 1.3, 0, TAU); ctx.fill();
+      }
+      ctx.restore();
+      ctx.strokeStyle = '#6E6E78'; ctx.lineWidth = 3.5;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+    })();
+
+    CIRCLES.forEach((c, i) => universe(c.x, c.y, c.r, 100 + i));
+
+    // '은하' 이름표
+    const big = CIRCLES[3], p0 = LAYOUT[0], p1 = LAYOUT[1];
+    const g0 = [big.x + p0[0]*big.r*0.78, big.y + p0[1]*big.r*0.78], g1 = [big.x + p1[0]*big.r*0.78, big.y + p1[1]*big.r*0.78];
+    const lx = big.x - 22, ly = big.y - big.r*0.72;
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(lx - 8, ly + 8); ctx.lineTo(g0[0] + 6, g0[1] - 6);
+    ctx.moveTo(lx + 10, ly + 8); ctx.lineTo(g1[0] - 4, g1[1] - 8); ctx.stroke();
+    ctx.font = FONT(14, 800); ctx.fillStyle = '#FFFFFF';
+    ctx.fillText('은하', lx, ly);
+    ctx.restore();
+  }
+  st.onResize = draw;
+  draw();
+})();
+
+/* ==========================================================
+   2. 고무풍선 가상 실험
+   풍선은 구(공)로 보고, 붙임 딱지 사이의 거리는 풍선 표면을 따라 잰 길이
+   (반지름 × 두 딱지 사이의 중심각)로 계산한다.
+=========================================================== */
+const BALLOON = (function(){
+  const st = setupCanvas($('balloonCv'), w => w < 600 ? 0.86 : 0.56, { minW:420 });
+  const ctx = st.ctx;
+  const R_SMALL = 8, R_BIG = 14, STICKER_R = 0.75;     // cm
+  const toVec = (lat, lon) => {
+    const a = lat*Math.PI/180, b = lon*Math.PI/180;
+    return [Math.cos(a)*Math.sin(b), Math.sin(a), Math.cos(a)*Math.cos(b)];
+  };
+  const STICKERS = [
+    { n:'1', v:toVec(22, 8),   col:[247,216,74] },
+    { n:'2', v:toVec(2, -6),   col:[143,203,234] },
+    { n:'3', v:toVec(-10, 26), col:[242,140,60] }
+  ];
+  const DECO = [[38,-32,[242,140,60]],[-30,-30,[247,216,74]],[-44,10,[242,140,60]],[50,30,[247,216,74]],[-6,-50,[242,140,60]],[12,56,[247,216,74]]]
+    .map(([la, lo, col]) => ({ v:toVec(la, lo), col }));
+  const NECK = toVec(-14, 88);
+  const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  const angleBetween = (a, b) => Math.acos(clamp(dot(a, b), -1, 1));
+  const PAIRS = [[0,1],[0,2],[1,2]];
+  const pairKey = (a, b) => `${Math.min(a,b)+1}${Math.max(a,b)+1}`;
+  const round1 = x => Math.round(x*10)/10;
+  // 표에 들어갈 정답 (풍선 상태별 · 딱지 쌍별)
+  const EXPECTED = { small:{}, big:{} };
+  PAIRS.forEach(([a, b]) => {
+    const th = angleBetween(STICKERS[a].v, STICKERS[b].v);
+    EXPECTED.small[pairKey(a, b)] = round1(R_SMALL*th);
+    EXPECTED.big[pairKey(a, b)] = round1(R_BIG*th);
+  });
+
+  let R = R_SMALL, Rtarget = R_SMALL, state = 'small';
+  let yaw = 0, pitch = 0;
+  let pick = -1, meas = null;     // meas = { a, b, t0 }
+  let puffs = [], time = 0;
+
+  const L = { cx:0, cy:0, pxcm:1 };
+  st.onResize = () => {
+    L.pxcm = st.H*0.37/R_BIG;
+    L.cx = st.W*(st.W < 700 ? 0.47 : 0.45);
+    L.cy = st.H*0.53;
+  };
+  st.onResize();
+
+  function rot(v){
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const x1 = v[0]*cy + v[2]*sy, z1 = -v[0]*sy + v[2]*cy;
+    return [x1, v[1]*cp - z1*sp, v[1]*sp + z1*cp];
+  }
+  const Rpx = () => R*L.pxcm;
+  const scr = (n, lift = 0) => [L.cx + (Rpx() + lift)*n[0], L.cy - (Rpx() + lift)*n[1]];
+
+  function slerp(a, b, t){
+    const th = angleBetween(a, b), s = Math.sin(th);
+    if(s < 1e-6) return a.slice();
+    const wa = Math.sin((1-t)*th)/s, wb = Math.sin(t*th)/s;
+    return [a[0]*wa + b[0]*wb, a[1]*wa + b[1]*wb, a[2]*wa + b[2]*wb];
+  }
+
+  function drawBackground(){
+    const g = ctx.createLinearGradient(0, 0, 0, st.H);
+    g.addColorStop(0, '#FAF9F5'); g.addColorStop(1, '#E7E3D8');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, st.W, st.H);
+    // 10 cm 눈금자
+    const x0 = 22, y0 = st.H - 26, len = 10*L.pxcm;
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    roundRect(ctx, x0 - 6, y0 - 22, len + 12, 34, 6); ctx.fill();
+    ctx.strokeStyle = '#5B6070'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + len, y0);
+    for(let i=0; i<=10; i++){ const x = x0 + i*L.pxcm, h = i % 5 ? 5 : 9; ctx.moveTo(x, y0); ctx.lineTo(x, y0 - h); }
+    ctx.stroke();
+    ctx.font = FONT(11, 800); ctx.fillStyle = '#5B6070'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('0', x0, y0 + 10); ctx.fillText('10 cm', x0 + len, y0 + 10);
+  }
+
+  function drawNeck(){
+    const n = rot(NECK);
+    const len2 = Math.hypot(n[0], n[1]) || 1, dx = n[0]/len2, dy = -n[1]/len2;
+    const px = -dy, py = dx, base = scr(n, -2), pc = L.pxcm;
+    const w0 = 1.1*pc, w1 = 0.5*pc, len = 2.8*pc;
+    const tip = [base[0] + dx*len, base[1] + dy*len];
+    ctx.fillStyle = '#5B2CA6';
+    ctx.beginPath();
+    ctx.moveTo(base[0] + px*w0, base[1] + py*w0);
+    ctx.quadraticCurveTo(base[0] + dx*len*0.55 + px*w1*0.9, base[1] + dy*len*0.55 + py*w1*0.9, tip[0] + px*w1, tip[1] + py*w1);
+    ctx.lineTo(tip[0] - px*w1, tip[1] - py*w1);
+    ctx.quadraticCurveTo(base[0] + dx*len*0.55 - px*w1*0.9, base[1] + dy*len*0.55 - py*w1*0.9, base[0] - px*w0, base[1] - py*w0);
+    ctx.closePath(); ctx.fill();
+    // 매듭(입구 고리)
+    ctx.fillStyle = '#7A4BCB';
+    ctx.beginPath(); ctx.ellipse(tip[0] + dx*0.3*pc, tip[1] + dy*0.3*pc, 0.4*pc, 0.8*pc, Math.atan2(dy, dx), 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(40,10,90,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+    return { tip, dx, dy, front: n[2] > -0.15 };
+  }
+
+  function drawBody(){
+    const r = Rpx(), cx = L.cx, cy = L.cy;
+    const f = clamp((R - 6)/(R_BIG - 6), 0, 1);       // 크게 불수록 고무막이 얇아져 밝아진다
+    const mix = (a, b) => `rgb(${Math.round(lerp(a[0], b[0], f))},${Math.round(lerp(a[1], b[1], f))},${Math.round(lerp(a[2], b[2], f))})`;
+    ctx.save();
+    ctx.shadowColor = 'rgba(70,35,130,0.28)'; ctx.shadowBlur = 34; ctx.shadowOffsetY = 18;
+    const g = ctx.createRadialGradient(cx - r*0.36, cy - r*0.42, r*0.04, cx, cy, r*1.02);
+    g.addColorStop(0, mix([236,222,255], [246,238,255]));
+    g.addColorStop(0.16, mix([176,136,240], [196,160,250]));
+    g.addColorStop(0.55, mix([122,72,208], [146,98,226]));
+    g.addColorStop(0.86, mix([84,40,162], [104,58,186]));
+    g.addColorStop(1, mix([58,24,120], [74,38,142]));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.clip();
+    const rim = ctx.createRadialGradient(cx + r*0.5, cy + r*0.55, 0, cx + r*0.5, cy + r*0.55, r*0.85);
+    rim.addColorStop(0, 'rgba(214,182,255,0.38)'); rim.addColorStop(1, 'rgba(214,182,255,0)');
+    ctx.fillStyle = rim; ctx.fillRect(cx - r, cy - r, 2*r, 2*r);
+    ctx.restore();
+  }
+
+  function drawHighlights(){
+    const r = Rpx(), cx = L.cx, cy = L.cy;
+    const hl = (x, y, rx, ry, a, alpha) => {
+      ctx.save();
+      ctx.translate(x, y); ctx.rotate(a); ctx.scale(1, ry/rx);
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+      g.addColorStop(0, `rgba(255,255,255,${alpha})`); g.addColorStop(0.55, `rgba(255,255,255,${alpha*0.45})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, TAU); ctx.fill();
+      ctx.restore();
+    };
+    hl(cx - r*0.4, cy - r*0.46, r*0.24, r*0.13, -0.7, 0.95);
+    hl(cx + r*0.16, cy - r*0.66, r*0.08, r*0.045, 0.2, 0.55);
+  }
+
+  function drawSticker(v, col, label, rs, highlight){
+    const n = rot(v);
+    if(n[2] < 0.06) return;
+    const [px, py] = scr(n, 0.5), ang = Math.atan2(-n[1], n[0]);
+    const Lgt = [-0.45, 0.55, 0.7], sh = 0.6 + 0.4*Math.max(0, (n[0]*Lgt[0] + n[1]*Lgt[1] + n[2]*Lgt[2])/1.0);
+    ctx.save();
+    ctx.translate(px, py); ctx.rotate(ang); ctx.scale(n[2], 1);
+    ctx.beginPath(); ctx.arc(0, 0, rs, 0, TAU);
+    ctx.fillStyle = `rgb(${Math.round(col[0]*sh)},${Math.round(col[1]*sh)},${Math.round(col[2]*sh)})`;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1/Math.max(0.3, n[2]); ctx.stroke();
+    if(highlight){
+      ctx.beginPath(); ctx.arc(0, 0, rs*1.55, 0, TAU);
+      ctx.strokeStyle = '#E7B416'; ctx.lineWidth = 3/Math.max(0.3, n[2]); ctx.stroke();
+    }
+    if(label){
+      ctx.rotate(-ang);
+      ctx.font = FONT(rs*1.25, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#2A2F3A'; ctx.fillText(label, 0, 1);
+    }
+    ctx.restore();
+  }
+
+  // 줄자: 두 딱지 사이 풍선 표면을 따라 그린 띠 + 1 cm 눈금
+  function drawTape(m, now){
+    const a = STICKERS[m.a].v, b = STICKERS[m.b].v;
+    const th = angleBetween(a, b), lenCm = R*th;
+    const p = clamp((now - m.t0)/650, 0, 1);
+    const pt = t => scr(rot(slerp(a, b, t)), 1.5);
+    const steps = 48, pts = [];
+    for(let i=0; i<=steps; i++) pts.push(pt(p*i/steps));
+    const w = 0.62*L.pxcm;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(120,88,0,0.9)'; ctx.lineWidth = w + 3;
+    ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    ctx.strokeStyle = '#F7CF2E'; ctx.lineWidth = w;
+    ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    ctx.lineCap = 'butt';
+    // 눈금
+    ctx.strokeStyle = '#4D3A00'; ctx.fillStyle = '#4D3A00'; ctx.lineWidth = 1.1;
+    ctx.font = FONT(Math.max(8, L.pxcm*0.55), 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const ticks = Math.floor(lenCm*p*2 + 1e-6);
+    for(let k=1; k<=ticks; k++){
+      const t = (k/2)/lenCm, q = pt(t), q2 = pt(Math.min(1, t + 0.01));
+      let tx = q2[0] - q[0], ty = q2[1] - q[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const nx = -ty, ny = tx, h = k % 2 === 0 ? w*0.48 : w*0.28;
+      ctx.beginPath(); ctx.moveTo(q[0] - nx*w*0.5, q[1] - ny*w*0.5); ctx.lineTo(q[0] - nx*(w*0.5 - h), q[1] - ny*(w*0.5 - h)); ctx.stroke();
+      if(k % 2 === 0 && L.pxcm >= 11) ctx.fillText(String(k/2), q[0] + nx*w*0.12, q[1] + ny*w*0.12);
+    }
+    if(p >= 1){
+      const mid = pt(0.5), n = rot(slerp(a, b, 0.5));
+      const ox = n[0], oy = -n[1], ol = Math.hypot(ox, oy) || 1;
+      const off = 0.9*L.pxcm + 18;
+      const bx = mid[0] + ox/ol*off, by = mid[1] + oy/ol*off;
+      const text = `${round1(lenCm).toFixed(1)} cm`;
+      ctx.font = FONT(16, 800);
+      const tw = ctx.measureText(text).width + 20;
+      ctx.fillStyle = 'rgba(35,42,53,0.92)';
+      roundRect(ctx, bx - tw/2, by - 15, tw, 30, 9); ctx.fill();
+      ctx.fillStyle = '#FFE58A'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, bx, by + 1);
+    }
+    return p < 1;
+  }
+
+  function drawPuffs(neck, dt){
+    if(Math.abs(Rtarget - R) > 0.05 && Rtarget > R && Math.random() < 0.6){
+      puffs.push({ s:0, off:(Math.random() - 0.5)*0.5 });
+    }
+    puffs.forEach(p => p.s += dt*1.8);
+    puffs = puffs.filter(p => p.s < 1);
+    ctx.fillStyle = 'rgba(160,190,255,0.55)';
+    puffs.forEach(p => {
+      const d = (1 - p.s)*5*L.pxcm;
+      const x = neck.tip[0] + neck.dx*d - neck.dy*p.off*L.pxcm, y = neck.tip[1] + neck.dy*d + neck.dx*p.off*L.pxcm;
+      ctx.beginPath(); ctx.arc(x, y, 2.2 + 2*(1 - p.s), 0, TAU); ctx.fill();
+    });
+    return puffs.length > 0;
+  }
+
+  function stateLabel(){
+    if(Math.abs(R - Rtarget) > 0.02) return Rtarget > R ? '바람을 넣는 중…' : '바람을 빼는 중…';
+    return state === 'big' ? '고무풍선을 크게 불었을 때' : '고무풍선을 약간 불었을 때';
+  }
+
+  function updateReadout(){
+    const box = $('balloonReadout');
+    if(meas){
+      const th = angleBetween(STICKERS[meas.a].v, STICKERS[meas.b].v);
+      const nm = `붙임 딱지 ${Math.min(meas.a, meas.b)+1}${Math.min(meas.a, meas.b) === 1 ? '와' : '과'} ${Math.max(meas.a, meas.b)+1} 사이의 거리`;
+      box.innerHTML = `<span>${stateLabel()} · 지름 ${Math.round(2*R)} cm</span><span>${nm}</span><span class="big">${round1(R*th).toFixed(1)} cm</span>`;
+    } else if(pick >= 0){
+      box.innerHTML = `<span>${stateLabel()}</span><span>붙임 딱지 ${pick+1}을(를) 골랐어요. 두 번째 붙임 딱지를 누르세요.</span>`;
+    } else {
+      box.innerHTML = `<span>${stateLabel()} · 지름 ${Math.round(2*R)} cm</span><span>줄자로 잴 두 붙임 딱지를 고르세요.</span>`;
+    }
+  }
+
+  function measure(a, b){
+    meas = { a, b, t0:performance.now() };
+    pick = -1;
+    document.querySelectorAll('[data-pair]').forEach(btn => {
+      const [x, y] = btn.dataset.pair.split(',').map(Number);
+      btn.classList.toggle('active', (x === Math.min(a, b) && y === Math.max(a, b)));
+    });
+    st.dirty = true;
+  }
+
+  let animating = false;
+  function frame(now, dt){
+    time += dt;
+    if(Math.abs(Rtarget - R) > 0.004){
+      R += (Rtarget - R)*Math.min(1, dt*2.6);
+      if(Math.abs(Rtarget - R) <= 0.004) R = Rtarget;
+      st.dirty = true;
+    }
+    if(!(st.dirty || animating) || !st.visible) return;
+    st.begin();
+    drawBackground();
+    const neckBack = rot(NECK)[2] <= -0.15;
+    let neck = null;
+    if(neckBack) neck = drawNeck();
+    drawBody();
+    if(!neckBack) neck = drawNeck();
+    DECO.forEach(d => drawSticker(d.v, d.col, null, STICKER_R*L.pxcm*0.8, false));
+    let anim = false;
+    if(meas) anim = drawTape(meas, now) || anim;
+    STICKERS.forEach((s, i) => drawSticker(s.v, s.col, s.n, STICKER_R*L.pxcm, i === pick || (meas && (i === meas.a || i === meas.b))));
+    drawHighlights();
+    anim = drawPuffs(neck, dt) || anim;
+    ctx.font = FONT(14, 800); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#3E3A63';
+    ctx.fillText(stateLabel(), 16, 14);
+    ctx.font = FONT(12, 700); ctx.fillStyle = '#626A78';
+    ctx.fillText(`풍선 지름 약 ${Math.round(2*R)} cm`, 16, 34);
+    animating = anim || Math.abs(Rtarget - R) > 0.004;
+    updateReadout();
+    st.dirty = false;
+  }
+
+  document.querySelectorAll('[data-balloon]').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-balloon]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state = btn.dataset.balloon;
+    Rtarget = state === 'big' ? R_BIG : R_SMALL;
+    st.dirty = true;
+  }));
+  document.querySelectorAll('[data-pair]').forEach(btn => btn.addEventListener('click', () => {
+    const [a, b] = btn.dataset.pair.split(',').map(Number);
+    measure(a, b);
+  }));
+  attachDrag($('balloonBox'), st, (dx, dy) => {
+    yaw = clamp(yaw + dx*0.008, -0.9, 0.9);
+    pitch = clamp(pitch + dy*0.008, -0.7, 0.7);
+    st.dirty = true;
+  }, ([x, y]) => {
+    let best = -1, bd = Infinity;
+    STICKERS.forEach((s, i) => {
+      const n = rot(s.v);
+      if(n[2] < 0.1) return;
+      const [px, py] = scr(n), d = Math.hypot(px - x, py - y);
+      if(d < bd){ bd = d; best = i; }
+    });
+    if(best < 0 || bd > STICKER_R*L.pxcm*2.2){ pick = -1; st.dirty = true; return; }
+    if(pick < 0 || pick === best){ pick = best; meas = null; document.querySelectorAll('[data-pair]').forEach(b => b.classList.remove('active')); }
+    else measure(pick, best);
+    st.dirty = true;
+  });
+
+  return { frame, EXPECTED };
+})();
+
+/* ==========================================================
+   3. 도플러 효과 3D 시뮬레이션
+   별은 일정한 주기(T)마다 빛의 마루(파면)를 내보내고, 각 파면은 내보낸 자리에서
+   빛의 속도(C)로 퍼져 나간다. 별이 움직이면 파면의 중심이 옮겨 가서 앞쪽은
+   간격이 좁아지고(파장 짧음) 뒤쪽은 넓어진다(파장 긺).
+=========================================================== */
+const DOPPLER = (function(){
+  const st = setupCanvas($('dopCv'), w => w < 600 ? 0.8 : 0.5, { minW:400 });
+  const sp = setupCanvas($('dopSpec'), w => w < 600 ? 0.5 : 0.2, { minW:400 });
+  const ctx = st.ctx;
+  const C = 3, T = 0.5, LAM_U = C*T, LAM0 = 570, EARTH_X = -9, EARTH_R = 0.9, MAX_AGE = 9;
+  const XC = -1.6, FOC = 24;
+
+  let beta = 0, playing = true, simT = 0, xs = 2, rings = [], lastEmit = -1e9, emitCount = 0;
+  let yaw = 0, pitch = 0.42, observed = LAM0, fadeIn = 1;
+  let S = 50, cx = 480, cy = 300;
+
+  st.onResize = () => { S = st.W/19.5; cx = st.W/2; cy = st.H*0.56; };
+  st.onResize();
+
+  // 지구 그림
+  const earthImg = (function(){
+    const s = 160, cv = document.createElement('canvas'); cv.width = cv.height = s;
+    const g = cv.getContext('2d'), r = s/2 - 4, rnd = mulberry32(2024);
+    g.save(); g.beginPath(); g.arc(s/2, s/2, r, 0, TAU); g.clip();
+    const sea = g.createRadialGradient(s*0.38, s*0.36, r*0.1, s/2, s/2, r);
+    sea.addColorStop(0, '#5FB2F0'); sea.addColorStop(0.6, '#1F6CC0'); sea.addColorStop(1, '#0B2F66');
+    g.fillStyle = sea; g.fillRect(0, 0, s, s);
+    const land = [[0.36,0.32,0.22],[0.55,0.42,0.18],[0.3,0.62,0.14],[0.62,0.68,0.16],[0.48,0.2,0.1]];
+    land.forEach(([x, y, q]) => {
+      for(let k=0; k<14; k++){
+        g.fillStyle = k % 3 ? 'rgba(76,150,72,0.85)' : 'rgba(170,150,90,0.8)';
+        g.beginPath(); g.arc(s*(x + (rnd() - 0.5)*q), s*(y + (rnd() - 0.5)*q), s*q*(0.18 + rnd()*0.22), 0, TAU); g.fill();
+      }
+    });
+    for(let k=0; k<10; k++){
+      g.fillStyle = 'rgba(255,255,255,0.55)';
+      g.beginPath(); g.ellipse(s*rnd(), s*rnd(), s*(0.08 + rnd()*0.12), s*0.025, rnd()*0.6 - 0.3, 0, TAU); g.fill();
+    }
+    const night = g.createRadialGradient(s*0.3, s*0.3, r*0.5, s*0.42, s*0.42, r*1.25);
+    night.addColorStop(0, 'rgba(0,0,0,0)'); night.addColorStop(1, 'rgba(0,0,20,0.75)');
+    g.fillStyle = night; g.fillRect(0, 0, s, s);
+    g.restore();
+    g.strokeStyle = 'rgba(140,200,255,0.6)'; g.lineWidth = 3;
+    g.beginPath(); g.arc(s/2, s/2, r, 0, TAU); g.stroke();
+    return cv;
+  })();
+
+  let bgStars = [];
+  (function(){ const rnd = mulberry32(77); for(let i=0; i<160; i++) bgStars.push([rnd(), rnd(), 0.2 + rnd()*0.6]); })();
+
+  function P(x, y, z){
+    const X = x - XC, cyw = Math.cos(yaw), syw = Math.sin(yaw), cp = Math.cos(pitch), spp = Math.sin(pitch);
+    const x1 = X*cyw - y*syw, y1 = X*syw + y*cyw;
+    const up = z*cp + y1*spp, depth = y1*cp - z*spp;
+    const k = FOC/(FOC + depth);
+    return [cx + x1*S*k, cy - up*S*k, k];
+  }
+
+  function startX(b){ return b > 0.005 ? -3.2 : (b < -0.005 ? 5.6 : 2); }
+  function restart(){ rings = []; simT = 0; lastEmit = -T; xs = startX(beta); fadeIn = 0; }
+
+  function step(dt){
+    simT += dt;
+    xs += beta*C*dt;
+    if((beta > 0 && xs > 6.6) || (beta < 0 && xs < -4.8)){ restart(); return; }
+    while(simT - lastEmit >= T){
+      lastEmit += T; emitCount++;
+      rings.push({ xe:xs - beta*C*(simT - lastEmit), te:lastEmit, b:beta, n:emitCount });
+    }
+    rings = rings.filter(r => simT - r.te < MAX_AGE);
+    fadeIn = Math.min(1, fadeIn + dt*2.5);
+  }
+
+  // 별 → 지구 방향(-x)의 빛: 각 파면이 x축과 만나는 점을 마루로 이어서 파동을 그린다
+  function axisAnchors(){
+    const list = [];
+    for(let i=rings.length - 1; i>=0; i--){
+      const r = rings[i];
+      list.push({ x:r.xe - C*(simT - r.te), ph:r.n });
+    }
+    const last = rings[rings.length - 1];
+    if(last) list.unshift({ x:xs, ph:last.n + (simT - last.te)/T });
+    return list;
+  }
+
+  function draw(){
+    st.begin();
+    const W = st.W, H = st.H;
+    ctx.fillStyle = '#04060E'; ctx.fillRect(0, 0, W, H);
+    bgStars.forEach(([x, y, a]) => { ctx.fillStyle = `rgba(210,220,255,${a})`; ctx.fillRect(x*W, y*H, 1.2, 1.2); });
+
+    // 바닥 격자
+    ctx.strokeStyle = 'rgba(110,130,200,0.12)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let x=-12; x<=9; x+=1.5){ const a = P(x, -6, -1.6), b = P(x, 6, -1.6); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
+    for(let y=-6; y<=6; y+=1.5){ const a = P(-12, y, -1.6), b = P(9, y, -1.6); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
+    ctx.stroke();
+
+    // 파면(고리): 방향마다 그쪽으로 나가는 빛의 파장에 맞는 색
+    const SEG = 72;
+    rings.forEach(r => {
+      const rad = C*(simT - r.te);
+      const fade = clamp(1 - rad/17, 0, 1)*fadeIn;
+      if(fade <= 0 || rad <= 0.02) return;
+      const c0 = P(r.xe, 0, 0);
+      ctx.strokeStyle = `rgba(200,210,255,${0.05*fade})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(c0[0], c0[1], rad*S*c0[2], 0, TAU); ctx.stroke();
+      let prev = P(r.xe + rad, 0, 0);
+      for(let j=1; j<=SEG; j++){
+        const a = j/SEG*TAU, am = (j - 0.5)/SEG*TAU;
+        const cur = P(r.xe + rad*Math.cos(a), rad*Math.sin(a), 0);
+        const lam = LAM0*(1 - r.b*Math.cos(am));
+        ctx.strokeStyle = rgba(nmToRGB(lam), 0.85*fade);
+        ctx.lineWidth = 2.2*cur[2];
+        ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(cur[0], cur[1]); ctx.stroke();
+        prev = cur;
+      }
+    });
+
+    // 지구
+    const e = P(EARTH_X, 0, 0), er = EARTH_R*S*e[2];
+    const glow = ctx.createRadialGradient(e[0], e[1], er*0.8, e[0], e[1], er*1.6);
+    glow.addColorStop(0, 'rgba(90,170,255,0.35)'); glow.addColorStop(1, 'rgba(90,170,255,0)');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(e[0], e[1], er*1.6, 0, TAU); ctx.fill();
+    ctx.drawImage(earthImg, e[0] - er*1.05, e[1] - er*1.05, er*2.1, er*2.1);
+
+    // 별 → 지구로 오는 빛의 파동
+    const anchors = axisAnchors();
+    const xEnd = EARTH_X + EARTH_R*0.9;
+    let obs = null;
+    if(anchors.length > 1){
+      ctx.save();
+      ctx.lineWidth = 3; ctx.lineCap = 'round';
+      for(let i=0; i<anchors.length - 1; i++){
+        const A = anchors[i], B = anchors[i+1];
+        if(A.x <= xEnd) break;
+        const lamU = A.x - B.x;
+        // 맨 앞 조각(별 ~ 가장 최근 파면)은 지금 내보내는 빛의 파장으로 칠한다
+        const lamNm = i === 0 ? LAM0*(1 + beta) : LAM0*lamU/LAM_U;
+        const col = nmToRGB(lamNm);
+        if(B.x <= xEnd && A.x > xEnd && i > 0) obs = lamNm;
+        ctx.strokeStyle = rgba(col, fadeIn);
+        ctx.shadowColor = rgba(col, 0.9); ctx.shadowBlur = 10;
+        ctx.beginPath();
+        const xb = Math.max(B.x, xEnd), n = Math.max(2, Math.ceil((A.x - xb)/0.06));
+        for(let k=0; k<=n; k++){
+          const x = A.x - (A.x - xb)*k/n, ph = A.ph + (B.ph - A.ph)*(A.x - x)/(A.x - B.x);
+          const q = P(x, 0, 0.55*Math.cos(TAU*ph));
+          k ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    if(obs != null) observed = obs;
+
+    // 별
+    const s = P(xs, 0, 0), sr = 0.42*S*s[2];
+    const sg = ctx.createRadialGradient(s[0], s[1], 0, s[0], s[1], sr*3.2);
+    sg.addColorStop(0, `rgba(255,255,255,${fadeIn})`); sg.addColorStop(0.25, `rgba(255,236,150,${fadeIn})`);
+    sg.addColorStop(0.5, `rgba(255,200,80,${0.45*fadeIn})`); sg.addColorStop(1, 'rgba(255,170,40,0)');
+    ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(s[0], s[1], sr*3.2, 0, TAU); ctx.fill();
+    if(Math.abs(beta) > 0.005){
+      const dir = Math.sign(beta), len = 0.6 + Math.abs(beta)*6;
+      const a0 = P(xs + dir*0.7, 0, 0), a1 = P(xs + dir*(0.7 + len), 0, 0);
+      ctx.strokeStyle = `rgba(255,255,255,${0.9*fadeIn})`; ctx.fillStyle = ctx.strokeStyle; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(a0[0], a0[1]); ctx.lineTo(a1[0] - dir*8, a1[1]); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(a1[0] + dir*4, a1[1]); ctx.lineTo(a1[0] - dir*10, a1[1] - 9); ctx.lineTo(a1[0] - dir*10, a1[1] + 9); ctx.closePath(); ctx.fill();
+    }
+
+    ctx.font = FONT(13, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    outlinedText(ctx, '지구(관측자)', e[0], e[1] + er + 16, '#CFE6FF');
+    outlinedText(ctx, '별', s[0], s[1] - sr*3 - 4, '#FFE7A0');
+
+    const title = beta > 0.005 ? '별이 지구와 멀어질 때' : (beta < -0.005 ? '별이 지구와 가까워질 때' : '별이 정지해 있을 때');
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.font = FONT(15, 800); outlinedText(ctx, title, 14, 12, '#FFFFFF');
+    ctx.font = FONT(12, 700);
+    outlinedText(ctx, Math.abs(beta) > 0.005 ? `별의 속도: 빛의 속도의 ${Math.round(Math.abs(beta)*100)}%` : '별의 속도: 0', 14, 34, '#C9D3F0');
+    outlinedText(ctx, `지구에 도착한 빛의 파장: ${Math.round(observed)} nm`, 14, 52, rgba(nmToRGB(observed)));
+  }
+
+  function drawSpec(){
+    sp.begin();
+    const c2 = sp.ctx, W = sp.W, H = sp.H;
+    c2.fillStyle = '#0B0E1A'; c2.fillRect(0, 0, W, H);
+    const x = 16, w = W - 32, bh = Math.min(28, H*0.17);
+    const y1 = H*0.18, y2 = H*0.58;
+    const shift = observed - LAM0;
+    c2.font = FONT(12.5, 800); c2.textBaseline = 'bottom'; c2.textAlign = 'left';
+    c2.fillStyle = '#C9D3F0'; c2.fillText('별이 정지해 있을 때의 스펙트럼 (기준)', x, y1 - 5);
+    drawSpectrum(c2, x, y1, w, bh, { min:400, max:720, line:LAM0 });
+    c2.fillStyle = '#C9D3F0'; c2.fillText('지구에서 관측한 스펙트럼', x, y2 - 5);
+    c2.textAlign = 'right';
+    const kind = shift > 2 ? ['적색 편이 ▶', '#FF8A7A'] : (shift < -2 ? ['◀ 청색 편이', '#7FB2FF'] : ['편이 없음', '#C9D3F0']);
+    c2.fillStyle = kind[1]; c2.font = FONT(13.5, 800); c2.fillText(`${kind[0]}  (${LAM0} nm → ${Math.round(observed)} nm)`, x + w, y2 - 5);
+    drawSpectrum(c2, x, y2, w, bh, { min:400, max:720, line:observed, ref:LAM0 });
+    c2.font = FONT(10.5, 700); c2.fillStyle = '#8A93A8'; c2.textAlign = 'center'; c2.textBaseline = 'top';
+    [400, 450, 500, 550, 600, 650, 700].forEach(nm => c2.fillText(`${nm}`, x + (nm - 400)/320*w, y2 + bh + 4));
+    c2.textAlign = 'right'; c2.fillText('파장(nm)', x + w, y2 + bh + 18);
+  }
+
+  let lastObs = -1;
+  function frame(now, dt){
+    if(playing) step(dt);
+    if(st.visible && (playing || st.dirty)){ draw(); st.dirty = false; }
+    if(Math.abs(observed - lastObs) > 0.2 || sp.dirty){ drawSpec(); lastObs = observed; sp.dirty = false; }
+  }
+
+  function setBeta(b, fromPreset){
+    const signChanged = Math.sign(b) !== Math.sign(beta);
+    beta = b;
+    $('dopSpeed').value = Math.round(b*100);
+    document.querySelectorAll('.dop-preset').forEach(btn => btn.classList.toggle('active', Math.abs(Number(btn.dataset.beta) - b) < 0.001));
+    if(fromPreset || (signChanged && b !== 0)) restart();
+    st.dirty = true;
+  }
+  document.querySelectorAll('.dop-preset').forEach(btn => btn.addEventListener('click', () => setBeta(Number(btn.dataset.beta), true)));
+  $('dopSpeed').addEventListener('input', e => setBeta(Number(e.target.value)/100, false));
+  $('dopPlay').addEventListener('click', () => {
+    playing = !playing;
+    $('dopPlay').textContent = playing ? '⏸ 일시정지' : '▶ 재생';
+  });
+  attachDrag($('dopBox'), st, (dx, dy) => {
+    yaw = clamp(yaw + dx*0.006, -0.9, 0.9);
+    pitch = clamp(pitch + dy*0.006, 0.02, 1.25);
+    st.dirty = true;
+  });
+  restart(); fadeIn = 1;
+  return { frame };
+})();
+
+/* ==========================================================
+   4. 풍선 우주 + 거리–후퇴 속도 그래프 (연동)
+   은하는 풍선 표면 위에 고정된 자리(방향)를 가지고, 우주의 크기 a(t)만 커진다.
+   관측자 은하에서 표면을 따라 잰 거리 d = a × (중심각) × K 이므로
+   후퇴 속도 v = (a의 증가율 / a) × d = H × d — 허블 법칙이 저절로 나온다.
+=========================================================== */
+const UNIVERSE = (function(){
+  const st = setupCanvas($('uniCv'), () => 0.92, { minW:380, maxW:620 });
+  const hb = setupCanvas($('hubCv'), () => 0.92, { minW:380, maxW:620 });
+  const gs = setupCanvas($('galSpec'), w => w < 600 ? 0.3 : 0.17, { minW:320, maxW:720 });
+  const ctx = st.ctx, hctx = hb.ctx;
+  const H0 = 70, C_KMS = 300000, A_END = 2, K = 1500/(A_END*Math.PI), LAM_REST = 500;
+  const H_PER_GYR = H0/977.8;                      // 70 km/s/Mpc ≈ 0.0716 /10억 년
+  const PLAY_SEC = 16;                             // 크기가 2배가 되는 데 걸리는 화면 시간(초)
+  const X_MAX = 1500, V_MAX = 110000;
+
+  const rnd = mulberry32(31415), gauss = makeGauss(rnd);
+  const norm = v => { const l = Math.hypot(v[0], v[1], v[2]); return [v[0]/l, v[1]/l, v[2]/l]; };
+  const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  const GAL = [];
+  GAL.push({ u:norm([0.12, 0.22, 0.97]), spr:0, rot:0.4, size:30, pec:0 });
+  while(GAL.length < 44){
+    const u = norm([gauss(), gauss(), gauss()]);
+    if(GAL.some(g => Math.acos(clamp(dot(g.u, u), -1, 1)) < 0.3)) continue;
+    GAL.push({ u, spr:Math.floor(rnd()*GAL_SPRITES.length), rot:rnd()*TAU, size:22 + rnd()*10, pec:gauss()*700 });
+  }
+
+  let a = 1, playing = false, obs = 0, sel = -1;
+  // 처음에는 관측자에게서 적당히 떨어진 은하 하나를 골라 둔다
+  (function(){
+    let best = -1, bd = Infinity;
+    GAL.forEach((g, i) => { if(i === 0) return; const d = Math.abs(Math.acos(clamp(dot(g.u, GAL[0].u), -1, 1)) - 0.85); if(d < bd){ bd = d; best = i; } });
+    sel = best;
+  })();
+  let yaw = 0, pitch = 0, target = null;
+  let showArrows = true, showColors = true, trail = [];
+
+  function faceObserver(i){
+    const u = GAL[i].u;
+    const ty = Math.atan2(-u[0], u[2]), z1 = Math.hypot(u[0], u[2]);
+    target = { yaw:ty, pitch:Math.atan2(u[1], z1) };
+  }
+  // 처음에는 관측자 은하가 정면에 보이도록
+  (function(){ faceObserver(0); yaw = target.yaw; pitch = target.pitch; target = null; })();
+
+  function rot(v){
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const x1 = v[0]*cy + v[2]*sy, z1 = -v[0]*sy + v[2]*cy;
+    return [x1, v[1]*cp - z1*sp, v[1]*sp + z1*cp];
+  }
+  const theta = i => Math.acos(clamp(dot(GAL[i].u, GAL[obs].u), -1, 1));
+  const distMpc = i => a*theta(i)*K;
+  const velKms = i => i === obs ? 0 : H0*distMpc(i) + GAL[i].pec;
+  const obsNm = i => LAM_REST*(1 + velKms(i)/C_KMS);
+  const gyr = () => Math.log(a)/H_PER_GYR;
+
+  let bg = null;
+  st.onResize = () => {
+    bg = document.createElement('canvas');
+    bg.width = Math.round(st.W); bg.height = Math.round(st.H);
+    const g = bg.getContext('2d'), r2 = mulberry32(99);
+    g.fillStyle = '#04050C'; g.fillRect(0, 0, bg.width, bg.height);
+    for(let i=0; i<Math.round(st.W*st.H/1400); i++){
+      g.fillStyle = `rgba(210,220,255,${0.15 + r2()*0.55})`;
+      g.fillRect(r2()*bg.width, r2()*bg.height, 1.1, 1.1);
+    }
+  };
+  st.onResize();
+
+  function sphereR(){ return Math.min(st.W, st.H)*0.215*a; }
+  function scr(n, R){ return [st.W/2 + n[0]*R, st.H/2 + 12 - n[1]*R]; }
+
+  function slerp(p, q, t){
+    const th = Math.acos(clamp(dot(p, q), -1, 1)), s = Math.sin(th);
+    if(s < 1e-6) return p.slice();
+    const wa = Math.sin((1-t)*th)/s, wb = Math.sin(t*th)/s;
+    return [p[0]*wa + q[0]*wb, p[1]*wa + q[1]*wb, p[2]*wa + q[2]*wb];
+  }
+
+  function drawUniverse(){
+    st.begin();
+    ctx.drawImage(bg, 0, 0, st.W, st.H);
+    const R = sphereR(), cx = st.W/2, cy = st.H/2 + 12;
+
+    // 위도·경도 격자 (풍선의 고무막)
+    const front = new Path2D(), back = new Path2D();
+    const addLine = pts => {
+      for(let i=1; i<pts.length; i++){
+        const p0 = rot(pts[i-1]), p1 = rot(pts[i]);
+        const path = (p0[2] + p1[2]) > 0 ? front : back;
+        const s0 = scr(p0, R), s1 = scr(p1, R);
+        path.moveTo(s0[0], s0[1]); path.lineTo(s1[0], s1[1]);
+      }
+    };
+    for(let la=-60; la<=60; la+=30){
+      const pts = []; const r = Math.cos(la*Math.PI/180), y = Math.sin(la*Math.PI/180);
+      for(let k=0; k<=64; k++){ const t = k/64*TAU; pts.push([r*Math.sin(t), y, r*Math.cos(t)]); }
+      addLine(pts);
+    }
+    for(let lo=0; lo<180; lo+=30){
+      const pts = []; const t0 = lo*Math.PI/180;
+      for(let k=0; k<=64; k++){ const t = k/64*TAU; pts.push([Math.cos(t)*Math.sin(t0), Math.sin(t), Math.cos(t)*Math.cos(t0)]); }
+      addLine(pts);
+    }
+    ctx.strokeStyle = 'rgba(160,150,255,0.07)'; ctx.lineWidth = 1; ctx.stroke(back);
+
+    const drawGal = (i, n, alpha) => {
+      const g = GAL[i], [x, y] = scr(n, R), s = g.size*(0.55 + 0.45*Math.max(0, n[2]));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(x, y); ctx.rotate(g.rot);
+      ctx.drawImage(GAL_SPRITES[g.spr], -s/2, -s/2, s, s);
+      ctx.restore();
+      return [x, y, s];
+    };
+    const proj = GAL.map(g => rot(g.u));
+    proj.forEach((n, i) => { if(n[2] <= 0) drawGal(i, n, 0.22); });
+
+    // 풍선 막
+    const shell = ctx.createRadialGradient(cx - R*0.32, cy - R*0.36, R*0.05, cx, cy, R);
+    shell.addColorStop(0, 'rgba(150,120,230,0.16)');
+    shell.addColorStop(0.75, 'rgba(70,45,140,0.16)');
+    shell.addColorStop(1, 'rgba(160,130,255,0.34)');
+    ctx.fillStyle = shell; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(190,170,255,0.55)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = 'rgba(170,160,255,0.22)'; ctx.lineWidth = 1; ctx.stroke(front);
+
+    // 관측자 → 선택한 은하: 풍선 표면을 따라 잰 거리
+    if(sel >= 0 && sel !== obs){
+      ctx.save();
+      ctx.setLineDash([6, 5]); ctx.strokeStyle = 'rgba(255,215,106,0.9)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      let pen = false;
+      for(let k=0; k<=60; k++){
+        const n = rot(slerp(GAL[obs].u, GAL[sel].u, k/60)), p = scr(n, R + 1);
+        if(n[2] < 0){ pen = false; continue; }
+        pen ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); pen = true;
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const placed = [];
+    proj.forEach((n, i) => { if(n[2] > 0) placed[i] = drawGal(i, n, 1); });
+
+    // 후퇴 속도 화살표 / 적색 편이 색
+    const uo = GAL[obs].u;
+    proj.forEach((n, i) => {
+      if(n[2] <= 0.05 || i === obs) return;
+      const [x, y, s] = placed[i], col = nmToRGB(obsNm(i));
+      if(showArrows){
+        const ui = GAL[i].u, c = dot(ui, uo);
+        let t = [ui[0]*c - uo[0], ui[1]*c - uo[1], ui[2]*c - uo[2]];
+        const tl = Math.hypot(t[0], t[1], t[2]);
+        if(tl > 1e-4){
+          t = rot([t[0]/tl, t[1]/tl, t[2]/tl]);
+          let dx = t[0], dy = -t[1]; const dl = Math.hypot(dx, dy);
+          if(dl > 0.15){
+            dx /= dl; dy /= dl;
+            const len = (8 + 34*velKms(i)/100000)*dl;
+            const x0 = x + dx*s*0.45, y0 = y + dy*s*0.45, x1 = x0 + dx*len, y1 = y0 + dy*len;
+            ctx.strokeStyle = rgba(col, 0.95); ctx.fillStyle = rgba(col, 0.95); ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x1 + dx*4, y1 + dy*4); ctx.lineTo(x1 - dx*4 - dy*4, y1 - dy*4 + dx*4); ctx.lineTo(x1 - dx*4 + dy*4, y1 - dy*4 - dx*4); ctx.closePath(); ctx.fill();
+          }
+        }
+      }
+      if(showColors){
+        ctx.fillStyle = rgba(col); ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x + s*0.42, y - s*0.42, 3.4, 0, TAU); ctx.fill(); ctx.stroke();
+      }
+    });
+
+    ctx.font = FONT(12.5, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const ring = (i, color, label) => {
+      const n = proj[i];
+      if(n[2] <= 0) return;
+      const [x, y, s] = placed[i];
+      ctx.strokeStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(x, y, s*0.62 + 3, 0, TAU); ctx.stroke();
+      outlinedText(ctx, label, x, y + s*0.62 + 14, color);
+    };
+    ring(obs, '#FFFFFF', obs === 0 ? '관측자(우리은하)' : '관측자');
+    if(sel >= 0 && sel !== obs) ring(sel, '#FFD76A', '선택한 은하');
+
+    $('uniHud').innerHTML = `풍선 우주<span>우주의 크기 ${a.toFixed(2)}배 · 경과 시간 ${Math.round(gyr()*10)}억 년</span>`;
+  }
+
+  const G = { l:64, r:18, t:34, b:48 };
+  const gx = d => G.l + d/X_MAX*(hb.W - G.l - G.r);
+  const gy = v => hb.H - G.b - v/V_MAX*(hb.H - G.t - G.b);
+
+  function drawHubble(){
+    hb.begin();
+    const W = hb.W, H = hb.H;
+    hctx.fillStyle = '#070912'; hctx.fillRect(0, 0, W, H);
+    hctx.font = FONT(12.5, 800); hctx.textAlign = 'left'; hctx.textBaseline = 'top';
+    hctx.fillStyle = '#C9D3F0'; hctx.fillText('은하의 거리와 후퇴 속도', 12, 10);
+    // 격자·축
+    hctx.strokeStyle = 'rgba(255,255,255,0.06)'; hctx.lineWidth = 1;
+    hctx.font = FONT(10.5, 700); hctx.fillStyle = '#8A93A8';
+    for(let d=0; d<=X_MAX; d+=300){
+      hctx.beginPath(); hctx.moveTo(gx(d), gy(0)); hctx.lineTo(gx(d), gy(V_MAX)); hctx.stroke();
+      hctx.textAlign = 'center'; hctx.textBaseline = 'top'; hctx.fillText(String(d), gx(d), gy(0) + 6);
+    }
+    for(let v=0; v<=100000; v+=20000){
+      hctx.beginPath(); hctx.moveTo(gx(0), gy(v)); hctx.lineTo(gx(X_MAX), gy(v)); hctx.stroke();
+      hctx.textAlign = 'right'; hctx.textBaseline = 'middle'; hctx.fillText(String(v), gx(0) - 6, gy(v));
+    }
+    hctx.strokeStyle = '#9AA3B8'; hctx.lineWidth = 1.5;
+    hctx.beginPath(); hctx.moveTo(gx(0), gy(V_MAX)); hctx.lineTo(gx(0), gy(0)); hctx.lineTo(gx(X_MAX), gy(0)); hctx.stroke();
+    hctx.fillStyle = '#C9D3F0'; hctx.font = FONT(11.5, 800);
+    hctx.textAlign = 'right'; hctx.textBaseline = 'top'; hctx.fillText('거리(Mpc)', gx(X_MAX), gy(0) + 22);
+    hctx.save(); hctx.translate(14, gy(V_MAX/2)); hctx.rotate(-Math.PI/2);
+    hctx.textAlign = 'center'; hctx.textBaseline = 'middle'; hctx.fillText('후퇴 속도(km/s)', 0, 0); hctx.restore();
+
+    // 원점을 지나는 직선으로 맞춘 기울기 = 허블 상수
+    let sdv = 0, sdd = 0;
+    GAL.forEach((g, i) => { if(i === obs) return; const d = distMpc(i); sdv += d*velKms(i); sdd += d*d; });
+    const slope = sdv/sdd;
+    hctx.save();
+    hctx.beginPath(); hctx.rect(gx(0), gy(V_MAX), gx(X_MAX) - gx(0), gy(0) - gy(V_MAX)); hctx.clip();
+    hctx.strokeStyle = 'rgba(127,178,255,0.75)'; hctx.lineWidth = 2;
+    hctx.beginPath(); hctx.moveTo(gx(0), gy(0)); hctx.lineTo(gx(X_MAX), gy(slope*X_MAX)); hctx.stroke();
+
+    if(sel >= 0 && sel !== obs && trail.length > 1){
+      hctx.strokeStyle = 'rgba(255,215,106,0.55)'; hctx.lineWidth = 2;
+      hctx.beginPath(); trail.forEach(([d, v], k) => k ? hctx.lineTo(gx(d), gy(v)) : hctx.moveTo(gx(d), gy(v))); hctx.stroke();
+    }
+    GAL.forEach((g, i) => {
+      if(i === obs) return;
+      const x = gx(distMpc(i)), y = gy(velKms(i));
+      hctx.fillStyle = rgba(nmToRGB(obsNm(i))); hctx.strokeStyle = 'rgba(0,0,0,0.75)'; hctx.lineWidth = 1;
+      hctx.beginPath(); hctx.arc(x, y, i === sel ? 6.5 : 4.2, 0, TAU); hctx.fill(); hctx.stroke();
+      if(i === sel){ hctx.strokeStyle = '#FFD76A'; hctx.lineWidth = 2.2; hctx.beginPath(); hctx.arc(x, y, 10, 0, TAU); hctx.stroke(); }
+    });
+    hctx.restore();
+    hctx.fillStyle = '#FFFFFF'; hctx.beginPath(); hctx.arc(gx(0), gy(0), 5, 0, TAU); hctx.fill();
+    hctx.font = FONT(11, 800); hctx.textAlign = 'left'; hctx.textBaseline = 'bottom';
+    outlinedText(hctx, '관측자', gx(0) + 7, gy(0) - 4, '#FFFFFF');
+    hctx.font = FONT(12, 800); hctx.textAlign = 'left'; hctx.textBaseline = 'top';
+    outlinedText(hctx, `기울기(허블 상수) ≈ ${Math.round(slope)} km/s/Mpc`, gx(0) + 10, G.t + 6, '#9CC2FF');
+  }
+
+  function drawInfo(){
+    gs.begin();
+    const c = gs.ctx, W = gs.W, H = gs.H;
+    c.fillStyle = '#0B0E1A'; c.fillRect(0, 0, W, H);
+    const has = sel >= 0 && sel !== obs, nm = has ? obsNm(sel) : null;
+    c.font = FONT(12, 800); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillStyle = '#C9D3F0';
+    c.fillText(has ? '선택한 은하의 스펙트럼 (점선: 원래 흡수선 500 nm)' : '선택한 은하의 스펙트럼', 12, 8);
+    const by = H*0.38, bh = Math.min(26, H*0.3);
+    drawSpectrum(c, 12, by, W - 24, bh, { min:400, max:720, line:nm, ref:LAM_REST });
+    c.font = FONT(10, 700); c.fillStyle = '#8A93A8'; c.textAlign = 'center';
+    [400, 500, 600, 700].forEach(n => c.fillText(String(n), 12 + (n - 400)/320*(W - 24), by + bh + 4));
+
+    const box = $('galStats');
+    if(has){
+      const d = distMpc(sel), v = velKms(sel);
+      box.innerHTML = `<b>선택한 은하</b><br>관측자로부터의 거리: <span class="v">${Math.round(d).toLocaleString()} Mpc</span> (약 ${Math.round(d*3.26/100)}억 광년)<br>`
+        + `후퇴 속도: <span class="v">${Math.round(v).toLocaleString()} km/s</span><br>`
+        + `흡수선: 500 nm → <span class="v">${Math.round(nm)} nm</span> (${v > 0 ? '적색 편이' : '청색 편이'})`;
+    } else {
+      box.innerHTML = '<b>은하를 선택해 보세요</b><br>풍선 우주나 그래프에서 은하를 누르면 거리·후퇴 속도·스펙트럼이 나타납니다.';
+    }
+  }
+
+  function setPlaying(on){
+    playing = on && a < A_END;
+    $('uniPlay').textContent = playing ? '⏸ 일시정지' : (a >= A_END ? '▶ 다시 팽창' : '▶ 팽창 시작');
+  }
+  function reset(){ a = 1; trail = []; setPlaying(false); st.dirty = hb.dirty = gs.dirty = true; }
+
+  function frame(now, dt){
+    if(playing){
+      a = Math.min(A_END, a*Math.exp(Math.LN2/PLAY_SEC*dt));
+      if(sel >= 0 && sel !== obs){ trail.push([distMpc(sel), velKms(sel)]); if(trail.length > 600) trail.shift(); }
+      if(a >= A_END) setPlaying(false);
+      st.dirty = hb.dirty = gs.dirty = true;
+    }
+    if(target){
+      const k = Math.min(1, dt*5);
+      let dy = target.yaw - yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+      yaw += dy*k; pitch += (target.pitch - pitch)*k;
+      if(Math.abs(dy) < 0.002 && Math.abs(target.pitch - pitch) < 0.002) target = null;
+      st.dirty = true;
+    }
+    if(st.dirty && st.visible){ drawUniverse(); st.dirty = false; }
+    if(hb.dirty && hb.visible){ drawHubble(); hb.dirty = false; }
+    if(gs.dirty){ drawInfo(); gs.dirty = false; }
+  }
+
+  function select(i){
+    sel = i; trail = [];
+    st.dirty = hb.dirty = gs.dirty = true;
+  }
+
+  $('uniPlay').addEventListener('click', () => { if(a >= A_END) reset(); setPlaying(!playing); });
+  $('uniReset').addEventListener('click', reset);
+  $('uniObserve').addEventListener('click', () => {
+    if(sel < 0 || sel === obs){ $('galStats').innerHTML = '<b>먼저 은하를 하나 선택하세요</b><br>선택한 은하가 새 관측자가 됩니다.'; return; }
+    const old = obs;
+    obs = sel; sel = old; trail = [];
+    faceObserver(obs);
+    st.dirty = hb.dirty = gs.dirty = true;
+  });
+  $('uniArrows').addEventListener('change', e => { showArrows = e.target.checked; st.dirty = true; });
+  $('uniColors').addEventListener('change', e => { showColors = e.target.checked; st.dirty = true; });
+  attachDrag($('uniBox'), st, (dx, dy) => {
+    target = null;
+    yaw += dx*0.008; pitch = clamp(pitch + dy*0.008, -1.4, 1.4);
+    st.dirty = true;
+  }, ([x, y]) => {
+    const R = sphereR();
+    let best = -1, bd = Infinity;
+    GAL.forEach((g, i) => {
+      const n = rot(g.u); if(n[2] <= 0) return;
+      const p = scr(n, R), d = Math.hypot(p[0] - x, p[1] - y);
+      if(d < bd){ bd = d; best = i; }
+    });
+    if(best >= 0 && bd < 22 && best !== obs) select(best);
+  });
+  $('hubBox').addEventListener('click', e => {
+    const [x, y] = hb.toLocal(e);
+    let best = -1, bd = Infinity;
+    GAL.forEach((g, i) => {
+      if(i === obs) return;
+      const d = Math.hypot(gx(distMpc(i)) - x, gy(velKms(i)) - y);
+      if(d < bd){ bd = d; best = i; }
+    });
+    if(best >= 0 && bd < 16) select(best);
+  });
+  return { frame };
+})();
+
+/* ==========================================================
+   애니메이션 루프
+=========================================================== */
+(function(){
+  let last = 0;
+  function loop(ts){
+    const dt = last ? Math.min(0.05, (ts - last)/1000) : 0;
+    last = ts;
+    BALLOON.frame(ts, dt);
+    DOPPLER.frame(ts, dt);
+    UNIVERSE.frame(ts, dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ==========================================================
+   선택지 버튼 공용 / 채점
+=========================================================== */
+document.querySelectorAll('.choice-group').forEach(group => {
+  group.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('picked'));
+      btn.classList.add('picked');
+    });
+  });
+});
+function pickedValue(id){
+  const picked = $(id).querySelector('.choice-btn.picked');
+  return picked ? picked.dataset.value : '';
+}
+function setFeedback(id, ok, correctText){
+  const el = $(id);
+  el.textContent = ok ? '✅ 정답이에요!' : `❌ 다시 확인해 보세요. (정답: ${correctText})`;
+  el.className = 'q-feedback ' + (ok ? 'ok' : 'bad');
+}
+
+const TABLE_CELLS = [];
+['small', 'big'].forEach(s => ['12', '13', '23'].forEach(p => TABLE_CELLS.push({ id:`t_${s}_${p}`, s, p })));
+function tableResult(){
+  let filled = 0, ok = 0;
+  TABLE_CELLS.forEach(c => {
+    const el = $(c.id), raw = el.value.trim();
+    el.classList.remove('ok', 'bad');
+    if(raw === '') return;
+    filled++;
+    const good = Math.abs(Number(raw) - BALLOON.EXPECTED[c.s][c.p]) <= 0.15;
+    if(good) ok++;
+    el.classList.add(good ? 'ok' : 'bad');
+  });
+  return { filled, ok, all:TABLE_CELLS.length };
+}
+$('checkTable').addEventListener('click', () => {
+  const r = tableResult(), el = $('tableFeedback');
+  if(r.filled < r.all){ el.textContent = `아직 비어 있는 칸이 ${r.all - r.filled}개 있어요. 풍선에서 줄자로 재어 채워 보세요.`; el.className = 'q-feedback bad'; return; }
+  el.textContent = r.ok === r.all ? '✅ 모두 정확하게 측정했어요! 크게 불었을 때 모든 거리가 같은 비율로 늘어났는지도 확인해 보세요.'
+                                  : `❌ ${r.all - r.ok}칸의 값이 측정값과 달라요. 빨간 칸을 다시 재어 보세요.`;
+  el.className = 'q-feedback ' + (r.ok === r.all ? 'ok' : 'bad');
+});
+
+const ANSWERS = {
+  qB1:'멀어진다', qB2:'더 많이', qB3:'없다',
+  qD1:'길어진다', qD2:'붉은색', qD3:'적색 편이',
+  qH1:'적색 편이', qH2:'빠르다', qH3:'원점을 지나는 직선',
+  qS1:'대폭발', qS2:'대폭발 우주론', qS3:'은하'
+};
+const getAnswer = id => id.startsWith('qS') ? $(id).value : pickedValue(id);
+function checkGroup(ids, fb){
+  const ok = ids.every(id => getAnswer(id) === ANSWERS[id]);
+  setFeedback(fb, ok, ids.map(id => ANSWERS[id]).join(' / '));
+}
+$('checkB').addEventListener('click', () => checkGroup(['qB1','qB2','qB3'], 'bFeedback'));
+$('checkD').addEventListener('click', () => checkGroup(['qD1','qD2','qD3'], 'dFeedback'));
+$('checkH').addEventListener('click', () => checkGroup(['qH1','qH2','qH3'], 'hFeedback'));
+$('checkS').addEventListener('click', () => checkGroup(['qS1','qS2','qS3'], 'sFeedback'));
+
+/* ==========================================================
+   제출
+=========================================================== */
+const submitBtn = $('ws-submit'), wsResult = $('ws-result'), wsStatus = $('ws-status');
+submitBtn.addEventListener('click', async () => {
+  const name = $('ws-name').value.trim(), classNum = $('ws-class').value.trim(), number = $('ws-number').value.trim();
+  if(!classNum || !number || !name){ alert('반, 번호, 이름을 모두 입력해 주세요.'); return; }
+
+  const table = tableResult();
+  if(table.filled < table.all){ alert('2번 가상 실험의 표(붙임 딱지 사이의 거리)를 모두 채워 주세요.'); return; }
+  const ids = Object.keys(ANSWERS), picked = {};
+  ids.forEach(id => picked[id] = getAnswer(id));
+  if(ids.some(id => !picked[id])){ alert('아직 선택하지 않은 문항이 있어요. 모든 문항을 채워 주세요.'); return; }
+  const essay = $('essayAnswer').value.trim();
+  if(!essay){ alert('6번 창의적 사고력 서술형 질문에 답을 작성해 주세요.'); return; }
+
+  const tableOk = table.ok === table.all;
+  const correct = ids.filter(id => picked[id] === ANSWERS[id]).length + (tableOk ? 1 : 0);
+  const total = ids.length + 1;
+  wsResult.textContent = `${correct} / ${total} 개 정답`;
+  wsResult.className = 'ws-result ' + (correct === total ? 'ok' : '');
+  submitBtn.disabled = true;
+  wsStatus.textContent = '제출 중...';
+
+  // Code.gs 동적 저장: form 값이 시트(탭) 이름, 나머지 키가 열 제목이 됩니다.
+  const v = id => $(id).value.trim();
+  const payload = {
+    form:'팽창우주_답안',
+    submittedAt:new Date().toISOString(),
+    stuClass:classNum, stuNumber:number, name,
+    '점수':`${correct}/${total}`,
+    '실험표':tableOk ? '정확' : '오류 있음',
+    '약간-1·2':v('t_small_12'), '약간-1·3':v('t_small_13'), '약간-2·3':v('t_small_23'),
+    '크게-1·2':v('t_big_12'), '크게-1·3':v('t_big_13'), '크게-2·3':v('t_big_23'),
+    '풍선-1':picked.qB1, '풍선-2':picked.qB2, '풍선-3':picked.qB3,
+    '도플러-1':picked.qD1, '도플러-2':picked.qD2, '도플러-3':picked.qD3,
+    '허블-1':picked.qH1, '허블-2':picked.qH2, '허블-3':picked.qH3,
+    '점검-1':picked.qS1, '점검-2':picked.qS2, '점검-3':picked.qS3,
+    '창의적사고-서술':essay
+  };
+
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body:JSON.stringify(payload)
+    });
+    wsStatus.textContent = '채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.';
+  }catch(err){
+    console.error('스프레드시트 전송 오류:', err);
+    wsStatus.textContent = '채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.';
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>

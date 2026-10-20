@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배움활동 · 별의 색과 온도, 우리 은하 속 태양계의 위치</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#141B34;
+    --night-deep:#0C1224;
+    --star:#E8C468;
+    --star-soft:#F3DFA0;
+    --paper:#FAF8F3;
+    --paper-line:#E4DFD2;
+    --ink:#1F2430;
+    --ink-soft:#5B6172;
+    --ok:#3F7D5C;
+    --warn:#B0522F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.6;
+  }
+  header.hero{
+    background:radial-gradient(ellipse at 20% -10%, #26325C 0%, var(--night) 45%, var(--night-deep) 100%);
+    color:var(--paper);
+    padding:48px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, var(--star-soft) 99%, transparent),
+      radial-gradient(1.5px 1.5px at 80% 15%, var(--star-soft) 99%, transparent),
+      radial-gradient(1px 1px at 60% 55%, #fff 99%, transparent),
+      radial-gradient(1.5px 1.5px at 92% 70%, var(--star-soft) 99%, transparent),
+      radial-gradient(1px 1px at 35% 80%, #fff 99%, transparent),
+      radial-gradient(1px 1px at 15% 65%, #fff 99%, transparent);
+    opacity:.8;
+  }
+  .hero-inner{ max-width:760px; margin:0 auto; position:relative; }
+  .eyebrow{
+    font-size:13px; letter-spacing:.14em; color:var(--star);
+    text-transform:uppercase; margin-bottom:10px; font-weight:700;
+  }
+  h1{
+    font-family:'Noto Serif KR',serif;
+    font-size:clamp(24px,4vw,32px);
+    margin:0 0 10px;
+    font-weight:700;
+  }
+  .hero p{ color:#C9CEE0; max-width:56ch; margin:0; font-size:15px;}
+
+  main{ max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+
+  section{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:14px;
+    padding:26px 24px;
+    margin-bottom:22px;
+  }
+  section h2{
+    font-family:'Noto Serif KR',serif;
+    font-size:19px;
+    margin:0 0 6px;
+    display:flex; align-items:center; gap:8px;
+  }
+  section h2 .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%;
+    background:var(--night); color:var(--star);
+    font-size:13px; font-family:'Noto Sans KR',sans-serif; font-weight:700;
+    flex:none;
+  }
+  section .hint{ color:var(--ink-soft); font-size:13.5px; margin:0 0 16px; }
+
+  .cell-pair{ display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .cell-pair label{ font-size:13px; color:var(--ink-soft); white-space:nowrap; }
+
+  textarea, input[type=text], input[type=number]{
+    width:100%; padding:11px 12px; border:1px solid #C9C3B0; border-radius:8px;
+    font-family:inherit; font-size:14.5px; color:var(--ink); resize:vertical;
+  }
+  textarea{ min-height:90px; }
+
+  .id-row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .id-row .field{ flex:1; min-width:160px; }
+  .id-row .field.field-narrow{ flex:0 1 90px; min-width:80px; }
+  .id-row label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:5px; }
+
+  button.submit-btn{
+    background:var(--night); color:var(--star-soft);
+    border:none; border-radius:10px; padding:14px 20px;
+    font-size:15.5px; font-weight:700; cursor:pointer; width:100%;
+    font-family:'Noto Sans KR',sans-serif;
+  }
+  button.submit-btn:disabled{ opacity:.55; cursor:default; }
+  button.submit-btn:hover:not(:disabled){ background:#1D2748; }
+
+  .status{
+    margin-top:14px; font-size:13.5px; padding:12px 14px; border-radius:8px;
+    display:none;
+  }
+  .status.show{ display:block; }
+  .status.sending{ background:#F1F0EA; color:var(--ink-soft); }
+  .status.success{ background:#E9F3EC; color:var(--ok); }
+  .status.error{ background:#FBEDE6; color:var(--warn); }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:12.5px; padding:0 20px 40px; }
+
+  .fill-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; font-size:14.5px; }
+  .blank{
+    display:inline-block; width:90px; padding:7px 8px; border:1px solid #C9C3B0;
+    border-radius:6px; font-family:inherit; font-size:14px; text-align:center;
+  }
+  select.blank{ width:auto; padding:7px 10px; }
+
+  .toggle-group{ display:inline-flex; gap:6px; vertical-align:middle; flex-wrap:wrap; }
+  .toggle-opt{
+    all:unset; cursor:pointer;
+    padding:7px 14px; border:1px solid #C9C3B0; border-radius:6px;
+    font-size:14px; color:var(--ink); background:#fff; font-family:inherit;
+  }
+  .toggle-opt:hover{ background:#F3F0E6; }
+  .toggle-opt.active{
+    background:var(--night); color:var(--star-soft); border-color:var(--night);
+  }
+
+  .check-btn{
+    background:#F3F0E6; border:1px solid #C9C3B0; color:var(--ink);
+    border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer;
+    font-family:inherit; margin-top:6px;
+  }
+  .check-btn:hover{ background:#EAE5D6; }
+  .check-result{ font-size:13px; font-weight:700; margin-top:8px; display:block; }
+  .check-result.correct{ color:var(--ok); }
+  .check-result.wrong{ color:var(--warn); }
+
+  .option-list{ display:flex; flex-direction:column; gap:9px; margin:10px 0 4px; }
+  .option-list label{ display:flex; gap:9px; align-items:flex-start; font-size:14px; cursor:pointer; }
+  .option-list input{ margin-top:3px; flex:none; }
+
+  .svg-wrap{ background:#0C1224; border-radius:10px; padding:12px; margin:12px 0; }
+  .svg-wrap.light{ background:#fff; border:1px solid var(--paper-line); }
+  .svg-wrap svg{ width:100%; height:auto; display:block; }
+  .svg-wrap.space{ background:#03040c; padding:0; overflow:hidden; }
+  .gx-label{
+    font-family:'Noto Sans KR',sans-serif; fill:#fff; font-weight:700;
+    paint-order:stroke; stroke:rgba(3,4,12,.85); stroke-width:3px; stroke-linejoin:round;
+  }
+  .gx-pill rect{ fill:rgba(3,4,12,.65); stroke:#E8C468; stroke-width:1.2; }
+  .gx-pill text{
+    fill:#F3DFA0; font-size:14px; font-weight:700; text-anchor:middle;
+    font-family:'Noto Sans KR',sans-serif;
+  }
+  .fig-caption{ font-size:12.5px; color:var(--ink-soft); margin:6px 0 0; }
+  .g3d-controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 4px; }
+  .g3d-controls .sep{ width:1px; height:22px; background:var(--paper-line); margin:0 2px; }
+  .g3d-controls label{ font-size:13.5px; display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  .toggle-opt.primary{ background:var(--night); color:var(--star-soft); border-color:var(--night); font-weight:700; }
+  .galaxy3d-wrap{
+    position:relative; background:#03040c; border-radius:10px; overflow:hidden;
+    margin:12px 0; aspect-ratio:16/10; touch-action:none; cursor:grab; user-select:none;
+  }
+  .galaxy3d-wrap:active{ cursor:grabbing; }
+  .galaxy3d-wrap canvas{ width:100%; height:100%; display:block; }
+  .g3d-hud{ position:absolute; top:10px; left:14px; color:#F3DFA0; font-weight:700; font-size:16px; text-shadow:0 1px 3px #000; }
+  .g3d-sub{ position:absolute; top:36px; left:14px; color:#C9CEE0; font-size:12.5px; text-shadow:0 1px 3px #000; }
+  .g3d-hint{ position:absolute; bottom:8px; right:12px; color:#8A93A8; font-size:11.5px; }
+  .observe-box{ background:#F3F0E6; border-radius:10px; padding:12px 16px; font-size:13.5px; margin-top:12px; }
+  .observe-box ol{ margin:6px 0 0; padding-left:20px; }
+  .observe-box li{ margin-bottom:5px; }
+  @media (max-width:520px){
+    .galaxy3d-wrap{ aspect-ratio:1/1; }
+    .g3d-controls .sep{ display:none; }
+    .g3d-hud{ font-size:14px; }
+    .g3d-sub{ font-size:11px; top:31px; }
+  }
+
+
+  .teacher-note{
+    font-size:12.5px; color:var(--ink-soft); background:#F3F0E6;
+    border-radius:8px; padding:9px 12px; margin-top:10px;
+  }
+
+  .slider-row{ display:flex; align-items:center; gap:12px; margin:10px 0; flex-wrap:wrap; }
+  .slider-row label{ font-size:13.5px; color:var(--ink-soft); min-width:110px; }
+  .slider-row input[type=range]{ flex:1; min-width:160px; accent-color:var(--night); }
+  .slider-readout{ font-size:14px; font-weight:700; color:var(--night); min-width:150px; text-align:right; }
+
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 4px; }
+
+  .legend-row{ display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); margin-top:8px; }
+  .legend-row .chip{ display:inline-flex; align-items:center; gap:5px; }
+  .legend-row .chip span.box{ width:12px; height:12px; border-radius:3px; display:inline-block; }
+
+  @media (max-width:520px){
+    .slider-row label{ min-width:90px; font-size:12.5px; }
+    .slider-readout{ min-width:120px; font-size:13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Ⅶ. 별과 우주 · 배움활동</div>
+    <h1>별의 색과 온도, 그리고 우리 은하 속 태양계의 위치</h1>
+    <p>별의 색과 표면 온도의 관계를 복습하고, 우리은하의 모양·크기와 태양계의 위치를 시뮬레이션으로 탐구한다. 아래 자료와 시뮬레이션을 탐구한 뒤, 표와 질문에 답해 제출하세요.</p>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2><span class="num">1</span>복습 · 별의 색과 표면 온도 (교과서 263쪽 스스로 점검)</h2>
+    <p class="hint">지난 시간에 배운 내용을 간단히 확인해 보자.</p>
+
+    <div class="fill-row">
+      1. 10 pc 거리에 있는 어떤 별의 겉보기 등급이 3등급이었다면, 이 별의 절대 등급은
+      <input type="text" class="blank" id="reviewAbsMag" inputmode="numeric" placeholder="등급">
+      등급이다.
+    </div>
+
+    <div class="fill-row">
+      2. 베텔게우스의 색은 적색이므로, 태양보다 온도가
+      <span class="toggle-group" id="reviewBetelGroup">
+        <button type="button" class="toggle-opt" data-value="낮은">낮은</button>
+        <button type="button" class="toggle-opt" data-value="높은">높은</button>
+      </span>
+      <input type="hidden" id="reviewBetel">
+      별이다.
+    </div>
+    <button class="check-btn" id="checkReview">정답 확인</button>
+    <span class="check-result" id="resultReview"></span>
+
+    <p class="hint" style="margin-top:18px;">[창의적 사고력] 옛 조상들은 도자기를 구울 때 불꽃의 색깔을 보고 가마 속 온도를 짐작했다고 한다. 이를 색과 온도의 관계로 설명해 보자.</p>
+    <textarea id="reviewKilnReason" placeholder="예: 불꽃이 붉은색일 때보다 흰색이나 파란색을 띨 때 온도가 더 높기 때문에..."></textarea>
+    <p class="teacher-note">이 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>배움 자료 · 은하수와 우리은하</h2>
+    <p class="hint">맑고 어두운 밤하늘을 가로지르는 희미한 빛의 띠를 <b>은하수</b>라고 한다. 우주에는 수많은 별로 이루어진 거대한 천체 집단인 <b>은하</b>가 무수히 많은데, 그중 태양계가 속한 은하를 <b>우리은하</b>라고 한다. 은하수는 우리은하를 안쪽(태양계)에서 바라본 모습이다.</p>
+    <div class="svg-wrap space">
+      <svg id="galaxyFigure" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="우리은하의 모양 모식도: 옆에서 본 모양과 위에서 본 모양">
+        <rect width="640" height="640" fill="#03040c"/>
+        <image class="galaxy-side-img" x="0" y="30" width="640" height="180" preserveAspectRatio="none"/>
+        <image class="galaxy-top-img" x="0" y="230" width="640" height="400" preserveAspectRatio="none"/>
+
+        <g class="gx-pill"><rect x="8" y="106" width="128" height="28" rx="14"/><text x="72" y="125">옆에서 본 모양</text></g>
+        <g stroke="#fff" stroke-width="1.2">
+          <line x1="140" y1="56" x2="500" y2="56"/><line x1="140" y1="50" x2="140" y2="62"/><line x1="500" y1="50" x2="500" y2="62"/>
+        </g>
+        <text class="gx-label" x="320" y="45" text-anchor="middle" font-size="15">30000 pc (약 10만 광년)</text>
+        <text class="gx-label" x="320" y="82" text-anchor="middle" font-size="15">은하 중심</text>
+        <text class="gx-label" x="455" y="108" text-anchor="middle" font-size="15">은하 원반</text>
+        <circle cx="218" cy="120" r="4" fill="#FFD76A" stroke="#fff" stroke-width="1.2"/>
+        <text class="gx-label" x="218" y="106" text-anchor="middle" font-size="15">태양계</text>
+        <g stroke="#fff" stroke-width="1.1">
+          <line x1="218" y1="152" x2="320" y2="152"/><line x1="218" y1="147" x2="218" y2="157"/><line x1="320" y1="147" x2="320" y2="157"/>
+        </g>
+        <text class="gx-label" x="269" y="175" text-anchor="middle" font-size="14">8500 pc (약 3만 광년)</text>
+
+        <line x1="218" y1="125" x2="218" y2="425" stroke="#fff" stroke-width="1.1" stroke-dasharray="4 4" opacity=".75"/>
+
+        <g class="gx-pill"><rect x="8" y="298" width="128" height="28" rx="14"/><text x="72" y="317">위에서 본 모양</text></g>
+        <text class="gx-label" x="320" y="478" text-anchor="middle" font-size="15">은하 중심</text>
+        <text id="figArmLabel" class="gx-label" x="470" y="500" text-anchor="middle" font-size="15">나선팔</text>
+        <circle cx="218" cy="430" r="4.5" fill="#FFD76A" stroke="#fff" stroke-width="1.2"/>
+        <text class="gx-label" x="218" y="453" text-anchor="middle" font-size="15">태양계</text>
+      </svg>
+    </div>
+    <p class="fig-caption">우리은하의 모양(모식도) · 옆에서 본 모양과 위에서 본 모양은 같은 축척으로 그렸다.</p>
+    <p class="hint" style="margin-top:14px;">우리은하는 중심부가 볼록한 원반 모양이다. 중심부에는 막대 모양의 구조가 있고, 막대의 양 끝에서부터 나선팔이 소용돌이 모양으로 휘감고 있다. 우리은하의 지름은 약 30000 pc(30 kpc, 약 10만 광년)이고, 약 2000억 개의 별을 포함하고 있다. 태양계는 은하 중심에서 약 8500 pc(8.5 kpc, 약 3만 광년) 떨어진 나선팔에 위치한다. 태양계가 은하 안쪽에 있기 때문에 지구에서 보면 우리은하가 띠 모양의 은하수로 보이며, 은하 중심 방향(궁수자리 부근)의 은하수가 다른 방향보다 폭이 넓고 뚜렷하게 보인다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>시뮬레이션 · 우리은하 속 태양계의 위치</h2>
+    <p class="hint">아래 슬라이더로 은하 중심에서부터의 거리를 바꾸면서, 태양계가 우리은하의 어디쯤에 위치하는지 확인해 보자. <b>위/옆에서 본 모습</b> 버튼을 눌러 두 시점을 비교할 수 있다.</p>
+
+    <div class="preset-row">
+      <button type="button" class="toggle-opt view-btn active" data-view="top">위에서 본 모습</button>
+      <button type="button" class="toggle-opt view-btn" data-view="side">옆에서 본 모습</button>
+    </div>
+
+    <div class="svg-wrap space" id="topViewWrap">
+      <svg id="topSvg" viewBox="110 10 420 380" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="640" height="400" fill="#03040c"/>
+        <image class="galaxy-top-img" x="0" y="0" width="640" height="400" preserveAspectRatio="none"/>
+        <line id="topRadiusLine" x1="320" y1="200" x2="320" y2="200" stroke="#FFB27A" stroke-width="1.6" stroke-dasharray="4 3"/>
+        <circle id="topMarker" cx="320" cy="200" r="6" fill="#FFD76A" stroke="#fff" stroke-width="1.5"/>
+        <text id="topMarkerLabel" class="gx-label" x="320" y="186" text-anchor="middle" font-size="13"></text>
+      </svg>
+    </div>
+
+    <div class="svg-wrap space" id="sideViewWrap" style="display:none;">
+      <svg id="sideSvg" viewBox="110 20 420 150" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="640" height="180" fill="#03040c"/>
+        <image class="galaxy-side-img" x="0" y="0" width="640" height="180" preserveAspectRatio="none"/>
+        <line id="sideRadiusLine" x1="320" y1="70" x2="320" y2="70" stroke="#FFB27A" stroke-width="1.6" stroke-dasharray="4 3"/>
+        <circle id="sideMarker" cx="320" cy="90" r="5.5" fill="#FFD76A" stroke="#fff" stroke-width="1.5"/>
+        <text id="sideMarkerLabel" class="gx-label" x="320" y="58" text-anchor="middle" font-size="13"></text>
+        <text class="gx-label" x="320" y="158" text-anchor="middle" font-size="11.5">은하 중심에서부터의 거리</text>
+      </svg>
+    </div>
+
+    <div class="slider-row">
+      <label for="galaxyDist">은하 중심으로부터 거리</label>
+      <input type="range" id="galaxyDist" min="0" max="15" step="0.5" value="0">
+      <span class="slider-readout" id="galaxyDistReadout">0 kpc</span>
+    </div>
+    <div class="preset-row">
+      <button type="button" class="toggle-opt dist-preset" data-d="0">은하 중심</button>
+      <button type="button" class="toggle-opt dist-preset" data-d="8.5">태양계</button>
+      <button type="button" class="toggle-opt dist-preset" data-d="15">은하 가장자리</button>
+    </div>
+    <p class="sim-note" style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;">※ 은하 그림은 별 입자 수만 개로 그린 모식도이다. 위에서 본 모습과 옆에서 본 모습은 같은 축척으로 그렸으며, 태양계는 나선팔 위에 표시했다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>3D 시뮬레이션 · 나선팔은 왜 감겨서 사라지지 않을까?</h2>
+    <p class="hint">은하 안쪽의 별은 바깥쪽의 별보다 더 빨리 돈다. 만약 나선팔이 늘 같은 별들로 이루어져 있다면, 시간이 지날수록 나선팔은 점점 감겨서 사라져야 한다. 그런데 실제 은하의 나선팔은 수십억 년이 지나도 모양이 유지된다. 아래에서 두 경우를 골라 <b>실행</b>을 눌러 비교해 보자.</p>
+
+    <div class="g3d-controls">
+      <button type="button" class="toggle-opt g3d-mode active" data-mode="wave">실제 은하 (밀도파)</button>
+      <button type="button" class="toggle-opt g3d-mode" data-mode="material">별이 나선팔에 붙어서 돈다면?</button>
+    </div>
+
+    <div class="galaxy3d-wrap" id="galaxy3dWrap">
+      <canvas id="galaxy3d" aria-label="회전하는 우리은하 3D 시뮬레이션"></canvas>
+      <div class="g3d-hud" id="g3dTime">경과 시간: 0억 년</div>
+      <div class="g3d-sub" id="g3dSub"></div>
+      <div class="g3d-hint">드래그하면 보는 각도를 바꿀 수 있어요</div>
+    </div>
+
+    <div class="g3d-controls">
+      <button type="button" class="toggle-opt primary" id="g3dPlay">▶ 실행</button>
+      <button type="button" class="toggle-opt" id="g3dReset">↺ 처음으로</button>
+      <span class="sep"></span>
+      <button type="button" class="toggle-opt g3d-speed" data-speed="25">느리게</button>
+      <button type="button" class="toggle-opt g3d-speed active" data-speed="80">보통</button>
+      <button type="button" class="toggle-opt g3d-speed" data-speed="250">빠르게</button>
+      <span class="sep"></span>
+      <label><input type="checkbox" id="g3dCorot"> 나선팔과 함께 돌면서 보기</label>
+    </div>
+
+    <div class="observe-box">
+      <b>관찰 포인트</b>
+      <ol>
+        <li><b>별이 나선팔에 붙어서 돈다면?</b>을 실행하면, 안쪽 별이 바깥쪽 별보다 빨리 돌기 때문에 나선팔이 점점 감겨 몇억 년 만에 촘촘한 고리처럼 뭉개진다.</li>
+        <li><b>실제 은하(밀도파)</b>를 실행하면, 노란색 <b>태양</b>은 나선팔에 들어갔다가 빠져나오기를 반복하지만 나선팔의 모양은 수십억 년 동안 그대로 유지된다.</li>
+        <li>나선팔은 별들이 지나가다가 잠시 느려져서 빽빽하게 모이는 <b>"교통 체증 구간"</b>이다. 고속도로 정체 구간에서 차는 계속 바뀌어도 정체 구간은 남아 있는 것과 같다. <b>나선팔과 함께 돌면서 보기</b>를 켜면 별들이 나선팔을 통과해 흘러가는 모습을 볼 수 있다.</li>
+        <li>나선팔에서는 가스가 압축되어 새로운 별이 태어난다. 밝고 푸른 젊은 별은 수명이 짧아 나선팔을 벗어나기 전에 사라지므로, 나선팔이 더 밝고 푸르게 보인다.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>학생 정보</h2>
+    <div class="id-row">
+      <div class="field field-narrow">
+        <label for="stuClass">반</label>
+        <input type="number" id="stuClass" placeholder="예: 9" min="1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field field-narrow">
+        <label for="stuNumber">번호</label>
+        <input type="number" id="stuNumber" placeholder="예: 1" min="1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="stuName">이름</label>
+        <input type="text" id="stuName" placeholder="예: 홍길동" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>개념정리 · 우리은하</h2>
+
+    <div class="fill-row">
+      (1) 우리은하의 지름은 약
+      <select class="blank" id="blankDiameter"><option value="">-선택-</option><option value="3kpc">3 kpc</option><option value="30kpc">30 kpc</option><option value="300kpc">300 kpc</option></select>
+      이다.
+    </div>
+    <div class="fill-row">
+      (2) 우리은하에는 약
+      <select class="blank" id="blankStarCount"><option value="">-선택-</option><option value="200억">200억 개</option><option value="2000억">2000억 개</option><option value="2조">2조 개</option></select>
+      의 별이 있다.
+    </div>
+    <div class="fill-row">
+      (3) 태양계는 은하 중심에서 약
+      <select class="blank" id="blankSunDist"><option value="">-선택-</option><option value="0kpc">0 kpc</option><option value="8.5kpc">8.5 kpc</option><option value="30kpc">30 kpc</option></select>
+      떨어진 나선팔에 위치한다.
+    </div>
+    <div class="fill-row">
+      (4) 우리은하를 위에서 보면
+      <select class="blank" id="blankTopShape"><option value="">-선택-</option><option value="나선">나선(막대나선) 모양</option><option value="원">원 모양</option><option value="타원">타원 모양</option></select>
+      이고, 옆에서 보면
+      <select class="blank" id="blankSideShape"><option value="">-선택-</option><option value="공">공 모양</option><option value="원반">납작한 원반 모양</option><option value="막대">막대 모양</option></select>
+      이다.
+    </div>
+    <button class="check-btn" id="checkConceptGalaxy">정답 확인</button>
+    <span class="check-result" id="resultConceptGalaxy"></span>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>확인 문제</h2>
+
+    <p style="font-size:14.5px; margin:0 0 8px;"><b>문제 1.</b> 지구에서 은하수를 관측할 때, 궁수자리 방향의 은하수가 다른 방향보다 폭이 넓고 뚜렷하게 보이는 까닭으로 옳은 것은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="q1opt" value="1"> ① 그 방향이 은하 중심 방향이기 때문이다.</label>
+      <label><input type="radio" name="q1opt" value="2"> ② 그 방향이 은하 가장자리 방향이기 때문이다.</label>
+      <label><input type="radio" name="q1opt" value="3"> ③ 그 방향에 태양계가 있기 때문이다.</label>
+      <label><input type="radio" name="q1opt" value="4"> ④ 그 방향의 별이 다른 별보다 온도가 높기 때문이다.</label>
+    </div>
+    <button class="check-btn" id="checkQ1">정답 확인</button>
+    <span class="check-result" id="resultQ1"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>문제 2.</b> 우리은하에 대한 설명으로 옳은 것을 모두 고르시오.</p>
+    <div class="option-list">
+      <label><input type="checkbox" id="q2a"> ㄱ. 태양계가 속해 있는 은하이다.</label>
+      <label><input type="checkbox" id="q2b"> ㄴ. 태양계는 우리은하의 정중앙에 위치한다.</label>
+      <label><input type="checkbox" id="q2c"> ㄷ. 옆에서 보면 납작한 원반 모양이고, 중심부가 부풀어 있다.</label>
+    </div>
+    <button class="check-btn" id="checkQ2">정답 확인</button>
+    <span class="check-result" id="resultQ2"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>옳으면 O, 옳지 않으면 X를 골라 보자.</b></p>
+    <div class="fill-row">
+      1. 은하수는 우리은하를 태양계(안쪽)에서 바라본 모습이다.
+      <span class="toggle-group" id="ox1Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox1">
+    </div>
+    <div class="fill-row">
+      2. 우리은하를 위에서 보면 나선팔이 있는 막대나선 모양이다.
+      <span class="toggle-group" id="ox2Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox2">
+    </div>
+    <button class="check-btn" id="checkOX">정답 확인</button>
+    <span class="check-result" id="resultOX"></span>
+  </section>
+
+  <section>
+    <button class="submit-btn" id="submitBtn">답안 제출하기</button>
+    <div class="status" id="statusBox"></div>
+  </section>
+
+</main>
+
+<footer>제출한 답은 선생님이 확인 후 개별 피드백을 남깁니다.</footer>
+
+<script>
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+
+  const $ = (id) => document.getElementById(id);
+  function showResult(el, ok, correctMsg, wrongMsg){
+    el.className = 'check-result ' + (ok ? 'correct' : 'wrong');
+    el.textContent = ok ? ('✓ ' + correctMsg) : ('✗ ' + wrongMsg);
+  }
+  function setupToggle(groupId, hiddenId){
+    const group = $(groupId);
+    const hidden = $(hiddenId);
+    group.querySelectorAll('.toggle-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        hidden.value = btn.dataset.value;
+      });
+    });
+  }
+
+  // ── 1. 복습 ──
+  setupToggle('reviewBetelGroup','reviewBetel');
+  $('checkReview').addEventListener('click', () => {
+    const ok = $('reviewAbsMag').value.trim() === '3' && $('reviewBetel').value === '낮은';
+    showResult($('resultReview'), ok,
+      '모두 맞았어요. 거리 10 pc에서는 겉보기 등급과 절대 등급이 같습니다(3등급). 베텔게우스는 적색이므로 태양보다 표면 온도가 낮습니다.',
+      '다시 확인해 보세요: 10 pc 거리에서는 겉보기 등급 = 절대 등급이므로 답은 "3"입니다. 또한 적색 별은 태양(황색)보다 표면 온도가 "낮은" 별입니다.');
+  });
+
+  // ── 3. 우리은하 시뮬레이션 ──
+  // 은하 그림: 수만 개의 별 입자를 캔버스에 찍어 막대나선 은하를 그린 뒤,
+  // 이미지로 만들어 배움 자료 그림과 시뮬레이션 SVG에 함께 쓴다.
+  // 위·옆에서 본 모습 모두 1 kpc = 12 px (반지름 15 kpc = 180 px)로 축척을 맞췄다.
+  const GAL = { cx:320, R:180, pxPerKpc:12, rBar:42, sunKpc:8.5 };
+  const TAN_PITCH = Math.tan(17 * Math.PI/180);
+  // 0번 나선팔이 태양계 위치(중심의 정확히 왼쪽, 8.5 kpc)를 지나도록 회전각을 정한다.
+  const ARM0_OFF = Math.PI - Math.log(GAL.sunKpc*GAL.pxPerKpc / GAL.rBar) / TAN_PITCH;
+  function armTheta(r, off){ return off + Math.log(r / GAL.rBar) / TAN_PITCH; }
+
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function makeGauss(rand){
+    return function(){
+      let u = 0, v = 0;
+      while(u === 0) u = rand();
+      while(v === 0) v = rand();
+      return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+    };
+  }
+  function makeCanvas(w, h){
+    const s = 2;
+    const c = document.createElement('canvas');
+    c.width = w*s; c.height = h*s;
+    const g = c.getContext('2d');
+    g.scale(s, s);
+    return { c, g };
+  }
+  function fieldStars(g, w, h, n, rand){
+    for(let i=0; i<n; i++){
+      const big = rand() < 0.08;
+      g.fillStyle = `rgba(255,255,255,${0.15 + rand()*0.6})`;
+      g.fillRect(rand()*w, rand()*h, big ? 1.3 : 0.6, big ? 1.3 : 0.6);
+    }
+  }
+  function dot(g, x, y, r){ g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); }
+
+  function renderGalaxyTop(){
+    const W = 640, H = 400, cx = GAL.cx, cy = 200, R = GAL.R;
+    const { c, g } = makeCanvas(W, H);
+    const rand = mulberry32(20261007), gauss = makeGauss(rand);
+    g.fillStyle = '#03040c'; g.fillRect(0, 0, W, H);
+    fieldStars(g, W, H, 520, rand);
+
+    g.globalCompositeOperation = 'lighter';
+    let grd = g.createRadialGradient(cx, cy, 0, cx, cy, R*1.08);
+    grd.addColorStop(0, 'rgba(255,214,160,0.40)');
+    grd.addColorStop(0.3, 'rgba(160,165,220,0.16)');
+    grd.addColorStop(1, 'rgba(60,70,140,0)');
+    g.fillStyle = grd; dot(g, cx, cy, R*1.08);
+
+    // 원반 전체에 흩어진 별(중심으로 갈수록 빽빽함)
+    for(let i=0; i<7000; i++){
+      const r = -R*0.33*Math.log(1 - rand()*0.95);
+      if(r > R*1.02) continue;
+      const th = rand()*Math.PI*2;
+      const warm = r < R*0.3;
+      g.fillStyle = warm ? `rgba(255,222,175,${0.2+rand()*0.35})` : `rgba(190,205,255,${0.12+rand()*0.28})`;
+      g.fillRect(cx + r*Math.cos(th), cy + r*Math.sin(th), 0.7, 0.7);
+    }
+
+    // 나선팔: 큰 팔 2개 + 작은 팔 2개
+    const arms = [
+      { off: ARM0_OFF,             n: 9000, w: 1 },
+      { off: ARM0_OFF + Math.PI,   n: 9000, w: 1 },
+      { off: ARM0_OFF + Math.PI/2, n: 3000,  w: 0.4 },
+      { off: ARM0_OFF + Math.PI*1.5, n: 3000, w: 0.4 }
+    ];
+    // 팔을 따라 퍼지는 은은한 빛
+    arms.slice(0, 2).forEach(a => {
+      for(let i=0; i<450; i++){
+        const t = rand();
+        const r = GAL.rBar + (R - GAL.rBar)*t;
+        const th = armTheta(r, a.off) + gauss()*0.04;
+        const rr = r + gauss()*(4 + r*0.04);
+        const alpha = 0.014 * (1 - t*t*0.8);
+        g.fillStyle = r < R*0.45 ? `rgba(255,215,170,${alpha})` : `rgba(140,165,255,${alpha})`;
+        dot(g, cx + rr*Math.cos(th), cy + rr*Math.sin(th), 9 + r*0.06);
+      }
+    });
+    arms.forEach(a => {
+      for(let i=0; i<a.n; i++){
+        const t = Math.pow(rand(), 0.85);
+        const r = GAL.rBar + (R*1.03 - GAL.rBar)*t;
+        const th = armTheta(r, a.off) + gauss()*0.05;
+        const rr = r + gauss()*(4 + r*0.08);
+        const x = cx + rr*Math.cos(th), y = cy + rr*Math.sin(th);
+        const fade = (1 - Math.pow(t, 1.6)*0.85) * a.w;
+        const p = rand();
+        if(p < 0.007){
+          g.fillStyle = `rgba(255,110,160,${0.45*fade})`; dot(g, x, y, 0.8 + rand()*1.0);
+        } else if(p < 0.06){
+          g.fillStyle = `rgba(255,255,255,${0.85*fade})`; g.fillRect(x, y, 1.3, 1.3);
+        } else {
+          g.fillStyle = `rgba(${170+rand()*60|0},${195+rand()*45|0},255,${(0.16+rand()*0.34)*fade})`;
+          g.fillRect(x, y, 0.9, 0.9);
+        }
+      }
+    });
+
+    // 중심부 막대 구조
+    for(let i=0; i<4500; i++){
+      const u = gauss()*GAL.rBar*0.55, v = gauss()*GAL.rBar*0.17;
+      const x = cx + u*Math.cos(ARM0_OFF) - v*Math.sin(ARM0_OFF);
+      const y = cy + u*Math.sin(ARM0_OFF) + v*Math.cos(ARM0_OFF);
+      g.fillStyle = `rgba(255,${195+rand()*45|0},${125+rand()*55|0},${0.22+rand()*0.35})`;
+      g.fillRect(x, y, 1, 1);
+    }
+    grd = g.createRadialGradient(cx, cy, 0, cx, cy, 72);
+    grd.addColorStop(0, 'rgba(255,248,228,0.95)');
+    grd.addColorStop(0.25, 'rgba(255,214,150,0.5)');
+    grd.addColorStop(1, 'rgba(255,170,90,0)');
+    g.fillStyle = grd; dot(g, cx, cy, 72);
+
+    // 큰 나선팔 안쪽 가장자리를 따라가는 어두운 먼지띠
+    g.globalCompositeOperation = 'source-over';
+    [ARM0_OFF, ARM0_OFF + Math.PI].forEach(off => {
+      for(let i=0; i<3200; i++){
+        const r = GAL.rBar*1.7 + (R*0.95 - GAL.rBar*1.7)*rand();
+        const th = armTheta(r, off) - 0.14 + gauss()*0.03;
+        const rr = r + gauss()*(2 + r*0.02);
+        g.fillStyle = `rgba(6,5,14,${0.05+rand()*0.08})`;
+        dot(g, cx + rr*Math.cos(th), cy + rr*Math.sin(th), 1.2 + rand()*1.8);
+      }
+    });
+    return c.toDataURL('image/png');
+  }
+
+  function renderGalaxySide(){
+    const W = 640, H = 180, cx = GAL.cx, cy = 90, L = GAL.R;
+    const { c, g } = makeCanvas(W, H);
+    const rand = mulberry32(19750412), gauss = makeGauss(rand);
+    g.fillStyle = '#03040c'; g.fillRect(0, 0, W, H);
+    fieldStars(g, W, H, 260, rand);
+
+    g.globalCompositeOperation = 'lighter';
+    g.save(); g.translate(cx, cy); g.scale(1, 0.09);
+    let grd = g.createRadialGradient(0, 0, 0, 0, 0, L*1.05);
+    grd.addColorStop(0, 'rgba(255,225,185,0.55)');
+    grd.addColorStop(0.45, 'rgba(175,190,240,0.28)');
+    grd.addColorStop(1, 'rgba(90,100,170,0)');
+    g.fillStyle = grd; dot(g, 0, 0, L*1.05);
+    g.restore();
+
+    // 납작한 원반
+    const hx = 68;
+    for(let i=0; i<15000; i++){
+      const ax = -hx*Math.log(1 - rand()*(1 - Math.exp(-L*1.02/hx)));
+      const x = cx + (rand() < 0.5 ? -ax : ax);
+      const y = cy + gauss()*(2.2 + rand()*1.4);
+      const warm = ax < 45;
+      g.fillStyle = warm ? `rgba(255,220,170,${0.22+rand()*0.35})` : `rgba(${180+rand()*50|0},${200+rand()*40|0},255,${0.18+rand()*0.38})`;
+      g.fillRect(x, y, 0.8, 0.8);
+    }
+    // 볼록한 중심부(팽대부)
+    for(let i=0; i<6500; i++){
+      const x = cx + gauss()*28, y = cy + gauss()*15;
+      g.fillStyle = `rgba(255,${200+rand()*45|0},${130+rand()*60|0},${0.18+rand()*0.32})`;
+      g.fillRect(x, y, 0.9, 0.9);
+    }
+    g.save(); g.translate(cx, cy); g.scale(1, 0.62);
+    grd = g.createRadialGradient(0, 0, 0, 0, 0, 62);
+    grd.addColorStop(0, 'rgba(255,248,228,0.95)');
+    grd.addColorStop(0.3, 'rgba(255,212,150,0.45)');
+    grd.addColorStop(1, 'rgba(255,170,90,0)');
+    g.fillStyle = grd; dot(g, 0, 0, 62);
+    g.restore();
+
+    // 원반 한가운데를 가로지르는 먼지띠
+    g.globalCompositeOperation = 'source-over';
+    const lane = g.createLinearGradient(cx - L, 0, cx + L, 0);
+    lane.addColorStop(0, 'rgba(6,5,14,0)');
+    lane.addColorStop(0.2, 'rgba(6,5,14,0.25)');
+    lane.addColorStop(0.5, 'rgba(6,5,14,0.4)');
+    lane.addColorStop(0.8, 'rgba(6,5,14,0.25)');
+    lane.addColorStop(1, 'rgba(6,5,14,0)');
+    g.fillStyle = lane; g.fillRect(cx - L, cy - 0.8, 2*L, 1.6);
+    for(let i=0; i<2200; i++){
+      const x = cx + (rand()*2 - 1)*L*0.95;
+      g.fillStyle = `rgba(6,5,14,${0.05+rand()*0.1})`;
+      dot(g, x, cy + gauss()*1.0, 0.8 + rand()*1.0);
+    }
+    return c.toDataURL('image/png');
+  }
+
+  const topImg = renderGalaxyTop(), sideImg = renderGalaxySide();
+  document.querySelectorAll('.galaxy-top-img').forEach(el => el.setAttribute('href', topImg));
+  document.querySelectorAll('.galaxy-side-img').forEach(el => el.setAttribute('href', sideImg));
+  (function placeArmLabel(){
+    const r = 150, th = armTheta(r, ARM0_OFF + Math.PI);
+    const lbl = $('figArmLabel');
+    lbl.setAttribute('x', (GAL.cx + r*Math.cos(th)).toFixed(1));
+    lbl.setAttribute('y', (430 + r*Math.sin(th)).toFixed(1));
+  })();
+
+  function galaxyLabel(d){
+    if(d === 0) return '은하 중심';
+    if(Math.abs(d - GAL.sunKpc) < 0.01) return '태양계';
+    return `${d} kpc`;
+  }
+  function updateGalaxy(d){
+    const x = GAL.cx - d*GAL.pxPerKpc;
+
+    $('topMarker').setAttribute('cx', x);
+    $('topRadiusLine').setAttribute('x2', x);
+    $('topMarkerLabel').setAttribute('x', x);
+    $('topMarkerLabel').textContent = galaxyLabel(d);
+
+    $('sideMarker').setAttribute('cx', x);
+    $('sideRadiusLine').setAttribute('x2', x);
+    $('sideMarkerLabel').setAttribute('x', x);
+    $('sideMarkerLabel').textContent = galaxyLabel(d);
+
+    $('galaxyDistReadout').textContent = `${d} kpc (${(d*1000).toLocaleString()} pc)`;
+  }
+  $('galaxyDist').addEventListener('input', e => updateGalaxy(Number(e.target.value)));
+  updateGalaxy(Number($('galaxyDist').value));
+
+  document.querySelectorAll('.dist-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $('galaxyDist').value = btn.dataset.d;
+      updateGalaxy(Number(btn.dataset.d));
+    });
+  });
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isTop = btn.dataset.view === 'top';
+      $('topViewWrap').style.display = isTop ? '' : 'none';
+      $('sideViewWrap').style.display = isTop ? 'none' : '';
+    });
+  });
+
+  // ── 4. 3D 회전 시뮬레이션: 나선팔은 왜 유지될까? ──
+  // 밀도파 모형(운동학적 모형): 각 별은 원 대신 살짝 찌그러진 고리 모양 궤도를
+  // 돌고, 반지름이 커질수록 궤도의 방향이 조금씩 돌아가 있다. 이 궤도들이 촘촘히
+  // 겹치는 곳(별이 느려지며 몰리는 곳)이 나선팔이 되고, 이 무늬 전체는 별들보다
+  // 느린 일정한 속도(OMEGA_P)로 돌기 때문에 감기지 않는다.
+  (function(){
+    const canvas = $('galaxy3d'), wrap = $('galaxy3dWrap');
+    const ctx = canvas.getContext('2d');
+
+    const V = 0.225;                 // 공전 속도 220 km/s ≈ 0.225 kpc/백만 년
+    const CORE = 1.0;                // 중심부에서 속도가 0으로 줄어드는 반지름(kpc)
+    const OMEGA_P = V / 14;          // 나선팔 무늬의 회전 각속도(14 kpc에서 별과 같은 속도)
+    const TAN_P = Math.tan(20 * Math.PI/180);
+    const R_IN = 2, R_OUT = 15, SUN_A = 8.5, END_MYR = 10000, TRAIL_MYR = 300;
+    const omega = a => V / Math.sqrt(a*a + CORE*CORE);
+    const phiOf = a => Math.log(a / R_IN) / TAN_P;
+
+    const N_DISK = 30000, N_BULGE = 3500, N = N_DISK + N_BULGE;
+    const A = new Float32Array(N), E = new Float32Array(N), PHI = new Float32Array(N);
+    const TH_INIT = new Float32Array(N), TH = new Float64Array(N);
+    const R0 = new Float32Array(N), Z = new Float32Array(N), BR = new Float32Array(N);
+    const BASE = new Float32Array(N*3), YOUNG0 = new Float32Array(N);
+
+    (function initStars(){
+      const rand = mulberry32(85002026), gauss = makeGauss(rand);
+      const SCALE_LEN = 4.5;
+      const span = 1 - Math.exp(-(R_OUT - R_IN) / SCALE_LEN);
+      for(let i=0; i<N_DISK; i++){
+        const a = R_IN - SCALE_LEN*Math.log(1 - rand()*span);
+        const e = 0.16 + rand()*0.08;
+        const phi = phiOf(a) + gauss()*0.05;
+        // 느리게 지나가는 곳(궤도의 바깥쪽)에 별이 더 오래 머물도록 위치를 뽑는다.
+        let th, r;
+        do {
+          th = rand()*Math.PI*2;
+          r = a*(1 + e*Math.cos(2*(th - phi)));
+        } while(rand() > (r*r)/(a*a*(1+e)*(1+e)));
+        A[i] = a; E[i] = e; PHI[i] = phi; TH_INIT[i] = th;
+        Z[i] = gauss()*0.16;
+        BR[i] = 0.32 + rand()*0.45;
+        BASE[i*3] = 0.72 + rand()*0.2; BASE[i*3+1] = 0.8 + rand()*0.15; BASE[i*3+2] = 1;
+      }
+      for(let i=N_DISK; i<N; i++){
+        const x = gauss()*1.1, y = gauss()*1.1;
+        A[i] = Math.max(0.05, Math.hypot(x, y)); E[i] = 0; PHI[i] = 0;
+        TH_INIT[i] = Math.atan2(y, x);
+        Z[i] = gauss()*0.8;
+        BR[i] = 0.3 + rand()*0.35;
+        BASE[i*3] = 1; BASE[i*3+1] = 0.8 + rand()*0.1; BASE[i*3+2] = 0.55 + rand()*0.15;
+      }
+      // 0번 별 = 태양: 두 나선팔 사이에서 출발
+      A[0] = SUN_A; E[0] = 0.18; PHI[0] = phiOf(SUN_A);
+      TH_INIT[0] = PHI[0] + Math.PI/2; Z[0] = 0;
+      for(let i=0; i<N; i++){
+        R0[i] = A[i]*(1 + E[i]*Math.cos(2*(TH_INIT[i] - PHI[i])));
+        YOUNG0[i] = i < N_DISK ? youth(TH_INIT[i], PHI[i]) : 0;
+      }
+    })();
+
+    // 나선팔(별이 몰리는 곳) 근처에서 새로 태어난 푸른 별을 표현하기 위한 값(0~1)
+    function youth(th, phi){
+      const c = Math.cos(2*(th - phi));
+      return c > 0.72 ? (c - 0.72) / 0.28 : 0;
+    }
+
+    let mode = 'wave', playing = false, speed = 80, corot = false;
+    let t = 0, yaw = 0.6, tilt = 0.95, dirty = true;
+    let trail = [];
+
+    function reset(){
+      TH.set(TH_INIT);
+      t = 0; trail = []; dirty = true;
+      setPlaying(false);
+    }
+
+    function step(dt){
+      const n = Math.max(1, Math.ceil(dt / 1.5)), h = dt / n;
+      for(let k=0; k<n; k++){
+        t += h;
+        if(mode !== 'wave') continue;
+        for(let i=0; i<N; i++){
+          const a = A[i];
+          const r = a*(1 + E[i]*Math.cos(2*(TH[i] - PHI[i])));
+          const q = a / r;
+          TH[i] += (omega(a) - OMEGA_P) * q * q * h;
+        }
+      }
+      if(t >= END_MYR){ t = END_MYR; setPlaying(false); }
+    }
+
+    // 별 i의 현재 위치(반지름, 실제 공간에서의 각도)
+    function polar(i){
+      if(mode === 'wave'){
+        return [A[i]*(1 + E[i]*Math.cos(2*(TH[i] - PHI[i]))), TH[i] + OMEGA_P*t];
+      }
+      return [R0[i], TH_INIT[i] + omega(R0[i])*t];
+    }
+
+    let W = 0, H = 0, img = null, bgData = null, acc = null, touched = null;
+    const LUT = new Float32Array(2048);
+    for(let k=0; k<2048; k++) LUT[k] = 255 * (1 - Math.exp(-k / 2048 * 10 * 0.95));
+
+    function resize(){
+      const cssW = wrap.clientWidth;
+      if(!cssW) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      W = Math.round(cssW * dpr); H = Math.round(wrap.clientHeight * dpr);
+      canvas.width = W; canvas.height = H;
+      img = ctx.createImageData(W, H);
+      acc = new Float32Array(W*H*3);
+      touched = new Int32Array(N);
+      bgData = new Uint8ClampedArray(W*H*4);
+      const rand = mulberry32(31337);
+      for(let p=0; p<W*H; p++){ bgData[p*4] = 3; bgData[p*4+1] = 4; bgData[p*4+2] = 12; bgData[p*4+3] = 255; }
+      for(let k=0; k<Math.round(W*H/900); k++){
+        const p = (Math.floor(rand()*H)*W + Math.floor(rand()*W))*4, v = 60 + rand()*140;
+        bgData[p] = v; bgData[p+1] = v; bgData[p+2] = v + 20;
+      }
+      dirty = true;
+    }
+
+    function render(){
+      if(!img) return;
+      const scale = Math.min(W, H*1.6) * 0.42 / R_OUT, D = 45;
+      const cx = W/2, cy = H/2;
+      const cT = Math.cos(tilt), sT = Math.sin(tilt);
+      const frameRot = corot ? -OMEGA_P*t : 0;
+      let nTouched = 0;
+
+      const wave = mode === 'wave', pt = OMEGA_P*t;
+      for(let i=1; i<N; i++){
+        let r, th;
+        if(wave){ r = A[i]*(1 + E[i]*Math.cos(2*(TH[i] - PHI[i]))); th = TH[i] + pt; }
+        else { r = R0[i]; th = TH_INIT[i] + omega(r)*t; }
+        const ang = th + frameRot + yaw;
+        const x = r*Math.cos(ang), y = r*Math.sin(ang), z = Z[i];
+        const y2 = y*cT - z*sT, z2 = y*sT + z*cT;
+        const k = D / (D - z2);
+        const px = (cx + x*scale*k) | 0, py = (cy + y2*scale*k) | 0;
+        if(px < 0 || py < 0 || px >= W || py >= H) continue;
+        const yv = i < N_DISK ? (wave ? youth(TH[i], PHI[i]) : YOUNG0[i]) : 0;
+        const b = BR[i] * (1 + 2*yv);
+        const idx = (py*W + px)*3;
+        if(acc[idx] === 0 && acc[idx+1] === 0 && acc[idx+2] === 0) touched[nTouched++] = idx;
+        acc[idx]   += b*(BASE[i*3]   + 0.15*yv);
+        acc[idx+1] += b*(BASE[i*3+1] + 0.35*yv);
+        acc[idx+2] += b*(BASE[i*3+2] + 0.9*yv);
+      }
+
+      const out = img.data;
+      out.set(bgData);
+      for(let n=0; n<nTouched; n++){
+        const idx = touched[n], p = (idx/3)*4;
+        out[p]   = Math.min(255, out[p]   + LUT[Math.min(2047, (acc[idx]*204.8)|0)]);
+        out[p+1] = Math.min(255, out[p+1] + LUT[Math.min(2047, (acc[idx+1]*204.8)|0)]);
+        out[p+2] = Math.min(255, out[p+2] + LUT[Math.min(2047, (acc[idx+2]*204.8)|0)]);
+        acc[idx] = 0; acc[idx+1] = 0; acc[idx+2] = 0;
+      }
+      ctx.putImageData(img, 0, 0);
+
+      // 원반과 중심부의 은은한 빛
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.translate(cx, cy);
+      ctx.save();
+      ctx.scale(1, Math.max(0.08, cT));
+      let grd = ctx.createRadialGradient(0, 0, 0, 0, 0, R_OUT*scale);
+      grd.addColorStop(0, 'rgba(255,220,170,0.22)');
+      grd.addColorStop(0.4, 'rgba(120,140,220,0.08)');
+      grd.addColorStop(1, 'rgba(60,70,140,0)');
+      ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0, 0, R_OUT*scale, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+      grd = ctx.createRadialGradient(0, 0, 0, 0, 0, 3*scale);
+      grd.addColorStop(0, 'rgba(255,245,220,0.85)');
+      grd.addColorStop(0.35, 'rgba(255,205,140,0.35)');
+      grd.addColorStop(1, 'rgba(255,170,90,0)');
+      ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0, 0, 3*scale, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // 태양과 그 지나온 길
+      const project = (r, ang, z) => {
+        const x = r*Math.cos(ang), y = r*Math.sin(ang);
+        const y2 = y*cT - z*sT, z2 = y*sT + z*cT, k = D / (D - z2);
+        return [cx + x*scale*k, cy + y2*scale*k];
+      };
+      const unit = W / wrap.clientWidth;
+      if(trail.length > 1){
+        ctx.beginPath();
+        trail.forEach(([r, ang], j) => {
+          const [sx, sy] = project(r, ang + yaw, 0);
+          j === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+        });
+        ctx.strokeStyle = 'rgba(255,215,106,0.55)';
+        ctx.lineWidth = 1.5*unit;
+        ctx.stroke();
+      }
+      const [sr, sth] = polar(0);
+      const [sx, sy] = project(sr, sth + frameRot + yaw, 0);
+      ctx.fillStyle = '#FFD76A';
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5*unit;
+      ctx.beginPath(); ctx.arc(sx, sy, 4.5*unit, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.font = `700 ${13*unit}px 'Noto Sans KR', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 3*unit; ctx.strokeStyle = 'rgba(3,4,12,0.85)';
+      ctx.strokeText('태양', sx, sy - 10*unit);
+      ctx.fillStyle = '#fff';
+      ctx.fillText('태양', sx, sy - 10*unit);
+
+      updateHud();
+      dirty = false;
+    }
+
+    function recordTrail(){
+      const [r, th] = polar(0);
+      trail.push([r, th + (corot ? -OMEGA_P*t : 0), t]);
+      while(trail.length && t - trail[0][2] > TRAIL_MYR) trail.shift();
+    }
+
+    function fmtYears(myr){ return (myr / 100).toFixed(myr < 1000 ? 1 : 0) + '억 년'; }
+    function turns(rad){ return (rad / (2*Math.PI)).toFixed(1); }
+    function updateHud(){
+      $('g3dTime').textContent = `경과 시간: ${fmtYears(t)}` + (t >= END_MYR ? ' (끝)' : '');
+      if(mode === 'wave'){
+        const sunTurns = turns(TH[0] - TH_INIT[0] + OMEGA_P*t);
+        $('g3dSub').textContent = `태양 공전 ${sunTurns}바퀴 · 나선팔 무늬 회전 ${turns(OMEGA_P*t)}바퀴`;
+      } else {
+        $('g3dSub').textContent = `안쪽 별(4 kpc) ${turns(omega(4)*t)}바퀴 · 바깥쪽 별(14 kpc) ${turns(omega(14)*t)}바퀴`;
+      }
+    }
+
+    function setPlaying(on){
+      playing = on && t < END_MYR;
+      $('g3dPlay').textContent = playing ? '⏸ 일시정지' : '▶ 실행';
+    }
+
+    let last = 0;
+    function frame(ts){
+      const dtReal = last ? Math.min(0.05, (ts - last) / 1000) : 0;
+      last = ts;
+      if(playing){
+        step(dtReal * speed);
+        recordTrail();
+        dirty = true;
+      }
+      if(dirty) render();
+      requestAnimationFrame(frame);
+    }
+
+    $('g3dPlay').addEventListener('click', () => {
+      if(t >= END_MYR) reset();
+      setPlaying(!playing);
+    });
+    $('g3dReset').addEventListener('click', reset);
+    document.querySelectorAll('.g3d-mode').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.g3d-mode').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+      reset();
+    }));
+    document.querySelectorAll('.g3d-speed').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.g3d-speed').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      speed = Number(btn.dataset.speed);
+    }));
+    $('g3dCorot').addEventListener('change', e => { corot = e.target.checked; trail = []; dirty = true; });
+
+    let drag = null;
+    wrap.addEventListener('pointerdown', e => {
+      drag = { x: e.clientX, y: e.clientY, yaw, tilt };
+      wrap.setPointerCapture(e.pointerId);
+    });
+    wrap.addEventListener('pointermove', e => {
+      if(!drag) return;
+      yaw = drag.yaw + (e.clientX - drag.x) * 0.008;
+      tilt = Math.min(1.45, Math.max(0, drag.tilt + (e.clientY - drag.y) * 0.006));
+      dirty = true;
+    });
+    const endDrag = () => { drag = null; };
+    wrap.addEventListener('pointerup', endDrag);
+    wrap.addEventListener('pointercancel', endDrag);
+
+    new ResizeObserver(resize).observe(wrap);
+    reset();
+    resize();
+    requestAnimationFrame(frame);
+  })();
+
+  // ── 6. 개념정리 ──
+  $('checkConceptGalaxy').addEventListener('click', () => {
+    const ok = $('blankDiameter').value === '30kpc' &&
+               $('blankStarCount').value === '2000억' &&
+               $('blankSunDist').value === '8.5kpc' &&
+               $('blankTopShape').value === '나선' &&
+               $('blankSideShape').value === '원반';
+    showResult($('resultConceptGalaxy'), ok,
+      '모두 맞았어요. 우리은하는 지름 약 30 kpc, 별 약 2000억 개, 태양계는 은하 중심에서 8.5 kpc 떨어진 나선팔에 위치하며, 위에서 보면 나선(막대나선) 모양, 옆에서 보면 납작한 원반 모양입니다.',
+      '다시 확인해 보세요: 지름 30 kpc / 별 2000억 개 / 태양계-은하중심 거리 8.5 kpc / 위에서 본 모양은 나선(막대나선) / 옆에서 본 모양은 납작한 원반입니다.');
+  });
+
+  // ── 7. 확인 문제 ──
+  $('checkQ1').addEventListener('click', () => {
+    const sel = document.querySelector('input[name=q1opt]:checked');
+    const ok = sel && sel.value === '1';
+    showResult($('resultQ1'), ok,
+      '정답은 ① 은하 중심 방향이기 때문입니다. 별이 밀집된 은하 중심 방향을 볼 때 은하수가 더 넓고 뚜렷하게 보입니다.',
+      '다시 확인해 보세요: 궁수자리 방향은 은하 중심 방향이며, 별이 많이 밀집되어 있어 은하수가 더 뚜렷하게 보입니다.');
+  });
+
+  $('checkQ2').addEventListener('click', () => {
+    const checked = ['q2a','q2b','q2c'].filter(id => $(id).checked);
+    const ok = checked.length===2 && checked.includes('q2a') && checked.includes('q2c');
+    showResult($('resultQ2'), ok,
+      '정답은 ㄱ, ㄷ입니다. 태양계는 은하 중심이 아니라 중심에서 약 8.5 kpc 떨어진 나선팔에 위치합니다.',
+      '다시 확인해 보세요: 정답은 ㄱ, ㄷ입니다. 태양계는 은하 "중심"이 아니라 나선팔에 위치합니다(ㄴ은 틀림).');
+  });
+
+  setupToggle('ox1Group','ox1');
+  setupToggle('ox2Group','ox2');
+  $('checkOX').addEventListener('click', () => {
+    const ok = $('ox1').value==='O' && $('ox2').value==='O';
+    showResult($('resultOX'), ok,
+      '모두 맞았어요. (O, O)',
+      '다시 확인해 보세요: 두 문장 모두 옳은 설명입니다(O, O).');
+  });
+
+  // ── 제출 ──
+  $('submitBtn').addEventListener('click', async () => {
+    const q1 = document.querySelector('input[name=q1opt]:checked');
+    const payload = {
+      form: 'galaxy',
+      stuClass: $('stuClass').value.trim(),
+      stuNumber: $('stuNumber').value.trim(),
+      name: $('stuName').value.trim(),
+
+      reviewAbsMag: $('reviewAbsMag').value.trim(),
+      reviewBetel: $('reviewBetel').value,
+      reviewKilnReason: $('reviewKilnReason').value.trim(),
+
+      blankDiameter: $('blankDiameter').value,
+      blankStarCount: $('blankStarCount').value,
+      blankSunDist: $('blankSunDist').value,
+      blankTopShape: $('blankTopShape').value,
+      blankSideShape: $('blankSideShape').value,
+
+      q1Selected: q1 ? q1.value : '',
+      q2Selected: ['q2a','q2b','q2c'].filter(id => $(id).checked).join(','),
+
+      ox1: $('ox1').value, ox2: $('ox2').value,
+
+      submittedAt: new Date().toISOString()
+    };
+
+    const statusBox = $('statusBox');
+    const btn = $('submitBtn');
+
+    if(!payload.name || !payload.stuClass || !payload.stuNumber){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '반, 번호, 이름을 모두 입력해 주세요.';
+      return;
+    }
+    if(!payload.reviewKilnReason){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '1번 창의적 사고력 서술형 질문에 답을 작성해 주세요.';
+      return;
+    }
+
+    btn.disabled = true;
+    statusBox.className = 'status show sending';
+    statusBox.textContent = '제출하는 중입니다...';
+
+    try{
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      statusBox.className = 'status show success';
+      statusBox.textContent = '제출 완료! 선생님이 확인 후 피드백을 남길 예정입니다.';
+      btn.textContent = '제출 완료';
+    }catch(err){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '제출 중 오류가 발생했습니다. 네트워크를 확인하고 다시 시도해 주세요.';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
