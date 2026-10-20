@@ -1625,6 +1625,13 @@ const BOYLE_LAW_URL = "boyle-law.html";
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
 
+// 중3 ⑦ 별과 우주 워크시트 (경주여중 3학년 자료를 그대로 옮김, 답안은 '아화중_중3_워크시트' 스프레드시트 — code-3rd.gs)
+const PARALLAX_URL = "parallax.html";
+const BRIGHTNESS_URL = "brightness.html";
+const STARCOLOR_URL = "starcolor.html";
+const GALAXY_URL = "galaxy.html";
+const EXPANSION_URL = "expansion.html";
+
 // ⚠️ ultrasonic-drone-game.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const ULTRASONIC_DRONE_URL = "ultrasonic-drone-game.html";
 
@@ -2110,9 +2117,39 @@ const topicsData = {
     title: "⑦ 별과 우주",
     posts: [
       {
-        title: "성단과 성운 — 세 가지 성운의 차이",
-        desc: "방출·반사·암흑 성운이 왜 다르게 보이는지 입자 시뮬레이션으로 확인하고, 수소 원자의 전자가 들떴다가 떨어지며 빛을 내는 원리까지 연결해서 살펴보는 자동 채점 워크시트입니다.",
+        title: "1. 시차 측정하기",
+        desc: "시차를 측정하여 물체까지의 거리와 시차의 관계를 설명하는 라이브 워크시트입니다.",
+        url: PARALLAX_URL,
+        ready: true
+      },
+      {
+        title: "2. 별의 밝기가 다른 까닭은",
+        desc: "빛의 밝기와 거리의 관계, 겉보기 등급과 절대 등급을 시뮬레이션으로 탐구하는 라이브 워크시트입니다.",
+        url: BRIGHTNESS_URL,
+        ready: true
+      },
+      {
+        title: "3. 별의 색이 다른 까닭은",
+        desc: "플랑크 복사 법칙과 H-R도 시뮬레이션으로 별의 표면 온도·색·광도의 관계를 탐구하는 라이브 워크시트입니다.",
+        url: STARCOLOR_URL,
+        ready: true
+      },
+      {
+        title: "4. 은하수와 우리은하",
+        desc: "별의 색·온도 복습과 우리은하 시뮬레이션으로 태양계의 위치를 탐구하는 라이브 워크시트입니다.",
+        url: GALAXY_URL,
+        ready: true
+      },
+      {
+        title: "5. 성단과 성운 — 세 가지 성운의 차이",
+        desc: "구상 성단·산개 성단이 우리은하(헤일로 포함)의 어디에 분포하는지, 방출·반사·암흑 성운이 왜 다르게 보이는지 시뮬레이션으로 확인하고, 수소 원자의 전자가 들떴다가 떨어지며 빛을 내는 원리까지 연결해 살펴보는 자동 채점 워크시트입니다.",
         url: SEONGDAN_SEONGUN_URL,
+        ready: true
+      },
+      {
+        title: "6. 팽창하는 우주",
+        desc: "고무풍선 가상 실험으로 우주 팽창을 측정하고, 도플러 효과(적색·청색 편이) 3D 시뮬레이션과 풍선 우주–허블 법칙 연동 시뮬레이션으로 대폭발 우주론을 탐구하는 자동 채점 워크시트입니다.",
+        url: EXPANSION_URL,
         ready: true
       }
     ]

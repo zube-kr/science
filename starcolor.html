@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배움활동 · 별의 색이 다른 까닭은</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#141B34;
+    --night-deep:#0C1224;
+    --star:#E8C468;
+    --star-soft:#F3DFA0;
+    --paper:#FAF8F3;
+    --paper-line:#E4DFD2;
+    --ink:#1F2430;
+    --ink-soft:#5B6172;
+    --ok:#3F7D5C;
+    --warn:#B0522F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.6;
+  }
+  header.hero{
+    background:radial-gradient(ellipse at 20% -10%, #26325C 0%, var(--night) 45%, var(--night-deep) 100%);
+    color:var(--paper);
+    padding:48px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, var(--star-soft) 99%, transparent),
+      radial-gradient(1.5px 1.5px at 80% 15%, var(--star-soft) 99%, transparent),
+      radial-gradient(1px 1px at 60% 55%, #fff 99%, transparent),
+      radial-gradient(1.5px 1.5px at 92% 70%, var(--star-soft) 99%, transparent),
+      radial-gradient(1px 1px at 35% 80%, #fff 99%, transparent),
+      radial-gradient(1px 1px at 15% 65%, #fff 99%, transparent);
+    opacity:.8;
+  }
+  .hero-inner{ max-width:760px; margin:0 auto; position:relative; }
+  .eyebrow{
+    font-size:13px; letter-spacing:.14em; color:var(--star);
+    text-transform:uppercase; margin-bottom:10px; font-weight:700;
+  }
+  h1{
+    font-family:'Noto Serif KR',serif;
+    font-size:clamp(26px,4vw,34px);
+    margin:0 0 10px;
+    font-weight:700;
+  }
+  .hero p{ color:#C9CEE0; max-width:56ch; margin:0; font-size:15px;}
+
+  main{ max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+
+  section{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:14px;
+    padding:26px 24px;
+    margin-bottom:22px;
+  }
+  section h2{
+    font-family:'Noto Serif KR',serif;
+    font-size:19px;
+    margin:0 0 6px;
+    display:flex; align-items:center; gap:8px;
+  }
+  section h2 .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%;
+    background:var(--night); color:var(--star);
+    font-size:13px; font-family:'Noto Sans KR',sans-serif; font-weight:700;
+    flex:none;
+  }
+  section .hint{ color:var(--ink-soft); font-size:13.5px; margin:0 0 16px; }
+
+  table.answer-table{
+    width:100%; border-collapse:collapse; margin-top:6px; font-size:14.5px;
+  }
+  table.answer-table th, table.answer-table td{
+    border:1px solid var(--paper-line);
+    padding:10px 12px; text-align:left;
+  }
+  table.answer-table th{ background:#F3F0E6; font-weight:700; }
+
+  .cell-pair{ display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .cell-pair label{ font-size:13px; color:var(--ink-soft); white-space:nowrap; }
+
+  textarea, input[type=text], input[type=number]{
+    width:100%; padding:11px 12px; border:1px solid #C9C3B0; border-radius:8px;
+    font-family:inherit; font-size:14.5px; color:var(--ink); resize:vertical;
+  }
+  textarea{ min-height:90px; }
+
+  .id-row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .id-row .field{ flex:1; min-width:160px; }
+  .id-row .field.field-narrow{ flex:0 1 90px; min-width:80px; }
+  .id-row label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:5px; }
+
+  button.submit-btn{
+    background:var(--night); color:var(--star-soft);
+    border:none; border-radius:10px; padding:14px 20px;
+    font-size:15.5px; font-weight:700; cursor:pointer; width:100%;
+    font-family:'Noto Sans KR',sans-serif;
+  }
+  button.submit-btn:disabled{ opacity:.55; cursor:default; }
+  button.submit-btn:hover:not(:disabled){ background:#1D2748; }
+
+  .status{
+    margin-top:14px; font-size:13.5px; padding:12px 14px; border-radius:8px;
+    display:none;
+  }
+  .status.show{ display:block; }
+  .status.sending{ background:#F1F0EA; color:var(--ink-soft); }
+  .status.success{ background:#E9F3EC; color:var(--ok); }
+  .status.error{ background:#FBEDE6; color:var(--warn); }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:12.5px; padding:0 20px 40px; }
+
+  .fill-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; font-size:14.5px; }
+  .blank{
+    display:inline-block; width:90px; padding:7px 8px; border:1px solid #C9C3B0;
+    border-radius:6px; font-family:inherit; font-size:14px; text-align:center;
+  }
+  select.blank{ width:auto; padding:7px 10px; }
+
+  .toggle-group{ display:inline-flex; gap:6px; vertical-align:middle; }
+  .toggle-opt{
+    all:unset; cursor:pointer;
+    padding:7px 14px; border:1px solid #C9C3B0; border-radius:6px;
+    font-size:14px; color:var(--ink); background:#fff; font-family:inherit;
+  }
+  .toggle-opt:hover{ background:#F3F0E6; }
+  .toggle-opt.active{
+    background:var(--night); color:var(--star-soft); border-color:var(--night);
+  }
+
+  .check-btn{
+    background:#F3F0E6; border:1px solid #C9C3B0; color:var(--ink);
+    border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer;
+    font-family:inherit; margin-top:6px;
+  }
+  .check-btn:hover{ background:#EAE5D6; }
+  .check-result{ font-size:13px; font-weight:700; margin-top:8px; display:block; }
+  .check-result.correct{ color:var(--ok); }
+  .check-result.wrong{ color:var(--warn); }
+
+  .option-list{ display:flex; flex-direction:column; gap:9px; margin:10px 0 4px; }
+  .option-list label{ display:flex; gap:9px; align-items:flex-start; font-size:14px; cursor:pointer; }
+  .option-list input{ margin-top:3px; flex:none; }
+
+  .svg-wrap{ background:#0C1224; border-radius:10px; padding:12px; margin:12px 0; }
+  .svg-wrap.light{ background:#fff; border:1px solid var(--paper-line); }
+  .svg-wrap svg{ width:100%; height:auto; display:block; }
+
+  .teacher-note{
+    font-size:12.5px; color:var(--ink-soft); background:#F3F0E6;
+    border-radius:8px; padding:9px 12px; margin-top:10px;
+  }
+
+  .slider-row{ display:flex; align-items:center; gap:12px; margin:10px 0; flex-wrap:wrap; }
+  .slider-row label{ font-size:13.5px; color:var(--ink-soft); min-width:110px; }
+  .slider-row input[type=range]{ flex:1; min-width:160px; accent-color:var(--night); }
+  .slider-readout{ font-size:14px; font-weight:700; color:var(--night); min-width:150px; text-align:right; }
+
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 4px; }
+
+  .color-swatch-name{
+    display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:14px;
+  }
+  .color-swatch-name .dot{
+    width:14px; height:14px; border-radius:50%; border:1px solid #00000022; display:inline-block;
+  }
+
+  .legend-row{ display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); margin-top:8px; }
+  .legend-row .chip{ display:inline-flex; align-items:center; gap:5px; }
+  .legend-row .chip span.box{ width:12px; height:12px; border-radius:3px; display:inline-block; }
+
+  @media (max-width:520px){
+    .slider-row label{ min-width:90px; font-size:12.5px; }
+    .slider-readout{ min-width:120px; font-size:13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Ⅶ. 별과 우주 · 배움활동</div>
+    <h1>별의 색이 다른 까닭은</h1>
+    <p>별의 표면 온도에 따라 색이 달라지는 까닭을 설명하고, 표면 온도·반지름·광도의 관계를 H-R도로 이해할 수 있다. 아래 자료와 시뮬레이션을 탐구한 뒤, 표와 질문에 답해 제출하세요.</p>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2><span class="num">1</span>배움 자료 · 별의 색과 표면 온도</h2>
+    <p class="hint">표면 온도가 높은 별은 붉은색 빛보다 파란색 빛을 많이 방출하고, 표면 온도가 낮은 별은 파란색 빛보다 붉은색 빛을 많이 방출한다. 따라서 파란색을 띠는 별은 표면 온도가 높고, 붉은색을 띠는 별은 표면 온도가 낮다.</p>
+    <div class="svg-wrap light">
+      <svg viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="tempGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#2E6FE0"/>
+            <stop offset="50%" stop-color="#F3DFA0"/>
+            <stop offset="100%" stop-color="#C0392B"/>
+          </linearGradient>
+        </defs>
+        <g font-family="Noto Sans KR" font-size="12" text-anchor="middle" fill="#5B6172">
+          <circle cx="70"  cy="55" r="20" fill="#3E7BFA"/>
+          <circle cx="175" cy="55" r="20" fill="#BFD6FF"/>
+          <circle cx="280" cy="55" r="20" fill="#F4F6FA" stroke="#DADFE8"/>
+          <circle cx="385" cy="55" r="20" fill="#FCEBAF"/>
+          <circle cx="490" cy="55" r="20" fill="#F7D24E"/>
+          <circle cx="570" cy="55" r="17" fill="#F0A93F"/>
+          <circle cx="615" cy="49" r="12" fill="#E0532B"/>
+          <text x="70"  y="90">청색</text>
+          <text x="175" y="90">청백색</text>
+          <text x="280" y="90">백색</text>
+          <text x="385" y="90">황백색</text>
+          <text x="490" y="90">황색</text>
+          <text x="570" y="90">주황색</text>
+          <text x="615" y="90">적색</text>
+        </g>
+        <rect x="30" y="112" width="600" height="8" rx="4" fill="url(#tempGrad)"/>
+        <text x="30" y="140" font-family="Noto Sans KR" font-size="13" fill="#1F2430" font-weight="700">높다</text>
+        <text x="630" y="140" font-family="Noto Sans KR" font-size="13" fill="#1F2430" font-weight="700" text-anchor="end">낮다</text>
+        <text x="330" y="140" font-family="Noto Sans KR" font-size="12.5" fill="#5B6172" text-anchor="middle">표면 온도</text>
+      </svg>
+    </div>
+    <p class="hint" style="margin:14px 0 0;">그림 Ⅶ-8 별의 색과 표면 온도</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>시뮬레이션 · 플랑크 복사 법칙과 별의 색</h2>
+    <p class="hint">모든 물체는 온도에 따라 특정한 파장 분포로 빛(복사 에너지)을 방출한다(플랑크 복사 법칙). 온도가 높을수록 에너지를 가장 많이 방출하는 파장(최대 세기 파장)이 짧은 쪽(파란색)으로 이동하고, 온도가 낮을수록 긴 쪽(붉은색)으로 이동한다. 아래 슬라이더로 별의 표면 온도를 바꾸면서 스펙트럼과 별의 색이 어떻게 달라지는지 확인해 보자.</p>
+
+    <div class="svg-wrap light">
+      <svg id="planckSvg" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+        <g id="spectrumBand"></g>
+        <line x1="40" y1="220" x2="600" y2="220" stroke="#8A93A8" stroke-width="1"/>
+        <line x1="40" y1="20" x2="40" y2="220" stroke="#8A93A8" stroke-width="1"/>
+        <path id="planckCurve" fill="none" stroke="#1F2430" stroke-width="2"/>
+        <line id="peakLine" x1="0" y1="20" x2="0" y2="220" stroke="#B0522F" stroke-width="1.2" stroke-dasharray="4 3"/>
+        <text id="peakLabel" x="0" y="14" font-family="Noto Sans KR" font-size="11" fill="#B0522F" text-anchor="middle">λmax</text>
+        <text x="320" y="245" font-family="Noto Sans KR" font-size="12" fill="#5B6172" text-anchor="middle">파장(짧다 ← → 길다)</text>
+        <text x="20" y="120" font-family="Noto Sans KR" font-size="12" fill="#5B6172" text-anchor="middle" transform="rotate(-90 20 120)">복사 에너지 세기</text>
+        <g id="planckStarGlow"></g>
+        <circle id="planckStar" cx="560" cy="70" r="26" fill="#F7D24E"/>
+      </svg>
+    </div>
+
+    <div class="slider-row">
+      <label for="planckTemp">별의 표면 온도</label>
+      <input type="range" id="planckTemp" min="3000" max="30000" step="100" value="5800">
+      <span class="slider-readout" id="planckTempReadout">5800 K</span>
+    </div>
+    <div class="color-swatch-name">
+      <span class="dot" id="planckColorDot"></span>
+      <span id="planckColorName">황색 (G형)</span>
+    </div>
+    <p class="sim-note" style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;">※ 곡선의 봉우리(점선 λmax)가 온도가 높아질수록 왼쪽(짧은 파장, 파란색)으로 이동하는 것에 주목하자. 아래 색 띠는 사람 눈에 보이는 가시광선 영역(380~780 nm)이다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>학생 정보</h2>
+    <div class="id-row">
+      <div class="field field-narrow">
+        <label for="stuClass">반</label>
+        <input type="number" id="stuClass" placeholder="예: 9" min="1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field field-narrow">
+        <label for="stuNumber">번호</label>
+        <input type="number" id="stuNumber" placeholder="예: 1" min="1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="stuName">이름</label>
+        <input type="text" id="stuName" placeholder="예: 홍길동" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>배움활동 · 별의 표면 온도를 색으로 비교하기</h2>
+    <p class="hint">다음은 밤하늘에서 밝게 빛나는 주요 별의 모습을 나타낸 것이다.</p>
+    <div class="svg-wrap light">
+      <svg viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+        <g font-family="Noto Sans KR" font-size="13" text-anchor="middle">
+          <circle cx="120" cy="70" r="30" fill="#E9803A"/>
+          <circle cx="120" cy="70" r="42" fill="#E9803A" opacity="0.18"/>
+          <text x="120" y="130" fill="#1F2430" font-weight="700">알데바란</text>
+          <circle cx="320" cy="70" r="22" fill="#BFD6FF"/>
+          <circle cx="320" cy="70" r="34" fill="#BFD6FF" opacity="0.22"/>
+          <text x="320" y="130" fill="#1F2430" font-weight="700">스피카</text>
+          <circle cx="520" cy="70" r="24" fill="#FCEBAF"/>
+          <circle cx="520" cy="70" r="36" fill="#FCEBAF" opacity="0.2"/>
+          <text x="520" y="130" fill="#1F2430" font-weight="700">카펠라</text>
+        </g>
+      </svg>
+    </div>
+    <p class="hint" style="margin-top:16px;">1. 표면 온도가 높을 것으로 예상되는 별부터 순서대로 나열해 보자.</p>
+    <div class="fill-row">
+      <select class="blank" id="starOrder1"><option value="">1위(가장 높다)</option><option>알데바란</option><option>스피카</option><option>카펠라</option></select>
+      <select class="blank" id="starOrder2"><option value="">2위</option><option>알데바란</option><option>스피카</option><option>카펠라</option></select>
+      <select class="blank" id="starOrder3"><option value="">3위(가장 낮다)</option><option>알데바란</option><option>스피카</option><option>카펠라</option></select>
+    </div>
+    <button class="check-btn" id="checkStarOrder">정답 확인</button>
+    <span class="check-result" id="resultStarOrder"></span>
+
+    <p class="hint" style="margin-top:20px;">2. 주변 친구에게 별의 표면 온도를 색으로 비교하여 설명해 보자.</p>
+    <textarea id="starCompareReason" placeholder="예: 스피카는 청백색이라 표면 온도가 가장 높고, 알데바란은 주황색이라 표면 온도가 가장 낮다. 왜냐하면..."></textarea>
+    <p class="teacher-note">이 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>시뮬레이션 · H-R도로 보는 온도·반지름·광도의 관계</h2>
+    <p class="hint">별의 광도(실제 밝기)는 표면 온도와 반지름에 따라 달라진다(광도 ∝ 반지름² × 온도⁴). 아래에서 표면 온도와 반지름을 바꾸면서 별이 H-R도(가로축: 표면 온도, 세로축: 광도) 위 어디에 위치하는지, 크기와 색이 어떻게 달라지는지 확인해 보자.</p>
+
+    <div class="svg-wrap light">
+      <svg id="hrSvg" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg">
+        <g id="hrZones"></g>
+        <line x1="70" y1="20" x2="70" y2="340" stroke="#8A93A8" stroke-width="1"/>
+        <line x1="70" y1="340" x2="600" y2="340" stroke="#8A93A8" stroke-width="1"/>
+        <text x="335" y="365" font-family="Noto Sans KR" font-size="12" fill="#5B6172" text-anchor="middle">표면 온도 (높다 ← → 낮다)</text>
+        <text x="30" y="180" font-family="Noto Sans KR" font-size="12" fill="#5B6172" text-anchor="middle" transform="rotate(-90 30 180)">광도(태양=1)</text>
+        <g id="hrGlow"></g>
+        <circle id="hrStar" cx="300" cy="180" r="10" fill="#F7D24E" stroke="#1F2430" stroke-width="0.5"/>
+      </svg>
+    </div>
+    <div class="legend-row">
+      <span class="chip"><span class="box" style="background:#E8C468;"></span>주계열</span>
+      <span class="chip"><span class="box" style="background:#E9A9A0;"></span>거성</span>
+      <span class="chip"><span class="box" style="background:#7FB0E0;"></span>초거성</span>
+      <span class="chip"><span class="box" style="background:#C9CEE0;"></span>백색왜성</span>
+    </div>
+
+    <div class="slider-row">
+      <label for="hrTemp">표면 온도</label>
+      <input type="range" id="hrTemp" min="3000" max="30000" step="100" value="5800">
+      <span class="slider-readout" id="hrTempReadout">5800 K</span>
+    </div>
+    <div class="slider-row">
+      <label for="hrRadius">반지름(태양=1)</label>
+      <input type="range" id="hrRadius" min="0" max="100" step="1" value="50">
+      <span class="slider-readout" id="hrRadiusReadout">1.0 배</span>
+    </div>
+    <div class="preset-row">
+      <button type="button" class="toggle-opt" data-t="5800" data-r="50">태양</button>
+      <button type="button" class="toggle-opt" data-t="4000" data-r="88">적색거성</button>
+      <button type="button" class="toggle-opt" data-t="12000" data-r="8">백색왜성</button>
+      <button type="button" class="toggle-opt" data-t="25000" data-r="80">청색초거성</button>
+    </div>
+    <div id="hrReadout" style="font-size:13.5px; color:var(--ink-soft); margin-top:6px;"></div>
+
+    <p class="hint" style="margin-top:20px;">1. 표면 온도가 같을 때, 반지름이 큰 별일수록 광도는 어떻게 달라지는가?</p>
+    <span class="toggle-group" id="hrRadiusEffectGroup">
+      <button type="button" class="toggle-opt" data-value="커진다">커진다</button>
+      <button type="button" class="toggle-opt" data-value="작아진다">작아진다</button>
+    </span>
+    <input type="hidden" id="hrRadiusEffect">
+
+    <p class="hint" style="margin-top:16px;">2. 반지름이 같을 때, 표면 온도가 높을수록 광도는 어떻게 달라지는가?</p>
+    <span class="toggle-group" id="hrTempEffectGroup">
+      <button type="button" class="toggle-opt" data-value="커진다">커진다</button>
+      <button type="button" class="toggle-opt" data-value="작아진다">작아진다</button>
+    </span>
+    <input type="hidden" id="hrTempEffect">
+    <button class="check-btn" id="checkHR">정답 확인</button>
+    <span class="check-result" id="resultHR"></span>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>개념정리</h2>
+    <div class="fill-row">
+      (1) 표면 온도가 높은 별은
+      <span class="toggle-group" id="hotColorGroup">
+        <button type="button" class="toggle-opt" data-value="파란색">파란색</button>
+        <button type="button" class="toggle-opt" data-value="붉은색">붉은색</button>
+      </span>
+      <input type="hidden" id="hotColor">
+      빛을 더 많이 방출한다.
+    </div>
+    <div class="fill-row">
+      (2) 표면 온도가 낮은 별은
+      <span class="toggle-group" id="coldColorGroup">
+        <button type="button" class="toggle-opt" data-value="파란색">파란색</button>
+        <button type="button" class="toggle-opt" data-value="붉은색">붉은색</button>
+      </span>
+      <input type="hidden" id="coldColor">
+      빛을 더 많이 방출한다.
+    </div>
+    <button class="check-btn" id="checkConcept">정답 확인</button>
+    <span class="check-result" id="resultConcept"></span>
+
+    <p style="font-size:14.5px; margin:22px 0 4px;"><b>옳으면 O, 옳지 않으면 X를 골라 보자.</b></p>
+    <div class="fill-row">
+      1. 표면 온도가 높을수록 파란색 빛을 많이 낸다.
+      <span class="toggle-group" id="ox1Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox1">
+    </div>
+    <div class="fill-row">
+      2. 반지름이 같은 두 별 중 표면 온도가 높은 별의 광도가 더 크다.
+      <span class="toggle-group" id="ox2Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox2">
+    </div>
+    <div class="fill-row">
+      3. H-R도에서 표면 온도는 높지만 광도가 매우 큰 별(왼쪽 위 영역)은 백색왜성이다.
+      <span class="toggle-group" id="ox3Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox3">
+    </div>
+    <button class="check-btn" id="checkOX">정답 확인</button>
+    <span class="check-result" id="resultOX"></span>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>확인 문제</h2>
+
+    <p style="font-size:14.5px; margin:0 0 8px;"><b>문제 1.</b> 표면 온도가 가장 높은 별의 색으로 옳은 것은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="q1opt" value="1"> ① 적색</label>
+      <label><input type="radio" name="q1opt" value="2"> ② 황색</label>
+      <label><input type="radio" name="q1opt" value="3"> ③ 청색</label>
+      <label><input type="radio" name="q1opt" value="4"> ④ 백색</label>
+      <label><input type="radio" name="q1opt" value="5"> ⑤ 주황색</label>
+    </div>
+    <button class="check-btn" id="checkQ1">정답 확인</button>
+    <span class="check-result" id="resultQ1"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>문제 2.</b> 표면 온도가 같은 두 별 A, B가 있다. 별 A의 반지름이 별 B보다 클 때, 이에 대한 설명으로 옳은 것을 모두 고르시오.</p>
+    <div class="option-list">
+      <label><input type="checkbox" id="q2a"> ㄱ. A의 광도가 B보다 크다.</label>
+      <label><input type="checkbox" id="q2b"> ㄴ. A와 B가 단위 시간·단위 면적당 방출하는 에너지양(표면 온도)은 같다.</label>
+      <label><input type="checkbox" id="q2c"> ㄷ. A의 겉보기 등급은 항상 B보다 작다(밝게 보인다).</label>
+    </div>
+    <button class="check-btn" id="checkQ2">정답 확인</button>
+    <span class="check-result" id="resultQ2"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>문제 3.</b> H-R도에서 태양보다 표면 온도는 낮지만 광도는 훨씬 큰 별은 어느 종류에 해당하는가?</p>
+    <div class="option-list">
+      <label><input type="radio" name="q3opt" value="1"> ① 주계열성</label>
+      <label><input type="radio" name="q3opt" value="2"> ② 백색왜성</label>
+      <label><input type="radio" name="q3opt" value="3"> ③ 적색거성(초거성)</label>
+      <label><input type="radio" name="q3opt" value="4"> ④ 원시성</label>
+    </div>
+    <button class="check-btn" id="checkQ3">정답 확인</button>
+    <span class="check-result" id="resultQ3"></span>
+  </section>
+
+  <section>
+    <button class="submit-btn" id="submitBtn">답안 제출하기</button>
+    <div class="status" id="statusBox"></div>
+  </section>
+
+</main>
+
+<footer>제출한 답은 선생님이 확인 후 개별 피드백을 남깁니다.</footer>
+
+<script>
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+
+  const $ = (id) => document.getElementById(id);
+  const svgNS = "http://www.w3.org/2000/svg";
+  function norm(s){ return (s || '').replace(/\s/g,''); }
+  function showResult(el, ok, correctMsg, wrongMsg){
+    el.className = 'check-result ' + (ok ? 'correct' : 'wrong');
+    el.textContent = ok ? ('✓ ' + correctMsg) : ('✗ ' + wrongMsg);
+  }
+  function setupToggle(groupId, hiddenId){
+    const group = $(groupId);
+    const hidden = $(hiddenId);
+    group.querySelectorAll('.toggle-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        hidden.value = btn.dataset.value;
+      });
+    });
+  }
+
+  // ── 색 계산 유틸 ──
+  function kelvinToRGB(kelvin){
+    const temp = kelvin/100;
+    let r,g,b;
+    if(temp <= 66){ r = 255; }
+    else { r = 329.698727446 * Math.pow(temp-60, -0.1332047592); }
+    r = Math.min(255, Math.max(0, r));
+
+    if(temp <= 66){ g = 99.4708025861*Math.log(temp) - 161.1195681661; }
+    else { g = 288.1221695283 * Math.pow(temp-60, -0.0755148492); }
+    g = Math.min(255, Math.max(0, g));
+
+    if(temp >= 66){ b = 255; }
+    else if(temp <= 19){ b = 0; }
+    else { b = 138.5177312231*Math.log(temp-10) - 305.0447927307; }
+    b = Math.min(255, Math.max(0, b));
+
+    return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  }
+  function wavelengthToRGB(wl){
+    let r=0,g=0,b=0,factor;
+    if(wl>=380 && wl<440){ r=-(wl-440)/(440-380); g=0; b=1; }
+    else if(wl>=440 && wl<490){ r=0; g=(wl-440)/(490-440); b=1; }
+    else if(wl>=490 && wl<510){ r=0; g=1; b=-(wl-510)/(510-490); }
+    else if(wl>=510 && wl<580){ r=(wl-510)/(580-510); g=1; b=0; }
+    else if(wl>=580 && wl<645){ r=1; g=-(wl-645)/(645-580); b=0; }
+    else if(wl>=645 && wl<=780){ r=1; g=0; b=0; }
+    if(wl>=380 && wl<420) factor = 0.3+0.7*(wl-380)/(420-380);
+    else if(wl>=420 && wl<701) factor = 1.0;
+    else if(wl>=701 && wl<=780) factor = 0.3+0.7*(780-wl)/(780-700);
+    else factor = 0.0;
+    const gamma=0.8;
+    const R = r===0?0:Math.round(255*Math.pow(r*factor,gamma));
+    const G = g===0?0:Math.round(255*Math.pow(g*factor,gamma));
+    const B = b===0?0:Math.round(255*Math.pow(b*factor,gamma));
+    return `rgb(${R},${G},${B})`;
+  }
+  function classify(T){
+    if(T>=30000) return {cls:'O', name:'청색'};
+    if(T>=10000) return {cls:'B', name:'청백색'};
+    if(T>=7500)  return {cls:'A', name:'백색'};
+    if(T>=6000)  return {cls:'F', name:'황백색'};
+    if(T>=5200)  return {cls:'G', name:'황색'};
+    if(T>=3700)  return {cls:'K', name:'주황색'};
+    return {cls:'M', name:'적색'};
+  }
+
+  // ── 2. 플랑크 복사 법칙 시뮬레이션 ──
+  const PL_X0=40, PL_X1=600, PL_Y0=220, PL_Y1=20, PL_LMIN=100, PL_LMAX=2600;
+  const PL_VIS_LO=380, PL_VIS_HI=780; // 가시광선 파장 범위(nm)
+  function smoothPath(points){
+    if(points.length < 3){
+      return points.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    }
+    let d = `M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)} `;
+    for(let i=0; i<points.length-1; i++){
+      const p0 = points[i-1] || points[i];
+      const p1 = points[i];
+      const p2 = points[i+1];
+      const p3 = points[i+2] || p2;
+      const cp1x = p1[0] + (p2[0]-p0[0])/6;
+      const cp1y = p1[1] + (p2[1]-p0[1])/6;
+      const cp2x = p2[0] - (p3[0]-p1[0])/6;
+      const cp2y = p2[1] - (p3[1]-p1[1])/6;
+      d += `C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)} `;
+    }
+    return d;
+  }
+  function planckB(lambdaNm, T){
+    const lambda = lambdaNm*1e-9;
+    const h=6.626e-34, c=3e8, k=1.381e-23;
+    const x = (h*c)/(lambda*k*T);
+    if(x>700) return 0;
+    return (1/Math.pow(lambda,5)) * (1/(Math.exp(x)-1));
+  }
+  // 파장→x좌표 변환: 가시광선(380~780nm) 구간에 픽셀을 더 많이 배정해 눈에 잘 띄게
+  // 넓혀 그리되, 구간 경계 없이 연속적으로(가우시안 가중치) 밀도를 바꿔서 꺾이는 지점
+  // 없이 매끈하게 이어지도록 한다. 곡선·λmax 표시선·무지개 띠가 항상 이 매핑 하나를
+  // 공유하므로 서로 어긋나지 않는다.
+  const WARP_N = 400;
+  const warpFrac = new Array(WARP_N+1);
+  (function buildWarp(){
+    const center = (PL_VIS_LO+PL_VIS_HI)/2;
+    const sigma = (PL_VIS_HI-PL_VIS_LO)/2.2;
+    const extraWeight = 5;
+    let cum = 0;
+    for(let i=0;i<=WARP_N;i++){
+      const nm = PL_LMIN + (PL_LMAX-PL_LMIN)*i/WARP_N;
+      const density = 1 + extraWeight*Math.exp(-0.5*Math.pow((nm-center)/sigma,2));
+      cum += density;
+      warpFrac[i] = cum;
+    }
+    const total = warpFrac[WARP_N];
+    for(let i=0;i<=WARP_N;i++) warpFrac[i] /= total;
+  })();
+  function lambdaToFrac(nm){
+    const t = Math.max(0, Math.min(WARP_N, (nm-PL_LMIN)/(PL_LMAX-PL_LMIN)*WARP_N));
+    const i0 = Math.min(WARP_N-1, Math.floor(t));
+    const f = t - i0;
+    return warpFrac[i0]*(1-f) + warpFrac[i0+1]*f;
+  }
+  function lambdaToX(nm){
+    return PL_X0 + lambdaToFrac(nm)*(PL_X1-PL_X0);
+  }
+
+  (function buildSpectrumBand(){
+    const g = $('spectrumBand');
+    const steps = 100;
+    for(let i=0; i<steps; i++){
+      const wl0 = PL_VIS_LO + (PL_VIS_HI-PL_VIS_LO)*i/steps;
+      const wl1 = PL_VIS_LO + (PL_VIS_HI-PL_VIS_LO)*(i+1)/steps;
+      const x0 = lambdaToX(wl0), x1 = lambdaToX(wl1);
+      const rect = document.createElementNS(svgNS,'rect');
+      rect.setAttribute('x', x0); rect.setAttribute('y', 222);
+      rect.setAttribute('width', Math.max(1,x1-x0)); rect.setAttribute('height', 16);
+      rect.setAttribute('fill', wavelengthToRGB((wl0+wl1)/2));
+      g.appendChild(rect);
+    }
+    const bx0 = lambdaToX(PL_VIS_LO), bx1 = lambdaToX(PL_VIS_HI);
+    const border = document.createElementNS(svgNS,'rect');
+    border.setAttribute('x', bx0); border.setAttribute('y', 222);
+    border.setAttribute('width', bx1-bx0); border.setAttribute('height', 16);
+    border.setAttribute('fill', 'none'); border.setAttribute('stroke', '#1F2430'); border.setAttribute('stroke-width', 1);
+    g.appendChild(border);
+  })();
+
+  function updatePlanck(T){
+    const N = 160;
+    let maxB = 0;
+    const vals = [];
+    for(let i=0;i<=N;i++){
+      const nm = PL_LMIN + (PL_LMAX-PL_LMIN)*i/N;
+      const val = planckB(nm, T);
+      vals.push(val);
+      if(val>maxB) maxB = val;
+    }
+    const points = [];
+    for(let i=0;i<=N;i++){
+      const nm = PL_LMIN + (PL_LMAX-PL_LMIN)*i/N;
+      const x = lambdaToX(nm);
+      const y = PL_Y0 - (vals[i]/maxB)*(PL_Y0-PL_Y1);
+      points.push([x,y]);
+    }
+    $('planckCurve').setAttribute('d', smoothPath(points));
+
+    const peakNm = 2.8977719e6 / T;
+    const clampedPeak = Math.min(PL_LMAX, Math.max(PL_LMIN, peakNm));
+    const px = lambdaToX(clampedPeak);
+    $('peakLine').setAttribute('x1', px); $('peakLine').setAttribute('x2', px);
+    $('peakLabel').setAttribute('x', px);
+
+    const info = classify(T);
+    const color = kelvinToRGB(T);
+    $('planckStar').setAttribute('fill', color);
+    $('planckColorDot').style.background = color;
+    $('planckColorName').textContent = `${info.name} (${info.cls}형)`;
+    $('planckTempReadout').textContent = `${T} K`;
+
+    const glow = $('planckStarGlow');
+    glow.innerHTML = '';
+    [46,36].forEach((r,idx)=>{
+      const c = document.createElementNS(svgNS,'circle');
+      c.setAttribute('cx',560); c.setAttribute('cy',70); c.setAttribute('r',r);
+      c.setAttribute('fill', color); c.setAttribute('opacity', idx===0?0.12:0.22);
+      glow.appendChild(c);
+    });
+  }
+  $('planckTemp').addEventListener('input', (e)=> updatePlanck(Number(e.target.value)));
+  updatePlanck(Number($('planckTemp').value));
+
+  // ── 5. H-R도 시뮬레이션 ──
+  const HR_X0=70, HR_X1=600, HR_Y0=340, HR_Y1=20;
+  const HR_TMIN=2500, HR_TMAX=40000, HR_LMIN=-4, HR_LMAX=6;
+  function hrX(T){
+    const frac = (Math.log10(T)-Math.log10(HR_TMIN)) / (Math.log10(HR_TMAX)-Math.log10(HR_TMIN));
+    const f = Math.min(1, Math.max(0, frac));
+    return HR_X1 - f*(HR_X1-HR_X0);
+  }
+  function hrY(L){
+    const frac = (Math.log10(L)-HR_LMIN) / (HR_LMAX-HR_LMIN);
+    const f = Math.min(1, Math.max(0, frac));
+    return HR_Y0 - f*(HR_Y0-HR_Y1);
+  }
+  (function buildHRZones(){
+    const g = $('hrZones');
+    function ellipse(cxT,cyL,rx,ry,color,label){
+      const e = document.createElementNS(svgNS,'ellipse');
+      e.setAttribute('cx', hrX(cxT)); e.setAttribute('cy', hrY(cyL));
+      e.setAttribute('rx', rx); e.setAttribute('ry', ry);
+      e.setAttribute('fill', color); e.setAttribute('opacity', 0.28);
+      g.appendChild(e);
+      const t = document.createElementNS(svgNS,'text');
+      t.setAttribute('x', hrX(cxT)); t.setAttribute('y', hrY(cyL));
+      t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','12');
+      t.setAttribute('font-family','Noto Sans KR'); t.setAttribute('fill','#3a3f4d');
+      t.setAttribute('font-weight','700');
+      t.textContent = label;
+      g.appendChild(t);
+    }
+    // 주계열 (대각선 띠)
+    const msPts = [[28000,90000],[15000,1200],[9000,25],[7000,3.5],[5778,1],[4500,0.35],[3200,0.02]];
+    let d = '';
+    msPts.forEach((p,i)=>{ d += (i===0?'M':'L') + hrX(p[0]).toFixed(1) + ',' + hrY(p[1]).toFixed(1) + ' '; });
+    const path = document.createElementNS(svgNS,'path');
+    path.setAttribute('d', d); path.setAttribute('fill','none');
+    path.setAttribute('stroke', '#E8C468'); path.setAttribute('stroke-width', 22);
+    path.setAttribute('stroke-linecap','round'); path.setAttribute('opacity', 0.35);
+    g.appendChild(path);
+    const msLabel = document.createElementNS(svgNS,'text');
+    msLabel.setAttribute('x', hrX(7000)); msLabel.setAttribute('y', hrY(3.5)-14);
+    msLabel.setAttribute('font-family','Noto Sans KR'); msLabel.setAttribute('font-size','12');
+    msLabel.setAttribute('fill','#8a6d1a'); msLabel.setAttribute('font-weight','700');
+    msLabel.textContent = '주계열';
+    g.appendChild(msLabel);
+
+    ellipse(4300, 200, 70, 40, '#E9A9A0', '거성');
+    ellipse(12000, 60000, 130, 50, '#7FB0E0', '초거성');
+    ellipse(15000, 0.003, 55, 26, '#C9CEE0', '백색왜성');
+  })();
+
+  function updateHR(T, R){
+    const L = R*R*Math.pow(T/5778, 4);
+    const x = hrX(T), y = hrY(L);
+    const drawnR = Math.min(42, Math.max(3, 4 + 7*Math.log10(Math.max(R,0.005))+14));
+    const color = kelvinToRGB(T);
+    const star = $('hrStar');
+    star.setAttribute('cx', x); star.setAttribute('cy', y);
+    star.setAttribute('r', drawnR); star.setAttribute('fill', color);
+
+    const glow = $('hrGlow');
+    glow.innerHTML = '';
+    const g1 = document.createElementNS(svgNS,'circle');
+    g1.setAttribute('cx',x); g1.setAttribute('cy',y); g1.setAttribute('r', drawnR*1.8);
+    g1.setAttribute('fill', color); g1.setAttribute('opacity', 0.18);
+    glow.appendChild(g1);
+
+    $('hrTempReadout').textContent = `${T} K`;
+    $('hrRadiusReadout').textContent = `${R.toFixed(2)} 배`;
+    $('hrReadout').innerHTML = `계산된 광도 ≈ <b>${L < 0.01 ? L.toExponential(2) : L.toFixed(2)}</b> (태양 = 1) · 분광형 ${classify(T).cls}형(${classify(T).name})`;
+    return L;
+  }
+  function radiusFromSlider(v){ return Math.pow(10, (v/100)*4 - 2); }
+  function sliderFromRadius(R){ return Math.round(((Math.log10(R)+2)/4)*100); }
+
+  function refreshHR(){
+    const T = Number($('hrTemp').value);
+    const R = radiusFromSlider(Number($('hrRadius').value));
+    updateHR(T,R);
+  }
+  $('hrTemp').addEventListener('input', refreshHR);
+  $('hrRadius').addEventListener('input', refreshHR);
+  document.querySelectorAll('.preset-row .toggle-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $('hrTemp').value = btn.dataset.t;
+      $('hrRadius').value = btn.dataset.r;
+      refreshHR();
+    });
+  });
+  refreshHR();
+
+  setupToggle('hrRadiusEffectGroup','hrRadiusEffect');
+  setupToggle('hrTempEffectGroup','hrTempEffect');
+  $('checkHR').addEventListener('click', () => {
+    const ok = $('hrRadiusEffect').value === '커진다' && $('hrTempEffect').value === '커진다';
+    showResult($('resultHR'), ok,
+      '모두 맞았어요. 반지름이 클수록, 표면 온도가 높을수록 광도는 커집니다(광도 ∝ 반지름² × 온도⁴).',
+      '다시 확인해 보세요: 반지름이 클수록 광도는 "커지고", 표면 온도가 높을수록 광도도 "커집니다".');
+  });
+
+  // ── 4. 배움활동 정답 확인 ──
+  $('checkStarOrder').addEventListener('click', () => {
+    const order = [$('starOrder1').value, $('starOrder2').value, $('starOrder3').value].join(',');
+    const ok = order === '스피카,카펠라,알데바란';
+    showResult($('resultStarOrder'), ok,
+      '정답이에요. 스피카(청백색) > 카펠라(황백색) > 알데바란(주황색) 순으로 표면 온도가 높습니다.',
+      '다시 확인해 보세요: 색이 파란색에 가까울수록 표면 온도가 높습니다. 스피카(청백색)가 가장 높고, 알데바란(주황색)이 가장 낮습니다.');
+  });
+
+  // ── 6. 개념정리 ──
+  setupToggle('hotColorGroup','hotColor');
+  setupToggle('coldColorGroup','coldColor');
+  $('checkConcept').addEventListener('click', () => {
+    const ok = $('hotColor').value==='파란색' && $('coldColor').value==='붉은색';
+    showResult($('resultConcept'), ok,
+      '모두 맞았어요. 표면 온도가 높을수록 파란색 빛을, 낮을수록 붉은색 빛을 많이 방출합니다.',
+      '다시 확인해 보세요: 표면 온도가 높은 별은 "파란색", 낮은 별은 "붉은색" 빛을 더 많이 냅니다.');
+  });
+
+  setupToggle('ox1Group','ox1');
+  setupToggle('ox2Group','ox2');
+  setupToggle('ox3Group','ox3');
+  $('checkOX').addEventListener('click', () => {
+    const ok = $('ox1').value==='O' && $('ox2').value==='O' && $('ox3').value==='X';
+    showResult($('resultOX'), ok,
+      '모두 맞았어요. (O, O, X) 온도도 높고 광도도 큰 별(H-R도 왼쪽 위)은 뜨거운 주계열성이나 초거성입니다. 백색왜성은 온도는 높지만 반지름이 매우 작아 광도가 작습니다(왼쪽 아래).',
+      '다시 확인해 보세요: 온도 높을수록 파란빛(O), 반지름 같으면 온도 높을수록 광도 큼(O), 온도도 높고 광도도 큰 별은 백색왜성이 아니라 뜨거운 주계열성·초거성입니다(X).');
+  });
+
+  // ── 7. 확인 문제 ──
+  $('checkQ1').addEventListener('click', () => {
+    const sel = document.querySelector('input[name=q1opt]:checked');
+    const ok = sel && sel.value === '3';
+    showResult($('resultQ1'), ok,
+      '정답은 ③ 청색입니다. 표면 온도가 높을수록 파란색 빛을 많이 냅니다.',
+      '다시 확인해 보세요: 표면 온도가 가장 높은 별의 색은 파란색(청색)입니다.');
+  });
+
+  $('checkQ2').addEventListener('click', () => {
+    const checked = ['q2a','q2b','q2c'].filter(id => $(id).checked);
+    const ok = checked.length===2 && checked.includes('q2a') && checked.includes('q2b');
+    showResult($('resultQ2'), ok,
+      '정답은 ㄱ, ㄴ입니다. 온도가 같으면 단위 면적당 방출 에너지는 같지만, 반지름이 큰 A가 전체 표면적이 넓어 광도(전체 에너지 방출량)는 더 큽니다. 겉보기 등급은 지구까지의 거리에도 영향을 받으므로 ㄷ은 항상 옳다고 할 수 없습니다.',
+      '다시 확인해 보세요: 정답은 ㄱ, ㄴ입니다. 겉보기 등급(ㄷ)은 거리에 따라서도 달라지므로 반지름만으로 항상 옳다고 할 수 없습니다.');
+  });
+
+  $('checkQ3').addEventListener('click', () => {
+    const sel = document.querySelector('input[name=q3opt]:checked');
+    const ok = sel && sel.value === '3';
+    showResult($('resultQ3'), ok,
+      '정답은 ③ 적색거성(초거성)입니다. H-R도에서 온도는 낮지만(오른쪽) 광도는 매우 큰(위쪽) 별들이 이 영역에 해당합니다.',
+      '다시 확인해 보세요: H-R도에서 오른쪽 위(온도 낮음·광도 큼) 영역은 적색거성·초거성입니다.');
+  });
+
+  // ── 제출 ──
+  $('submitBtn').addEventListener('click', async () => {
+    const q1 = document.querySelector('input[name=q1opt]:checked');
+    const q3 = document.querySelector('input[name=q3opt]:checked');
+    const payload = {
+      form: 'starcolor',
+      stuClass: $('stuClass').value.trim(),
+      stuNumber: $('stuNumber').value.trim(),
+      name: $('stuName').value.trim(),
+
+      starOrder: [$('starOrder1').value, $('starOrder2').value, $('starOrder3').value].join('>'),
+      starCompareReason: $('starCompareReason').value.trim(),
+
+      hrRadiusEffect: $('hrRadiusEffect').value,
+      hrTempEffect: $('hrTempEffect').value,
+
+      hotColor: $('hotColor').value,
+      coldColor: $('coldColor').value,
+
+      q1Selected: q1 ? q1.value : '',
+      q2Selected: ['q2a','q2b','q2c'].filter(id => $(id).checked).join(','),
+      q3Selected: q3 ? q3.value : '',
+
+      ox1: $('ox1').value, ox2: $('ox2').value, ox3: $('ox3').value,
+
+      submittedAt: new Date().toISOString()
+    };
+
+    const statusBox = $('statusBox');
+    const btn = $('submitBtn');
+
+    if(!payload.name || !payload.stuClass || !payload.stuNumber){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '반, 번호, 이름을 모두 입력해 주세요.';
+      return;
+    }
+    if(!payload.starCompareReason){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '배움활동 2번 서술형 질문에 답을 작성해 주세요.';
+      return;
+    }
+
+    btn.disabled = true;
+    statusBox.className = 'status show sending';
+    statusBox.textContent = '제출하는 중입니다...';
+
+    try{
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      statusBox.className = 'status show success';
+      statusBox.textContent = '제출 완료! 선생님이 확인 후 피드백을 남길 예정입니다.';
+      btn.textContent = '제출 완료';
+    }catch(err){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '제출 중 오류가 발생했습니다. 네트워크를 확인하고 다시 시도해 주세요.';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배움활동 · 별의 밝기가 다른 까닭은</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#141B34;
+    --night-deep:#0C1224;
+    --star:#E8C468;
+    --star-soft:#F3DFA0;
+    --paper:#FAF8F3;
+    --paper-line:#E4DFD2;
+    --ink:#1F2430;
+    --ink-soft:#5B6172;
+    --ok:#3F7D5C;
+    --warn:#B0522F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.6;
+  }
+  header.hero{
+    background:radial-gradient(ellipse at 20% -10%, #26325C 0%, var(--night) 45%, var(--night-deep) 100%);
+    color:var(--paper);
+    padding:48px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, var(--star-soft) 99%, transparent),
+      radial-gradient(1.5px 1.5px at 80% 15%, var(--star-soft) 99%, transparent),
+      radial-gradient(1px 1px at 60% 55%, #fff 99%, transparent),
+      radial-gradient(1.5px 1.5px at 92% 70%, var(--star-soft) 99%, transparent),
+      radial-gradient(1px 1px at 35% 80%, #fff 99%, transparent),
+      radial-gradient(1px 1px at 15% 65%, #fff 99%, transparent);
+    opacity:.8;
+  }
+  .hero-inner{ max-width:760px; margin:0 auto; position:relative; }
+  .eyebrow{
+    font-size:13px; letter-spacing:.14em; color:var(--star);
+    text-transform:uppercase; margin-bottom:10px; font-weight:700;
+  }
+  h1{
+    font-family:'Noto Serif KR',serif;
+    font-size:clamp(26px,4vw,34px);
+    margin:0 0 10px;
+    font-weight:700;
+  }
+  .hero p{ color:#C9CEE0; max-width:56ch; margin:0; font-size:15px;}
+
+  main{ max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+
+  section{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:14px;
+    padding:26px 24px;
+    margin-bottom:22px;
+  }
+  section h2{
+    font-family:'Noto Serif KR',serif;
+    font-size:19px;
+    margin:0 0 6px;
+    display:flex; align-items:center; gap:8px;
+  }
+  section h2 .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%;
+    background:var(--night); color:var(--star);
+    font-size:13px; font-family:'Noto Sans KR',sans-serif; font-weight:700;
+    flex:none;
+  }
+  section .hint{ color:var(--ink-soft); font-size:13.5px; margin:0 0 16px; }
+
+  table.answer-table{
+    width:100%; border-collapse:collapse; margin-top:6px; font-size:14.5px;
+  }
+  table.answer-table th, table.answer-table td{
+    border:1px solid var(--paper-line);
+    padding:10px 12px; text-align:left;
+  }
+  table.answer-table th{
+    background:#F3F0E6; font-weight:700;
+  }
+  select.num-select{
+    width:100%; padding:8px 10px; border:1px solid #C9C3B0; border-radius:8px;
+    font-size:14.5px; background:#fff; color:var(--ink); font-family:inherit;
+  }
+  .cell-pair{ display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .cell-pair label{ font-size:13px; color:var(--ink-soft); white-space:nowrap; }
+  .cell-pair .field{ display:flex; flex-direction:column; gap:4px; min-width:110px; }
+
+  textarea, input[type=text], input[type=number]{
+    width:100%; padding:11px 12px; border:1px solid #C9C3B0; border-radius:8px;
+    font-family:inherit; font-size:14.5px; color:var(--ink); resize:vertical;
+  }
+  textarea{ min-height:90px; }
+
+  .id-row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .id-row .field{ flex:1; min-width:160px; }
+  .id-row .field.field-narrow{ flex:0 1 90px; min-width:80px; }
+  .id-row label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:5px; }
+
+  button.submit-btn{
+    background:var(--night); color:var(--star-soft);
+    border:none; border-radius:10px; padding:14px 20px;
+    font-size:15.5px; font-weight:700; cursor:pointer; width:100%;
+    font-family:'Noto Sans KR',sans-serif;
+  }
+  button.submit-btn:disabled{ opacity:.55; cursor:default; }
+  button.submit-btn:hover:not(:disabled){ background:#1D2748; }
+
+  .status{
+    margin-top:14px; font-size:13.5px; padding:12px 14px; border-radius:8px;
+    display:none;
+  }
+  .status.show{ display:block; }
+  .status.sending{ background:#F1F0EA; color:var(--ink-soft); }
+  .status.success{ background:#E9F3EC; color:var(--ok); }
+  .status.error{ background:#FBEDE6; color:var(--warn); }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:12.5px; padding:0 20px 40px; }
+
+  ol.steps{ padding-left:20px; margin:0 0 16px; font-size:14px; color:var(--ink); }
+  ol.steps li{ margin-bottom:6px; }
+
+  .fill-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; font-size:14.5px; }
+  .blank{
+    display:inline-block; width:90px; padding:7px 8px; border:1px solid #C9C3B0;
+    border-radius:6px; font-family:inherit; font-size:14px; text-align:center;
+  }
+  select.blank{ width:auto; padding:7px 10px; }
+
+  .toggle-group{ display:inline-flex; gap:6px; vertical-align:middle; }
+  .toggle-opt{
+    all:unset; cursor:pointer;
+    padding:7px 14px; border:1px solid #C9C3B0; border-radius:6px;
+    font-size:14px; color:var(--ink); background:#fff; font-family:inherit;
+  }
+  .toggle-opt:hover{ background:#F3F0E6; }
+  .toggle-opt.active{
+    background:var(--night); color:var(--star-soft); border-color:var(--night);
+  }
+
+  .check-btn{
+    background:#F3F0E6; border:1px solid #C9C3B0; color:var(--ink);
+    border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer;
+    font-family:inherit; margin-top:6px;
+  }
+  .check-btn:hover{ background:#EAE5D6; }
+  .check-result{ font-size:13px; font-weight:700; margin-top:8px; display:block; }
+  .check-result.correct{ color:var(--ok); }
+  .check-result.wrong{ color:var(--warn); }
+
+  .option-list{ display:flex; flex-direction:column; gap:9px; margin:10px 0 4px; }
+  .option-list label{ display:flex; gap:9px; align-items:flex-start; font-size:14px; cursor:pointer; }
+  .option-list input{ margin-top:3px; flex:none; }
+
+  .svg-wrap{ background:#0C1224; border-radius:10px; padding:12px; margin:12px 0; }
+  .svg-wrap svg{ width:100%; height:auto; display:block; }
+  .svg-wrap.drag svg{ cursor:grab; touch-action:none; }
+  .svg-wrap.drag svg:active{ cursor:grabbing; }
+
+  .sim-frame-wrap{
+    position:relative;
+    border:1px solid var(--paper-line);
+    border-radius:10px;
+    overflow:hidden;
+    background:#0C1224;
+    aspect-ratio:16/10;
+    margin:12px 0;
+  }
+  .sim-frame-wrap iframe{
+    width:100%; height:100%; border:0; display:block;
+  }
+
+  .teacher-note{
+    font-size:12.5px; color:var(--ink-soft); background:#F3F0E6;
+    border-radius:8px; padding:9px 12px; margin-top:10px;
+  }
+
+  .sim-controls{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .readout-row{ display:flex; gap:18px; flex-wrap:wrap; font-size:14px; margin-top:10px; }
+  .readout-row b{ color:var(--night); }
+  .meter{
+    width:100%; height:14px; background:#E4DFD2; border-radius:7px; overflow:hidden;
+    margin-top:6px;
+  }
+  .meter-fill{
+    height:100%; background:linear-gradient(90deg,var(--star),var(--star-soft));
+    width:100%; transition:width .25s ease;
+  }
+  .meter-label{ font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
+
+  .match-table td select{ min-width:120px; }
+
+  @media (max-width:520px){
+    table.answer-table th{ font-size:13px; }
+    .cell-pair .field{ min-width:90px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Ⅶ. 별과 우주 · 배움활동</div>
+    <h1>별의 밝기가 다른 까닭은</h1>
+    <p>빛의 밝기와 거리의 관계를 설명하고, 겉보기 등급과 절대 등급으로 별까지의 거리를 비교할 수 있다. 아래 시뮬레이션으로 탐구한 뒤, 표와 질문에 답해 제출하세요.</p>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2><span class="num">1</span>실험하기 · 거리에 따른 빛의 밝기 변화</h2>
+    <p class="hint">종이컵에 검은색 종이를 붙이고 바닥 가운데에 정사각형 구멍을 뚫어 휴대 전화 손전등에 붙인다. 손전등 빛을 모눈종이에 비추면서 휴대 전화를 앞뒤로 움직여 보자.</p>
+    <ol class="steps">
+      <li>종이컵에 검은색 종이를 붙이고, 종이컵 바닥의 가운데에 정사각형의 구멍을 뚫는다.</li>
+      <li>종이컵을 휴대 전화의 손전등 부분에 붙인다.</li>
+      <li>휴대 전화의 손전등 기능을 켜고, 종이컵 바닥의 구멍으로 나오는 빛을 모눈종이에 비춘다.</li>
+      <li>휴대 전화를 앞뒤로 움직여 빛이 모눈종이의 격자 모양 한 칸, 네 칸, 아홉 칸을 비출 때, 모눈종이와 휴대 전화 사이의 거리를 각각 측정한다.</li>
+    </ol>
+
+    <p class="hint" style="margin-bottom:8px;"><b>아래 버튼으로 거리를 1배~4배로 늘려 보면서, 빛을 받는 넓이와 밝기가 어떻게 달라지는지 시뮬레이션으로 확인해 보자.</b></p>
+    <div class="sim-controls" id="lightButtons">
+      <button type="button" class="toggle-opt active" data-d="1">1배</button>
+      <button type="button" class="toggle-opt" data-d="2">2배</button>
+      <button type="button" class="toggle-opt" data-d="3">3배</button>
+      <button type="button" class="toggle-opt" data-d="4">4배</button>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="lightSvg" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+        <g id="beamGroup" stroke="#F3DFA0" stroke-width="1" opacity="0.5">
+          <line id="beamTop" x1="360" y1="122" x2="414" y2="54"/>
+          <line id="beamBottom" x1="360" y1="122" x2="414" y2="190"/>
+        </g>
+        <g id="phoneGroup" transform="translate(340,122)">
+          <rect x="-16" y="-26" width="32" height="52" rx="6" fill="#3A4062" stroke="#7FB0E0"/>
+          <circle cx="0" cy="0" r="6" fill="#F3DFA0"/>
+          <text x="0" y="42" fill="#C9CEE0" font-size="11" text-anchor="middle">손전등</text>
+        </g>
+        <g id="gridGroup" stroke="#3E5C99" stroke-width="1">
+          <!-- 6x6 grid, generated by JS -->
+        </g>
+        <rect id="highlightRect" x="448" y="88" width="34" height="34" fill="#F3DFA0" fill-opacity="1" stroke="#E8C468" stroke-width="1.5" stroke-opacity="0.9"/>
+        <text id="distanceLabel" x="300" y="230" fill="#E8C468" font-size="14" text-anchor="middle" font-weight="700">1배</text>
+        <text x="482" y="18" fill="#C9CEE0" font-size="12" text-anchor="middle">모눈종이</text>
+      </svg>
+    </div>
+    <div class="readout-row">
+      <span id="areaLabel"><b>빛을 받는 넓이:</b> 1칸 (한 변 1칸)</span>
+      <span id="brightnessLabel"><b>상대적 밝기:</b> 1배 (기준)</span>
+    </div>
+    <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+    <div class="meter-label" id="meterPercent">밝기 100%</div>
+    <p class="sim-note" style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;">※ 실제 수업에서는 자·모눈종이로 직접 측정한 값을 아래 3번 표에 입력하세요. 이 시뮬레이션은 개념 이해를 돕기 위한 것입니다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>학생 정보</h2>
+    <div class="id-row">
+      <div class="field field-narrow">
+        <label for="stuClass">반</label>
+        <input type="number" id="stuClass" placeholder="예: 9" min="1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field field-narrow">
+        <label for="stuNumber">번호</label>
+        <input type="number" id="stuNumber" placeholder="예: 1" min="1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="stuName">이름</label>
+        <input type="text" id="stuName" placeholder="예: 홍길동" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>정리하기</h2>
+    <p class="hint">1. 실험하기 4에서 측정한 거리를 써 보자.</p>
+    <table class="answer-table">
+      <tr>
+        <th style="width:110px;">빛을 받는 넓이</th>
+        <th>한 칸</th>
+        <th>네 칸</th>
+        <th>아홉 칸</th>
+      </tr>
+      <tr>
+        <th>모눈종이와 휴대 전화 사이의 거리(cm)</th>
+        <td><input type="number" step="0.1" id="distOne" placeholder="cm"></td>
+        <td><input type="number" step="0.1" id="distFour" placeholder="cm"></td>
+        <td><input type="number" step="0.1" id="distNine" placeholder="cm"></td>
+      </tr>
+    </table>
+
+    <p class="hint" style="margin-top:20px;">2. 빛을 받는 넓이와 거리의 관계를 설명해 보자.</p>
+    <textarea id="areaDistanceRelation" placeholder="예: 거리가 2배, 3배가 되면 빛을 받는 넓이는..."></textarea>
+
+    <p class="hint" style="margin-top:16px;">3. 휴대 전화가 모눈종이에서 멀어질수록 빛의 밝기는 어떻게 달라지는지 이야기해 보자.</p>
+    <textarea id="brightnessRelation" placeholder="예: 거리가 멀어질수록 빛의 밝기는..."></textarea>
+    <p class="teacher-note">이 섹션의 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>확인 문제</h2>
+
+    <p style="font-size:14.5px; margin:0 0 8px;"><b>문제 1.</b> 그림은 별의 밝기와 별까지의 거리 관계를 나타낸 것이다. 별까지의 거리가 5배로 멀어지면 별의 밝기는 어떻게 달라지겠는가?</p>
+    <div class="option-list">
+      <label><input type="radio" name="q1opt" value="1"> ① 5배 밝게 보인다.</label>
+      <label><input type="radio" name="q1opt" value="2"> ② 25배 밝게 보인다.</label>
+      <label><input type="radio" name="q1opt" value="3"> ③ 1/5로 어둡게 보인다.</label>
+      <label><input type="radio" name="q1opt" value="4"> ④ 1/25로 어둡게 보인다.</label>
+      <label><input type="radio" name="q1opt" value="5"> ⑤ 변화 없다.</label>
+    </div>
+    <button class="check-btn" id="checkQ1">정답 확인</button>
+    <span class="check-result" id="resultQ1"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>문제 2.</b> (가)와 같이 밝기가 다른 두 손전등을 같은 거리에서, (나)와 같이 밝기가 같은 두 손전등을 서로 다른 거리에서 비추었다. 별의 밝기에 영향을 주는 요인으로 옳은 것을 모두 고르시오. (2개)</p>
+    <div class="option-list">
+      <label><input type="checkbox" id="q2a"> ① 별의 크기</label>
+      <label><input type="checkbox" id="q2b"> ② 별의 모양</label>
+      <label><input type="checkbox" id="q2c"> ③ 별의 표면 온도</label>
+      <label><input type="checkbox" id="q2d"> ④ 별이 방출하는 빛의 양</label>
+      <label><input type="checkbox" id="q2e"> ⑤ 지구에서 별까지의 거리</label>
+    </div>
+    <button class="check-btn" id="checkQ2">정답 확인</button>
+    <span class="check-result" id="resultQ2"></span>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>개념정리 · 겉보기 등급과 절대 등급</h2>
+    <p class="hint">빈칸을 채운 뒤 [정답 확인] 버튼으로 스스로 점검해 보세요. 제출 시 선생님께도 함께 전달됩니다.</p>
+
+    <div class="fill-row">
+      (1) 히파르코스는 눈에 가장 밝게 보이는 별을
+      <input type="text" class="blank" id="magBright" style="width:50px;" placeholder="숫자">
+      등급으로, 가장 희미한 별을
+      <input type="text" class="blank" id="magDim" style="width:50px;" placeholder="숫자">
+      등급으로 정하였다. 이렇게 나타낸 밝기 등급을 <b>겉보기 등급</b>이라 한다.
+    </div>
+    <div class="fill-row">
+      (2) 1등급인 별은 6등급인 별보다 약
+      <input type="text" class="blank" id="mag100x" style="width:60px;" placeholder="숫자">
+      배 더 밝고, 등급 사이(한 등급 차이)에는 약
+      <input type="text" class="blank" id="mag25x" style="width:60px;" placeholder="숫자">
+      배의 밝기 차이가 있다.
+    </div>
+    <div class="fill-row">
+      (3) <b>절대 등급</b>은 모든 별이 지구로부터 같은 거리인
+      <input type="text" class="blank" id="magPcDef" style="width:60px;" placeholder="숫자">
+      pc에 있다고 가정했을 때의 밝기 등급이다.
+    </div>
+    <button class="check-btn" id="checkMagConcept">정답 확인</button>
+    <span class="check-result" id="resultMagConcept"></span>
+
+    <p style="font-size:14.5px; margin:22px 0 4px;"><b>배운 내용 정리하기</b> — 옳으면 O, 옳지 않으면 X를 골라 보자.</p>
+    <div class="fill-row">
+      1. 겉보기 등급이 클수록 어둡게 보이는 별이다.
+      <span class="toggle-group" id="ox1Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox1">
+    </div>
+    <div class="fill-row">
+      2. 태양은 우주에서 절대 등급이 가장 작은 별이다.
+      <span class="toggle-group" id="ox2Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox2">
+    </div>
+    <div class="fill-row">
+      3. 거리가 10 pc인 별은 겉보기 등급과 절대 등급이 같다.
+      <span class="toggle-group" id="ox3Group">
+        <button type="button" class="toggle-opt" data-value="O">O</button>
+        <button type="button" class="toggle-opt" data-value="X">X</button>
+      </span>
+      <input type="hidden" id="ox3">
+    </div>
+    <button class="check-btn" id="checkOX">정답 확인</button>
+    <span class="check-result" id="resultOX"></span>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>시뮬레이션 · 별을 드래그해 거리를 바꿔 보자</h2>
+    <p class="hint">태양, 폴룩스, 데네브를 손가락(또는 마우스)으로 끌어서 지구로부터의 거리를 바꿔 보자. 절대 등급(고정된 값)은 그대로인데, 거리가 바뀌면 겉보기 등급이 어떻게 변하는지 살펴보자. 점선 원은 10 pc 기준선이다.</p>
+    <div class="svg-wrap drag">
+      <svg id="dragSvg" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+        <circle id="pc10Circle" cx="70" cy="290" r="140" fill="none" stroke="#7FB0E0" stroke-width="1" stroke-dasharray="4 4"/>
+        <text x="130" y="176" fill="#7FB0E0" font-size="11">10 pc 기준선</text>
+        <circle cx="70" cy="290" r="9" fill="#4C7CD1"/>
+        <text x="70" y="312" fill="#C9CEE0" font-size="12" text-anchor="middle">지구</text>
+        <g id="rayGroup" stroke="#3E5C99" stroke-width="1" stroke-dasharray="2 3"></g>
+        <g id="starGroup"></g>
+      </svg>
+    </div>
+    <div id="dragReadout" style="font-size:13px; color:var(--ink-soft); margin-top:8px; line-height:1.9;"></div>
+
+    <p class="hint" style="margin:22px 0 8px;"><b>추가 시뮬레이션 · 겉보기 등급 · 절대 등급 비교하기</b><br>여러 별의 거리와 밝기를 바꿔 보며 겉보기 등급과 절대 등급의 관계를 더 탐구해 보자.</p>
+    <div class="sim-frame-wrap">
+      <iframe src="https://sciencej.cafe24.com/html5/magnitude/magnitude.html" allowfullscreen title="겉보기 등급·절대 등급 시뮬레이션"></iframe>
+    </div>
+    <p class="sim-note" style="font-size:12.5px;color:var(--ink-soft);margin-top:8px;">※ 이 시뮬레이션은 사이언스제이(sciencej.cafe24.com) 제작물입니다. 임베드 사용 허락을 받은 뒤 배포해 주세요. 모바일 화면에서는 시뮬레이션이 작게 보일 수 있어 가로모드 사용을 권장합니다.</p>
+
+    <p style="font-size:14.5px; margin:20px 0 8px;"><b>위 시뮬레이션(그림 Ⅶ-6)을 바탕으로, 태양·폴룩스·데네브 중</b></p>
+    <div class="fill-row">
+      우리 눈에 가장 밝게 보이는 순서(겉보기 등급이 작은 순):
+      <select class="blank" id="apparentOrder1"><option value="">1위</option><option>태양</option><option>폴룩스</option><option>데네브</option></select>
+      <select class="blank" id="apparentOrder2"><option value="">2위</option><option>태양</option><option>폴룩스</option><option>데네브</option></select>
+      <select class="blank" id="apparentOrder3"><option value="">3위</option><option>태양</option><option>폴룩스</option><option>데네브</option></select>
+    </div>
+    <div class="fill-row">
+      실제로 가장 밝은 순서(절대 등급이 작은 순):
+      <select class="blank" id="realOrder1"><option value="">1위</option><option>태양</option><option>폴룩스</option><option>데네브</option></select>
+      <select class="blank" id="realOrder2"><option value="">2위</option><option>태양</option><option>폴룩스</option><option>데네브</option></select>
+      <select class="blank" id="realOrder3"><option value="">3위</option><option>태양</option><option>폴룩스</option><option>데네브</option></select>
+    </div>
+    <button class="check-btn" id="checkOrder">정답 확인</button>
+    <span class="check-result" id="resultOrder"></span>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>적용하기 · 큰개자리 별의 밝기 비교</h2>
+    <p class="hint">큰개자리를 이루는 물리펀, 시리우스, 미르잠의 밝기를 원의 크기로 나타낸 것이다. 원이 클수록(더 밝게 보일수록) 겉보기 등급은 작다.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="110" cy="70" r="5" fill="#DCE6F7"/>
+        <text x="110" y="52" fill="#DCE6F7" font-size="13" text-anchor="middle">물리펀</text>
+        <circle cx="270" cy="140" r="26" fill="#BFD6F5" opacity="0.35"/>
+        <circle cx="270" cy="140" r="16" fill="#F4F8FF"/>
+        <text x="270" y="180" fill="#F4F8FF" font-size="13" text-anchor="middle">시리우스</text>
+        <circle cx="400" cy="80" r="9" fill="#CFE0F7"/>
+        <text x="400" y="62" fill="#CFE0F7" font-size="13" text-anchor="middle">미르잠</text>
+      </svg>
+    </div>
+    <table class="answer-table match-table">
+      <tr>
+        <th>겉보기 등급</th><th>4.1</th><th>2.0</th><th>−1.4</th>
+      </tr>
+      <tr>
+        <th>별의 이름</th>
+        <td>
+          <select class="num-select" id="caniMatch41">
+            <option value="">선택</option><option>물리펀</option><option>시리우스</option><option>미르잠</option>
+          </select>
+        </td>
+        <td>
+          <select class="num-select" id="caniMatch20">
+            <option value="">선택</option><option>물리펀</option><option>시리우스</option><option>미르잠</option>
+          </select>
+        </td>
+        <td>
+          <select class="num-select" id="caniMatchNeg14">
+            <option value="">선택</option><option>물리펀</option><option>시리우스</option><option>미르잠</option>
+          </select>
+        </td>
+      </tr>
+    </table>
+    <button class="check-btn" id="checkCani">정답 확인</button>
+    <span class="check-result" id="resultCani"></span>
+  </section>
+
+
+  <section>
+    <button class="submit-btn" id="submitBtn">답안 제출하기</button>
+    <div class="status" id="statusBox"></div>
+  </section>
+
+</main>
+
+<footer>제출한 답은 선생님이 확인 후 개별 피드백을 남깁니다.</footer>
+
+<script>
+  // ── 배포 시 이 값을 본인의 Google Apps Script 웹앱 URL로 교체하세요 ──
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+
+  const $ = (id) => document.getElementById(id);
+  function norm(s){ return (s || '').replace(/\s/g,''); }
+  function showResult(el, ok, correctMsg, wrongMsg){
+    el.className = 'check-result ' + (ok ? 'correct' : 'wrong');
+    el.textContent = ok ? ('✓ ' + correctMsg) : ('✗ ' + wrongMsg);
+  }
+  function setupToggle(groupId, hiddenId){
+    const group = $(groupId);
+    const hidden = $(hiddenId);
+    group.querySelectorAll('.toggle-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        hidden.value = btn.dataset.value;
+      });
+    });
+  }
+
+  // ── 1. 빛의 밝기 시뮬레이션 ──
+  const lightSvgNS = "http://www.w3.org/2000/svg";
+  const gridGroup = $('gridGroup') || document.getElementById('gridGroup');
+  (function buildGrid(){
+    const cell = 34, cols = 6, x0 = 380, y0 = 20;
+    for(let i=0;i<=cols;i++){
+      const l1 = document.createElementNS(lightSvgNS,'line');
+      l1.setAttribute('x1', x0+i*cell); l1.setAttribute('y1', y0);
+      l1.setAttribute('x2', x0+i*cell); l1.setAttribute('y2', y0+cols*cell);
+      gridGroup.appendChild(l1);
+      const l2 = document.createElementNS(lightSvgNS,'line');
+      l2.setAttribute('x1', x0); l2.setAttribute('y1', y0+i*cell);
+      l2.setAttribute('x2', x0+cols*cell); l2.setAttribute('y2', y0+i*cell);
+      gridGroup.appendChild(l2);
+    }
+  })();
+
+  function updateLightSim(d){
+    const cell = 34, cols = 6, x0 = 380, y0 = 20;
+    const centerX = x0 + cols*cell/2, centerY = y0 + cols*cell/2;
+    const size = d*cell;
+    const rectX = centerX - size/2, rectY = centerY - size/2;
+    const rect = $('highlightRect');
+    rect.setAttribute('x', rectX); rect.setAttribute('y', rectY);
+    rect.setAttribute('width', size); rect.setAttribute('height', size);
+    rect.setAttribute('fill-opacity', Math.max(1/(d*d), 0.12));
+
+    const phoneX = 340 - (d-1)*68;
+    $('phoneGroup').setAttribute('transform', `translate(${phoneX},122)`);
+    $('beamTop').setAttribute('x1', phoneX+16); $('beamTop').setAttribute('y1', 122);
+    $('beamTop').setAttribute('x2', rectX); $('beamTop').setAttribute('y2', rectY);
+    $('beamBottom').setAttribute('x1', phoneX+16); $('beamBottom').setAttribute('y1', 122);
+    $('beamBottom').setAttribute('x2', rectX); $('beamBottom').setAttribute('y2', rectY+size);
+
+    $('distanceLabel').setAttribute('x', (phoneX+centerX)/2);
+    $('distanceLabel').textContent = d+'배';
+
+    const areaCells = d*d;
+    $('areaLabel').innerHTML = `<b>빛을 받는 넓이:</b> ${areaCells}칸 (한 변 ${d}칸)`;
+    $('brightnessLabel').innerHTML = d===1
+      ? `<b>상대적 밝기:</b> 1배 (기준)`
+      : `<b>상대적 밝기:</b> 1/${areaCells} 배`;
+    const pct = 100/(d*d);
+    $('meterFill').style.width = pct+'%';
+    $('meterPercent').textContent = `밝기 ${pct.toFixed(1)}%`;
+  }
+  $('lightButtons').querySelectorAll('.toggle-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $('lightButtons').querySelectorAll('.toggle-opt').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      updateLightSim(Number(btn.dataset.d));
+    });
+  });
+  updateLightSim(1);
+
+  // ── 4. 확인 문제 ──
+  $('checkQ1').addEventListener('click', () => {
+    const sel = document.querySelector('input[name=q1opt]:checked');
+    const ok = sel && sel.value === '4';
+    showResult($('resultQ1'), ok,
+      '정답은 ④입니다. 밝기는 거리의 제곱에 반비례하므로 거리가 5배가 되면 밝기는 1/25배가 됩니다.',
+      '다시 확인해 보세요: 밝기는 거리의 제곱에 반비례합니다. 거리가 5배이면 밝기는 1/5² = 1/25배입니다.');
+  });
+
+  $('checkQ2').addEventListener('click', () => {
+    const ids = ['q2a','q2b','q2c','q2d','q2e'];
+    const checked = ids.filter(id => $(id).checked);
+    const ok = checked.length===2 && checked.includes('q2d') && checked.includes('q2e');
+    showResult($('resultQ2'), ok,
+      '정답은 ④, ⑤입니다. (가)는 빛의 양(밝기 자체)의 차이를, (나)는 거리에 따른 밝기 차이를 보여줍니다.',
+      '다시 확인해 보세요: (가) 실험은 별이 방출하는 빛의 양을, (나) 실험은 지구에서 별까지의 거리를 비교하는 것입니다.');
+  });
+
+  // ── 5. 개념정리 ──
+  $('checkMagConcept').addEventListener('click', () => {
+    const ok1 = norm($('magBright').value) === '1';
+    const ok2 = norm($('magDim').value) === '6';
+    const ok3 = norm($('mag100x').value) === '100';
+    const ok4 = ['2.5','2.5배'].includes(norm($('mag25x').value));
+    const ok5 = norm($('magPcDef').value) === '10';
+    const allOk = ok1 && ok2 && ok3 && ok4 && ok5;
+    showResult($('resultMagConcept'), allOk,
+      '모두 맞았어요. (1등급~6등급, 100배, 2.5배, 10 pc)',
+      '다시 확인해 보세요: 가장 밝은 별 1등급, 가장 희미한 별 6등급, 1등급은 6등급보다 약 100배 밝고 한 등급 차이는 약 2.5배, 절대 등급은 10 pc 기준입니다.');
+  });
+
+  setupToggle('ox1Group','ox1');
+  setupToggle('ox2Group','ox2');
+  setupToggle('ox3Group','ox3');
+  $('checkOX').addEventListener('click', () => {
+    const ok = $('ox1').value==='O' && $('ox2').value==='X' && $('ox3').value==='O';
+    showResult($('resultOX'), ok,
+      '모두 맞았어요. (O, X, O)',
+      '다시 확인해 보세요: 겉보기 등급이 클수록 어둡다(O), 태양은 절대 등급이 가장 작은 별이 아니다(X), 거리 10 pc인 별은 겉보기 등급과 절대 등급이 같다(O).');
+  });
+
+  // ── 6. 드래그 시뮬레이션 ──
+  const dragSvg = $('dragSvg');
+  const earthX = 70, earthY = 290, pxPerPc = 14, minPc = 1, maxPc = 20;
+  const STARS = [
+    { id:'sun', name:'태양', angleDeg:8,  M:4.8,  distPc:3,  color:'#F5C453', r:9 },
+    { id:'pollux', name:'폴룩스', angleDeg:40, M:1.10, distPc:10, color:'#E9A9A0', r:8 },
+    { id:'deneb', name:'데네브', angleDeg:70, M:-8.7, distPc:9,  color:'#CFE0F7', r:7 }
+  ];
+  const starGroup = $('starGroup');
+  const rayGroup = $('rayGroup');
+
+  function starPos(star){
+    const rad = star.angleDeg * Math.PI/180;
+    const px = star.distPc * pxPerPc;
+    return { x: earthX + px*Math.cos(rad), y: earthY - px*Math.sin(rad) };
+  }
+  function apparentMag(star){
+    return star.M + 5*Math.log10(star.distPc/10);
+  }
+  function getSvgPoint(evt){
+    const pt = dragSvg.createSVGPoint();
+    pt.x = evt.clientX; pt.y = evt.clientY;
+    return pt.matrixTransform(dragSvg.getScreenCTM().inverse());
+  }
+
+  STARS.forEach(star=>{
+    const rad = star.angleDeg * Math.PI/180;
+    const maxPx = maxPc*pxPerPc;
+    const ray = document.createElementNS(lightSvgNS,'line');
+    ray.setAttribute('x1', earthX); ray.setAttribute('y1', earthY);
+    ray.setAttribute('x2', earthX+maxPx*Math.cos(rad)); ray.setAttribute('y2', earthY-maxPx*Math.sin(rad));
+    rayGroup.appendChild(ray);
+
+    const g = document.createElementNS(lightSvgNS,'g');
+    const circle = document.createElementNS(lightSvgNS,'circle');
+    circle.setAttribute('r', star.r);
+    circle.setAttribute('fill', star.color);
+    circle.setAttribute('stroke', '#0C1224');
+    circle.setAttribute('stroke-width', '1');
+    circle.style.cursor = 'grab';
+    const label = document.createElementNS(lightSvgNS,'text');
+    label.setAttribute('fill', star.color);
+    label.setAttribute('font-size', '12');
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('y', -14);
+    label.textContent = star.name;
+    g.appendChild(circle); g.appendChild(label);
+    starGroup.appendChild(g);
+    star.el = g; star.circleEl = circle; star.labelEl = label;
+
+    function place(){
+      const p = starPos(star);
+      g.setAttribute('transform', `translate(${p.x},${p.y})`);
+    }
+    place();
+
+    let dragging = false;
+    function onMove(evt){
+      if(!dragging) return;
+      const p = getSvgPoint(evt);
+      const vx = p.x - earthX, vy = p.y - earthY;
+      const dirX = Math.cos(rad), dirY = -Math.sin(rad);
+      let proj = vx*dirX + vy*dirY;
+      proj = Math.max(minPc*pxPerPc, Math.min(maxPc*pxPerPc, proj));
+      star.distPc = proj/pxPerPc;
+      place();
+      updateDragReadout();
+    }
+    circle.addEventListener('pointerdown', (evt)=>{
+      dragging = true;
+      circle.setPointerCapture(evt.pointerId);
+    });
+    circle.addEventListener('pointermove', onMove);
+    circle.addEventListener('pointerup', ()=>{ dragging=false; });
+    circle.addEventListener('pointercancel', ()=>{ dragging=false; });
+  });
+
+  function updateDragReadout(){
+    const lines = STARS.map(star=>{
+      const m = apparentMag(star);
+      const near10 = Math.abs(star.distPc-10) < 0.4;
+      const note = near10 ? ' → 10 pc 부근! 겉보기 등급 ≈ 절대 등급' : '';
+      return `<b>${star.name}</b> — 거리 ${star.distPc.toFixed(1)} pc, 겉보기 등급 ${m.toFixed(2)}, 절대 등급 ${star.M}(고정)${note}`;
+    });
+    $('dragReadout').innerHTML = lines.join('<br>');
+  }
+  updateDragReadout();
+
+  $('checkOrder').addEventListener('click', () => {
+    const app = [$('apparentOrder1').value, $('apparentOrder2').value, $('apparentOrder3').value];
+    const real = [$('realOrder1').value, $('realOrder2').value, $('realOrder3').value];
+    const okApp = app.join(',') === '태양,폴룩스,데네브';
+    const okReal = real.join(',') === '데네브,폴룩스,태양';
+    const ok = okApp && okReal;
+    showResult($('resultOrder'), ok,
+      '정답이에요. 겉보기로는 태양-폴룩스-데네브 순, 실제로는 데네브-폴룩스-태양 순으로 밝습니다.',
+      '다시 확인해 보세요: 겉보기 등급이 작을수록(태양 -26.7 < 폴룩스 1.16 < 데네브 1.3) 눈에 밝게 보이고, 절대 등급이 작을수록(데네브 -8.7 < 폴룩스 1.10 < 태양 4.8) 실제로 밝은 별입니다.');
+  });
+
+  // ── 7. 적용하기 ──
+  $('checkCani').addEventListener('click', () => {
+    const ok = $('caniMatch41').value==='물리펀' && $('caniMatch20').value==='미르잠' && $('caniMatchNeg14').value==='시리우스';
+    showResult($('resultCani'), ok,
+      '정답이에요. 겉보기 등급이 작을(음수에 가까울)수록 밝은 별이므로 −1.4는 시리우스, 2.0은 미르잠, 4.1은 물리펀입니다.',
+      '다시 확인해 보세요: 겉보기 등급 숫자가 작을수록(음수에 가까울수록) 더 밝게 보이는 별입니다.');
+  });
+
+  // ── 제출 ──
+  $('submitBtn').addEventListener('click', async () => {
+    const q1 = document.querySelector('input[name=q1opt]:checked');
+    const payload = {
+      form: 'brightness',
+      stuClass: $('stuClass').value.trim(),
+      stuNumber: $('stuNumber').value.trim(),
+      name: $('stuName').value.trim(),
+
+      distOne: $('distOne').value,
+      distFour: $('distFour').value,
+      distNine: $('distNine').value,
+      areaDistanceRelation: $('areaDistanceRelation').value.trim(),
+      brightnessRelation: $('brightnessRelation').value.trim(),
+
+      q1Selected: q1 ? q1.value : '',
+      q2Selected: ['q2a','q2b','q2c','q2d','q2e'].filter(id => $(id).checked).join(','),
+
+      magBright: $('magBright').value.trim(),
+      magDim: $('magDim').value.trim(),
+      mag100x: $('mag100x').value.trim(),
+      mag25x: $('mag25x').value.trim(),
+      magPcDef: $('magPcDef').value.trim(),
+      ox1: $('ox1').value, ox2: $('ox2').value, ox3: $('ox3').value,
+
+      apparentOrder: [$('apparentOrder1').value,$('apparentOrder2').value,$('apparentOrder3').value].join('>'),
+      realOrder: [$('realOrder1').value,$('realOrder2').value,$('realOrder3').value].join('>'),
+      dragFinalState: STARS.map(s=>`${s.name}:${s.distPc.toFixed(1)}pc/m=${apparentMag(s).toFixed(2)}`).join('; '),
+
+      caniMatch41: $('caniMatch41').value,
+      caniMatch20: $('caniMatch20').value,
+      caniMatchNeg14: $('caniMatchNeg14').value,
+
+      submittedAt: new Date().toISOString()
+    };
+
+    const statusBox = $('statusBox');
+    const btn = $('submitBtn');
+
+    if(!payload.name || !payload.stuClass || !payload.stuNumber){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '반, 번호, 이름을 모두 입력해 주세요.';
+      return;
+    }
+    if(!payload.distOne || !payload.distFour || !payload.distNine){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '정리하기 1번 표의 거리를 모두 입력해 주세요.';
+      return;
+    }
+    if(!payload.areaDistanceRelation || !payload.brightnessRelation){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '정리하기 2, 3번 서술형 질문에 답을 작성해 주세요.';
+      return;
+    }
+
+    btn.disabled = true;
+    statusBox.className = 'status show sending';
+    statusBox.textContent = '제출하는 중입니다...';
+
+    try{
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      statusBox.className = 'status show success';
+      statusBox.textContent = '제출 완료! 선생님이 확인 후 피드백을 남길 예정입니다.';
+      btn.textContent = '제출 완료';
+    }catch(err){
+      statusBox.className = 'status show error';
+      statusBox.textContent = '제출 중 오류가 발생했습니다. 네트워크를 확인하고 다시 시도해 주세요.';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

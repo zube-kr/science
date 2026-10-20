@@ -112,6 +112,40 @@
   .mech-box.dark .mech-tag{ background:var(--dark); }
   .mech-box b{ display:block; font-size:13.5px; margin-bottom:3px; }
 
+  /* ---------- 우리은하 속 성단 시뮬레이션 ---------- */
+  .tab-btn.active.gc{ border-color:#C9861A; color:#fff; background:#C9861A; }
+  .tab-btn.active.oc{ border-color:var(--ref); color:#fff; background:var(--ref); }
+  .view-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; font-weight:700; color:var(--ink-soft); }
+  .view-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:6px 12px; transition:.15s;
+  }
+  .view-btn.active{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .mw-wrap{
+    position:relative; background:var(--space); border-radius:14px; overflow:hidden; margin-bottom:8px;
+    aspect-ratio:3/2; touch-action:none; cursor:grab; user-select:none;
+  }
+  .mw-wrap:active{ cursor:grabbing; }
+  .mw-wrap canvas{ display:block; width:100%; height:100%; }
+  .mw-hint{ position:absolute; right:12px; bottom:8px; font-size:11px; color:#8A93A8; pointer-events:none; }
+  .mw-opts{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
+  @media (max-width:600px){ .mw-wrap{ aspect-ratio:1/1; } }
+
+  .cluster-cards{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:4px 0 12px; }
+  @media (max-width:700px){ .cluster-cards{ grid-template-columns:1fr; } }
+  .cluster-card{ border:1.5px solid var(--line); border-radius:14px; overflow:hidden; background:#FBFAF6; transition:.2s; }
+  .cluster-card canvas{ display:block; width:100%; height:auto; background:var(--space); }
+  .cluster-card.on.gc{ border-color:#C9861A; box-shadow:0 0 0 3px rgba(201,134,26,.15); }
+  .cluster-card.on.oc{ border-color:var(--ref); box-shadow:0 0 0 3px rgba(47,111,219,.15); }
+  .cc-body{ padding:10px 14px 12px; font-size:12.5px; line-height:1.75; }
+  .cc-body b{ font-size:14px; }
+  .cc-body .ex{ display:block; font-size:11.5px; color:var(--ink-soft); }
+  .cc-body ul{ list-style:none; margin-top:6px; }
+  .cc-body li em{ font-style:normal; font-weight:800; display:inline-block; min-width:84px; }
+  .cluster-card.gc li em{ color:#A86A0C; }
+  .cluster-card.oc li em{ color:var(--ref); }
+
   /* ---------- 문항 공통 ---------- */
   .q-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; line-height:2.1; margin:10px 0; }
   .q-num{
@@ -203,7 +237,7 @@
   <header>
     <div class="eyebrow">Ⅶ. 별과 우주 · 성단과 성운</div>
     <h1>성단과 성운 — <span>세 가지 성운의 차이</span></h1>
-    <p class="sub">우리은하에는 수많은 별이 모여 있는 성단과, 성간 물질이 뭉쳐 구름처럼 보이는 성운이 있다. 시뮬레이션으로 방출 성운·반사 성운·암흑 성운이 왜 다르게 보이는지 확인하고, 그 빛이 어디서 나오는지 원자 모형으로 더 깊이 알아보자.</p>
+    <p class="sub">우리은하에는 수많은 별이 모여 있는 성단과, 성간 물질이 뭉쳐 구름처럼 보이는 성운이 있다. 시뮬레이션으로 구상 성단과 산개 성단이 우리은하의 어디에 분포하는지, 방출 성운·반사 성운·암흑 성운이 왜 다르게 보이는지 확인하고, 그 빛이 어디서 나오는지 원자 모형으로 더 깊이 알아보자.</p>
   </header>
 
   <!-- 1. 배움 자료 -->
@@ -211,14 +245,101 @@
     <div class="card-title"><span class="badge">1</span>배움 자료 · 성간 물질과 성운</div>
     <p class="body-text">별과 별 사이의 넓은 공간에는 가스와 먼지 등이 엷게 퍼져 있는데, 이를 <b>성간 물질</b>이라고 한다. 이러한 성간 물질이 모여 구름처럼 보이는 것을 <b>성운</b>이라고 한다.</p>
     <p class="body-text">성운 중에서 성간 물질이 뒤쪽에서 오는 별빛을 차단하여 어둡게 보이는 것을 <b>암흑 성운</b>이라고 한다. 한편, 성간 물질이 주변의 별빛을 흡수하여 가열되면서 스스로 빛을 내는 것을 <b>방출 성운</b>이라고 하며, 성간 물질이 주변의 별빛을 반사하여 밝게 보이는 것을 <b>반사 성운</b>이라고 한다. 또한 우리은하 안에서 많은 수의 별들이 좁은 공간에 집단을 이루고 있는 천체를 <b>성단</b>이라고 한다.</p>
+    <p class="body-text">성단은 모양과 별의 특징에 따라 두 가지로 나눈다. 수만~수십만 개의 별이 공 모양으로 빽빽하게 모여 있는 <b>구상 성단</b>은 주로 나이가 많고 표면 온도가 낮은 붉은 별로 이루어져 있으며, 우리은하의 <b>중심부와 헤일로</b>에 분포한다. 수십~수만 개의 별이 엉성하게 모여 있는 <b>산개 성단</b>은 주로 나이가 적고 표면 온도가 높은 파란 별로 이루어져 있으며, 우리은하의 <b>나선팔(원반)</b>에 분포한다.</p>
+    <p class="body-text">여기서 <b>헤일로</b>란 우리은하의 납작한 원반을 공 모양으로 크게 둘러싸고 있는 영역으로, 별이 드문드문 퍼져 있다.</p>
     <div class="ngc-note">
       <b>* NGC</b> — New General Catalogue(신판 일반 목록)의 약자로, 약 7800여 개의 천체(은하, 성단, 성운 등)를 정리해 번호를 붙인 목록이다. 예를 들어 장미 성운은 NGC 2244로 부른다.
     </div>
   </section>
 
-  <!-- 2. 시뮬레이션: 세 성운 비교 -->
+  <!-- 2. 시뮬레이션: 우리은하 속 성단 -->
   <section class="card">
-    <div class="card-title"><span class="badge">2</span>시뮬레이션 · 세 가지 성운은 왜 다르게 보일까?</div>
+    <div class="card-title"><span class="badge">2</span>시뮬레이션 · 성단은 우리은하의 어디에 있을까?</div>
+    <p class="card-hint">우리은하는 별이 납작하게 모인 <b>원반</b>, 별이 빽빽한 <b>중심부(팽대부)</b>, 그리고 이 둘을 공처럼 크게 둘러싼 <b>헤일로</b>로 이루어져 있다. 아래 버튼으로 <b>구상 성단</b>과 <b>산개 성단</b>의 위치를 드러내 보고, 화면을 드래그하거나 보는 방향을 바꿔 두 성단의 분포를 비교해 보자.</p>
+
+    <div class="sim-toolbar">
+      <div class="tab-row">
+        <button type="button" class="tab-btn gc cl-btn" data-cl="gc">● 구상 성단<small>공 모양으로 빽빽한 늙은 별 무리</small></button>
+        <button type="button" class="tab-btn oc cl-btn" data-cl="oc">✦ 산개 성단<small>엉성하게 모인 젊은 별 무리</small></button>
+      </div>
+      <div class="view-row">
+        <span>보는 방향</span>
+        <button type="button" class="view-btn" data-tilt="0.02">위에서</button>
+        <button type="button" class="view-btn active" data-tilt="1.12">비스듬히</button>
+        <button type="button" class="view-btn" data-tilt="1.5708">옆에서</button>
+      </div>
+    </div>
+
+    <div class="mw-wrap" id="mwWrap">
+      <canvas id="mwCanvas" aria-label="헤일로를 포함한 우리은하와 성단 분포 시뮬레이션"></canvas>
+      <div class="sim-caption">우리은하 — 원반 · 중심부 · 헤일로<span id="mwSub">버튼을 눌러 성단의 위치를 드러내 보자</span></div>
+      <div class="mw-hint">드래그하면 보는 각도를 바꿀 수 있어요</div>
+    </div>
+    <div class="mw-opts">
+      <label class="photon-toggle"><input type="checkbox" id="mwLabels" checked> 구조 이름 보기</label>
+      <label class="photon-toggle"><input type="checkbox" id="mwSpin"> 천천히 돌리기</label>
+    </div>
+    <p class="render-note">※ 실제 사진이 아니라, 우리은하의 구조와 성단의 분포를 컴퓨터로 그린 모형입니다. 구상 성단은 실제와 비슷한 약 150개를, 산개 성단은 실제(수천 개 이상) 중 일부만 표시했습니다.</p>
+
+    <div class="cluster-cards">
+      <div class="cluster-card gc" id="cardGc">
+        <canvas id="gcThumb" width="480" height="280" aria-label="구상 성단 확대 모습"></canvas>
+        <div class="cc-body">
+          <b>구상 성단</b>
+          <span class="ex">예: M13(헤르쿨레스자리 구상 성단), 오메가 센타우리</span>
+          <ul>
+            <li><em>별의 수</em>수만~수십만 개</li>
+            <li><em>모양</em>공 모양으로 빽빽하게 모여 있다</li>
+            <li><em>별의 색·온도</em>주로 붉은색 — 표면 온도가 낮다</li>
+            <li><em>별의 나이</em>나이가 많은 별</li>
+            <li><em>분포</em>우리은하의 중심부와 헤일로</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cluster-card oc" id="cardOc">
+        <canvas id="ocThumb" width="480" height="280" aria-label="산개 성단 확대 모습"></canvas>
+        <div class="cc-body">
+          <b>산개 성단</b>
+          <span class="ex">예: 플레이아데스 성단(M45), 히아데스 성단</span>
+          <ul>
+            <li><em>별의 수</em>수십~수만 개</li>
+            <li><em>모양</em>별들이 엉성하게 흩어져 모여 있다</li>
+            <li><em>별의 색·온도</em>주로 파란색 — 표면 온도가 높다</li>
+            <li><em>별의 나이</em>나이가 적은(젊은) 별</li>
+            <li><em>분포</em>우리은하의 나선팔(원반)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row"><span class="q-num">1</span>구상 성단은 주로 우리은하의 (
+      <span class="choice-group" id="qClu1Group">
+        <button type="button" class="choice-btn" data-value="중심부와 헤일로">중심부와 헤일로</button>
+        <button type="button" class="choice-btn" data-value="나선팔">나선팔(원반)</button>
+      </span>
+      )에 분포한다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>산개 성단은 주로 표면 온도가 (
+      <span class="choice-group" id="qClu2Group">
+        <button type="button" class="choice-btn" data-value="높은 파란색">높은 파란색</button>
+        <button type="button" class="choice-btn" data-value="낮은 붉은색">낮은 붉은색</button>
+      </span>
+      ) 별로 이루어져 있다.
+    </div>
+    <div class="q-row"><span class="q-num">3</span>나이가 많은 별 수만~수십만 개가 공 모양으로 빽빽하게 모여 있는 성단은
+      <span class="choice-group" id="qClu3Group">
+        <button type="button" class="choice-btn" data-value="구상 성단">구상 성단</button>
+        <button type="button" class="choice-btn" data-value="산개 성단">산개 성단</button>
+      </span>
+      이다.
+    </div>
+    <button class="check-btn" id="checkClu">정답 확인</button>
+    <span class="q-feedback" id="cluFeedback"></span>
+  </section>
+
+  <!-- 3. 시뮬레이션: 세 성운 비교 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">3</span>시뮬레이션 · 세 가지 성운은 왜 다르게 보일까?</div>
     <p class="card-hint">위 화면은 지구에서 망원경으로 본 모습, 아래 띠는 같은 성운을 <b>옆에서 본 모습</b>이에요. 빛 알갱이(광자)가 별 → 성간 물질 → 우리 눈까지 어떤 경로로 오는지 비교해 보자.</p>
 
     <div class="sim-toolbar">
@@ -260,15 +381,15 @@
       </div>
     </div>
 
-    <div class="q-row"><span class="q-num">1</span>성간 물질이 주변의 별빛을 흡수하여 가열되면서 스스로 빛을 내는 성운은
+    <div class="q-row"><span class="q-num">4</span>성간 물질이 주변의 별빛을 흡수하여 가열되면서 스스로 빛을 내는 성운은
       <select class="blank" id="qNeb1"><option value="">-선택-</option><option>방출 성운</option><option>반사 성운</option><option>암흑 성운</option></select>
       이다.
     </div>
-    <div class="q-row"><span class="q-num">2</span>성간 물질이 주변의 별빛을 반사(산란)하여 밝게 보이는 성운은
+    <div class="q-row"><span class="q-num">5</span>성간 물질이 주변의 별빛을 반사(산란)하여 밝게 보이는 성운은
       <select class="blank" id="qNeb2"><option value="">-선택-</option><option>방출 성운</option><option>반사 성운</option><option>암흑 성운</option></select>
       이다.
     </div>
-    <div class="q-row"><span class="q-num">3</span>성간 물질이 뒤쪽에서 오는 별빛을 차단하여 어둡게 보이는 성운은
+    <div class="q-row"><span class="q-num">6</span>성간 물질이 뒤쪽에서 오는 별빛을 차단하여 어둡게 보이는 성운은
       <select class="blank" id="qNeb3"><option value="">-선택-</option><option>방출 성운</option><option>반사 성운</option><option>암흑 성운</option></select>
       이다.
     </div>
@@ -276,9 +397,9 @@
     <span class="q-feedback" id="nebFeedback"></span>
   </section>
 
-  <!-- 3. 시뮬레이션: 전자의 들뜸과 빛의 방출 -->
+  <!-- 4. 시뮬레이션: 전자의 들뜸과 빛의 방출 -->
   <section class="card">
-    <div class="card-title"><span class="badge">3</span>시뮬레이션 · 전자의 들뜸과 빛의 방출 (수소 원자 모형)</div>
+    <div class="card-title"><span class="badge">4</span>시뮬레이션 · 전자의 들뜸과 빛의 방출 (수소 원자 모형)</div>
     <p class="card-hint">방출 성운이 빛을 내는 원리를 원자 수준에서 살펴보자. 버튼을 누르면 전자가 빛을 흡수해 더 높은 에너지 준위로 <b>들뜬</b> 뒤, 낮은 준위로 떨어지면서 그 에너지 차이만큼의 빛을 방출한다. 방출된 빛은 아래 스펙트럼에 선으로 쌓인다.</p>
 
     <div class="atom-sim-grid">
@@ -305,17 +426,17 @@
     <div class="atom-status" id="atomStatus">버튼을 눌러 전자를 들뜨게 해 보세요. 전자는 n=1(바닥 상태)에 있습니다.</div>
 
     <div class="nebula-link-note">
-      <b>방출 성운과의 연결</b> — 전자가 n=3에서 n=2로 떨어질 때 나오는 붉은빛(Hα선, 656 nm)이 바로 불꽃 성운·장미 성운 같은 방출 성운이 붉게 보이는 이유예요. 2번 시뮬레이션에서 본 "붉은빛을 스스로 방출한다"는 현상은, 사실 수많은 수소 원자의 전자가 들떴다가 떨어지는 과정에서 나오는 빛입니다.
+      <b>방출 성운과의 연결</b> — 전자가 n=3에서 n=2로 떨어질 때 나오는 붉은빛(Hα선, 656 nm)이 바로 불꽃 성운·장미 성운 같은 방출 성운이 붉게 보이는 이유예요. 3번 시뮬레이션에서 본 "붉은빛을 스스로 방출한다"는 현상은, 사실 수많은 수소 원자의 전자가 들떴다가 떨어지는 과정에서 나오는 빛입니다.
     </div>
 
-    <div class="q-row" style="margin-top:14px;"><span class="q-num">4</span>전자가 높은 에너지 준위에서 낮은 에너지 준위로 떨어질 때는 빛을 (
+    <div class="q-row" style="margin-top:14px;"><span class="q-num">7</span>전자가 높은 에너지 준위에서 낮은 에너지 준위로 떨어질 때는 빛을 (
       <span class="choice-group" id="qElec1Group">
         <button type="button" class="choice-btn" data-value="방출한다">방출한다</button>
         <button type="button" class="choice-btn" data-value="흡수한다">흡수한다</button>
       </span>
       ).
     </div>
-    <div class="q-row"><span class="q-num">5</span>n=3에서 n=2로 전자가 떨어질 때 나오는 빛의 색은
+    <div class="q-row"><span class="q-num">8</span>n=3에서 n=2로 전자가 떨어질 때 나오는 빛의 색은
       <span class="choice-group" id="qElec2Group">
         <button type="button" class="choice-btn" data-value="빨간색">빨간색</button>
         <button type="button" class="choice-btn" data-value="파란색">파란색</button>
@@ -327,9 +448,9 @@
     <span class="q-feedback" id="elecFeedback"></span>
   </section>
 
-  <!-- 4. 스스로 점검 -->
+  <!-- 5. 스스로 점검 -->
   <section class="card">
-    <div class="card-title"><span class="badge">4</span>스스로 점검</div>
+    <div class="card-title"><span class="badge">5</span>스스로 점검</div>
     <div class="q-row"><span class="q-num">1</span>지구에서 바라본 우리은하의 일부로, 밤하늘에서 뿌연 띠 모양으로 관측되는 것을
       <select class="blank" id="qSelf1"><option value="">-선택-</option><option>은하수</option><option>성운</option><option>성단</option><option>은하</option></select>
       (이)라고 한다.
@@ -344,9 +465,9 @@
     <span class="q-feedback" id="selfFeedback"></span>
   </section>
 
-  <!-- 5. 창의적 사고력 -->
+  <!-- 6. 창의적 사고력 -->
   <section class="card">
-    <div class="card-title"><span class="badge">5</span>창의적 사고력</div>
+    <div class="card-title"><span class="badge">6</span>창의적 사고력</div>
     <p class="card-hint">태양계가 우리은하의 중심부에 위치한다고 가정하면, 은하수의 모양은 어떻게 보일지 나타내 보자.</p>
     <textarea class="essay" id="essayAnswer" placeholder="생각한 내용을 자유롭게 적어 보세요."></textarea>
     <p class="card-hint" style="margin-top:8px; margin-bottom:0;">이 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
@@ -356,7 +477,6 @@
   <section class="card">
     <div class="card-title"><span class="badge">제출</span>학생 정보를 입력하고 채점받기</div>
     <div class="ws-student">
-      <input class="small" id="ws-grade" placeholder="학년" inputmode="numeric" value="3">
       <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
       <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
       <input class="name" id="ws-name" placeholder="이름">
@@ -368,11 +488,12 @@
     <div class="ws-status" id="ws-status"></div>
   </section>
 
-  <footer>AHWA MIDDLE SCHOOL SCIENCE · Ⅶ. 별과 우주 · 성단과 성운</footer>
+  <footer>2026 아화중학교 3학년 과학 · Ⅶ. 별과 우주 · 성단과 성운</footer>
 </div>
 
 <script>
-const SPREADSHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec";
+// 모든 워크시트가 공유하는 Apps Script 웹 앱 URL (Code.gs)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
 
 const $ = (id) => document.getElementById(id);
 const svgNS = "http://www.w3.org/2000/svg";
@@ -971,9 +1092,9 @@ function setMode(mode){
   }, 30);
 }
 
-document.querySelectorAll('.tab-btn').forEach(btn => {
+document.querySelectorAll('.tab-btn[data-mode]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-btn[data-mode]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const mode=btn.dataset.mode;
     setMode(mode);
@@ -1243,6 +1364,417 @@ document.querySelectorAll('.excite-btn').forEach(btn => btn.addEventListener('cl
 $('clearSpectrum').addEventListener('click', () => { specLineGroup.innerHTML=''; });
 
 /* ==========================================================
+   우리은하 속 성단 시뮬레이션 (원반 · 중심부 · 헤일로 + 구상/산개 성단)
+   4. 은하수와 우리은하 3D 시뮬레이션과 같은 방식으로 별 하나하나를 점으로 찍고
+   밝기를 더해(가산 합성) 은하를 그린다. 거리 단위는 kpc.
+=========================================================== */
+function makeGauss(rnd){
+  return function(){
+    let u = 0, v = 0;
+    while(u === 0) u = rnd();
+    while(v === 0) v = rnd();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  };
+}
+// 점들의 밝기를 더한 값을 화면 밝기로 바꾸는 표 (밝은 곳이 하얗게 타지 않도록)
+const TONE_LUT = new Float32Array(2048);
+for(let k=0; k<2048; k++) TONE_LUT[k] = 255 * (1 - Math.exp(-k / 2048 * 9.5));
+
+(function(){
+  const canvas = $('mwCanvas'), wrap = $('mwWrap');
+  const ctx = canvas.getContext('2d');
+
+  const R_IN = 2, R_OUT = 15, HALO_LABEL_R = 18, HALO_GLOW_R = 27, SUN_R = 8.5, D = 160;
+  const TAN_P = Math.tan(20 * Math.PI/180);
+  const phiOf = a => Math.log(a / R_IN) / TAN_P;
+  // 나선팔(별이 몰리는 곳)일수록 1에 가까운 값 — 젊고 푸른 별이 많은 곳
+  const armness = (th, phi) => { const c = Math.cos(2*(th - phi)); return c > 0.72 ? (c - 0.72) / 0.28 : 0; };
+  // 원반 위 한 점: 살짝 찌그러진 궤도(밀도파 모형) 위의 위치
+  const diskPoint = (a, e, phi, th) => a*(1 + e*Math.cos(2*(th - phi)));
+
+  const N_DISK = 30000, N_BULGE = 4000, N_HALO = 7000, N = N_DISK + N_BULGE + N_HALO;
+  const X = new Float32Array(N), Y = new Float32Array(N), Z = new Float32Array(N);
+  const CR = new Float32Array(N), CG = new Float32Array(N), CB = new Float32Array(N);
+  const GC = [], OC = [];
+  let sunX = 0, sunY = 0;
+
+  (function build(){
+    const rnd = mulberry32(20261015), gauss = makeGauss(rnd);
+    const SCALE_LEN = 4.5, span = 1 - Math.exp(-(R_OUT - R_IN) / SCALE_LEN);
+    let i = 0;
+    // 원반: 나선팔을 이루는 별
+    for(; i<N_DISK; i++){
+      const a = R_IN - SCALE_LEN*Math.log(1 - rnd()*span);
+      const e = 0.16 + rnd()*0.08, phi = phiOf(a) + gauss()*0.05;
+      let th, r;
+      do { th = rnd()*Math.PI*2; r = diskPoint(a, e, phi, th); }
+      while(rnd() > (r*r)/(a*a*(1+e)*(1+e)));
+      X[i] = r*Math.cos(th); Y[i] = r*Math.sin(th); Z[i] = gauss()*0.16;
+      const yv = armness(th, phi), b = (0.32 + rnd()*0.45) * (1 + 2*yv);
+      CR[i] = b*(0.72 + rnd()*0.2 + 0.15*yv);
+      CG[i] = b*(0.8 + rnd()*0.15 + 0.35*yv);
+      CB[i] = b*(1 + 0.9*yv);
+    }
+    // 중심부(팽대부): 누런빛의 늙은 별
+    for(; i<N_DISK+N_BULGE; i++){
+      X[i] = gauss()*1.1; Y[i] = gauss()*1.1; Z[i] = gauss()*0.8;
+      const b = 0.3 + rnd()*0.35;
+      CR[i] = b; CG[i] = b*(0.8 + rnd()*0.1); CB[i] = b*(0.55 + rnd()*0.15);
+    }
+    // 헤일로: 원반을 공 모양으로 둘러싼, 드문드문한 늙은 별
+    for(; i<N; i++){
+      let r;
+      do { r = 1.2 + 4*(Math.pow(1 - rnd(), -0.55) - 1); } while(r > HALO_GLOW_R);
+      const ct = 2*rnd() - 1, st = Math.sqrt(1 - ct*ct), ph = rnd()*Math.PI*2;
+      X[i] = r*st*Math.cos(ph); Y[i] = r*st*Math.sin(ph); Z[i] = r*ct;
+      const b = 0.4 + rnd()*0.5;
+      CR[i] = b; CG[i] = b*0.8; CB[i] = b*0.62;
+    }
+
+    // 태양: 은하 중심에서 약 8.5 kpc
+    const sth = 0.45;
+    sunX = SUN_R*Math.cos(sth); sunY = SUN_R*Math.sin(sth);
+
+    // 구상 성단 약 150개: 중심부에 많고 바깥 헤일로로 갈수록 드물게, 공 모양으로 분포
+    while(GC.length < 150){
+      const r = 0.6 + 3*(Math.pow(1 - rnd(), -0.62) - 1);
+      if(r > 32) continue;
+      const ct = 2*rnd() - 1, st = Math.sqrt(1 - ct*ct), ph = rnd()*Math.PI*2;
+      GC.push({ x:r*st*Math.cos(ph), y:r*st*Math.sin(ph), z:r*ct, size:0.8 + rnd()*0.6, delay:rnd()*0.9 });
+    }
+    // 산개 성단: 나선팔을 따라 원반 안에 얇게 분포
+    while(OC.length < 240){
+      const a = 3.5 + rnd()*10.5, e = 0.16 + rnd()*0.08, phi = phiOf(a) + gauss()*0.05;
+      const th = rnd()*Math.PI*2;
+      if(armness(th, phi) < 0.35 + rnd()*0.4) continue;
+      const r = diskPoint(a, e, phi, th);
+      OC.push({ x:r*Math.cos(th), y:r*Math.sin(th), z:gauss()*0.06, size:0.8 + rnd()*0.5, delay:rnd()*0.9 });
+    }
+    // 태양 근처(국부 나선팔)의 산개 성단 — 플레이아데스, 히아데스 등
+    for(let k=0; k<14; k++){
+      OC.push({ x:sunX + gauss()*0.7, y:sunY + gauss()*0.7, z:gauss()*0.05, size:0.8 + rnd()*0.5, delay:rnd()*0.9 });
+    }
+  })();
+
+  let yaw = 0.5, tilt = 1.12, tiltTarget = null, spin = false, labels = true;
+  const show = { gc:false, oc:false }, changedAt = { gc:-1e9, oc:-1e9 };
+  let dim = 1, dirty = true;
+
+  let W = 0, H = 0, img = null, bg = null, acc = null, touched = null;
+  function resize(){
+    const cssW = wrap.clientWidth;
+    if(!cssW) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = Math.round(cssW * dpr); H = Math.round(wrap.clientHeight * dpr);
+    canvas.width = W; canvas.height = H;
+    img = ctx.createImageData(W, H);
+    acc = new Float32Array(W*H*3);
+    touched = new Int32Array(N);
+    bg = new Uint8ClampedArray(W*H*4);
+    const rnd = mulberry32(4242);
+    for(let p=0; p<W*H; p++){ bg[p*4] = 3; bg[p*4+1] = 4; bg[p*4+2] = 12; bg[p*4+3] = 255; }
+    for(let k=0; k<Math.round(W*H/1000); k++){
+      const p = (Math.floor(rnd()*H)*W + Math.floor(rnd()*W))*4, v = 50 + rnd()*120;
+      bg[p] = v; bg[p+1] = v; bg[p+2] = v + 20;
+    }
+    dirty = true;
+  }
+
+  const easeOutBack = x => 1 + 2.4*Math.pow(x - 1, 3) + 1.4*Math.pow(x - 1, 2);
+
+  function render(now){
+    if(!img) return;
+    const unit = W / wrap.clientWidth;
+    const scale = Math.min(W*0.32/R_OUT, H*0.47/HALO_LABEL_R);
+    const cx = W/2, cy = H/2;
+    const cY = Math.cos(yaw), sY = Math.sin(yaw), cT = Math.cos(tilt), sT = Math.sin(tilt);
+    const project = (x, y, z) => {
+      const xr = x*cY - y*sY, yr = x*sY + y*cY;
+      const y2 = yr*cT - z*sT, z2 = yr*sT + z*cT, k = D / (D - z2);
+      return [cx + xr*scale*k, cy + y2*scale*k, k];
+    };
+
+    // 1) 별 점 찍기 (가산 합성)
+    let nT = 0;
+    for(let i=0; i<N; i++){
+      const x = X[i], y = Y[i], z = Z[i];
+      const xr = x*cY - y*sY, yr = x*sY + y*cY;
+      const y2 = yr*cT - z*sT, z2 = yr*sT + z*cT, k = D / (D - z2);
+      const px = (cx + xr*scale*k) | 0, py = (cy + y2*scale*k) | 0;
+      if(px < 0 || py < 0 || px >= W || py >= H) continue;
+      const idx = (py*W + px)*3;
+      if(acc[idx] === 0 && acc[idx+1] === 0 && acc[idx+2] === 0) touched[nT++] = idx;
+      acc[idx] += CR[i]*dim; acc[idx+1] += CG[i]*dim; acc[idx+2] += CB[i]*dim;
+    }
+    const out = img.data;
+    out.set(bg);
+    for(let n=0; n<nT; n++){
+      const idx = touched[n], p = (idx/3)*4;
+      out[p]   = Math.min(255, out[p]   + TONE_LUT[Math.min(2047, (acc[idx]*204.8)|0)]);
+      out[p+1] = Math.min(255, out[p+1] + TONE_LUT[Math.min(2047, (acc[idx+1]*204.8)|0)]);
+      out[p+2] = Math.min(255, out[p+2] + TONE_LUT[Math.min(2047, (acc[idx+2]*204.8)|0)]);
+      acc[idx] = 0; acc[idx+1] = 0; acc[idx+2] = 0;
+    }
+    ctx.putImageData(img, 0, 0);
+
+    // 2) 헤일로·원반·중심부의 은은한 빛
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.translate(cx, cy);
+    let g = ctx.createRadialGradient(0, 0, 0, 0, 0, HALO_GLOW_R*scale);
+    g.addColorStop(0, `rgba(150,135,175,${0.2*dim})`);
+    g.addColorStop(0.5, `rgba(95,95,155,${0.09*dim})`);
+    g.addColorStop(1, 'rgba(60,60,120,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, HALO_GLOW_R*scale, 0, Math.PI*2); ctx.fill();
+    ctx.save();
+    ctx.scale(1, Math.max(0.06, Math.abs(cT)));
+    g = ctx.createRadialGradient(0, 0, 0, 0, 0, R_OUT*scale);
+    g.addColorStop(0, `rgba(255,220,170,${0.2*dim})`);
+    g.addColorStop(0.4, `rgba(120,140,220,${0.07*dim})`);
+    g.addColorStop(1, 'rgba(60,70,140,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, R_OUT*scale, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    g = ctx.createRadialGradient(0, 0, 0, 0, 0, 3*scale);
+    g.addColorStop(0, `rgba(255,245,220,${0.8*dim})`);
+    g.addColorStop(0.35, `rgba(255,205,140,${0.32*dim})`);
+    g.addColorStop(1, 'rgba(255,170,90,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 3*scale, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // 3) 구조 이름
+    const font = (px, w=700) => `${w} ${px*unit}px "Pretendard","Noto Sans KR",sans-serif`;
+    const tag = (text, x, y, color, align='center') => {
+      ctx.font = font(12.5);
+      ctx.textAlign = align; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3.5*unit; ctx.strokeStyle = 'rgba(3,4,12,0.85)';
+      ctx.strokeText(text, x, y);
+      ctx.fillStyle = color; ctx.fillText(text, x, y);
+    };
+    // 4) 성단 표시
+    const drawSet = (list, type) => {
+      const since = (now - changedAt[type]) / 1000;
+      const on = show[type];
+      const fade = on ? 1 : Math.max(0, 1 - since/0.35);
+      if(fade <= 0) return false;
+      let animating = !on || since < 1.4;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for(const c of list){
+        const a = on ? clamp((since - c.delay) / 0.4, 0, 1) : 1;
+        if(a <= 0) continue;
+        const s = on ? easeOutBack(a) : 1;
+        const [px, py, k] = project(c.x, c.y, c.z);
+        if(px < -20 || py < -20 || px > W+20 || py > H+20) continue;
+        const al = fade * Math.min(1, a*1.5);
+        if(type === 'gc'){
+          const r = 2.4*c.size*unit*k*s;
+          const gg = ctx.createRadialGradient(px, py, 0, px, py, r*2.6);
+          gg.addColorStop(0, `rgba(255,236,190,${0.9*al})`);
+          gg.addColorStop(0.35, `rgba(255,180,80,${0.6*al})`);
+          gg.addColorStop(1, 'rgba(255,140,40,0)');
+          ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(px, py, r*2.6, 0, Math.PI*2); ctx.fill();
+        } else {
+          const r = 2.4*c.size*unit*k*s;
+          const gg = ctx.createRadialGradient(px, py, 0, px, py, r*3);
+          gg.addColorStop(0, `rgba(230,248,255,${al})`);
+          gg.addColorStop(0.3, `rgba(90,190,255,${0.75*al})`);
+          gg.addColorStop(1, 'rgba(40,120,255,0)');
+          ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(px, py, r*3, 0, Math.PI*2); ctx.fill();
+          ctx.strokeStyle = `rgba(160,220,255,${0.7*al})`; ctx.lineWidth = 0.9*unit;
+          ctx.beginPath();
+          ctx.moveTo(px - r*2.6, py); ctx.lineTo(px + r*2.6, py);
+          ctx.moveTo(px, py - r*2.6); ctx.lineTo(px, py + r*2.6);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+      return animating;
+    };
+    const animGc = drawSet(GC, 'gc'), animOc = drawSet(OC, 'oc');
+
+    if(labels){
+      const Rh = HALO_LABEL_R*scale;
+      ctx.save();
+      ctx.setLineDash([5*unit, 6*unit]);
+      ctx.strokeStyle = 'rgba(175,185,235,0.32)'; ctx.lineWidth = 1.2*unit;
+      ctx.beginPath(); ctx.arc(cx, cy, Rh, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+      tag('헤일로', cx - Rh*0.72, cy + Rh*0.72, '#C9CFF2');
+      const [dx, dy] = project(R_OUT*Math.cos(-yaw), R_OUT*Math.sin(-yaw), 0);
+      tag('원반', dx + 8*unit, dy, '#BFD3FF', 'left');
+      tag('중심부(팽대부)', cx, cy - Math.max(2.2*scale*Math.max(0.35, sT), 18*unit) - 6*unit, '#FFE2B0');
+    }
+
+    // 5) 태양
+    const [sx, sy] = project(sunX, sunY, 0);
+    ctx.fillStyle = '#FFD76A'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5*unit;
+    ctx.beginPath(); ctx.arc(sx, sy, 4.5*unit, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    tag('태양', sx, sy + 14*unit, '#FFFFFF');
+
+    return animGc || animOc;
+  }
+
+  function updateSub(){
+    const t = show.gc && show.oc ? '구상 성단은 공 모양의 헤일로·중심부에, 산개 성단은 납작한 원반의 나선팔에!'
+            : show.gc ? '구상 성단 약 150개 — 중심부와 헤일로에 공 모양으로 분포'
+            : show.oc ? '산개 성단 — 원반의 나선팔을 따라 얇게 분포'
+            : '버튼을 눌러 성단의 위치를 드러내 보자';
+    $('mwSub').textContent = t;
+    $('cardGc').classList.toggle('on', show.gc);
+    $('cardOc').classList.toggle('on', show.oc);
+  }
+
+  let last = 0, animating = false;
+  function frame(ts){
+    const dt = last ? Math.min(0.05, (ts - last)/1000) : 0;
+    last = ts;
+    if(spin){ yaw += dt*0.12; dirty = true; }
+    if(tiltTarget !== null){
+      tilt += (tiltTarget - tilt) * Math.min(1, dt*7);
+      if(Math.abs(tiltTarget - tilt) < 0.002){ tilt = tiltTarget; tiltTarget = null; }
+      dirty = true;
+    }
+    const dimTarget = (show.gc || show.oc) ? 0.55 : 1;
+    if(Math.abs(dim - dimTarget) > 0.005){ dim += (dimTarget - dim) * Math.min(1, dt*6); dirty = true; }
+    if(dirty || animating){ animating = render(ts); dirty = false; }
+    requestAnimationFrame(frame);
+  }
+
+  document.querySelectorAll('.cl-btn').forEach(btn => btn.addEventListener('click', () => {
+    const type = btn.dataset.cl;
+    show[type] = !show[type];
+    changedAt[type] = performance.now();
+    btn.classList.toggle('active', show[type]);
+    updateSub();
+    dirty = true;
+  }));
+  document.querySelectorAll('.view-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tiltTarget = Number(btn.dataset.tilt);
+  }));
+  $('mwLabels').addEventListener('change', e => { labels = e.target.checked; dirty = true; });
+  $('mwSpin').addEventListener('change', e => { spin = e.target.checked; });
+
+  let drag = null;
+  wrap.addEventListener('pointerdown', e => {
+    drag = { x:e.clientX, y:e.clientY, yaw, tilt };
+    tiltTarget = null;
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove', e => {
+    if(!drag) return;
+    yaw = drag.yaw + (e.clientX - drag.x) * 0.008;
+    tilt = clamp(drag.tilt + (e.clientY - drag.y) * 0.006, 0, Math.PI/2);
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    dirty = true;
+  });
+  const endDrag = () => { drag = null; };
+  wrap.addEventListener('pointerup', endDrag);
+  wrap.addEventListener('pointercancel', endDrag);
+
+  new ResizeObserver(resize).observe(wrap);
+  resize();
+  requestAnimationFrame(frame);
+})();
+
+/* 확대 그림: 구상 성단(M13형)과 산개 성단(플레이아데스형) */
+(function(){
+  function starfield(ctx, W, H, rnd, n){
+    ctx.fillStyle = '#05070F'; ctx.fillRect(0, 0, W, H);
+    for(let k=0; k<n; k++){
+      const v = 70 + rnd()*110;
+      ctx.fillStyle = `rgba(${v},${v},${v+25},${0.5 + rnd()*0.5})`;
+      ctx.fillRect(rnd()*W, rnd()*H, 1, 1);
+    }
+  }
+  function caption(ctx, text, sub){
+    ctx.font = '800 17px "Pretendard","Noto Sans KR",sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#fff'; ctx.fillText(text, 14, 12);
+    ctx.font = '600 12px "Pretendard","Noto Sans KR",sans-serif';
+    ctx.fillStyle = 'rgba(220,228,255,0.8)'; ctx.fillText(sub, 14, 34);
+  }
+
+  // 구상 성단: 수만 개의 누런·붉은 별이 공 모양으로 중심에 갈수록 빽빽하게 (플러머 분포)
+  (function(){
+    const cv = $('gcThumb'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+    const rnd = mulberry32(1313);
+    starfield(ctx, W, H, rnd, 140);
+    const img = ctx.getImageData(0, 0, W, H), d = img.data;
+    const acc = new Float32Array(W*H*3);
+    const cx = W/2, cy = H/2 + 12, A = 21;
+    for(let k=0; k<40000; k++){
+      const r = A / Math.sqrt(Math.pow(1 - rnd()*0.995, -2/3) - 1);
+      if(r > 150) continue;
+      const ct = 2*rnd() - 1, st = Math.sqrt(1 - ct*ct), ph = rnd()*Math.PI*2;
+      const px = (cx + r*st*Math.cos(ph)) | 0, py = (cy + r*st*Math.sin(ph)) | 0;
+      if(px < 0 || py < 0 || px >= W || py >= H) continue;
+      const b = 0.08 + Math.pow(rnd(), 6)*1.6, hue = rnd();
+      const i = (py*W + px)*3;
+      acc[i] += b; acc[i+1] += b*(hue < 0.15 ? 0.95 : 0.74); acc[i+2] += b*(hue < 0.15 ? 0.9 : 0.46);
+    }
+    for(let p=0; p<W*H; p++){
+      const i = p*3, q = p*4;
+      if(!acc[i]) continue;
+      d[q]   = Math.min(255, d[q]   + TONE_LUT[Math.min(2047, (acc[i]*300)|0)]);
+      d[q+1] = Math.min(255, d[q+1] + TONE_LUT[Math.min(2047, (acc[i+1]*300)|0)]);
+      d[q+2] = Math.min(255, d[q+2] + TONE_LUT[Math.min(2047, (acc[i+2]*300)|0)]);
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 70);
+    g.addColorStop(0, 'rgba(255,225,170,0.55)');
+    g.addColorStop(0.4, 'rgba(255,180,100,0.15)');
+    g.addColorStop(1, 'rgba(255,150,60,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 70, 0, Math.PI*2); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    caption(ctx, '구상 성단 확대 (M13형)', '늙고 붉은 별 수만~수십만 개 · 공 모양');
+  })();
+
+  // 산개 성단: 젊고 푸른 별 수십~수백 개가 엉성하게, 주변에 푸른 반사 성운이 남아 있다
+  (function(){
+    const cv = $('ocThumb'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+    const rnd = mulberry32(4545), gauss = makeGauss(rnd);
+    starfield(ctx, W, H, rnd, 260);
+    const cx = W/2 + 10, cy = H/2 + 14;
+    const stars = [];
+    for(let k=0; k<90; k++){
+      stars.push({ x:cx + gauss()*68, y:cy + gauss()*48, m:Math.pow(rnd(), 3.2), warm:rnd() < 0.12 });
+    }
+    stars.sort((a, b) => a.m - b.m);
+    ctx.globalCompositeOperation = 'lighter';
+    // 밝은 별 주변의 푸른 반사 성운
+    stars.slice(-8).forEach(s => {
+      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 46);
+      g.addColorStop(0, 'rgba(80,130,255,0.16)');
+      g.addColorStop(1, 'rgba(40,80,200,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, 46, 0, Math.PI*2); ctx.fill();
+    });
+    stars.forEach((s, idx) => {
+      const bright = idx >= stars.length - 8;
+      const r = bright ? 2.6 + s.m*1.6 : 0.7 + s.m*2.2;
+      const col = s.warm ? '255,226,180' : '175,215,255';
+      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r*(bright ? 5 : 3));
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.25, `rgba(${col},0.85)`);
+      g.addColorStop(1, `rgba(${col},0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, r*(bright ? 5 : 3), 0, Math.PI*2); ctx.fill();
+      if(bright){
+        ctx.strokeStyle = `rgba(${col},0.55)`; ctx.lineWidth = 1;
+        const L = r*7;
+        ctx.beginPath();
+        ctx.moveTo(s.x - L, s.y); ctx.lineTo(s.x + L, s.y);
+        ctx.moveTo(s.x, s.y - L); ctx.lineTo(s.x, s.y + L);
+        ctx.stroke();
+      }
+    });
+    ctx.globalCompositeOperation = 'source-over';
+    caption(ctx, '산개 성단 확대 (플레이아데스형)', '젊고 푸른 별 수십~수만 개 · 엉성하게 흩어짐');
+  })();
+})();
+
+/* ==========================================================
    선택지 버튼 공용
 =========================================================== */
 document.querySelectorAll(".choice-group").forEach(group => {
@@ -1266,6 +1798,10 @@ function setFeedback(id,ok,correctText){
 /* ==========================================================
    채점
 =========================================================== */
+$('checkClu').addEventListener('click', () => {
+  const ok = pickedValue($('qClu1Group'))==='중심부와 헤일로' && pickedValue($('qClu2Group'))==='높은 파란색' && pickedValue($('qClu3Group'))==='구상 성단';
+  setFeedback('cluFeedback', ok, '중심부와 헤일로 / 높은 파란색 / 구상 성단');
+});
 $('checkNeb').addEventListener('click', () => {
   const ok = $('qNeb1').value==='방출 성운' && $('qNeb2').value==='반사 성운' && $('qNeb3').value==='암흑 성운';
   setFeedback('nebFeedback', ok, '① 방출 성운 ② 반사 성운 ③ 암흑 성운');
@@ -1286,23 +1822,24 @@ const submitBtn=$('ws-submit'), wsResult=$('ws-result'), wsStatus=$('ws-status')
 
 submitBtn.addEventListener('click', async () => {
   const name=$('ws-name').value.trim();
-  const grade=$('ws-grade').value.trim();
   const classNum=$('ws-class').value.trim();
   const number=$('ws-number').value.trim();
-  if(!name){ alert('이름을 입력해 주세요.'); return; }
+  if(!classNum||!number||!name){ alert('반, 번호, 이름을 모두 입력해 주세요.'); return; }
 
+  const qClu1=pickedValue($('qClu1Group')), qClu2=pickedValue($('qClu2Group')), qClu3=pickedValue($('qClu3Group'));
   const qNeb1=$('qNeb1').value, qNeb2=$('qNeb2').value, qNeb3=$('qNeb3').value;
   const qElec1=pickedValue($('qElec1Group')), qElec2=pickedValue($('qElec2Group'));
   const qSelf1=$('qSelf1').value, qSelf2=$('qSelf2').value, qSelf3=$('qSelf3').value;
   const essay=$('essayAnswer').value.trim();
 
-  if(!qNeb1||!qNeb2||!qNeb3||!qElec1||!qElec2||!qSelf1||!qSelf2||!qSelf3){
+  if(!qClu1||!qClu2||!qClu3||!qNeb1||!qNeb2||!qNeb3||!qElec1||!qElec2||!qSelf1||!qSelf2||!qSelf3){
     alert('아직 선택하지 않은 문항이 있어요. 모든 문항을 채워 주세요.');
     return;
   }
-  if(!essay){ alert('5번 창의적 사고력 서술형 질문에 답을 작성해 주세요.'); return; }
+  if(!essay){ alert('6번 창의적 사고력 서술형 질문에 답을 작성해 주세요.'); return; }
 
   const answers=[
+    [qClu1,'중심부와 헤일로'],[qClu2,'높은 파란색'],[qClu3,'구상 성단'],
     [qNeb1,'방출 성운'],[qNeb2,'반사 성운'],[qNeb3,'암흑 성운'],
     [qElec1,'방출한다'],[qElec2,'빨간색'],
     [qSelf1,'은하수'],[qSelf2,'성단'],[qSelf3,'성운']
@@ -1315,23 +1852,25 @@ submitBtn.addEventListener('click', async () => {
   submitBtn.disabled=true;
   wsStatus.textContent='제출 중...';
 
+  // Code.gs 동적 저장: form 값이 시트(탭) 이름, 나머지 키가 열 제목이 됩니다.
   const payload={
-    worksheet:'7_성단과성운',
-    grade, classNum, number, name,
-    q_nebula1:qNeb1, q_nebula2:qNeb2, q_nebula3:qNeb3,
-    q_electron1:qElec1, q_electron2:qElec2,
-    q_selfcheck1:qSelf1, q_selfcheck2:qSelf2, q_selfcheck3:qSelf3,
-    essay_answer:essay,
-    score:String(correct),
-    total:String(total)
+    form:'성단성운_답안',
+    submittedAt:new Date().toISOString(),
+    stuClass:classNum, stuNumber:number, name,
+    '점수':`${correct}/${total}`,
+    '성단-1':qClu1, '성단-2':qClu2, '성단-3':qClu3,
+    '성운구분-1':qNeb1, '성운구분-2':qNeb2, '성운구분-3':qNeb3,
+    '전자-빛방출':qElec1, '전자-빛색깔':qElec2,
+    '스스로점검-1':qSelf1, '스스로점검-2':qSelf2, '스스로점검-3':qSelf3,
+    '창의적사고-서술':essay
   };
 
   try{
-    await fetch(SPREADSHEET_WEBHOOK_URL, {
+    await fetch(APPS_SCRIPT_URL, {
       method:'POST',
       mode:'no-cors',
-      headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
-      body:new URLSearchParams(payload)
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body:JSON.stringify(payload)
     });
     wsStatus.textContent='채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.';
   }catch(err){
