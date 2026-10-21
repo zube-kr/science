@@ -70,6 +70,7 @@ const FORMS = {
              "OX1", "OX2", "OX3",
              "겉보기밝기순서", "실제밝기순서", "드래그시뮬최종상태",
              "큰개자리-4.1", "큰개자리-2.0", "큰개자리--1.4",
+             "아두이노-측정데이터", "아두이노-거리지수(n)", "아두이노-생각해보기",
              "교사피드백"],
     row: function (data) {
       return [
@@ -79,7 +80,8 @@ const FORMS = {
         data.magBright || "", data.magDim || "", data.mag100x || "", data.mag25x || "", data.magPcDef || "",
         data.ox1 || "", data.ox2 || "", data.ox3 || "",
         data.apparentOrder || "", data.realOrder || "", data.dragFinalState || "",
-        data.caniMatch41 || "", data.caniMatch20 || "", data.caniMatchNeg14 || ""
+        data.caniMatch41 || "", data.caniMatch20 || "", data.caniMatchNeg14 || "",
+        data.arduinoData || "", data.arduinoExponent || "", data.arduinoReflection || ""
       ];
     }
   },
