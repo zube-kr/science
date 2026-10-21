@@ -204,6 +204,46 @@
   .meter-label{ font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
 
   .match-table td select{ min-width:120px; }
+  /* 아두이노 실험 */
+  .ard-grid{ display:grid; grid-template-columns:1.25fr 1fr; gap:16px; align-items:start; }
+  .ard-sub{ font-weight:700; font-size:14px; margin:4px 0 6px; color:var(--night); }
+  .ard-list{ margin:0 0 12px; padding-left:20px; font-size:13.5px; }
+  .ard-pins th, .ard-pins td{ font-size:12.5px; }
+  .ard-circuit{ background:#0C1224; border-radius:10px; padding:10px; }
+  .ard-circuit svg{ width:100%; height:auto; display:block; }
+  .ard-code{ margin-top:14px; background:#F3F0E6; border-radius:10px; padding:10px 14px; }
+  .ard-code summary{ cursor:pointer; font-weight:700; font-size:14px; }
+  .ard-code pre{ background:#141B34; color:#E7EAF5; border-radius:8px; padding:14px; font-size:12px; line-height:1.55; overflow:auto; max-height:360px; margin:10px 0 2px; }
+  .ard-copy{ margin-top:10px; }
+  .ard-connect{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:6px; }
+  .ard-btn{ width:auto !important; margin:0 !important; padding:11px 18px !important; font-size:14.5px !important; }
+  .ard-status{ display:inline-flex; align-items:center; gap:7px; font-size:13.5px; color:var(--ink-soft); }
+  .ard-dot{ width:10px; height:10px; border-radius:50%; background:#C9C3B4; }
+  .ard-dot.live{ background:#3FB46A; box-shadow:0 0 0 4px rgba(63,180,106,.2); }
+  .ard-note{ font-size:12.5px; color:var(--ink-soft); margin:6px 0 10px; }
+  .ard-live{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .ard-box{ background:#fff; border:1px solid var(--paper-line); border-radius:10px; padding:10px 12px; }
+  .ard-box > label{ display:block; font-size:12.5px; color:var(--ink-soft); margin-bottom:6px; }
+  .ard-box input[type=number]{ font-size:18px; font-weight:700; }
+  .ard-check{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); margin-top:8px; cursor:pointer; }
+  .ard-ambient{ font-size:14px; font-weight:700; margin-bottom:8px; }
+  .ard-result{ display:grid; grid-template-columns:1fr 1.25fr; gap:16px; margin-top:12px; align-items:start; }
+  .ard-table th, .ard-table td{ text-align:center; font-size:13px; padding:6px 4px; }
+  .ard-table small{ font-weight:400; color:var(--ink-soft); }
+  .ard-table .del{ border:none; background:none; color:var(--warn); cursor:pointer; font-size:14px; }
+  .ard-table .empty td{ color:var(--ink-soft); padding:14px; }
+  .ard-graph{ background:#fff; border:1px solid var(--paper-line); border-radius:10px; }
+  .ard-graph canvas{ width:100%; height:280px; display:block; }
+  .ard-legend{ font-size:12px; color:var(--ink-soft); margin-top:6px; display:flex; align-items:center; gap:6px; }
+  .lg-dot{ width:10px; height:10px; border-radius:50%; background:#E0902B; display:inline-block; }
+  .lg-line{ width:22px; border-top:2px dashed #3E5C99; display:inline-block; margin-left:10px; }
+  .ard-fit{ margin-top:12px; background:#F1F4FB; border-left:4px solid #3E5C99; border-radius:8px; padding:10px 14px; font-size:13.5px; }
+  .ard-fit b{ color:var(--night); }
+  @media (max-width:640px){
+    .match-table td select{ min-width:0; width:100%; }
+    .ard-grid, .ard-result{ grid-template-columns:1fr; }
+    .ard-live{ grid-template-columns:1fr; }
+  }
 
   @media (max-width:520px){
     table.answer-table th{ font-size:13px; }
@@ -267,6 +307,175 @@
     <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
     <div class="meter-label" id="meterPercent">밝기 100%</div>
     <p class="sim-note" style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;">※ 실제 수업에서는 자·모눈종이로 직접 측정한 값을 아래 3번 표에 입력하세요. 이 시뮬레이션은 개념 이해를 돕기 위한 것입니다.</p>
+  </section>
+
+  <section id="arduinoLab">
+    <h2><span class="num">+</span>아두이노 실험 · 조도 센서로 빛의 밝기 직접 재기</h2>
+    <p class="hint">위 실험에서는 빛이 비추는 <b>넓이</b>를 쟀다면, 이번에는 아두이노와 <b>CDS 조도 센서</b>로 빛의 <b>밝기</b>를 직접 측정해 보자. 손전등과 센서 사이의 거리를 바꿔 가며 기록하면 표와 그래프가 자동으로 그려진다.</p>
+
+    <div class="ard-grid">
+      <div>
+        <div class="ard-sub">준비물</div>
+        <ul class="ard-list">
+          <li>아두이노 UNO, USB 케이블, 브레드보드, 점퍼선</li>
+          <li><b>CDS 조도센서 + 10kΩ 저항</b> (또는 CDS 조도센서 모듈)</li>
+          <li>휴대 전화 손전등, 자(줄자)</li>
+          <li>(선택) 초음파센서 — 거리를 자동으로 잴 때</li>
+        </ul>
+        <div class="ard-sub">회로 연결</div>
+        <table class="answer-table ard-pins">
+          <tr><th>부품</th><th>부품 쪽</th><th>아두이노</th></tr>
+          <tr><td rowspan="2">CDS 조도센서</td><td>한쪽 다리</td><td>5V</td></tr>
+          <tr><td>다른 쪽 다리</td><td>A0</td></tr>
+          <tr><td>10kΩ 저항</td><td>A0 ↔ GND 사이</td><td>A0, GND</td></tr>
+          <tr><td>조도센서 모듈(대신 사용 시)</td><td>S / + / −</td><td>A0 / 5V / GND</td></tr>
+          <tr><td>초음파센서(선택)</td><td>VCC / GND / TRIG / ECHO</td><td>5V / GND / 9 / 10</td></tr>
+        </table>
+      </div>
+      <div class="ard-circuit">
+        <svg viewBox="0 0 300 230" xmlns="http://www.w3.org/2000/svg" aria-label="조도센서 회로도">
+          <g fill="none" stroke="#C9CEE0" stroke-width="2">
+            <path d="M60 30 H150 V60"/>
+            <path d="M150 120 V140"/>
+            <path d="M150 140 H240"/>
+            <path d="M150 140 V160"/>
+            <path d="M150 205 V215 H60"/>
+          </g>
+          <!-- CDS -->
+          <rect x="132" y="60" width="36" height="60" rx="18" fill="#2A3358" stroke="#E8C468" stroke-width="2"/>
+          <path d="M140 74 h20 M140 82 h20 M140 90 h20 M140 98 h20 M140 106 h20" stroke="#E8C468" stroke-width="2"/>
+          <path d="M196 66 l-20 12 M204 80 l-20 12" stroke="#F3DFA0" stroke-width="2"/>
+          <path d="M176 78 l7 -1 -3 6z M184 92 l7 -1 -3 6z" fill="#F3DFA0"/>
+          <!-- 저항 -->
+          <path d="M150 160 l8 4 -16 8 16 8 -16 8 16 8 -8 4" fill="none" stroke="#7FB0E0" stroke-width="2.4"/>
+          <circle cx="150" cy="140" r="4" fill="#E8C468"/>
+          <g font-size="13" fill="#F3DFA0" font-family="sans-serif">
+            <text x="24" y="35">5V</text>
+            <text x="20" y="220">GND</text>
+            <text x="246" y="145">A0</text>
+            <text x="176" y="118" fill="#C9CEE0">CDS</text>
+            <text x="172" y="190" fill="#7FB0E0">10kΩ</text>
+          </g>
+          <text x="150" y="16" font-size="11.5" fill="#9AA3C2" text-anchor="middle" font-family="sans-serif">빛이 밝을수록 CDS 저항이 작아져 A0 값이 커져요</text>
+        </svg>
+      </div>
+    </div>
+
+    <details class="ard-code">
+      <summary>아두이노 코드 보기 (복사해서 아두이노 IDE로 업로드)</summary>
+      <button type="button" class="check-btn ard-copy" id="ardCopy">📋 코드 복사</button>
+      <pre id="ardCodeText">/*
+  별의 밝기가 다른 까닭은 - 거리에 따른 빛의 밝기 측정 스케치
+  ------------------------------------------------------------
+  CDS 조도센서(부품): 5V - CDS - A0 - 10kΩ 저항 - GND
+    (조도센서 모듈이면  S -&gt; A0,  가운데(+) -&gt; 5V,  - -&gt; GND)
+  (선택) HC-SR04 초음파센서: VCC -&gt; 5V, GND -&gt; GND, TRIG -&gt; 9, ECHO -&gt; 10
+    → 손전등(휴대 전화)까지의 거리를 자동으로 잴 때만 연결합니다.
+
+  0.2초마다 "센서값,거리" 형식으로 시리얼 출력 (보드레이트 9600)
+    센서값: 0~1023 (부품 회로에서는 밝을수록 커짐)
+    거리  : cm, 초음파센서가 없거나 잴 수 없으면 -1
+*/
+const int LIGHT_PIN = A0;
+const int TRIG_PIN = 9;
+const int ECHO_PIN = 10;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+// 잡음을 줄이려고 10번 읽어 평균을 낸다
+int readLight() {
+  long sum = 0;
+  for (int i = 0; i &lt; 10; i++) {
+    sum += analogRead(LIGHT_PIN);
+    delay(2);
+  }
+  return sum / 10;
+}
+
+float readDistanceCm() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH, 25000);
+  if (duration == 0) return -1;
+  return duration * 0.0343 / 2.0;
+}
+
+void loop() {
+  int light = readLight();
+  float d = readDistanceCm();
+  Serial.print(light);
+  Serial.print(",");
+  Serial.println(d, 1);
+  delay(200);
+}</pre>
+    </details>
+
+    <ol class="steps" style="margin-top:14px;">
+      <li>교실을 어둡게 하고, CDS 센서가 손전등 쪽을 향하도록 세워 고정한다.</li>
+      <li><b>아두이노 연결하기</b>를 누르고, 손전등을 끈 채로 <b>배경 빛 재기</b>를 누른다.</li>
+      <li>손전등을 켜고 센서 정면에서 10 cm 떨어뜨린 뒤 거리를 입력하고 <b>현재 값 기록하기</b>를 누른다.</li>
+      <li>15 cm, 20 cm, 25 cm, 30 cm, 40 cm… 거리를 늘려 가며 같은 방법으로 기록한다. (손전등 방향은 항상 센서 정면!)</li>
+    </ol>
+
+    <div class="ard-connect">
+      <button type="button" class="submit-btn ard-btn" id="ardConnect">🔌 아두이노 연결하기</button>
+      <span class="ard-status"><span class="ard-dot" id="ardDot"></span><span id="ardStatus">연결 안 됨</span></span>
+    </div>
+    <p class="ard-note">크롬·엣지 브라우저에서 연결할 수 있어요. 아두이노가 없으면 센서값을 직접 입력해도 똑같이 기록돼요.</p>
+
+    <div class="ard-live">
+      <div class="ard-box">
+        <label for="ardRaw">💡 센서값 (0~1023)</label>
+        <input type="number" id="ardRaw" min="0" max="1023" step="1" placeholder="센서값">
+        <div class="meter"><div class="meter-fill" id="ardMeter" style="width:0%"></div></div>
+      </div>
+      <div class="ard-box">
+        <label for="ardDist">📏 손전등–센서 거리 (cm)</label>
+        <input type="number" id="ardDist" min="1" step="0.5" placeholder="거리">
+        <label class="ard-check"><input type="checkbox" id="ardAutoDist"> 초음파센서로 거리 자동 입력</label>
+      </div>
+      <div class="ard-box">
+        <label>🌙 배경 빛 (손전등 끔)</label>
+        <div class="ard-ambient" id="ardAmbientText">아직 안 잼 (0으로 계산)</div>
+        <button type="button" class="check-btn" id="ardAmbient">배경 빛 재기</button>
+      </div>
+    </div>
+    <label class="ard-check" style="margin:6px 0 2px;"><input type="checkbox" id="ardInvert"> 조도센서 <b>모듈</b>이라서 밝을수록 센서값이 <b>작아져요</b> (값이 거꾸로일 때 체크)</label>
+
+    <div class="sim-controls" style="margin-top:12px;">
+      <button type="button" class="submit-btn ard-btn" id="ardRecord">📍 현재 값 기록하기</button>
+      <button type="button" class="toggle-opt" id="ardClear">🧹 표 지우기</button>
+      <button type="button" class="toggle-opt" id="ardSample">📎 예시 값으로 미리보기</button>
+    </div>
+
+    <div class="ard-result">
+      <div>
+        <table class="answer-table ard-table">
+          <thead><tr><th>#</th><th>거리(cm)</th><th>센서값</th><th>빛의 세기<br><small>(가장 가까운 곳 = 100)</small></th><th></th></tr></thead>
+          <tbody id="ardTbody"></tbody>
+        </table>
+      </div>
+      <div>
+        <div class="toggle-group" id="ardGraphMode" style="margin-bottom:8px;">
+          <button type="button" class="toggle-opt active" data-m="d">거리 – 빛의 세기</button>
+          <button type="button" class="toggle-opt" data-m="inv">1/거리² – 빛의 세기</button>
+        </div>
+        <div class="ard-graph"><canvas id="ardCanvas"></canvas></div>
+        <div class="ard-legend"><span class="lg-dot"></span>측정값 <span class="lg-line"></span>이론(거리의 제곱에 반비례)</div>
+      </div>
+    </div>
+    <div class="ard-fit" id="ardFit">서로 다른 거리에서 2번 이상 기록하면, 측정값으로 거리와 빛의 세기 사이의 관계를 계산해 알려 줘요.</div>
+    <p class="sim-note" style="font-size:12.5px;color:var(--ink-soft);margin-top:8px;">※ 빛의 세기는 CDS 센서의 특성(빛이 밝을수록 저항이 일정한 비율로 작아짐)을 이용해 센서값으로부터 추정한 값이에요. 배경 빛을 빼고, 가장 가까운 거리의 값을 100으로 놓고 비교해요.</p>
+
+    <p class="hint" style="margin:18px 0 6px;"><b>생각해 보기.</b> 거리가 2배가 되었을 때 빛의 세기는 약 몇 분의 1이 되었나요? 이론(거리의 제곱에 반비례)과 비교하고, 차이가 났다면 그 까닭도 써 보자. <span style="color:var(--ink-soft)">(선택)</span></p>
+    <textarea id="arduinoReflection" placeholder="예: 10 cm에서 20 cm로 2배 멀어지니 빛의 세기가 약 1/4로 줄었다. 주변의 다른 빛 때문에..."></textarea>
   </section>
 
   <section>
@@ -708,6 +917,265 @@
       '다시 확인해 보세요: 겉보기 등급 숫자가 작을수록(음수에 가까울수록) 더 밝게 보이는 별입니다.');
   });
 
+  // ── 아두이노 실험: 조도 센서로 거리에 따른 빛의 밝기 측정 ──
+  const ARD = {
+    port: null, reader: null, reading: false,
+    samples: [],          // 최근 센서값(평균용)
+    lastDist: -1,
+    ambientLux: 0, ambientSet: false,
+    rows: [],             // { d, raw, lux }
+    mode: 'd'
+  };
+  const GAMMA = 0.7, R_FIXED = 10000;   // CDS(GL55 계열) 감마값, 고정 저항 10kΩ
+
+  // 센서값 → 빛의 세기(추정 조도). 밝을수록 CDS 저항 R이 작아지고, 조도 ∝ R^(-1/γ)
+  function rawToLux(raw){
+    let a = $('ardInvert').checked ? 1023 - raw : raw;
+    a = Math.min(1022, Math.max(1, a));
+    const r = R_FIXED * (1023 / a - 1);
+    return 10 * Math.pow(R_FIXED / r, 1 / GAMMA);
+  }
+  function luxToRaw(lux){   // 예시 값 만들기용(역변환)
+    const r = R_FIXED / Math.pow(lux / 10, GAMMA);
+    return Math.round(1023 / (1 + r / R_FIXED));
+  }
+  const netLux = row => Math.max(0, row.lux - ARD.ambientLux);
+
+  function setConn(on){
+    $('ardDot').classList.toggle('live', on);
+    $('ardStatus').textContent = on ? '실시간 연결됨' : '연결 안 됨';
+    $('ardConnect').textContent = on ? '🔌 연결 끊기' : '🔌 아두이노 연결하기';
+  }
+  async function ardConnect(){
+    if(!('serial' in navigator)){
+      alert('이 브라우저는 아두이노 연결(Web Serial)을 지원하지 않아요. 크롬(Chrome)이나 엣지(Edge)를 사용해 주세요.\n연결하지 않아도 센서값을 직접 입력해서 기록할 수 있어요.');
+      return;
+    }
+    try{
+      ARD.port = await navigator.serial.requestPort();
+      await ARD.port.open({ baudRate: 9600 });
+      ARD.reading = true;
+      ARD.samples = [];
+      setConn(true);
+      ardReadLoop();
+    }catch(err){
+      console.error(err);
+      if(err && err.name !== 'NotFoundError'){
+        alert('아두이노 연결에 실패했어요. USB가 잘 꽂혀 있는지, 아두이노 IDE의 시리얼 모니터가 켜져 있지는 않은지 확인해 주세요.');
+      }
+    }
+  }
+  async function ardDisconnect(){
+    ARD.reading = false;
+    try{ if(ARD.reader) await ARD.reader.cancel(); }catch(e){}
+    try{ if(ARD.port) await ARD.port.close(); }catch(e){}
+    ARD.port = null; ARD.reader = null;
+    setConn(false);
+  }
+  async function ardReadLoop(){
+    const dec = new TextDecoderStream();
+    ARD.port.readable.pipeTo(dec.writable).catch(() => {});
+    ARD.reader = dec.readable.getReader();
+    let buf = '';
+    try{
+      while(ARD.reading){
+        const { value, done } = await ARD.reader.read();
+        if(done) break;
+        if(value) buf += value;
+        let i;
+        while((i = buf.indexOf('\n')) >= 0){
+          ardLine(buf.slice(0, i).trim());
+          buf = buf.slice(i + 1);
+        }
+      }
+    }catch(e){ console.error(e); }
+    finally{ try{ ARD.reader.releaseLock(); }catch(e){} }
+    if(ARD.reading){ ARD.reading = false; setConn(false); }
+  }
+  // 한 줄: "센서값,거리"
+  function ardLine(line){
+    const p = line.split(',');
+    const raw = parseFloat(p[0]);
+    if(isNaN(raw) || raw < 0 || raw > 1023) return;
+    ARD.samples.push(raw);
+    if(ARD.samples.length > 5) ARD.samples.shift();
+    const avg = ARD.samples.reduce((a, b) => a + b, 0) / ARD.samples.length;
+    $('ardRaw').value = Math.round(avg);
+    updateMeter();
+    const d = p.length > 1 ? parseFloat(p[1]) : -1;
+    ARD.lastDist = d;
+    if($('ardAutoDist').checked && d > 0 && d < 400) $('ardDist').value = d.toFixed(1);
+  }
+  function updateMeter(){
+    const raw = parseFloat($('ardRaw').value);
+    const v = isNaN(raw) ? 0 : ($('ardInvert').checked ? 1023 - raw : raw);
+    $('ardMeter').style.width = Math.max(0, Math.min(100, v / 1023 * 100)) + '%';
+  }
+
+  // 측정값으로 '빛의 세기 ∝ 1/거리^n' 의 n 구하기 (로그-로그 직선 맞춤)
+  function fitPower(rows){
+    const pts = rows.filter(r => r.d > 0 && netLux(r) > 0).map(r => [Math.log(r.d), Math.log(netLux(r))]);
+    const ds = new Set(rows.filter(r => r.d > 0).map(r => r.d));
+    if(pts.length < 2 || ds.size < 2) return null;
+    const n = pts.length, mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+    let sxy = 0, sxx = 0;
+    pts.forEach(p => { sxy += (p[0] - mx) * (p[1] - my); sxx += (p[0] - mx) ** 2; });
+    const slope = sxy / sxx;
+    return { n: -slope };
+  }
+  // 가장 가까운 거리의 빛의 세기를 100으로
+  function refLux(){
+    const sorted = ARD.rows.filter(r => netLux(r) > 0).sort((a, b) => a.d - b.d);
+    return sorted.length ? netLux(sorted[0]) : 0;
+  }
+  const relOf = r => { const ref = refLux(); return ref > 0 ? netLux(r) / ref * 100 : 0; };
+
+  function renderArd(){
+    const tb = $('ardTbody');
+    const rows = ARD.rows.map((r, i) => ({ r, i })).sort((a, b) => a.r.d - b.r.d);
+    if(!rows.length){
+      tb.innerHTML = '<tr class="empty"><td colspan="5">아직 기록한 값이 없어요.</td></tr>';
+    }else{
+      tb.innerHTML = rows.map(({ r, i }, k) => `<tr><td>${k + 1}</td><td>${r.d}</td><td>${r.raw}</td><td><b>${relOf(r).toFixed(1)}</b></td><td><button type="button" class="del" data-i="${i}" title="지우기">✕</button></td></tr>`).join('');
+    }
+    const fit = fitPower(ARD.rows);
+    const box = $('ardFit');
+    if(fit){
+      const half = Math.pow(2, fit.n);
+      box.innerHTML = `측정값으로 계산하면 <b>빛의 세기 ∝ 1 / 거리<sup>${fit.n.toFixed(2)}</sup></b> 이에요. ` +
+        `즉 거리가 2배가 되면 빛의 세기는 약 <b>1/${half.toFixed(1)}</b>로 줄어들어요. ` +
+        `이론(빛의 세기는 거리의 제곱에 반비례)에서는 지수가 <b>2</b>, 거리 2배 → <b>1/4</b>이에요.`;
+    }else{
+      box.textContent = '서로 다른 거리에서 2번 이상 기록하면, 측정값으로 거리와 빛의 세기 사이의 관계를 계산해 알려 줘요.';
+    }
+    drawArd();
+  }
+
+  function drawArd(){
+    const cv = $('ardCanvas');
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth || 420, H = cv.clientHeight || 280;
+    cv.width = W * dpr; cv.height = H * dpr;
+    const c = cv.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, W, H);
+    const L = 52, R = 14, T = 16, B = 42;
+    const pw = W - L - R, ph = H - T - B;
+    const rows = ARD.rows.filter(r => r.d > 0);
+    const inv = ARD.mode === 'inv';
+    const dMin = rows.length ? Math.min(...rows.map(r => r.d)) : 10;
+    const xs = rows.map(r => inv ? (dMin / r.d) ** 2 : r.d);
+    const ys = rows.map(relOf);
+    const xMax = inv ? 1.05 : Math.max(50, ...xs) * 1.1;
+    const yMax = Math.max(110, ...ys) * 1.05;
+    const X = v => L + v / xMax * pw, Y = v => T + ph - v / yMax * ph;
+
+    // 눈금
+    c.strokeStyle = '#E4DFD2'; c.fillStyle = '#5B6172'; c.lineWidth = 1;
+    c.font = '11px "Noto Sans KR", sans-serif';
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    for(let v = 0; v <= yMax; v += 20){
+      c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(L + pw, Y(v)); c.stroke();
+      c.fillText(v, L - 6, Y(v));
+    }
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    const xStep = inv ? 0.2 : (xMax > 120 ? 20 : 10);
+    for(let v = 0; v <= xMax + 1e-9; v += xStep){
+      c.beginPath(); c.moveTo(X(v), T); c.lineTo(X(v), T + ph); c.stroke();
+      c.fillText(inv ? v.toFixed(1) : v, X(v), T + ph + 5);
+    }
+    c.strokeStyle = '#1F2430'; c.lineWidth = 1.4;
+    c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+    c.fillStyle = '#1F2430'; c.font = '12px "Noto Sans KR", sans-serif';
+    c.fillText(inv ? '(가장 가까운 거리 ÷ 거리)²' : '거리 (cm)', L + pw / 2, T + ph + 22);
+    c.save(); c.translate(14, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText('빛의 세기', 0, -6); c.restore();
+
+    // 이론 곡선: 가장 가까운 점(100)을 지나는 1/거리²
+    if(rows.length){
+      c.strokeStyle = '#3E5C99'; c.lineWidth = 2; c.setLineDash([6, 5]);
+      c.beginPath();
+      if(inv){ c.moveTo(X(0), Y(0)); c.lineTo(X(1.05), Y(105)); }
+      else{
+        let first = true;
+        for(let d = dMin * 0.72; d <= xMax; d += xMax / 200){
+          const y = 100 * (dMin / d) ** 2;
+          if(y > yMax) continue;
+          if(first){ c.moveTo(X(d), Y(y)); first = false; } else c.lineTo(X(d), Y(y));
+        }
+      }
+      c.stroke(); c.setLineDash([]);
+    }
+    // 측정값
+    rows.forEach((r, i) => {
+      c.fillStyle = '#E0902B'; c.strokeStyle = '#fff'; c.lineWidth = 2;
+      c.beginPath(); c.arc(X(xs[i]), Y(ys[i]), 6, 0, Math.PI * 2); c.fill(); c.stroke();
+    });
+    if(!rows.length){
+      c.fillStyle = '#9AA0AE'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('값을 기록하면 여기에 점이 찍혀요', L + pw / 2, T + ph / 2);
+    }
+  }
+
+  $('ardConnect').addEventListener('click', () => ARD.reading ? ardDisconnect() : ardConnect());
+  $('ardRaw').addEventListener('input', updateMeter);
+  $('ardInvert').addEventListener('change', () => { updateMeter(); ARD.rows.forEach(r => r.lux = rawToLux(r.raw)); if(ARD.ambientSet) ARD.ambientLux = rawToLux(ARD.ambientRaw); renderArd(); });
+  $('ardAmbient').addEventListener('click', () => {
+    const raw = parseFloat($('ardRaw').value);
+    if(isNaN(raw)){ alert('먼저 센서값이 표시되어야 해요. 아두이노를 연결하거나 센서값을 입력해 주세요.'); return; }
+    ARD.ambientRaw = raw; ARD.ambientLux = rawToLux(raw); ARD.ambientSet = true;
+    $('ardAmbientText').textContent = `센서값 ${Math.round(raw)} (이만큼 빼고 계산)`;
+    renderArd();
+  });
+  $('ardRecord').addEventListener('click', () => {
+    const raw = parseFloat($('ardRaw').value), d = parseFloat($('ardDist').value);
+    if(isNaN(raw) || raw < 0 || raw > 1023){ alert('센서값(0~1023)이 없어요. 아두이노를 연결하거나 값을 입력해 주세요.'); return; }
+    if(isNaN(d) || d <= 0){ alert('손전등과 센서 사이의 거리(cm)를 입력해 주세요.'); $('ardDist').focus(); return; }
+    ARD.rows.push({ d: Math.round(d * 10) / 10, raw: Math.round(raw), lux: rawToLux(raw) });
+    renderArd();
+  });
+  $('ardTbody').addEventListener('click', e => {
+    const b = e.target.closest('.del'); if(!b) return;
+    ARD.rows.splice(Number(b.dataset.i), 1); renderArd();
+  });
+  $('ardClear').addEventListener('click', () => {
+    if(ARD.rows.length && !confirm('기록한 값을 모두 지울까요?')) return;
+    ARD.rows = []; renderArd();
+  });
+  $('ardSample').addEventListener('click', () => {
+    $('ardInvert').checked = false;
+    ARD.ambientRaw = luxToRaw(2); ARD.ambientLux = rawToLux(ARD.ambientRaw); ARD.ambientSet = true;
+    $('ardAmbientText').textContent = `센서값 ${ARD.ambientRaw} (예시)`;
+    ARD.rows = [10, 15, 20, 25, 30, 40].map(d => {
+      const lux = 2 + 900 * (10 / d) ** 2 * (1 + (Math.random() - 0.5) * 0.08);
+      const raw = luxToRaw(lux);
+      return { d, raw, lux: rawToLux(raw) };
+    });
+    renderArd();
+  });
+  document.querySelectorAll('#ardGraphMode .toggle-opt').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#ardGraphMode .toggle-opt').forEach(x => x.classList.toggle('active', x === b));
+    ARD.mode = b.dataset.m; drawArd();
+  }));
+  $('ardCopy').addEventListener('click', async () => {
+    const text = $('ardCodeText').textContent;
+    try{ await navigator.clipboard.writeText(text); }
+    catch(e){ const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+    $('ardCopy').textContent = '✓ 복사했어요';
+    setTimeout(() => $('ardCopy').textContent = '📋 코드 복사', 1600);
+  });
+  window.addEventListener('resize', drawArd);
+  renderArd();
+
+  // 제출용 요약
+  function ardSummary(){
+    const rows = ARD.rows.slice().sort((a, b) => a.d - b.d);
+    const fit = fitPower(rows);
+    return {
+      data: rows.map(r => `${r.d}cm:센서${r.raw}/세기${relOf(r).toFixed(1)}`).join('; '),
+      exponent: fit ? fit.n.toFixed(2) : ''
+    };
+  }
+
   // ── 제출 ──
   $('submitBtn').addEventListener('click', async () => {
     const q1 = document.querySelector('input[name=q1opt]:checked');
@@ -740,6 +1208,10 @@
       caniMatch41: $('caniMatch41').value,
       caniMatch20: $('caniMatch20').value,
       caniMatchNeg14: $('caniMatchNeg14').value,
+
+      arduinoData: ardSummary().data,
+      arduinoExponent: ardSummary().exponent,
+      arduinoReflection: $('arduinoReflection').value.trim(),
 
       submittedAt: new Date().toISOString()
     };
