@@ -29,7 +29,9 @@
  * 6. 배포 후 나오는 웹 앱 URL(https://script.google.com/macros/s/.../exec)을 복사한다.
  *    이 URL 하나를 3학년 워크시트 HTML 파일들이 함께 사용한다.
  *
- * [AI 조사 도우미(Gemini) 설정 — 우주 탐사 워크시트용, 선택 사항]
+ * [AI 조사 도우미(Gemini) 설정 — 3학년 1~7단원 워크시트 공용, 선택 사항]
+ * 워크시트의 AI 질문창은 { action:"ai", mode:"ask"|"feedback", unit:"Ⅶ. 별과 우주 — …", ... } 처럼
+ * 단원 이름(unit)을 함께 보낸다. unit 이 없으면 3학년 전체 단원을 기준으로 답한다.
  * 1. https://aistudio.google.com 에서 무료 API 키를 만든다.
  * 2. Apps Script 왼쪽 [프로젝트 설정(톱니바퀴)] > [스크립트 속성] > [스크립트 속성 추가]
  *    - 속성: GEMINI_API_KEY   값: 방금 만든 키
@@ -211,27 +213,43 @@ const AI_LOG_SHEET = "AI조사_기록";
 const AI_MODELS = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest"];
 const AI_TIME_BUDGET_MS = 25000;    // 한 질문에 다른 모델로 다시 시도하는 시간 한도
 
-const AI_SYSTEM_PROMPT = [
-  "너는 아화중학교 3학년 과학 수업의 'AI 조사 도우미'이다.",
-  "수업 주제는 '미래에 대한 도전, 우주 탐사 — 우주 탐사의 의의와 인류에게 미치는 영향'이다.",
-  "규칙:",
-  "1. 항상 한국어로, 중학교 3학년이 이해할 수 있는 쉬운 말로 답한다.",
-  "2. 4~6개의 항목(- 로 시작)으로 정리한다. 항목마다 '언제·무엇을·왜 중요한지'를 1~2문장으로 설명한다.",
-  "   예: - 2022년 누리호 발사 성공 — 외국 기술 없이 1톤급 위성을 쏘아 올릴 수 있게 되어, 우주 개발을 스스로 할 수 있는 나라가 되었다는 의미가 있다.",
-  "3. 전체 길이는 1,000~1,200자 정도로 쓰고, 문장이 중간에 끊기지 않게 마무리한다.",
-  "4. 연도·이름·수치는 정확한 것만 쓰고, 확실하지 않으면 '확인이 필요하다'고 밝힌다.",
-  "5. 항목 뒤에 '더 찾아볼 곳:'으로 시작하는 한 줄에 검색어나 기관(NASA, 한국항공우주연구원 등)을 한 가지 제안한다.",
-  "6. 맨 마지막 줄에 '더 생각해 볼 질문:'으로 시작하는 질문을 하나 써서, 학생이 스스로 생각을 넓혀 보게 한다.",
-  "7. 우주·천문·과학기술과 관계없는 질문, 개인정보, 부적절한 내용은 정중히 거절하고 수업 주제로 돌아오도록 안내한다.",
-  "8. 학생의 과제를 대신 완성해 주지 말고, 학생이 스스로 정리할 수 있도록 조사의 출발점을 제공한다. 학생이 제출할 글을 통째로 써 달라고 하면 정중히 거절하고 정리하는 방법을 안내한다."
-].join("\n");
+// 3학년 과학 단원 — 워크시트가 unit 값을 보내지 않으면 이 전체 범위를 기준으로 답한다
+const AI_UNITS = "Ⅰ. 화학 반응의 규칙과 에너지 변화, Ⅱ. 기권과 날씨, Ⅲ. 운동과 에너지, Ⅳ. 자극과 반응, " +
+                 "Ⅴ. 생식과 유전, Ⅵ. 에너지 전환과 보존, Ⅶ. 별과 우주";
 
-const AI_FEEDBACK_PROMPT = [
-  "너는 아화중학교 3학년 과학 수업의 'AI 조사 도우미'이다.",
-  "학생이 '우주 탐사의 의의와 인류에게 미치는 영향'을 조사해 정리한 글을 읽고 짧게 피드백한다.",
-  "형식: '잘한 점' 1개, '사실 확인'(틀린 내용이 있으면 바로잡고, 없으면 '특별한 오류 없음'), '보완하면 좋을 점' 1~2개.",
-  "한국어로, 중학생에게 다정하게, 전체 400자 이내로 쓴다. 학생의 글을 대신 다시 써 주지 않는다."
-].join("\n");
+/**
+ * 질문용 지시문. 단원(unit)은 각 워크시트의 AI 질문창이 보내 준다.
+ * 예) unit: "Ⅶ. 별과 우주 — 미래에 대한 도전, 우주 탐사"
+ */
+function aiSystemPrompt_(unit) {
+  return [
+    "너는 아화중학교 3학년 과학 수업의 'AI 조사 도우미'이다.",
+    unit ? "이번 수업 단원: " + unit + ". 이 단원의 내용과 연결해서 답한다."
+         : "수업 범위: 중학교 3학년 과학(" + AI_UNITS + "). 질문과 가장 가까운 단원의 내용과 연결해서 답한다.",
+    "규칙:",
+    "1. 항상 한국어로, 중학교 3학년이 이해할 수 있는 쉬운 말로 답한다. 교과서 수준을 크게 넘는 내용은 짧게만 소개한다.",
+    "2. 4~6개의 항목(- 로 시작)으로 정리한다. 항목마다 '무엇인지(언제·어디서)·어떻게 일어나는지·왜 중요한지'를 1~2문장으로 설명한다.",
+    "   예: - 질량 보존 법칙 — 화학 반응이 일어나도 원자의 종류와 개수는 변하지 않기 때문에, 반응 전후 물질의 전체 질량은 같다.",
+    "   예: - 2022년 누리호 발사 성공 — 외국 기술 없이 1톤급 위성을 쏘아 올릴 수 있게 되어, 우주 개발을 스스로 할 수 있는 나라가 되었다는 의미가 있다.",
+    "3. 실험·계산·원리를 묻는 질문은 '원리 → 과정 → 결과' 순서로 설명하고, 생활 속 예를 하나 든다.",
+    "4. 전체 길이는 1,000~1,200자 정도로 쓰고, 문장이 중간에 끊기지 않게 마무리한다.",
+    "5. 연도·이름·수치·과학 용어는 정확한 것만 쓰고, 확실하지 않으면 '확인이 필요하다'고 밝힌다.",
+    "6. 항목 뒤에 '더 찾아볼 곳:'으로 시작하는 한 줄에 교과서 해당 단원이나 믿을 만한 검색어·기관(기상청, 한국항공우주연구원, 국립과천과학관 등) 한 가지를 제안한다.",
+    "7. 맨 마지막 줄에 '더 생각해 볼 질문:'으로 시작하는 질문을 하나 써서, 학생이 스스로 생각을 넓혀 보게 한다.",
+    "8. 과학 수업과 관계없는 질문, 개인정보, 부적절한 내용은 정중히 거절하고 수업 주제로 돌아오도록 안내한다.",
+    "9. 학생의 과제를 대신 완성해 주지 말고, 학생이 스스로 정리할 수 있도록 탐구의 출발점을 제공한다. 학생이 제출할 글이나 답을 통째로 써 달라고 하면 정중히 거절하고 정리하는 방법을 안내한다."
+  ].join("\n");
+}
+
+/** 학생이 정리한 글에 대한 피드백용 지시문 */
+function aiFeedbackPrompt_(unit) {
+  return [
+    "너는 아화중학교 3학년 과학 수업의 'AI 조사 도우미'이다.",
+    "학생이 " + (unit ? "'" + unit + "' 수업에서" : "과학 수업에서") + " 조사하고 정리한 글을 읽고 짧게 피드백한다.",
+    "형식: '잘한 점' 1개, '사실 확인'(틀린 내용이 있으면 바로잡고, 없으면 '특별한 오류 없음'), '보완하면 좋을 점' 1~2개.",
+    "한국어로, 중학생에게 다정하게, 전체 400자 이내로 쓴다. 학생의 글을 대신 다시 써 주지 않는다."
+  ].join("\n");
+}
 
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
@@ -341,6 +359,7 @@ function handleAi_(data) {
   if (!cfg.key) return json_({ result: "error", code: "no_key", message: "선생님이 아직 AI 기능을 설정하지 않았어요." });
 
   const mode = data.mode === "feedback" ? "feedback" : "ask";
+  const unit = String(data.unit || "").trim().slice(0, 80);     // 워크시트가 보내는 단원·차시 이름
   const topic = String(data.topic || "").slice(0, 60);
   const question = String(data.question || "").trim().slice(0, 400);
   const summary = String(data.summary || "").trim().slice(0, 1500);
@@ -348,7 +367,8 @@ function handleAi_(data) {
   if (mode === "feedback" && !summary) return json_({ result: "error", code: "empty", message: "먼저 조사한 내용을 정리해 주세요." });
   if (!aiAllowed_()) return json_({ result: "error", code: "busy", message: "지금 질문이 많이 몰렸어요. 1분쯤 뒤에 다시 시도해 주세요." });
 
-  const system = mode === "ask" ? AI_SYSTEM_PROMPT : AI_FEEDBACK_PROMPT;
+  const system = mode === "ask" ? aiSystemPrompt_(unit) : aiFeedbackPrompt_(unit);
+  const logTopic = [unit, topic].filter(String).join(" · ");     // 기록 시트 '주제' 칸: 단원 · 조사 주제
   const userText = mode === "ask"
     ? (topic ? "[조사 주제: " + topic + "]\n" : "") + question
     : "[조사 주제: " + (topic || "자유 주제") + "]\n학생이 정리한 글:\n" + summary;
@@ -371,7 +391,7 @@ function handleAi_(data) {
     if (r.code === 401 || r.code === 403) break;            // 키 문제는 다른 모델로 바꿔도 같다
   }
   if (r.code !== 200) {
-    logAi_(data, "오류 " + r.code, topic, mode === "ask" ? question : summary, r.body.slice(0, 1000));
+    logAi_(data, "오류 " + r.code, logTopic, mode === "ask" ? question : summary, r.body.slice(0, 1000));
     if (r.code === 429) return json_({ result: "error", code: "busy", message: "AI 무료 사용량이 잠시 꽉 찼어요. 1분쯤 뒤에 다시 시도해 주세요." });
     return json_({ result: "error", code: "api", message: "AI 응답을 받지 못했어요. (오류 " + r.code + ")" });
   }
@@ -386,7 +406,7 @@ function handleAi_(data) {
     if (c.web && c.web.uri && sources.length < 5) sources.push({ title: c.web.title || c.web.uri, uri: c.web.uri });
   });
 
-  logAi_(data, mode === "ask" ? "질문" : "피드백", topic, mode === "ask" ? question : summary, text.slice(0, 3000));
+  logAi_(data, mode === "ask" ? "질문" : "피드백", logTopic, mode === "ask" ? question : summary, text.slice(0, 3000));
   return json_({ result: "success", text: text, sources: sources });
 }
 
