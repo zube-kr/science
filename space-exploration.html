@@ -1816,6 +1816,7 @@ const GAME = (function(){
 =========================================================== */
 const AI = (function(){
   const MAX_Q = 10;
+  const AI_UNIT = 'Ⅶ. 별과 우주 — 미래에 대한 도전, 우주 탐사';   // AI 도우미가 이 단원에 맞춰 답하도록 함께 보낸다
   let used = 0, ready = false, busy = false, topic = '';
   const STARTERS = {
     '': ['우주 탐사의 의의를 중학생 눈높이로 알려 줘', '우주 탐사가 인류에게 미친 영향은?'],
@@ -1881,7 +1882,7 @@ const AI = (function(){
     $('aiQ').value = '';
     const wait = bubble('bot', '<span class="ai-typing">조사하는 중</span>');
     try{
-      const r = await call({ action:'ai', mode:'ask', topic, question:q, ...student() },
+      const r = await call({ action:'ai', mode:'ask', unit:AI_UNIT, topic, question:q, ...student() },
         s => { wait.innerHTML = `<span class="ai-typing">조사하는 중 (${s}초)</span>`; });
       if(r.result === 'success'){
         used++;
@@ -1908,7 +1909,7 @@ const AI = (function(){
     box.innerHTML = '<span class="ai-typing">AI가 정리한 글을 읽는 중</span>';
     try{
       const summary = `우주 탐사의 의의: ${meaning}\n${topic || '조사 내용'}: ${body}`;
-      const r = await call({ action:'ai', mode:'feedback', topic, summary, ...student() },
+      const r = await call({ action:'ai', mode:'feedback', unit:AI_UNIT, topic, summary, ...student() },
         s => { box.innerHTML = `<span class="ai-typing">AI가 정리한 글을 읽는 중 (${s}초)</span>`; });
       box.innerHTML = r.result === 'success' ? `<b>✦ AI 피드백</b>${format(r.text)}` : esc(r.message || 'AI 응답을 받지 못했어요.');
     }catch(err){
