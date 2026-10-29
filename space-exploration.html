@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미래에 대한 도전, 우주 탐사</title>
+<style>
+  :root{
+    --bg:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#232A35;
+    --ink-soft:#626A78;
+    --line:#DCD6C7;
+    --space:#05070F;
+
+    --red:#D8493B;
+    --red-soft:#FBE6E2;
+    --blue:#2F6FDB;
+    --blue-soft:#E7EFFC;
+    --violet:#7A4FD0;
+    --violet-soft:#EFE8FB;
+
+    --ok:#2E9E5B;
+    --bad:#D8493B;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1100px 550px at 12% -10%, #FBFAF6 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    padding:20px 22px 40px;
+    overflow-y:auto;
+  }
+  @media (max-width:600px){ body{ padding:14px 12px 32px; } section.card{ padding:16px 14px 18px !important; } }
+  .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+
+  header{ display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  h1{ font-size:clamp(20px,2.4vw,26px); font-weight:800; letter-spacing:-.02em; }
+  h1 span{ background:linear-gradient(90deg,var(--violet),var(--red)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub{ color:var(--ink-soft); font-size:13px; line-height:1.6; max-width:820px; }
+
+  section.card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px 20px;
+    box-shadow:0 1px 3px rgba(35,42,53,.05);
+  }
+  .card-title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; margin-bottom:4px; flex-wrap:wrap; }
+  .card-title .badge{
+    font-size:11px; font-weight:800; color:#fff; background:var(--ink);
+    padding:3px 9px; border-radius:999px;
+  }
+  .card-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.65; }
+  .card p.body-text{ font-size:13px; line-height:1.85; margin-bottom:10px; }
+  .card p.body-text b{ color:var(--violet); }
+  .note{
+    font-size:11.5px; color:var(--ink-soft); background:#FBFAF6; border:1px solid var(--line);
+    border-radius:12px; padding:10px 13px; line-height:1.7; margin-top:8px;
+  }
+  .note b{ color:var(--ink); }
+  .render-note{ font-size:11px; color:var(--ink-soft); margin:2px 0 12px; }
+
+  /* ---------- 캔버스 공통 ---------- */
+  .cv-box{ position:relative; border-radius:14px; overflow:hidden; margin-bottom:10px; }
+  .cv-box canvas{ display:block; width:100%; }
+  .cv-box.dark{ background:var(--space); }
+  .cv-box.drag{ touch-action:none; cursor:grab; user-select:none; }
+  .cv-box.drag:active{ cursor:grabbing; }
+  .cv-hint{ position:absolute; right:12px; bottom:8px; font-size:11px; color:#8A93A8; pointer-events:none; }
+  .fig-caption{ font-size:12px; color:var(--ink-soft); text-align:center; margin:-2px 0 10px; }
+  .fig-caption b{ color:var(--violet); }
+
+  /* ---------- 버튼 / 툴바 ---------- */
+  .toolbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toolbar .grow{ flex:1; }
+  .tbtn{
+    font-family:inherit; font-size:12.8px; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:10px; padding:8px 13px; transition:.15s; line-height:1.25;
+  }
+  .tbtn small{ display:block; font-size:10.5px; font-weight:600; opacity:.75; margin-top:2px; }
+  .tbtn:hover{ border-color:#BDB5A2; color:var(--ink); }
+  .tbtn.active{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .tbtn.violet.active{ background:var(--violet); border-color:var(--violet); }
+  .tbtn.red.active{ background:var(--red); border-color:var(--red); }
+  .tbtn.blue.active{ background:var(--blue); border-color:var(--blue); }
+  .tbtn.primary{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .tbtn.measure{ border-color:#E7C54A; background:#FFF8DA; color:#7A5B00; }
+  .tbtn.measure.active{ background:#E7B416; border-color:#E7B416; color:#fff; }
+  .tlabel{ font-size:12px; font-weight:800; color:var(--ink-soft); margin-right:2px; }
+  .chk{ display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:var(--ink-soft); cursor:pointer; user-select:none; }
+  .chk input{ width:16px; height:16px; accent-color:var(--ink); }
+  .range-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:10px; }
+  .range-row input[type=range]{ flex:1; min-width:180px; accent-color:var(--violet); }
+  .range-row .end{ font-size:11.5px; }
+  .range-row .end.b{ color:var(--blue); } .range-row .end.r{ color:var(--red); }
+
+  /* ---------- 풍선 실험 ---------- */
+  .readout{
+    display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center;
+    background:#FFF8DA; border:1px solid #F0DE95; border-radius:12px; padding:10px 14px;
+    font-size:13px; font-weight:700; color:#6A5000; margin-bottom:12px; min-height:44px;
+  }
+  .readout .big{ font-size:18px; font-weight:800; color:#B07D00; }
+  .steps{ font-size:12.5px; line-height:1.85; margin:2px 0 12px; padding-left:20px; color:var(--ink); }
+  .steps b{ color:var(--violet); }
+  table.exp{ width:100%; border-collapse:collapse; font-size:12.8px; margin:6px 0 8px; }
+  table.exp th, table.exp td{ border-bottom:1px solid #C9D2E3; padding:8px 6px; text-align:center; }
+  table.exp thead th{ background:#DDE3EE; font-weight:800; border-top:2px solid #7E8CA8; }
+  table.exp tbody th{ background:#EEF1F7; font-weight:800; width:24%; }
+  table.exp td + td, table.exp th + td{ border-left:1px dashed #B8C1D3; }
+  table.exp input{
+    width:84px; max-width:100%; font-family:inherit; font-size:14px; font-weight:700; text-align:center;
+    border:1.5px solid var(--line); border-radius:8px; padding:6px 4px; background:#FBFAF6;
+  }
+  table.exp input.ok{ border-color:var(--ok); background:#E8F6EE; }
+  table.exp input.bad{ border-color:var(--bad); background:#FBE6E2; }
+  @media (max-width:600px){ table.exp{ font-size:11.5px; } table.exp input{ width:60px; font-size:13px; } }
+
+  /* ---------- 스펙트럼 / 연동 시뮬레이션 ---------- */
+  .uni-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:12px; }
+  @media (max-width:760px){ .uni-grid{ grid-template-columns:1fr; } }
+  .panel-label{
+    position:absolute; left:12px; top:10px; font-size:12px; font-weight:800; color:#C9D3F0;
+    pointer-events:none; text-shadow:0 1px 4px #000;
+  }
+  .panel-label span{ display:block; font-size:11px; font-weight:600; opacity:.8; margin-top:2px; }
+  .gal-info{
+    display:grid; grid-template-columns:minmax(240px, 330px) 1fr; gap:10px 16px; align-items:center;
+    background:#FBFAF6; border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:12px;
+  }
+  @media (max-width:600px){ .gal-info{ grid-template-columns:1fr; } }
+  .gal-info .stats{ font-size:12.5px; line-height:1.8; min-width:220px; }
+  .gal-info .stats b{ font-size:14px; }
+  .gal-info .stats .v{ font-weight:800; color:var(--red); }
+  .gal-info .spec-cell{ min-width:0; }
+  .gal-info canvas{ width:100%; display:block; border-radius:8px; }
+
+  .observe-box{ background:#F3F0E6; border-radius:12px; padding:12px 16px; font-size:12.8px; line-height:1.75; margin:4px 0 12px; }
+  .observe-box ol{ margin:4px 0 0; padding-left:20px; }
+  .observe-box b{ color:var(--violet); }
+
+  /* ---------- 문항 공통 ---------- */
+  .q-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; line-height:2.1; margin:10px 0; }
+  .q-num{
+    display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%;
+    background:var(--ink); color:#fff; font-size:11px; font-weight:800; margin-right:4px; flex-shrink:0;
+  }
+  select.blank{
+    font-family:inherit; font-size:12.8px; border:1px solid var(--line); border-radius:8px;
+    padding:6px 8px; background:#FBFAF6; color:var(--ink); font-weight:700;
+  }
+  .choice-group{ display:inline-flex; gap:6px; margin:0 4px; vertical-align:middle; flex-wrap:wrap; }
+  .choice-btn{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:999px; padding:5px 13px; transition:.15s;
+  }
+  .choice-btn.picked{ border-color:var(--violet); color:var(--violet); background:var(--violet-soft); }
+  .q-feedback{ display:block; margin-top:4px; margin-left:26px; font-size:12px; font-weight:700; min-height:16px; }
+  .q-feedback.ok{ color:var(--ok); }
+  .q-feedback.bad{ color:var(--bad); }
+  .check-btn{
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    border:none; background:#F1EEE5; color:var(--ink-soft); border-radius:8px; padding:7px 14px; margin-top:8px;
+  }
+  .check-btn:hover{ background:#E7E3D6; color:var(--ink); }
+  .sub-title{ font-size:13.5px; font-weight:800; margin:16px 0 4px; display:flex; align-items:center; gap:6px; }
+  .sub-title .tag{ font-size:10.5px; font-weight:800; color:#fff; background:var(--violet); border-radius:999px; padding:2px 8px; }
+
+  /* ---------- 학생 정보 / 제출 ---------- */
+  .ws-student{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .ws-student input{
+    font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px;
+    padding:8px 10px; background:#FBFAF6;
+  }
+  .ws-student input.name{ width:120px; }
+  .ws-student input.small{ width:70px; }
+  .ws-actions{ display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    border:none; border-radius:11px; padding:11px 20px; transition:.15s;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.primary:hover{ background:#3a4658; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .ws-result{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .ws-result.ok{ color:var(--ok); }
+  .ws-status{ font-size:11.5px; color:var(--ink-soft); }
+  textarea.essay{
+    width:100%; min-height:90px; font-family:inherit; font-size:13px; line-height:1.7;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; resize:vertical; background:#FBFAF6;
+  }
+  footer{ max-width:1080px; margin:6px auto 0; color:var(--ink-soft); font-size:11px; text-align:center; }
+
+  /* ---------- 우주 탐사 워크시트 전용 ---------- */
+  .sub b{ color:var(--ink); }
+  figure.photo{ margin:0; border-radius:12px; overflow:hidden; background:#F1EEE5; border:1px solid var(--line); }
+  figure.photo img{ display:block; width:100%; height:100%; object-fit:cover; }
+  figure.photo figcaption{ font-size:11.5px; color:var(--ink-soft); padding:6px 9px; background:#FBFAF6; border-top:1px solid var(--line); }
+  .start-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:16px; align-items:start; }
+  .start-grid figure.photo img{ height:auto; }
+  @media (max-width:700px){ .start-grid{ grid-template-columns:1fr; } }
+  .text-photo{ display:grid; grid-template-columns:150px 1fr; gap:16px; align-items:start; margin-bottom:12px; }
+  @media (max-width:600px){ .text-photo{ grid-template-columns:1fr; } .text-photo figure.photo{ max-width:200px; } }
+  .photo-row{ display:grid; gap:10px; margin-bottom:8px; }
+  .photo-row.three{ grid-template-columns:2fr 1fr 1fr; }
+  .photo-row.two{ grid-template-columns:1fr 1fr; margin-bottom:12px; }
+  .photo-row figure.photo{ display:flex; flex-direction:column; }
+  .photo-row figure.photo img{ flex:none; }
+  .photo-row.three figure.photo img{ height:210px; }
+  .photo-row.two figure.photo img{ height:220px; }
+  @media (max-width:600px){
+    .photo-row.three{ grid-template-columns:1fr 1fr; }
+    .photo-row.three figure:first-child{ grid-column:1 / -1; }
+    .photo-row.three figure.photo img, .photo-row.two figure.photo img{ height:150px; }
+  }
+
+  .tbtn.mini{ font-size:12px; padding:6px 11px; border-radius:999px; }
+  .tbtn.big{ font-size:15px; padding:10px 18px; }
+  .tel-controls{ display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px 16px; margin-bottom:10px; }
+  .tel-controls[hidden]{ display:none; }
+  .ctl{ display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:700; color:var(--ink-soft); }
+  .ctl b{ color:var(--violet); }
+  .ctl input[type=range]{ accent-color:var(--violet); width:100%; }
+  .ctl.wide input[type=text]{ font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:9px; padding:8px 10px; background:#FBFAF6; }
+  .ctl-row{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; grid-column:1 / -1; }
+  .explain{
+    background:var(--violet-soft); border-radius:12px; padding:12px 14px; font-size:12.8px; line-height:1.75; color:#3B2A72; margin-bottom:12px;
+  }
+  .explain b{ color:var(--violet); }
+  .explain .k{ display:inline-block; font-weight:800; color:#fff; background:var(--violet); border-radius:999px; padding:1px 9px; font-size:11px; margin-right:6px; }
+
+  /* 연표 */
+  .timeline{ position:relative; display:flex; gap:0; overflow-x:auto; padding:30px 4px 6px; margin:8px 0 6px; scrollbar-width:thin; }
+  .timeline::before{ content:""; position:absolute; left:0; right:0; top:42px; height:3px; background:linear-gradient(90deg,#C7BFE8,var(--violet)); border-radius:3px; }
+  .tl-item{ position:relative; flex:0 0 118px; text-align:center; font-size:11.5px; line-height:1.45; color:var(--ink-soft); padding:0 4px; }
+  .tl-item .yr{ position:absolute; top:-26px; left:0; right:0; font-weight:800; color:var(--ink); font-size:12.5px; }
+  .tl-item .dot{ width:13px; height:13px; border-radius:50%; background:#fff; border:3px solid var(--violet); margin:6px auto 8px; position:relative; z-index:1; }
+  .tl-item.hl .dot{ background:var(--violet); }
+  .tl-item.kr .dot{ border-color:#D8493B; }
+  .tl-item b{ color:var(--ink); display:block; }
+
+  /* 탐사선 카드 */
+  .probe-tabs{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:12px; }
+  .probe-tab{
+    position:relative; border:2px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; background:#000;
+    padding:0; font-family:inherit; text-align:left; transition:.15s;
+  }
+  .probe-tab img{ display:block; width:100%; height:140px; object-fit:cover; opacity:.92; }
+  .probe-tab span{ position:absolute; left:0; right:0; bottom:0; padding:18px 10px 8px; color:#fff; font-weight:800; font-size:14px;
+    background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0)); }
+  .probe-tab span small{ display:block; font-size:11px; font-weight:600; opacity:.85; }
+  .probe-tab.active{ border-color:var(--violet); box-shadow:0 0 0 3px rgba(122,79,208,.2); }
+  @media (max-width:600px){ .probe-tab img{ height:96px; } .probe-tab span{ font-size:12.5px; } }
+  .probe-detail{ border:1px solid var(--line); border-radius:14px; background:#FBFAF6; padding:14px 16px; margin-bottom:14px; }
+  .pd-head{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .pd-head b{ font-size:17px; }
+  .pd-head span{ font-size:12px; color:var(--ink-soft); }
+  .pd-grid{ display:grid; grid-template-columns:1fr 1.4fr; gap:14px; }
+  @media (max-width:700px){ .pd-grid{ grid-template-columns:1fr; } }
+  table.facts{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.facts th{ text-align:left; width:84px; color:var(--violet); font-weight:800; padding:5px 6px; vertical-align:top; border-bottom:1px dashed var(--line); }
+  table.facts td{ padding:5px 6px; border-bottom:1px dashed var(--line); line-height:1.6; }
+  .pd-story{ font-size:12.8px; line-height:1.75; }
+  .pd-story ul{ padding-left:18px; margin:4px 0 8px; }
+  .pd-story li{ margin-bottom:3px; }
+  .pd-fun{ background:#FFF8DA; border:1px solid #F0DE95; border-radius:10px; padding:8px 11px; font-size:12px; color:#6A5000; }
+
+  .korea{ display:grid; grid-template-columns:1fr 1.25fr; gap:16px; align-items:start; margin:6px 0 12px; }
+  .korea figure.photo img{ height:auto; }
+  .korea-title{ font-weight:800; font-size:14px; margin-bottom:6px; }
+  @media (max-width:700px){ .korea{ grid-template-columns:1fr; } }
+
+  /* 발사 게임 */
+  .game-wrap{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .game-msg{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); min-width:260px; max-width:86%;
+    background:rgba(10,12,24,.9); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:14px; padding:16px 18px;
+    text-align:center; font-size:13px; line-height:1.7; box-shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  .game-msg b.big{ display:block; font-size:19px; margin-bottom:4px; }
+  .game-msg.ok b.big{ color:#7CF0B5; } .game-msg.bad b.big{ color:#FF9A8A; }
+  .game-panel{ display:grid; grid-template-columns:auto 1fr 1fr; gap:10px 16px; align-items:center; background:#FBFAF6; border:1px solid var(--line); border-radius:12px; padding:10px 14px; }
+  .game-panel .gp-row{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .game-panel .gp-row:last-of-type{ grid-column:1 / -1; }
+  .gp-keys{ grid-column:1 / -1; font-size:11px; color:var(--ink-soft); margin:-4px 0 0; }
+  @media (max-width:760px){ .game-panel{ grid-template-columns:1fr; } }
+  .game-log{ font-size:12.5px; color:var(--ink-soft); background:#F3F0E6; border-radius:10px; padding:9px 12px; margin:10px 0 12px; line-height:1.7; }
+  .game-log b{ color:var(--ink); }
+
+  /* 스핀오프 카드 */
+  .spin-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:14px; }
+  @media (max-width:700px){ .spin-grid{ grid-template-columns:repeat(2, 1fr); } }
+  .spin{ perspective:900px; height:168px; cursor:pointer; }
+  .spin-inner{ position:relative; width:100%; height:100%; transition:transform .55s; transform-style:preserve-3d; }
+  .spin.flip .spin-inner{ transform:rotateY(180deg); }
+  .spin-face{ position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:14px; padding:12px; display:flex; flex-direction:column; }
+  .spin-front{ background:#fff; border:1.5px solid var(--line); align-items:center; justify-content:center; text-align:center; gap:6px; }
+  .spin-front .ico{ font-size:38px; line-height:1; }
+  .spin-front b{ font-size:14px; }
+  .spin-front small{ font-size:11px; color:var(--ink-soft); }
+  .spin-back{ background:linear-gradient(160deg,#2A2560,#14122E); color:#E9E5FF; transform:rotateY(180deg); font-size:12px; line-height:1.65; overflow:auto; }
+  .spin-back b{ color:#FFD76A; display:block; font-size:12.5px; margin-bottom:3px; }
+
+  .use-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:6px; }
+  @media (max-width:760px){ .use-grid{ grid-template-columns:repeat(2, 1fr); } }
+  .use-card{ border:1px solid var(--line); border-radius:14px; padding:10px; text-align:center; background:#FBFAF6; display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .use-card img{ width:118px; height:118px; border-radius:50%; object-fit:cover; }
+  .use-card p{ font-size:12px; line-height:1.55; color:var(--ink); flex:1; }
+  .use-card select{ width:100%; }
+
+  /* 조사하기 · AI */
+  .topic-row{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:2px 0 12px; }
+  .topic{
+    font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer; border:1.5px solid #CFE0EC; background:#EEF6FB; color:#245A7A;
+    border-radius:999px; padding:6px 13px;
+  }
+  .topic.active{ background:#2A7AA8; border-color:#2A7AA8; color:#fff; }
+  .ai-box{ border:1.5px solid #CFC5F0; border-radius:16px; overflow:hidden; background:#fff; margin-bottom:14px; }
+  .ai-head{ display:flex; align-items:center; gap:10px; padding:10px 14px; background:linear-gradient(90deg,#F2EDFF,#EAF4FF); border-bottom:1px solid #E1D9F7; }
+  .ai-head .grow{ flex:1; }
+  .ai-logo{ width:32px; height:32px; border-radius:10px; display:grid; place-items:center; color:#fff; font-size:16px;
+    background:linear-gradient(135deg,#4F7BF7,#9B5CF0 60%,#E8638C); }
+  .ai-head b{ display:block; font-size:13.5px; }
+  .ai-head span#aiState{ font-size:11px; color:var(--ink-soft); }
+  .ai-count{ font-size:11.5px; font-weight:800; color:var(--violet); }
+  .ai-starters{ display:flex; flex-wrap:wrap; gap:6px; padding:10px 14px 0; }
+  .ai-starters button{
+    font-family:inherit; font-size:12px; cursor:pointer; border:1px dashed #BFB2EA; background:#FAF8FF; color:#4B3A8C; border-radius:10px; padding:5px 10px;
+  }
+  .ai-log{ max-height:360px; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+  .ai-msg{ max-width:88%; font-size:13px; line-height:1.7; padding:9px 12px; border-radius:14px; white-space:normal; word-break:keep-all; overflow-wrap:anywhere; }
+  .ai-msg.me{ align-self:flex-end; background:var(--ink); color:#fff; border-bottom-right-radius:4px; }
+  .ai-msg.bot{ align-self:flex-start; background:#F3F0FA; color:var(--ink); border-bottom-left-radius:4px; }
+  .ai-msg.bot small{ display:block; color:var(--ink-soft); font-size:11px; margin-top:4px; }
+  .ai-msg.err{ background:#FBE6E2; color:#8A2A1F; }
+  .ai-msg ul{ padding-left:18px; margin:4px 0; }
+  .ai-src{ margin-top:6px; font-size:11px; }
+  .ai-src a{ display:inline-block; margin:2px 6px 0 0; color:var(--blue); text-decoration:none; background:#fff; border:1px solid #D5DEEF; border-radius:999px; padding:1px 8px; }
+  .ai-typing::after{ content:"…"; animation:blink 1s infinite; }
+  @keyframes blink{ 50%{ opacity:.2; } }
+  .ai-input{ display:flex; gap:8px; padding:10px 14px 12px; border-top:1px solid #EEE9F8; }
+  .ai-input input{ flex:1; min-width:0; font-family:inherit; font-size:13px; border:1.5px solid var(--line); border-radius:10px; padding:9px 11px; }
+  .ai-feedback ul, .ai-msg ul{ padding-left:20px; margin:4px 0; }
+  .ai-feedback p, .ai-msg p{ margin:2px 0; }
+  .ai-feedback{ background:#F3F0FA; border:1px solid #DCD2F5; border-radius:12px; padding:12px 14px; font-size:12.8px; line-height:1.75; margin-bottom:12px; }
+
+  .board{
+    display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #CFC8B4; border-radius:6px; background:#FCFBF7;
+    box-shadow:6px 6px 0 #C9D6A8; padding:14px 18px; margin:8px 0 14px; position:relative;
+  }
+  .board::before{ content:""; position:absolute; left:4px; top:10px; bottom:10px; width:6px; background:repeating-linear-gradient(#BDB6A2 0 2px, transparent 2px 12px); }
+  .board-col{ padding:0 12px; display:flex; flex-direction:column; gap:6px; }
+  .board-col + .board-col{ border-left:1.5px dashed #C9C2AE; }
+  .board-tag{ align-self:center; font-size:12.5px; font-weight:800; color:#fff; border-radius:999px; padding:4px 14px; text-align:center; }
+  .board-tag.a{ background:#A592CC; } .board-tag.b{ background:#73B4C9; }
+  .board-ex{ font-size:12px; color:#6B5B3A; border-bottom:1px solid #9C8358; padding-bottom:4px; }
+  .board textarea{
+    width:100%; min-height:130px; font-family:inherit; font-size:13px; line-height:28px; border:none; resize:vertical; padding:0 2px;
+    background:repeating-linear-gradient(transparent 0 27px, #B49C70 27px 28px); background-attachment:local;
+  }
+  .board textarea:focus{ outline:2px solid #CFC5F0; border-radius:4px; }
+  @media (max-width:700px){ .board{ grid-template-columns:1fr; } .board-col + .board-col{ border-left:none; border-top:1.5px dashed #C9C2AE; padding-top:12px; margin-top:12px; } }
+  .closing{ background:#F3F0E6; border-radius:10px; padding:10px 14px; }
+
+  table.self-eval{ width:100%; border-collapse:collapse; margin-top:16px; font-size:12.8px; }
+  table.self-eval th{ background:#F4D9CF; color:#8A3A22; padding:8px; font-weight:800; }
+  table.self-eval th:first-child{ text-align:left; }
+  table.self-eval td{ padding:9px 8px; border-bottom:1px solid var(--line); }
+  table.self-eval td:not(:first-child){ text-align:center; width:64px; }
+  table.self-eval input{ width:18px; height:18px; accent-color:var(--red); }
+  .sub-title .tag{ white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ⅶ. 별과 우주 · 미래에 대한 도전, 우주 탐사</div>
+    <h1>미래에 대한 도전, <span>우주 탐사</span></h1>
+    <p class="sub"><b>이 단원을 배우면</b> 우주 탐사의 의의와 인류에게 미치는 영향을 설명할 수 있다.<br>
+      망원경이 빛을 모으는 원리를 직접 조작해 보고, 인공위성과 탐사선의 역사를 정리한 뒤, 로켓을 조종해 인공위성을 궤도에 올려 보자. 마지막으로 AI 조사 도우미와 함께 우주 탐사가 우리 삶에 미친 영향을 조사해 발표 자료를 만들어 보자.</p>
+  </header>
+
+  <!-- 함께 시작하기 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">함께 시작하기</span>우주를 탐사하는 까닭은?</div>
+    <div class="start-grid">
+      <div>
+        <p class="body-text">인류는 끊임없이 우주를 탐사하고 있다. 우주를 탐사하는 까닭은 무엇인지 이야기해 보자.</p>
+        <textarea class="essay" id="startAnswer" placeholder="예) 지구 밖에도 생명체가 있는지 알고 싶어서, …"></textarea>
+      </div>
+      <figure class="photo"><img src="images/space/iss.webp" alt="국제 우주 정거장 밖에서 활동하는 우주인"><figcaption>국제 우주 정거장(ISS)에서 우주 유영을 하는 우주인</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 1. 망원경 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">1</span>망원경을 이용한 우주 탐사</div>
+    <div class="text-photo">
+      <figure class="photo small"><img src="images/space/galileo.webp" alt="갈릴레이 망원경"><figcaption>갈릴레이 망원경</figcaption></figure>
+      <div>
+        <p class="body-text">오랫동안 별과 우주는 인간이 맨눈으로만 볼 수 있는 대상이었다. 그런데 <b>1609년</b>에 <b>갈릴레이</b>가 최초로 망원경을 이용하여 천체를 관측한 이후 망원경의 성능이 점점 좋아지면서 인간의 눈으로 볼 수 없는 희미하고 작은 천체들도 볼 수 있게 되었다.</p>
+        <p class="body-text">오늘날에는 가시광선뿐만 아니라 <b>적외선, 전파</b>를 이용하는 망원경이 개발되었으며, 지구 대기권 밖으로 <b>우주 망원경</b>을 쏘아 올려 관측 대상의 영역을 넓혔다.</p>
+      </div>
+    </div>
+    <div class="photo-row three">
+      <figure class="photo"><img src="images/space/keck.webp" alt="켁 망원경"><figcaption>켁 망원경 (미국 하와이, 거울 지름 10 m)</figcaption></figure>
+      <figure class="photo"><img src="images/space/radio.webp" alt="전파 망원경"><figcaption>전파 망원경</figcaption></figure>
+      <figure class="photo"><img src="images/space/spitzer.webp" alt="스피처 우주 망원경"><figcaption>스피처 우주 망원경 (적외선)</figcaption></figure>
+    </div>
+    <p class="fig-caption"><b>그림</b> 망원경을 이용한 우주 탐사</p>
+
+    <div class="sub-title"><span class="tag">시뮬레이션</span>망원경은 빛(전파)을 어떻게 모을까?</div>
+    <p class="card-hint">아래 네 가지 망원경을 골라 직접 조작해 보자. 선은 빛(또는 전파)이 지나가는 길이다.</p>
+    <div class="toolbar tel-tabs">
+      <button type="button" class="tbtn violet active" data-tel="galileo">① 갈릴레이 망원경<small>볼록 + 오목 렌즈 (굴절)</small></button>
+      <button type="button" class="tbtn violet" data-tel="keck">② 켁 망원경<small>오목 거울 (반사)</small></button>
+      <button type="button" class="tbtn violet" data-tel="radio">③ 전파 망원경<small>접시 안테나</small></button>
+      <button type="button" class="tbtn violet" data-tel="space">④ 우주 망원경<small>대기권 밖</small></button>
+    </div>
+
+    <div class="tel-controls" data-for="galileo">
+      <label class="ctl">대물렌즈 초점 거리 <b id="gF1v">100 cm</b><input type="range" id="gF1" min="40" max="100" value="100"></label>
+      <label class="ctl">접안렌즈 위치 (초점 맞추기) <b id="gDv">—</b><input type="range" id="gD" min="0" max="100" value="62"></label>
+      <label class="ctl">대물렌즈 지름 <b id="gApv">3.8 cm</b><input type="range" id="gAp" min="15" max="60" value="38"></label>
+      <label class="ctl">별빛이 들어오는 방향 <b id="gAngv">0.20°</b><input type="range" id="gAng" min="0" max="40" value="20"></label>
+    </div>
+    <div class="tel-controls" data-for="keck" hidden>
+      <label class="ctl">주거울 지름 <b id="kDv">10 m</b><input type="range" id="kD" min="0" max="100" value="100"></label>
+      <div class="ctl-row">
+        <button type="button" class="tbtn mini" data-kd="0">사람 눈 (7 mm)</button>
+        <button type="button" class="tbtn mini" data-kd="38">갈릴레이 (3.8 cm)</button>
+        <button type="button" class="tbtn mini" data-kd="72">학교 망원경 (20 cm)</button>
+        <button type="button" class="tbtn mini" data-kd="100">켁 (10 m)</button>
+        <label class="chk"><input type="checkbox" id="kSeg"> 분할 거울 정면 보기</label>
+      </div>
+    </div>
+    <div class="tel-controls" data-for="radio" hidden>
+      <label class="ctl">접시 방향 돌리기 <b id="rAngv">0°</b><input type="range" id="rAng" min="-40" max="40" value="-25"></label>
+      <div class="ctl-row">
+        <span class="tlabel">날씨</span>
+        <button type="button" class="tbtn mini active" data-sky="night">맑은 밤</button>
+        <button type="button" class="tbtn mini" data-sky="day">맑은 낮</button>
+        <button type="button" class="tbtn mini" data-sky="cloud">구름 낀 날</button>
+        <button type="button" class="tbtn mini" id="rNew">새 전파원 숨기기</button>
+      </div>
+    </div>
+    <div class="tel-controls" data-for="space" hidden>
+      <div class="ctl-row">
+        <span class="tlabel">관측할 빛</span>
+        <button type="button" class="tbtn mini" data-band="xray">X선</button>
+        <button type="button" class="tbtn mini" data-band="uv">자외선</button>
+        <button type="button" class="tbtn mini active" data-band="vis">가시광선</button>
+        <button type="button" class="tbtn mini" data-band="ir">적외선</button>
+        <button type="button" class="tbtn mini" data-band="radio">전파</button>
+      </div>
+    </div>
+
+    <div class="cv-box dark" id="telBox">
+      <canvas id="telCv" aria-label="망원경 원리 시뮬레이션"></canvas>
+    </div>
+    <div class="explain" id="telExplain"></div>
+
+    <div class="q-row"><span class="q-num">1</span>1609년에 최초로 망원경을 이용하여 천체를 관측한 사람은
+      <span class="choice-group" id="qT1">
+        <button type="button" class="choice-btn" data-value="갈릴레이">갈릴레이</button>
+        <button type="button" class="choice-btn" data-value="뉴턴">뉴턴</button>
+        <button type="button" class="choice-btn" data-value="허블">허블</button>
+      </span>이다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>망원경의 렌즈나 거울의 지름이 클수록 빛을
+      <span class="choice-group" id="qT2">
+        <button type="button" class="choice-btn" data-value="많이">많이</button>
+        <button type="button" class="choice-btn" data-value="적게">적게</button>
+      </span>모을 수 있어 희미한 천체도 볼 수 있다.
+    </div>
+    <div class="q-row"><span class="q-num">3</span>전파 망원경은 전파가 구름을 통과하므로
+      <span class="choice-group" id="qT3">
+        <button type="button" class="choice-btn" data-value="낮이나 흐린 날에도">낮이나 흐린 날에도</button>
+        <button type="button" class="choice-btn" data-value="맑은 밤에만">맑은 밤에만</button>
+      </span>관측할 수 있다.
+    </div>
+    <div class="q-row"><span class="q-num">4</span>우주 망원경을 대기권 밖으로 쏘아 올리는 까닭은
+      <span class="choice-group" id="qT4">
+        <button type="button" class="choice-btn" data-value="대기의 방해를 받지 않기 때문">대기가 빛을 흡수하거나 흔들지 않기 때문</button>
+        <button type="button" class="choice-btn" data-value="천체와 거리가 가까워지기 때문">천체와 거리가 가까워지기 때문</button>
+      </span>이다.
+    </div>
+    <button class="check-btn" id="checkT">정답 확인</button>
+    <span class="q-feedback" id="tFeedback"></span>
+  </section>
+
+  <!-- 2. 인공위성과 우주 탐사선 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">2</span>인공위성과 우주 탐사선</div>
+    <p class="body-text">과학이 발달하면서 인류는 로켓을 이용하여 인공위성, 우주 탐사선 등을 우주로 내보내 우주에 관한 여러 가지 정보를 얻고 있다.</p>
+    <p class="body-text"><b>인공위성</b>은 천체 주위를 돌도록 만든 인공의 장치로, 1957년에 최초의 인공위성인 스푸트니크 1호가 우주로 발사되었다. 허블 우주 망원경, 스피처 우주 망원경도 인공위성의 한 종류이다. <b>우주 탐사선</b>은 지구 이외의 다른 천체를 탐사하기 위해 쏘아 올린 물체로, 탐사하고자 하는 천체의 궤도를 돌거나 천체에 착륙하여 탐사한다.</p>
+
+    <div class="timeline" id="timeline"></div>
+
+    <div class="sub-title"><span class="tag">탐구</span>세 탐사선의 역사와 탐험 목적 — 카드를 눌러 보자</div>
+    <div class="probe-tabs" id="probeTabs"></div>
+    <div class="probe-detail" id="probeDetail"></div>
+
+    <div class="korea">
+      <figure class="photo"><img src="images/space/naro.webp" alt="나로호 발사"><figcaption>나로호 발사 (2013년, 나로 우주 센터)</figcaption></figure>
+      <div>
+        <div class="korea-title">🇰🇷 우리나라의 우주 탐사</div>
+        <p class="body-text">우리나라는 <b>2009년</b>에 인공위성을 발사할 수 있는 우주 센터(전남 고흥군 <b>나로 우주 센터</b>)를 완공하여 본격적인 우주 시대를 준비하게 되었다. <b>2013년</b>에는 나로 우주 센터에서 <b>나로호</b> 로켓을 발사하여 나로과학위성을 궤도에 올렸다.</p>
+        <p class="body-text">이후 우리 기술로 만든 <b>누리호</b>가 2022년 발사에 성공하였고, 같은 해 우리나라 최초의 달 탐사선 <b>다누리</b>가 달 궤도에 도착하여 달을 관측하고 있다.</p>
+        <p class="note"><b>한국항공우주연구원</b> 누리집에서는 인공위성 등의 우주 발사체와 우주 탐사에 관한 다양한 학습 자료를 제공하고 있다.</p>
+      </div>
+    </div>
+
+    <div class="q-row"><span class="q-num">5</span>1957년에 발사된 인류 최초의 인공위성은
+      <select class="blank" id="qP1"><option value="">-선택-</option><option>스푸트니크 1호</option><option>보이저 1호</option><option>주노호</option></select>
+      이다.
+    </div>
+    <div class="q-row"><span class="q-num">6</span>1977년에 발사되어 태양계를 벗어나 성간 우주에 처음 도달한 탐사선은
+      <select class="blank" id="qP2"><option value="">-선택-</option><option>스푸트니크 1호</option><option>보이저 1호</option><option>주노호</option></select>
+      이다.
+    </div>
+    <div class="q-row"><span class="q-num">7</span>2016년에 목성에 도착하여 목성 궤도를 돌며 목성의 내부와 자기장을 탐사한 탐사선은
+      <select class="blank" id="qP3"><option value="">-선택-</option><option>스푸트니크 1호</option><option>보이저 1호</option><option>주노호</option></select>
+      이다.
+    </div>
+    <button class="check-btn" id="checkP">정답 확인</button>
+    <span class="q-feedback" id="pFeedback"></span>
+  </section>
+
+  <!-- 3. 발사 게임 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">3</span>게임 · 인공위성을 궤도에 올려라!</div>
+    <p class="card-hint">나로 우주 센터에서 2단 로켓을 발사해 인공위성을 지구 궤도에 올려 보자. 로켓은 처음에 똑바로 위로 올라가다가 점점 옆으로 누워 <b>수평 방향으로 빨라져야</b> 한다. 오른쪽 위 작은 지도의 <b style="color:#2E9E5B">초록 궤도</b>가 지구에 닿지 않고 한 바퀴 이어지면(근지점 고도 150 km 이상) 성공!</p>
+
+    <div class="game-wrap">
+      <div class="cv-box dark" id="gameBox">
+        <canvas id="gameCv" aria-label="인공위성 발사 게임"></canvas>
+        <div class="game-msg" id="gameMsg" hidden></div>
+      </div>
+      <div class="game-panel">
+        <div class="gp-row">
+          <button type="button" class="tbtn primary big" id="gLaunch">🚀 발사!</button>
+          <button type="button" class="tbtn" id="gStage">단 분리</button>
+          <button type="button" class="tbtn" id="gReset">↺ 다시 하기</button>
+        </div>
+        <label class="ctl">추진력(엔진 출력) <b id="gThrv">0%</b><input type="range" id="gThr" min="0" max="100" value="100"></label>
+        <label class="ctl">로켓 기울기 (0° = 똑바로 위, 90° = 수평) <b id="gPitv">0°</b><input type="range" id="gPit" min="0" max="110" value="0"></label>
+        <div class="gp-row">
+          <span class="tlabel">빨리 감기</span>
+          <button type="button" class="tbtn mini" data-warp="1">×1</button>
+          <button type="button" class="tbtn mini active" data-warp="5">×5</button>
+          <button type="button" class="tbtn mini" data-warp="15">×15</button>
+          <span class="grow"></span>
+          <button type="button" class="tbtn mini" id="gAuto">자동 비행 보기</button>
+        </div>
+        <p class="gp-keys">키보드: ← → 기울기, ↑ ↓ 추진력, Space 단 분리</p>
+      </div>
+    </div>
+    <div class="game-log" id="gameLog">아직 발사하지 않았어요. <b>발사!</b>를 눌러 보세요.</div>
+
+    <div class="observe-box">
+      <b>왜 옆으로 빨라져야 할까? — 뉴턴의 대포</b>
+      <ol>
+        <li>높은 산 위에서 대포알을 수평으로 쏘면, 빠를수록 더 멀리 떨어진다. 충분히 빠르면 대포알이 떨어지는 만큼 지표면도 둥글게 휘어져 나가서 <b>땅에 닿지 않고 계속 지구 둘레를 돈다</b>. 이것이 인공위성이다.</li>
+        <li>지표면 가까이에서 원 궤도를 돌려면 수평 방향으로 약 <b>7.9 km/s</b>(제1 우주 속도)가 필요하다. 로켓은 이 속도를 얻기 위해 연료를 다 쓴 단을 버리며(단 분리) 가벼워진다.</li>
+        <li>똑바로 위로만 올라가면 아무리 높이 올라가도 다시 떨어진다. 높이 올라가는 것보다 <b>옆으로 빨라지는 것</b>이 훨씬 중요하다!</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 4. 우리 생활 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">4</span>우주 탐사가 우리 생활에 미치는 영향</div>
+    <p class="body-text">태양계의 다른 행성과 달에는 무엇이 있을까? 우주에서 생명체는 지구에만 존재할까? 이러한 호기심을 해결하기 위해 인류는 우주 탐사를 위한 연구를 계속하고 있다. 이 과정에서 <b>천문학, 물리학, 공학</b> 등의 학문이 발전하였고, 인공위성이나 우주 탐사선, 로켓 등을 제작하기 위한 다양한 기술이 융합하며 발달하였다. 또한, <b>인공위성 개발자, 위성 관제 센터 연구원</b> 등 우주 과학과 관련된 여러 전문 분야가 생겨나기도 하였다.</p>
+    <div class="photo-row two">
+      <figure class="photo"><img src="images/space/satdev.webp" alt="인공위성 개발 모습"><figcaption>인공위성 개발 모습</figcaption></figure>
+      <figure class="photo"><img src="images/space/naro_center.webp" alt="나로 우주 센터 관제실"><figcaption>나로 우주 센터</figcaption></figure>
+    </div>
+
+    <div class="sub-title"><span class="tag">우주에서 온 기술</span>카드를 눌러 어떤 우주 기술이 숨어 있는지 확인하자</div>
+    <div class="spin-grid" id="spinGrid"></div>
+
+    <div class="sub-title"><span class="tag">인공위성</span>인공위성이 우리 생활에 이용되는 예 — 알맞은 인공위성을 골라 보자</div>
+    <div class="use-grid">
+      <div class="use-card"><img src="images/space/use_weather.webp" alt=""><p>일기 예보를 하고, 태풍의 경로를 예측하여 피해를 줄일 수 있다.</p>
+        <select class="blank" id="qU1"><option value="">-위성 고르기-</option><option>기상 위성</option><option>방송 통신 위성</option><option>항법 위성</option></select></div>
+      <div class="use-card"><img src="images/space/use_broadcast.webp" alt=""><p>지구 반대편에서 열리는 스포츠 경기를 실시간으로 볼 수 있다.</p>
+        <select class="blank" id="qU2"><option value="">-위성 고르기-</option><option>기상 위성</option><option>방송 통신 위성</option><option>항법 위성</option></select></div>
+      <div class="use-card"><img src="images/space/use_phone.webp" alt=""><p>다른 나라에 있는 친구와 쉽게 전화 통화를 할 수 있다.</p>
+        <select class="blank" id="qU3"><option value="">-위성 고르기-</option><option>기상 위성</option><option>방송 통신 위성</option><option>항법 위성</option></select></div>
+      <div class="use-card"><img src="images/space/use_nav.webp" alt=""><p>자신이 있는 위치를 파악하고 모르는 길을 찾을 수 있다. (방송 통신 위성과 함께)</p>
+        <select class="blank" id="qU4"><option value="">-위성 고르기-</option><option>기상 위성</option><option>방송 통신 위성</option><option>항법 위성</option></select></div>
+    </div>
+    <button class="check-btn" id="checkU">정답 확인</button>
+    <span class="q-feedback" id="uFeedback"></span>
+  </section>
+
+  <!-- 5. 배움 활동: 조사하기 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">5</span>배움 활동 · 우주 탐사의 의의와 인류에게 미치는 영향 조사하기</div>
+    <p class="card-hint"><b>목표</b> 우주 탐사의 의의와 인류에게 미치는 영향을 조사하여 발표할 수 있다.</p>
+    <ol class="steps">
+      <li>모둠별로 <b>우주 탐사의 의의</b>를 조사해 보자.</li>
+      <li>우주 탐사가 인류에게 미치는 영향과 관련된 주제 중 한 가지를 정해 그 사례를 조사해 보자.</li>
+    </ol>
+    <div class="topic-row" id="topicRow">
+      <span class="tlabel">주제</span>
+      <button type="button" class="topic" data-topic="우리 생활에 적용된 우주 기술">우리 생활에 적용된 우주 기술</button>
+      <button type="button" class="topic" data-topic="우주 탐사 기술의 발달">우주 탐사 기술의 발달</button>
+      <button type="button" class="topic" data-topic="우주 탐사와 관련된 새로운 직업의 탄생">우주 탐사와 관련된 새로운 직업의 탄생</button>
+      <button type="button" class="topic" data-topic="우주에 관한 호기심 해결">우주에 관한 호기심 해결</button>
+    </div>
+
+    <div class="ai-box">
+      <div class="ai-head">
+        <span class="ai-logo">✦</span>
+        <div><b>AI 조사 도우미</b><span id="aiState">연결 확인 중…</span></div>
+        <span class="grow"></span>
+        <span class="ai-count" id="aiCount"></span>
+      </div>
+      <div class="ai-starters" id="aiStarters"></div>
+      <div class="ai-log" id="aiLog">
+        <div class="ai-msg bot">안녕하세요! 우주 탐사에 대해 궁금한 것을 물어보세요. 위에서 주제를 고르면 질문 예시가 나타나요.<br><small>AI의 답에도 틀린 내용이 있을 수 있으니, 출처를 확인하고 내 말로 정리해요. 이름·연락처 같은 개인 정보는 입력하지 마세요.</small></div>
+      </div>
+      <div class="ai-input">
+        <input type="text" id="aiQ" maxlength="300" placeholder="예) 우주 기술이 적용된 생활용품을 알려 줘">
+        <button type="button" class="tbtn primary" id="aiSend">질문하기</button>
+      </div>
+    </div>
+
+    <div class="sub-title"><span class="tag">발표하기</span>조사한 내용을 정리하여 발표해 보자.</div>
+    <div class="board">
+      <div class="board-col">
+        <div class="board-tag a">우주 탐사의 의의</div>
+        <p class="board-ex">예) 우주를 더 잘 이해할 수 있다.</p>
+        <textarea id="boardMeaning" placeholder="조사한 우주 탐사의 의의를 내 말로 정리해 보세요."></textarea>
+      </div>
+      <div class="board-col">
+        <div class="board-tag b" id="boardTopicTag">우리 생활에 적용된 우주 기술</div>
+        <p class="board-ex" id="boardTopicEx">예) 화재경보기: 우주선에서 발생할 수 있는 화재를 예방하기 위해 개발되었다.</p>
+        <textarea id="boardTopic" placeholder="고른 주제의 사례를 정리해 보세요."></textarea>
+      </div>
+    </div>
+    <label class="ctl wide">참고한 출처 (누리집 이름, 책 등)<input type="text" id="boardSource" placeholder="예) 한국항공우주연구원 누리집, NASA 누리집"></label>
+    <div class="toolbar" style="margin-top:10px">
+      <button type="button" class="tbtn violet" id="aiFeedback">✦ AI에게 내 정리 점검받기</button>
+    </div>
+    <div class="ai-feedback" id="aiFeedbackBox" hidden></div>
+    <p class="body-text closing">미지의 세계에 대한 인류의 호기심으로 시작된 우주 탐사를 통해 우리는 태양계와 우주의 정보를 얻고, 우리가 살고 있는 지구를 더 깊게 이해할 수 있게 되었다. 또한, 우주 탐사 과정에서 얻은 첨단 기술은 우리 삶의 질을 높여 주고 있다.</p>
+  </section>
+
+  <!-- 6. 정리 / 평가 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">6</span>배운 내용 정리하기 · 스스로 평가하기</div>
+    <div class="q-row"><span class="q-num">1</span>
+      <select class="blank" id="qS1"><option value="">-선택-</option><option>인공위성</option><option>우주 탐사선</option><option>우주 망원경</option></select>
+      은/는 천체 주위를 돌도록 만든 인공의 장치로, 기상 관측, 통신, 천체 관측 등에 이용된다.
+    </div>
+    <div class="q-row"><span class="q-num">2</span>지구 이외의 다른 천체를 탐사하기 위해 쏘아 올린 물체로, 천체의 궤도를 돌거나 천체에 착륙하여 탐사하는 것은
+      <select class="blank" id="qS2"><option value="">-선택-</option><option>우주 탐사선</option><option>인공위성</option><option>전파 망원경</option></select>
+      이다.
+    </div>
+    <div class="q-row"><span class="q-num">3</span>우리나라가 운영하고 있는 우주 센터는
+      <select class="blank" id="qS3"><option value="">-선택-</option><option>나로 우주 센터</option><option>케네디 우주 센터</option><option>바이코누르 우주 기지</option></select>
+      이다.
+    </div>
+    <button class="check-btn" id="checkS">정답 확인</button>
+    <span class="q-feedback" id="sFeedback"></span>
+
+    <table class="self-eval">
+      <thead><tr><th>스스로 평가하기</th><th>예</th><th>아니요</th></tr></thead>
+      <tbody>
+        <tr><td>21세기에 이루어진 우주 탐사의 성과를 몇 가지 이야기할 수 있다.</td><td><input type="radio" name="ev1" value="예"></td><td><input type="radio" name="ev1" value="아니요"></td></tr>
+        <tr><td>토의할 때 상대방의 의견을 귀 기울여 들었다.</td><td><input type="radio" name="ev2" value="예"></td><td><input type="radio" name="ev2" value="아니요"></td></tr>
+        <tr><td>우주 탐사의 의의와 인류에게 미치는 영향을 설명할 수 있다.</td><td><input type="radio" name="ev3" value="예"></td><td><input type="radio" name="ev3" value="아니요"></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 제출 -->
+  <section class="card">
+    <div class="card-title"><span class="badge">제출</span>학생 정보를 입력하고 채점받기</div>
+    <div class="ws-student">
+      <input class="small" id="ws-class" placeholder="반" inputmode="numeric">
+      <input class="small" id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="ws-actions">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <span class="ws-result" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+  </section>
+
+  <footer>2026 아화중학교 3학년 과학 · Ⅶ. 별과 우주 · 미래에 대한 도전, 우주 탐사<br>교과서 사진·그림 출처: 중학교 과학 3 교과서 Ⅶ단원</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+// 모든 워크시트가 공유하는 Apps Script 웹 앱 URL (Code.gs)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+
+/* ==========================================================
+   공용 수학 / 캔버스 도우미
+=========================================================== */
+const clamp = (v,a,b) => v<a ? a : (v>b ? b : v);
+const lerp = (a,b,t) => a + (b-a)*t;
+const TAU = Math.PI*2;
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function makeGauss(rnd){
+  return function(){
+    let u = 0, v = 0;
+    while(u === 0) u = rnd();
+    while(v === 0) v = rnd();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(TAU*v);
+  };
+}
+
+// 캔버스를 화면 너비에 맞추고, 그림은 논리 좌표(W×H)로 그린다.
+function setupCanvas(canvas, aspectFn, opts = {}){
+  const ctx = canvas.getContext('2d');
+  const box = canvas.parentElement;
+  const st = { canvas, ctx, W:960, H:540, k:1, dirty:true, visible:true, onResize:null };
+  let lastW = 0;
+  function fit(){
+    const cssW = box.clientWidth;
+    if(!cssW || cssW === lastW) return;
+    lastW = cssW;
+    const asp = aspectFn(cssW);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cssH = Math.round(cssW * asp);
+    canvas.style.height = cssH + 'px';
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    st.W = clamp(cssW, opts.minW || 560, opts.maxW || 960);
+    st.H = st.W * asp;
+    st.k = canvas.width / st.W;
+    if(st.onResize) st.onResize();
+    st.dirty = true;
+  }
+  st.begin = () => ctx.setTransform(st.k, 0, 0, st.k, 0, 0);
+  st.toLocal = (e) => {
+    const r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * st.W / r.width, (e.clientY - r.top) * st.H / r.height];
+  };
+  new ResizeObserver(fit).observe(box);
+  new IntersectionObserver(es => { st.visible = es[0].isIntersecting; if(st.visible) st.dirty = true; }).observe(canvas);
+  st.fit = fit;
+  fit();
+  return st;
+}
+
+// 드래그로 돌리기 + 탭(짧게 누르기) 구분
+function attachDrag(box, st, onDrag, onTap){
+  let d = null;
+  box.addEventListener('pointerdown', e => {
+    d = { x:e.clientX, y:e.clientY, lx:e.clientX, ly:e.clientY, moved:false };
+    box.setPointerCapture(e.pointerId);
+  });
+  box.addEventListener('pointermove', e => {
+    if(!d) return;
+    if(Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) d.moved = true;
+    if(d.moved) onDrag(e.clientX - d.lx, e.clientY - d.ly);
+    d.lx = e.clientX; d.ly = e.clientY;
+  });
+  box.addEventListener('pointerup', e => {
+    if(d && !d.moved && onTap) onTap(st.toLocal(e));
+    d = null;
+  });
+  box.addEventListener('pointercancel', () => { d = null; });
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
+}
+const FONT = (px, w = 700) => `${w} ${px}px "Pretendard","Noto Sans KR",sans-serif`;
+function outlinedText(ctx, text, x, y, fill, stroke = 'rgba(3,4,12,0.85)', lw = 3.5){
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = lw; ctx.strokeStyle = stroke; ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill; ctx.fillText(text, x, y);
+}
+
+/* ==========================================================
+   빛의 파장(nm) → 색 / 스펙트럼 띠
+=========================================================== */
+function nmToRGB(nm){
+  let r = 0, g = 0, b = 0;
+  const w = clamp(nm, 380, 780);
+  if(w < 440){ r = -(w-440)/60; b = 1; }
+  else if(w < 490){ g = (w-440)/50; b = 1; }
+  else if(w < 510){ g = 1; b = -(w-510)/20; }
+  else if(w < 580){ r = (w-510)/70; g = 1; }
+  else if(w < 645){ r = 1; g = -(w-645)/65; }
+  else { r = 1; }
+  const f = w < 420 ? 0.35 + 0.65*(w-380)/40 : (w > 700 ? 0.35 + 0.65*(780-w)/80 : 1);
+  return [r, g, b].map(c => Math.round(255 * Math.pow(c*f, 0.8)));
+}
+const rgba = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+
+/* ==========================================================
+   1. 망원경 시뮬레이션 — 갈릴레이(굴절) · 켁(반사) · 전파 · 우주 망원경
+=========================================================== */
+const TELESCOPE = (function(){
+  const st = setupCanvas($('telCv'), w => w < 600 ? 0.8 : 0.5, { minW:420 });
+  const ctx = st.ctx;
+  let mode = 'galileo', t = 0;
+
+  const EXPLAIN = {
+    galileo: '<span class="k">굴절 망원경</span><b>볼록 렌즈(대물렌즈)</b>가 별빛을 꺾어 한 점(초점)으로 모으고, 초점에 닿기 전에 <b>오목 렌즈(접안렌즈)</b>가 빛을 다시 나란하게 펴서 눈으로 보낸다. 이때 빛의 기울기가 커지므로 천체가 크게 보인다. <b>배율 = 대물렌즈 초점 거리 ÷ 접안렌즈 초점 거리</b>. 접안렌즈 위치를 옮겨 초점을 맞춰 보고, 대물렌즈 지름을 바꿔 밝기를 비교해 보자. 갈릴레이는 1610년 이 망원경으로 <b>목성 주위를 도는 위성 4개</b>를 발견하였다.',
+    keck: '<span class="k">반사 망원경</span>오목한 <b>주거울</b>이 빛을 반사하여 한 점으로 모은다. 렌즈는 크게 만들면 무겁고 휘어지지만 거울은 뒷면을 받칠 수 있어 아주 크게 만들 수 있다. 켁 망원경은 육각형 거울 <b>36장</b>을 이어 붙여 <b>지름 10 m</b>의 거울을 만들었다. 거울 지름이 2배가 되면 빛을 모으는 넓이는 4배가 되어(집광력 ∝ 지름²) <b>더 어둡고 먼 천체</b>까지 볼 수 있다.',
+    radio: '<span class="k">전파 망원경</span>천체에서 오는 <b>전파</b>를 커다란 <b>접시 안테나</b>로 반사하여 가운데 수신기로 모은다. 전파는 파장이 길어 <b>구름이나 먼지를 통과</b>하므로 낮이나 흐린 날에도 관측할 수 있고, 눈에 보이지 않는 차가운 가스나 블랙홀 주변도 관측할 수 있다. 접시를 돌려 <b>숨어 있는 전파원</b>을 찾아보자 — 신호 막대가 가득 차면 성공!',
+    space: '<span class="k">우주 망원경</span>지구의 <b>대기</b>는 X선·자외선과 대부분의 적외선을 흡수하고, 공기의 흔들림 때문에 별빛이 반짝이며 흐려진다. 그래서 대기권 밖으로 <b>우주 망원경</b>을 쏘아 올려 대기의 방해 없이 여러 종류의 빛으로 우주를 관측한다. 예) 허블(가시광선·자외선, 1990), 스피처(적외선, 2003), 제임스 웹(적외선, 2021), 찬드라(X선, 1999)'
+  };
+
+  /* ---------- ① 갈릴레이 망원경 ---------- */
+  const G = { f2:5 };
+  // 목성(맨눈 · 망원경) 그림
+  function drawJupiterView(cx, cy, R, M, blur, bright, label){
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fillStyle = '#02030A'; ctx.fill();
+    ctx.clip();
+    const rj = Math.max(1.2, 0.5*M), moons = [4.2, 6.6, 10.5, 18.5], dir = [1, -1, 1, -1];
+    const blob = (x, y, r, col, a) => {
+      const rr = r + blur;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, rr);
+      const k = clamp(r/rr, 0.05, 1);
+      g.addColorStop(0, `rgba(${col},${a*k})`); g.addColorStop(clamp(r/rr, 0.05, 0.95), `rgba(${col},${a*k*0.9})`); g.addColorStop(1, `rgba(${col},0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.fill();
+    };
+    blob(cx, cy, rj, '238,214,176', bright);
+    if(rj > 6 && blur < 3){
+      ctx.strokeStyle = `rgba(170,120,80,${0.6*bright})`; ctx.lineWidth = Math.max(1, rj*0.12);
+      [-0.3, 0.25].forEach(f => { ctx.beginPath(); ctx.moveTo(cx - rj*0.95, cy + f*rj); ctx.lineTo(cx + rj*0.95, cy + f*rj); ctx.stroke(); });
+    }
+    moons.forEach((d, i) => blob(cx + dir[i]*d*M*0.42, cy + (i%2 ? 1 : -1)*0.6, Math.max(0.9, 0.09*M), '230,230,240', bright*0.95));
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(200,210,255,0.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
+    ctx.font = FONT(11.5, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    outlinedText(ctx, label, cx, cy + R + 5, '#DDE3FF');
+  }
+
+  function drawLens(x, cy, h, concave){
+    ctx.save();
+    ctx.fillStyle = 'rgba(150,210,255,0.28)'; ctx.strokeStyle = 'rgba(190,230,255,0.9)'; ctx.lineWidth = 1.5;
+    const w = Math.max(6, h*0.12);
+    ctx.beginPath();
+    if(!concave){
+      ctx.moveTo(x, cy - h); ctx.quadraticCurveTo(x + w*1.6, cy, x, cy + h); ctx.quadraticCurveTo(x - w*1.6, cy, x, cy - h);
+    } else {
+      ctx.moveTo(x - w, cy - h); ctx.lineTo(x + w, cy - h); ctx.quadraticCurveTo(x + w*0.1, cy, x + w, cy + h);
+      ctx.lineTo(x - w, cy + h); ctx.quadraticCurveTo(x - w*0.1, cy, x - w, cy - h);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawEye(x, cy, s){
+    ctx.save();
+    ctx.translate(x, cy);
+    ctx.fillStyle = '#F4F1EA'; ctx.strokeStyle = '#9AA3B8'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(s*0.9, 0, s, Math.PI*0.62, Math.PI*1.38); ctx.quadraticCurveTo(s*0.2, 0, s*0.9 + s*Math.cos(Math.PI*0.62), s*Math.sin(Math.PI*0.62)); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#5B7FB8'; ctx.beginPath(); ctx.ellipse(s*0.05, 0, s*0.14, s*0.32, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#10131C'; ctx.beginPath(); ctx.ellipse(s*0.0, 0, s*0.07, s*0.17, 0, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+
+  function galileo(){
+    const W = st.W, H = st.H;
+    const f1 = Number($('gF1').value), D = Number($('gAp').value)/10, ang = Number($('gAng').value)/100;
+    const d = f1 - 20 + 23*Number($('gD').value)/100, dFocus = f1 - G.f2;
+    $('gF1v').textContent = `${f1} cm`; $('gApv').textContent = `${D.toFixed(1)} cm`; $('gAngv').textContent = `${ang.toFixed(2)}°`;
+    const off = d - dFocus;
+    $('gDv').textContent = Math.abs(off) < 0.4 ? '초점이 맞았어요!' : (off < 0 ? '대물렌즈 쪽으로 너무 가까움' : '너무 멂');
+
+    ctx.fillStyle = '#070A16'; ctx.fillRect(0, 0, W, H);
+    const cy = H*0.6, x0 = W*(W < 700 ? 0.19 : 0.1), sx = (W*(W < 700 ? 0.55 : 0.6))/(f1 + 12), sy = Math.min(H*0.24/3, 34);
+    const X = cm => x0 + cm*sx, Y = cm => cy - cm*sy;
+    // 경통
+    ctx.fillStyle = 'rgba(120,80,40,0.22)'; ctx.strokeStyle = 'rgba(200,150,90,0.35)'; ctx.lineWidth = 1;
+    const tubeH = (D/2 + 0.6)*sy;
+    ctx.fillRect(X(0), cy - tubeH, X(d) - X(0), tubeH*2); ctx.strokeRect(X(0), cy - tubeH, X(d) - X(0), tubeH*2);
+    // 광축
+    ctx.setLineDash([4, 6]); ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke(); ctx.setLineDash([]);
+
+    // 빛의 경로 (근축 광선 추적)
+    const u0 = ang*Math.PI/180, n = 7, eyeX = d + 9;
+    ctx.lineWidth = 1.8;
+    for(let i=0; i<n; i++){
+      const y0 = -D/2 + D*i/(n - 1);
+      const ys = y0 - u0*14;
+      const u1 = u0 - y0/f1, y1 = y0 + u1*d, u2 = u1 + y1/G.f2, y2 = y1 + u2*(eyeX - d);
+      const col = `rgba(255,236,170,0.85)`;
+      ctx.strokeStyle = col;
+      ctx.setLineDash([10, 7]); ctx.lineDashOffset = -t*40;
+      ctx.beginPath(); ctx.moveTo(X(-14), Y(ys)); ctx.lineTo(X(0), Y(y0)); ctx.lineTo(X(d), Y(y1)); ctx.lineTo(X(eyeX), Y(y2)); ctx.stroke();
+      ctx.setLineDash([3, 5]); ctx.lineDashOffset = 0; ctx.strokeStyle = 'rgba(255,236,170,0.22)';
+      ctx.beginPath(); ctx.moveTo(X(d), Y(y1)); ctx.lineTo(X(f1), Y(y0 + u1*f1)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // 초점
+    const fy = u0*f1;
+    ctx.fillStyle = '#FFD76A'; ctx.beginPath(); ctx.arc(X(f1), Y(fy), 3.5, 0, TAU); ctx.fill();
+    ctx.font = FONT(11.5, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    outlinedText(ctx, '초점', X(f1), Y(fy) + 8, '#FFD76A');
+
+    drawLens(X(0), cy, (D/2)*sy + 8, false);
+    drawLens(X(d), cy, 1.1*sy + 6, true);
+    drawEye(X(eyeX) + 4, cy + 0, 22);
+    ctx.font = FONT(12.5, 800); ctx.textBaseline = 'bottom';
+    outlinedText(ctx, '대물렌즈 (볼록 렌즈)', X(0), cy - (D/2)*sy - 14, '#BFE3FF');
+    outlinedText(ctx, '접안렌즈 (오목 렌즈)', X(d), cy - 1.1*sy - 12, '#BFE3FF');
+    ctx.textBaseline = 'top';
+    outlinedText(ctx, '눈', X(eyeX) + 14, cy + 26, '#F4F1EA');
+    outlinedText(ctx, '별빛', X(-10), cy + (D/2)*sy + 14, '#FFE7A0');
+
+    // 배율 · 초점 상태
+    const M = f1/G.f2, blur = clamp(Math.abs(off)/(f1*G.f2)*D*1500, 0, 26);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = FONT(14, 800);
+    outlinedText(ctx, `배율 = ${f1} cm ÷ ${G.f2} cm = ${M.toFixed(0)}배`, 14, 12, '#FFFFFF');
+    ctx.font = FONT(12, 700);
+    outlinedText(ctx, Math.abs(off) < 0.4 ? '✔ 초점이 맞아 빛이 나란하게 눈에 들어간다' : '✘ 초점이 안 맞아 빛이 퍼진다 → 흐릿하게 보임', 14, 34, Math.abs(off) < 0.4 ? '#7CF0B5' : '#FF9A8A');
+    outlinedText(ctx, `빛을 모으는 양: 맨눈(7 mm)의 약 ${Math.round((D*10/7)**2)}배`, 14, 52, '#C9D3F0');
+
+    // 보이는 모습
+    const R = Math.min(H*0.2, W*0.11), vx = W - R - 16, vy = R + 22;
+    drawJupiterView(vx, vy, R, M, blur, clamp(0.35 + D*D/20, 0.35, 1), '망원경으로 본 목성');
+    drawJupiterView(vx - R - R*0.45 - 18, vy, R*0.45, 1, 0, 0.8, '맨눈');
+    return true;
+  }
+
+  /* ---------- ② 켁 망원경 ---------- */
+  const KSTARS = (function(){
+    const r = mulberry32(808), a = [];
+    for(let i=0; i<2600; i++) a.push({ x:r(), y:r(), m:2 + 22*Math.pow(r(), 0.3), c:r() });
+    return a;
+  })();
+  function keckD(){ const v = Number($('kD').value)/100; return 0.007*Math.pow(10/0.007, v); }
+  function fmtLen(m){ return m >= 1 ? `${m.toFixed(m < 3 ? 1 : 0)} m` : (m >= 0.01 ? `${(m*100).toFixed(m < 0.1 ? 1 : 0)} cm` : `${(m*1000).toFixed(0)} mm`); }
+
+  function keck(){
+    const W = st.W, H = st.H, v = Number($('kD').value)/100, D = keckD();
+    $('kDv').textContent = fmtLen(D);
+    ctx.fillStyle = '#070A16'; ctx.fillRect(0, 0, W, H);
+    const cy = H*0.56, Xv = W*0.74, F = W*0.4, h = lerp(H*0.05, H*0.36, v);
+    const mx = y => Xv - y*y/(4*F);
+    const xs = Xv - 0.78*F, sh = h*0.22 + 3, Cx = Xv + W*0.06;
+
+    if($('kSeg').checked){
+      // 분할 거울 정면
+      const cx = W*0.38, s = Math.min(W, H)*0.065;
+      ctx.font = FONT(13, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      for(let q=-3; q<=3; q++) for(let r=-3; r<=3; r++){
+        if(Math.abs(q + r) > 3 || (q === 0 && r === 0)) continue;
+        const x = cx + s*1.5*q, y = cy + s*Math.sqrt(3)*(r + q/2);
+        ctx.beginPath();
+        for(let k=0; k<6; k++){ const a = k*Math.PI/3; ctx.lineTo(x + s*0.96*Math.cos(a), y + s*0.96*Math.sin(a)); }
+        ctx.closePath();
+        const g = ctx.createLinearGradient(x - s, y - s, x + s, y + s);
+        g.addColorStop(0, '#FFE9A8'); g.addColorStop(0.5, '#C99A3A'); g.addColorStop(1, '#7A5A20');
+        ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = '#2A1E08'; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+      outlinedText(ctx, '켁 망원경 주거울(정면) — 육각형 거울 36장 → 지름 10 m', cx, cy + s*6.4, '#FFE7A0');
+    } else {
+      // 들어오는 빛 → 주거울 → 부거울 → 초점
+      const n = Math.round(lerp(2, 14, v));
+      ctx.lineWidth = 1.6;
+      for(let i=0; i<n; i++){
+        const y = n === 1 ? h*0.6 : lerp(-h*0.95, h*0.95, i/(n - 1));
+        if(Math.abs(y) < sh) continue;
+        const xm = mx(y);
+        const fx = Xv - F;                                // 주초점
+        const tS = (xm - xs)/(xm - fx), yS = y + (0 - y)*tS; // 부거울 위치에서의 높이
+        ctx.strokeStyle = 'rgba(255,236,170,0.85)';
+        ctx.setLineDash([10, 7]); ctx.lineDashOffset = -t*50;
+        ctx.beginPath(); ctx.moveTo(0, cy - y); ctx.lineTo(xm, cy - y); ctx.lineTo(xs, cy - yS); ctx.lineTo(Cx, cy); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      // 주거울
+      ctx.strokeStyle = '#E8D9A8'; ctx.lineWidth = 5;
+      [[-h, -sh], [sh, h]].forEach(([a, b]) => {
+        ctx.beginPath();
+        for(let k=0; k<=20; k++){ const y = lerp(a, b, k/20); k ? ctx.lineTo(mx(y), cy - y) : ctx.moveTo(mx(y), cy - y); }
+        ctx.stroke();
+      });
+      // 부거울
+      ctx.strokeStyle = '#E8D9A8'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(xs + 3, cy - sh); ctx.quadraticCurveTo(xs - 3, cy, xs + 3, cy + sh); ctx.stroke();
+      ctx.strokeStyle = 'rgba(200,200,220,0.35)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(xs, cy - sh); ctx.lineTo(mx(h*0.9), cy - h*0.9); ctx.moveTo(xs, cy + sh); ctx.lineTo(mx(-h*0.9), cy + h*0.9); ctx.stroke();
+      // 관측 장비
+      ctx.fillStyle = '#3B4256'; ctx.fillRect(Cx, cy - 12, 26, 24);
+      ctx.fillStyle = '#FFD76A'; ctx.beginPath(); ctx.arc(Cx, cy, 3.5, 0, TAU); ctx.fill();
+      ctx.font = FONT(12.5, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      outlinedText(ctx, '주거울 (오목 거울)', mx(h), cy - h - 8, '#FFE7A0');
+      outlinedText(ctx, '부거울', xs, cy - sh - 8, '#FFE7A0');
+      ctx.textBaseline = 'top';
+      outlinedText(ctx, '관측 장비', Cx + 13, cy + 18, '#C9D3F0');
+      outlinedText(ctx, '별빛', W*0.06, cy + h + 8, '#FFE7A0');
+    }
+
+    // 집광력 · 보이는 별
+    const gain = (D/0.007)**2, lim = 6 + 5*Math.log10(D/0.007);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = FONT(14, 800);
+    outlinedText(ctx, `거울 지름 ${fmtLen(D)} → 빛을 모으는 양: 맨눈의 약 ${gain < 10 ? gain.toFixed(1) : Math.round(gain).toLocaleString()}배`, 14, 12, '#FFFFFF');
+    ctx.font = FONT(12, 700);
+    outlinedText(ctx, `볼 수 있는 가장 어두운 별: 약 ${lim.toFixed(1)}등급 (맨눈은 6등급)`, 14, 34, '#C9D3F0');
+    const R = Math.min(H*0.2, W*0.11), vx = W - R - 16, vy = R + 22;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(vx, vy, R, 0, TAU); ctx.fillStyle = '#01020A'; ctx.fill(); ctx.clip();
+    let shown = 0;
+    KSTARS.forEach(s => {
+      if(s.m > lim) return;
+      shown++;
+      const b = clamp((lim - s.m)/5, 0.15, 1), r = 0.6 + b*1.6;
+      ctx.fillStyle = s.c < 0.2 ? `rgba(255,200,160,${b})` : (s.c > 0.85 ? `rgba(170,200,255,${b})` : `rgba(240,240,255,${b})`);
+      ctx.beginPath(); ctx.arc(vx - R + s.x*2*R, vy - R + s.y*2*R, r, 0, TAU); ctx.fill();
+    });
+    if(lim > 15){
+      const a = clamp((lim - 15)/6, 0, 0.8);
+      const g = ctx.createRadialGradient(vx + R*0.25, vy - R*0.2, 0, vx + R*0.25, vy - R*0.2, R*0.35);
+      g.addColorStop(0, `rgba(255,230,200,${a})`); g.addColorStop(1, 'rgba(255,230,200,0)');
+      ctx.save(); ctx.translate(vx + R*0.25, vy - R*0.2); ctx.scale(1, 0.45); ctx.translate(-(vx + R*0.25), -(vy - R*0.2));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(vx + R*0.25, vy - R*0.2, R*0.35, 0, TAU); ctx.fill(); ctx.restore();
+    }
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(200,210,255,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(vx, vy, R, 0, TAU); ctx.stroke();
+    ctx.font = FONT(11.5, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    outlinedText(ctx, `보이는 별 ${shown.toLocaleString()}개`, vx, vy + R + 5, '#DDE3FF');
+    return true;
+  }
+
+  /* ---------- ③ 전파 망원경 ---------- */
+  const SOURCES = ['궁수자리 A* (우리은하 중심의 블랙홀)', '게 성운 (초신성 폭발의 잔해)', '백조자리 A (전파를 내는 은하)', '카시오페이아자리 A (초신성 잔해)', '오리온 대성운의 차가운 가스'];
+  const RADIO = { src:18, name:SOURCES[0], sky:'night', hold:0, found:false, trace:[] };
+  function newSource(){
+    RADIO.src = Math.round((Math.random()*2 - 1)*34);
+    RADIO.name = SOURCES[Math.floor(Math.random()*SOURCES.length)];
+    RADIO.found = false; RADIO.hold = 0;
+  }
+  const CLOUDS = (function(){ const r = mulberry32(55), a = []; for(let i=0; i<9; i++) a.push([r(), 0.18 + r()*0.22, 0.6 + r()*0.8]); return a; })();
+  const NSTARS = (function(){ const r = mulberry32(66), a = []; for(let i=0; i<140; i++) a.push([r(), r()*0.7, r()]); return a; })();
+
+  function radio(dt){
+    const W = st.W, H = st.H, dishAng = Number($('rAng').value);
+    $('rAngv').textContent = `${dishAng}°`;
+    const sky = RADIO.sky;
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    if(sky === 'night'){ g.addColorStop(0, '#04061A'); g.addColorStop(1, '#141B3A'); }
+    else if(sky === 'day'){ g.addColorStop(0, '#3D86D6'); g.addColorStop(1, '#A9D3F5'); }
+    else { g.addColorStop(0, '#5D6574'); g.addColorStop(1, '#9AA2AE'); }
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    if(sky === 'night') NSTARS.forEach(([x, y, a]) => { ctx.fillStyle = `rgba(230,235,255,${0.3 + a*0.6})`; ctx.fillRect(x*W, y*H, 1.4, 1.4); });
+
+    const groundY = H*0.86, pivot = [W*0.56, groundY - H*0.12], dishR = Math.min(W*0.13, H*0.2);
+    // 전파 (평면파): 전파원 방향에서 접시 쪽으로
+    const a = RADIO.src*Math.PI/180, k = [Math.sin(a), Math.cos(a)], p = [Math.cos(a), -Math.sin(a)];
+    const lam = 24, L = W*0.9;
+    ctx.lineWidth = 2;
+    for(let n=0; n<30; n++){
+      const s = n*lam - (t*60) % lam + 4;
+      const cx = pivot[0] - k[0]*s, cy = pivot[1] - k[1]*s;
+      if(cy < -L) continue;
+      const alpha = clamp(1 - s/(H*1.1), 0, 0.75);
+      ctx.strokeStyle = `rgba(90,230,200,${alpha})`;
+      ctx.beginPath(); ctx.moveTo(cx - p[0]*L, cy - p[1]*L); ctx.lineTo(cx + p[0]*L, cy + p[1]*L); ctx.stroke();
+    }
+    // 구름 (전파는 통과)
+    if(sky === 'cloud'){
+      CLOUDS.forEach(([x, y, s]) => {
+        ctx.fillStyle = 'rgba(235,238,244,0.82)';
+        [[0,0,1],[0.6,0.15,0.8],[-0.6,0.15,0.75],[0.25,-0.25,0.7]].forEach(([dx, dy, r]) => {
+          ctx.beginPath(); ctx.arc(x*W + dx*44*s, y*H + dy*44*s, 34*s*r, 0, TAU); ctx.fill();
+        });
+      });
+    }
+    // 땅
+    ctx.fillStyle = sky === 'night' ? '#1B2A1E' : '#5E8A4A'; ctx.fillRect(0, groundY, W, H - groundY);
+
+    // 광학 망원경 (왼쪽)
+    const ox = W*0.13;
+    ctx.fillStyle = '#E8ECF2'; ctx.beginPath(); ctx.arc(ox, groundY - 18, 26, Math.PI, 0); ctx.fill();
+    ctx.fillRect(ox - 26, groundY - 18, 52, 18);
+    ctx.fillStyle = '#2B3245'; ctx.fillRect(ox - 4, groundY - 44, 8, 18);
+    const optOk = sky === 'night';
+    ctx.font = FONT(12, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    outlinedText(ctx, '광학 망원경', ox, groundY + 6, '#FFFFFF');
+    outlinedText(ctx, optOk ? '관측 가능' : (sky === 'day' ? '낮에는 하늘이 밝아 어려움' : '구름에 가려 관측 불가'), ox, groundY + 22, optOk ? '#7CF0B5' : '#FFB3A6');
+
+    // 접시 안테나
+    const da = dishAng*Math.PI/180, ax = [Math.sin(da), -Math.cos(da)], px = [Math.cos(da), Math.sin(da)];
+    const f = dishR*0.75;
+    // 접시의 가운데(꼭짓점)가 받침대 위, 가장자리는 하늘 쪽으로 휘어 올라간다
+    const dishPt = s => { const depth = (s*s)/(4*f); return [pivot[0] + px[0]*s + ax[0]*depth, pivot[1] + px[1]*s + ax[1]*depth]; };
+    const focus = [pivot[0] + ax[0]*f, pivot[1] + ax[1]*f];
+    const err = Math.abs(dishAng - RADIO.src), strength = Math.exp(-((err/5)**2));
+    // 반사 전파
+    if(strength > 0.05){
+      ctx.strokeStyle = `rgba(255,220,110,${0.9*strength})`; ctx.lineWidth = 1.6;
+      for(let i=-4; i<=4; i++){
+        if(i === 0) continue;
+        const q = dishPt(i/4*dishR*0.95);
+        ctx.beginPath(); ctx.moveTo(q[0], q[1]); ctx.lineTo(focus[0], focus[1]); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = '#C9CED8'; ctx.fillRect(pivot[0] - 10, pivot[1], 20, groundY - pivot[1]);
+    ctx.fillStyle = '#AEB4C2'; ctx.beginPath(); ctx.moveTo(pivot[0] - 26, groundY); ctx.lineTo(pivot[0] - 8, pivot[1] + 8); ctx.lineTo(pivot[0] + 8, pivot[1] + 8); ctx.lineTo(pivot[0] + 26, groundY); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#E9ECF2'; ctx.strokeStyle = '#8D95A5'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for(let k2=0; k2<=24; k2++){ const q = dishPt(lerp(-dishR, dishR, k2/24)); k2 ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#F4F6FA'; ctx.lineWidth = 5;
+    ctx.beginPath(); for(let k2=0; k2<=24; k2++){ const q = dishPt(lerp(-dishR, dishR, k2/24)); k2 ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); } ctx.stroke();
+    ctx.strokeStyle = '#8D95A5'; ctx.lineWidth = 1.5;
+    [-0.7, 0.7].forEach(s => { const q = dishPt(s*dishR); ctx.beginPath(); ctx.moveTo(q[0], q[1]); ctx.lineTo(focus[0], focus[1]); ctx.stroke(); });
+    ctx.fillStyle = '#FFD76A'; ctx.beginPath(); ctx.arc(focus[0], focus[1], 5, 0, TAU); ctx.fill();
+    ctx.font = FONT(12, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    outlinedText(ctx, '전파 망원경', pivot[0], groundY + 6, '#FFFFFF');
+    outlinedText(ctx, '관측 가능 (전파는 구름도 통과)', pivot[0], groundY + 22, '#7CF0B5');
+
+    // 신호 세기 막대 + 수신 그래프
+    RADIO.trace.push(strength*(0.85 + 0.15*Math.sin(t*20)) + (Math.random() - 0.5)*0.12);
+    if(RADIO.trace.length > 160) RADIO.trace.shift();
+    const bx = 14, by = 14, bw = Math.min(260, W*0.36), bh = 64;
+    ctx.fillStyle = 'rgba(5,8,20,0.7)'; roundRect(ctx, bx, by, bw, bh + 40, 10); ctx.fill();
+    ctx.font = FONT(12.5, 800); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#C9D3F0';
+    ctx.fillText('수신기 신호 세기', bx + 10, by + 8);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(bx + 10, by + 28, bw - 20, 10);
+    ctx.fillStyle = strength > 0.9 ? '#7CF0B5' : '#FFD76A'; ctx.fillRect(bx + 10, by + 28, (bw - 20)*strength, 10);
+    ctx.strokeStyle = '#5AE6C8'; ctx.lineWidth = 1.4; ctx.beginPath();
+    RADIO.trace.forEach((v, i) => { const x = bx + 10 + i/159*(bw - 20), y = by + bh + 30 - clamp(v, -0.1, 1.1)*36; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+    ctx.stroke();
+    if(strength > 0.9) RADIO.hold += dt; else RADIO.hold = 0;
+    if(RADIO.hold > 1.2) RADIO.found = true;
+    if(RADIO.found){
+      ctx.font = FONT(14, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      outlinedText(ctx, `📡 전파원 발견! — ${RADIO.name}`, W/2, H*0.06, '#7CF0B5');
+    }
+    return true;
+  }
+
+  /* ---------- ④ 우주 망원경 ---------- */
+  const BANDS = {
+    xray:  { name:'X선', col:[200,170,255], stop:[55, 90], wav:5,  ground:'관측 불가 (대기가 흡수)' },
+    uv:    { name:'자외선', col:[170,120,255], stop:[22, 40], wav:8, ground:'관측 불가 (오존층이 흡수)' },
+    vis:   { name:'가시광선', col:[255,236,160], stop:null, wav:12, ground:'관측 가능 (하지만 대기 흔들림으로 흐려짐)' },
+    ir:    { name:'적외선', col:[255,110,90], stop:[2, 12], wav:18, pass:0.15, ground:'대부분 흡수 (수증기)' },
+    radio: { name:'전파', col:[90,230,200], stop:null, wav:34, ground:'관측 가능' }
+  };
+  let band = 'vis', photons = [], spawn = 0;
+  function space(dt){
+    const W = st.W, H = st.H, B = BANDS[band];
+    const top = H*0.2, ground = H*0.88, altY = km => ground - (ground - top)*Math.min(1, km/100);
+    // 하늘: 우주 → 대기
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#02030C'); g.addColorStop(top/H, '#060B24'); g.addColorStop(0.55, '#1D3D7A'); g.addColorStop(ground/H, '#6FA8DC');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    for(let i=0; i<70; i++){ const r = mulberry32(i*31 + 7); ctx.fillStyle = `rgba(230,235,255,${0.3 + r()*0.5})`; ctx.fillRect(r()*W, r()*top*1.2, 1.3, 1.3); }
+    // 고도 눈금
+    ctx.font = FONT(11, 700); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    [10, 25, 50, 100].forEach(km => {
+      const y = altY(km);
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(W*0.9, y); ctx.lineTo(W - 46, y); ctx.stroke();
+      outlinedText(ctx, `${km} km`, W - 6, y, '#C9D3F0');
+    });
+    ctx.fillStyle = 'rgba(160,120,255,0.12)'; ctx.fillRect(0, altY(35), W, altY(18) - altY(35));
+    ctx.textAlign = 'left'; outlinedText(ctx, '오존층', 10, altY(26), '#D9C8FF');
+    outlinedText(ctx, '대기권', 10, altY(60), '#BFD7FF');
+    // 땅
+    ctx.fillStyle = '#2F4A2C'; ctx.fillRect(0, ground, W, H - ground);
+
+    // 광자 비
+    spawn += dt*7;
+    while(spawn > 1){ spawn--; photons.push({ x:W*(0.12 + Math.random()*0.5), y:-10, pass:Math.random(), stopKm:B.stop ? lerp(B.stop[0], B.stop[1], Math.random()) : -1, dead:0 }); }
+    const speed = H*0.42;
+    ctx.lineWidth = 2;
+    photons.forEach(p => {
+      if(p.dead){ p.dead += dt; return; }
+      p.y += speed*dt;
+      const blocked = B.stop && !(B.pass && p.pass < B.pass);
+      if(blocked && p.y >= altY(p.stopKm)){ p.dead = 0.001; p.y = altY(p.stopKm); }
+      if(p.y >= ground){ p.dead = 0.001; p.y = ground; p.reached = true; }
+    });
+    photons = photons.filter(p => !p.dead || p.dead < 0.5);
+    photons.forEach(p => {
+      if(p.dead){
+        const a = 1 - p.dead/0.5;
+        ctx.fillStyle = p.reached ? `rgba(124,240,181,${a})` : rgba(B.col, a);
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3 + p.dead*14, 0, TAU); ctx.fill();
+        return;
+      }
+      ctx.strokeStyle = rgba(B.col, 0.95);
+      ctx.beginPath();
+      for(let k=0; k<=14; k++){
+        const yy = p.y - k*3, xx = p.x + Math.sin((yy)/B.wav*TAU*0.5)*3.5;
+        k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
+      }
+      ctx.stroke();
+    });
+
+    // 지상 망원경 / 우주 망원경
+    const gx = W*0.36;
+    ctx.fillStyle = '#E8ECF2'; ctx.beginPath(); ctx.arc(gx, ground - 14, 22, Math.PI, 0); ctx.fill(); ctx.fillRect(gx - 22, ground - 14, 44, 14);
+    const sx = W*0.36, sy = top*0.55;
+    ctx.save(); ctx.translate(sx, sy); ctx.rotate(-0.15);
+    ctx.fillStyle = '#C9CDD6'; ctx.fillRect(-34, -11, 58, 22); ctx.fillStyle = '#8A93A8'; ctx.fillRect(24, -13, 12, 26);
+    ctx.fillStyle = '#2F5DA8'; ctx.fillRect(-26, -34, 34, 18); ctx.fillRect(-26, 16, 34, 18);
+    ctx.restore();
+    ctx.font = FONT(12.5, 800); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    outlinedText(ctx, `우주 망원경: ${B.name} 관측 가능 ✔`, sx + 46, sy, '#7CF0B5');
+    const gOk = !B.stop || B.pass;
+    outlinedText(ctx, `지상 망원경: ${B.ground}`, gx + 30, ground - 14, !B.stop ? '#7CF0B5' : (B.pass ? '#FFD76A' : '#FFB3A6'));
+
+    // 대기 흔들림 비교 (오른쪽 아래)
+    if(band === 'vis' || band === 'ir'){
+      const r = Math.min(34, W*0.045), y = H*0.55;
+      [[W*0.78, '지상에서 본 별', true], [W*0.78, '우주에서 본 별', false]].forEach(([x, label, tw], i) => {
+        const yy = y + i*(r*2 + 30) - r - 10;
+        ctx.fillStyle = '#01020A'; ctx.beginPath(); ctx.arc(x, yy, r, 0, TAU); ctx.fill();
+        const jx = tw ? Math.sin(t*23)*2.5 + Math.sin(t*37)*1.5 : 0, jy = tw ? Math.cos(t*29)*2.5 : 0, rr = tw ? 8 + Math.sin(t*17)*2 : 3;
+        const gg = ctx.createRadialGradient(x + jx, yy + jy, 0, x + jx, yy + jy, rr);
+        gg.addColorStop(0, 'rgba(255,250,230,1)'); gg.addColorStop(1, 'rgba(255,250,230,0)');
+        ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(x + jx, yy + jy, rr, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(200,210,255,0.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, yy, r, 0, TAU); ctx.stroke();
+        ctx.font = FONT(11, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        outlinedText(ctx, label, x, yy + r + 3, '#DDE3FF');
+      });
+    }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = FONT(14, 800);
+    outlinedText(ctx, `${B.name}이(가) 지구 대기를 지나갈 때`, 14, 12, '#FFFFFF');
+    return true;
+  }
+
+  function frame(now, dt){
+    if(!st.visible) return;
+    t += dt;
+    st.begin();
+    if(mode === 'galileo') galileo();
+    else if(mode === 'keck') keck();
+    else if(mode === 'radio') radio(dt);
+    else space(dt);
+  }
+
+  function setMode(m){
+    mode = m;
+    document.querySelectorAll('[data-tel]').forEach(b => b.classList.toggle('active', b.dataset.tel === m));
+    document.querySelectorAll('.tel-controls').forEach(c => c.hidden = c.dataset.for !== m);
+    $('telExplain').innerHTML = EXPLAIN[m];
+    photons = [];
+  }
+  document.querySelectorAll('[data-tel]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.tel)));
+  document.querySelectorAll('[data-kd]').forEach(b => b.addEventListener('click', () => { $('kD').value = b.dataset.kd; }));
+  document.querySelectorAll('[data-sky]').forEach(b => b.addEventListener('click', () => {
+    RADIO.sky = b.dataset.sky;
+    document.querySelectorAll('[data-sky]').forEach(x => x.classList.toggle('active', x === b));
+  }));
+  $('rNew').addEventListener('click', newSource);
+  document.querySelectorAll('[data-band]').forEach(b => b.addEventListener('click', () => {
+    band = b.dataset.band; photons = [];
+    document.querySelectorAll('[data-band]').forEach(x => x.classList.toggle('active', x === b));
+  }));
+  newSource();
+  setMode('galileo');
+  return { frame, radioSource:() => RADIO.src };
+})();
+
+/* ==========================================================
+   2. 우주 탐사 연표 · 탐사선 카드
+=========================================================== */
+(function(){
+  const TL = [
+    ['1609', '갈릴레이', '망원경으로 천체 관측', ''],
+    ['1957', '스푸트니크 1호', '인류 최초의 인공위성', 'hl'],
+    ['1969', '아폴로 11호', '인류 최초 달 착륙', ''],
+    ['1977', '보이저 1호', '발사 (목성·토성 탐사)', 'hl'],
+    ['1990', '허블 우주 망원경', '발사', ''],
+    ['2003', '스피처 우주 망원경', '적외선 관측 시작', ''],
+    ['2009', '나로 우주 센터', '완공', 'kr'],
+    ['2011', '주노호', '발사', 'hl'],
+    ['2012', '보이저 1호', '성간 우주 도달', 'hl'],
+    ['2013', '나로호', '발사 성공', 'kr'],
+    ['2016', '주노호', '목성 궤도 도착', 'hl'],
+    ['2021', '제임스 웹 우주 망원경', '발사', ''],
+    ['2022', '누리호 · 다누리', '발사 성공 · 달 궤도 도착', 'kr']
+  ];
+  $('timeline').innerHTML = TL.map(([y, a, b, c]) =>
+    `<div class="tl-item ${c}"><div class="yr">${y}</div><div class="dot"></div><b>${a}</b>${b}</div>`).join('');
+
+  const PROBES = [
+    {
+      key:'sputnik', name:'스푸트니크 1호', img:'images/space/sputnik.webp', sub:'1957년 · 인류 최초의 인공위성',
+      facts:[
+        ['발사', '1957년 10월 4일'],
+        ['만든 나라', '소련 (지금의 러시아)'],
+        ['종류', '인공위성 (지구 둘레를 돎)'],
+        ['모습', '지름 58 cm의 금속 공, 질량 약 84 kg, 긴 안테나 4개'],
+        ['목적', '인공위성을 궤도에 올릴 수 있음을 증명하고, 전파 신호를 보내 대기 위층과 전파가 퍼져 나가는 모습을 연구']
+      ],
+      story:[
+        '약 <b>96분</b>마다 지구를 한 바퀴 돌며 "삐- 삐-" 하는 전파 신호를 보냈고, 전 세계 사람들이 라디오로 이 신호를 들었다.',
+        '배터리가 다 될 때까지 <b>21일</b> 동안 신호를 보냈고, 약 3개월 뒤인 1958년 1월 대기권으로 떨어지며 불타 사라졌다.',
+        '이 발사를 계기로 미국과 소련의 <b>우주 경쟁</b>이 시작되어, 1958년 미국 항공 우주국(<b>NASA</b>)이 세워지고 1969년 아폴로 11호의 달 착륙으로 이어졌다.'
+      ],
+      fun:'"스푸트니크"는 러시아어로 <b>"길동무, 동반자"</b>라는 뜻이다. 지구와 함께 도는 동반자라는 의미이다.'
+    },
+    {
+      key:'voyager', name:'보이저 1호', img:'images/space/voyager.webp', sub:'1977년 · 가장 멀리 간 탐사선',
+      facts:[
+        ['발사', '1977년 9월 5일'],
+        ['만든 곳', '미국 항공 우주국 (NASA)'],
+        ['종류', '우주 탐사선 (근접 비행)'],
+        ['목적', '목성과 토성을 가까이 지나가며 관측하고, 그 뒤 태양계 바깥을 탐사'],
+        ['현재', '지구에서 약 250억 km 이상 떨어진 곳에서 지금도 신호를 보내고 있다 (빛의 속도로도 거의 하루가 걸리는 거리)']
+      ],
+      story:[
+        '<b>1979년 목성</b>을 지나며 목성의 희미한 고리와, 위성 <b>이오의 화산</b>이 분출하는 모습을 처음 발견하였다.',
+        '<b>1980년 토성</b>을 지나며 토성의 고리와 위성 타이탄의 두꺼운 대기를 관측하였다.',
+        '1990년 약 60억 km 밖에서 지구를 찍은 사진 <b>"창백한 푸른 점"</b>을 보내왔다.',
+        '<b>2012년</b> 태양의 영향권을 벗어나 <b>성간 우주</b>에 들어간 최초의 인공 물체가 되었다.'
+      ],
+      fun:'외계 생명체가 발견할 경우를 대비해 지구의 소리, 음악, <b>55개 언어의 인사말</b>을 담은 금도금 레코드 <b>"골든 레코드"</b>를 싣고 있다.'
+    },
+    {
+      key:'juno', name:'주노호', img:'images/space/juno.webp', sub:'2011년 발사 · 2016년 목성 도착',
+      facts:[
+        ['발사', '2011년 8월 5일 (2016년 7월 목성 궤도 도착)'],
+        ['만든 곳', '미국 항공 우주국 (NASA)'],
+        ['종류', '우주 탐사선 (목성 궤도를 도는 궤도선)'],
+        ['목적', '목성이 어떻게 생겨났는지 알아내기 위해 목성의 내부 구조, 대기 속 물의 양, 자기장과 오로라를 조사'],
+        ['특징', '커다란 태양 전지판 3장으로 전기를 얻는다']
+      ],
+      story:[
+        '목성의 북극과 남극 위를 지나는 길쭉한 궤도를 돌며 <b>목성 극지방의 거대한 소용돌이(태풍) 무리</b>를 처음으로 자세히 촬영하였다.',
+        '목성의 붉은 반점(대적점)이 구름 아래로 수백 km 깊이까지 이어져 있음을 알아냈다.',
+        '임무가 연장되어 목성의 위성 <b>가니메데, 유로파, 이오</b>를 가까이에서 관측하였다.'
+      ],
+      fun:'로마 신화에서 <b>주노</b>는 주피터(목성)의 아내로, 구름 너머를 꿰뚫어 볼 수 있었다고 한다. 주노호에는 갈릴레이·주피터·주노 모양의 <b>레고 인형</b>과 갈릴레이를 기념하는 금속판이 실려 있다.'
+    }
+  ];
+
+  const tabs = $('probeTabs'), detail = $('probeDetail');
+  tabs.innerHTML = PROBES.map((p, i) => `<button type="button" class="probe-tab${i ? '' : ' active'}" data-i="${i}"><img src="${p.img}" alt="${p.name}"><span>${p.name}<small>${p.sub}</small></span></button>`).join('');
+  function show(i){
+    const p = PROBES[i];
+    tabs.querySelectorAll('.probe-tab').forEach((b, j) => b.classList.toggle('active', i === j));
+    detail.innerHTML = `<div class="pd-head"><b>${p.name}</b><span>${p.sub}</span></div>
+      <div class="pd-grid">
+        <table class="facts">${p.facts.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table>
+        <div class="pd-story"><b>역사와 주요 성과</b><ul>${p.story.map(s => `<li>${s}</li>`).join('')}</ul><div class="pd-fun">💡 ${p.fun}</div></div>
+      </div>`;
+  }
+  tabs.addEventListener('click', e => { const b = e.target.closest('.probe-tab'); if(b) show(Number(b.dataset.i)); });
+  show(0);
+})();
+
+/* ==========================================================
+   3. 인공위성 발사 게임
+   2단 로켓의 실제 물리(중력 · 추진력 · 공기 저항 · 연료 소모)를 계산한다.
+   근지점 고도가 150 km 이상이 되면 인공위성이 궤도에 오른 것으로 본다.
+=========================================================== */
+const GAME = (function(){
+  const st = setupCanvas($('gameCv'), w => w < 600 ? 0.95 : 0.56, { minW:420 });
+  const ctx = st.ctx;
+  const MU = 3.986e14, RE = 6.371e6, G0 = 9.80665, DT = 0.05, GOAL = 150000;
+  const STAGES = [
+    { prop:140000, dry:18000, thrust:3.1e6, isp:290 },
+    { prop:36000,  dry:3500,  thrust:4.2e5, isp:330 }
+  ];
+  const PAYLOAD = 1500, PAD_TH = Math.PI/2;
+
+  let s, state, warp = 5, auto = false, trail, smoke, debris, sat, boom, emptyT, cam = 1, msgShown;
+  let attempts = 0, best = { success:false, rp:-Infinity, ra:0, maxAlt:0, maxV:0 };
+  const STARS = (function(){ const r = mulberry32(4040), a = []; for(let i=0; i<220; i++) a.push([r(), r(), 0.3 + r()*0.7]); return a; })();
+
+  function fresh(){
+    s = { x:0, y:RE, vx:0, vy:0, t:0, stage:0, prop:[STAGES[0].prop, STAGES[1].prop], throttle:0, pitch:0, launched:false, maxAlt:0, maxV:0 };
+    state = 'ready'; trail = []; smoke = []; debris = null; sat = null; boom = []; emptyT = 0; msgShown = false;
+    $('gameMsg').hidden = true;
+    $('gPit').value = 0; $('gThr').value = 100;
+    updateLabels();
+  }
+  const alt = o => Math.hypot(o.x, o.y) - RE;
+  function mass(){ let m = PAYLOAD; for(let i=s.stage; i<2; i++) m += STAGES[i].dry + s.prop[i]; return m; }
+  function orbit(o){
+    const r = Math.hypot(o.x, o.y), v2 = o.vx*o.vx + o.vy*o.vy, eps = v2/2 - MU/r, h = o.x*o.vy - o.y*o.vx;
+    const rv = o.x*o.vx + o.y*o.vy;
+    const ex = ((v2 - MU/r)*o.x - rv*o.vx)/MU, ey = ((v2 - MU/r)*o.y - rv*o.vy)/MU;
+    const e = Math.hypot(ex, ey), p = h*h/MU;
+    return { e, p, w:Math.atan2(ey, ex), rp:p/(1 + e), ra:eps < 0 ? p/(1 - e) : Infinity };
+  }
+
+  // 추진력 없이 움직이는 물체(분리된 1단, 위성)
+  function coast(o, dt){
+    const r = Math.hypot(o.x, o.y);
+    let ax = -MU*o.x/(r*r*r), ay = -MU*o.y/(r*r*r);
+    const v = Math.hypot(o.vx, o.vy), h = r - RE;
+    if(o.drag && h < 120000 && v > 0){ const k = 0.5*1.225*Math.exp(-h/8500)*v*o.drag; ax -= k*o.vx; ay -= k*o.vy; }
+    o.vx += ax*dt; o.vy += ay*dt; o.x += o.vx*dt; o.y += o.vy*dt;
+    if(Math.hypot(o.x, o.y) < RE) o.down = true;
+  }
+
+  function step(dt){
+    const r = Math.hypot(s.x, s.y), ux = s.x/r, uy = s.y/r, ex = uy, ey = -ux, h = r - RE;
+    let ax = -MU*ux/(r*r), ay = -MU*uy/(r*r);
+    const stg = STAGES[s.stage];
+    let F = 0;
+    if(state === 'flying' && s.prop[s.stage] > 0 && s.throttle > 0){
+      F = stg.thrust*s.throttle;
+      s.prop[s.stage] = Math.max(0, s.prop[s.stage] - F/(stg.isp*G0)*dt);
+    }
+    s.F = F;
+    const m = mass(), p = s.pitch*Math.PI/180;
+    ax += F/m*(Math.cos(p)*ux + Math.sin(p)*ex); ay += F/m*(Math.cos(p)*uy + Math.sin(p)*ey);
+    const v = Math.hypot(s.vx, s.vy);
+    if(v > 0 && h < 120000){
+      const D = 0.5*1.225*Math.exp(-h/8500)*v*v*0.35*7;
+      ax -= D/m*s.vx/v; ay -= D/m*s.vy/v;
+    }
+    s.vx += ax*dt; s.vy += ay*dt; s.x += s.vx*dt; s.y += s.vy*dt; s.t += dt;
+    const r2 = Math.hypot(s.x, s.y);
+    if(r2 < RE){
+      if(!s.launched){ s.x = s.x/r2*RE; s.y = s.y/r2*RE; s.vx = 0; s.vy = 0; }
+      else if(state !== 'fail' || !s.crashed){ s.crashed = true; }
+    }
+    if(r2 - RE > 30) s.launched = true;
+    s.maxAlt = Math.max(s.maxAlt, r2 - RE);
+    s.maxV = Math.max(s.maxV, Math.hypot(s.vx, s.vy));
+
+    // 연기
+    if(F > 0 && h < 30000 && Math.random() < 0.5){
+      const dx = Math.cos(p)*ux + Math.sin(p)*ex, dy = Math.cos(p)*uy + Math.sin(p)*ey;
+      smoke.push({ x:s.x - dx*25, y:s.y - dy*25, vx:s.vx*0.15 + (Math.random() - 0.5)*30, vy:s.vy*0.15 + (Math.random() - 0.5)*30, age:0 });
+      if(smoke.length > 260) smoke.shift();
+    }
+    smoke.forEach(q => { q.x += q.vx*dt; q.y += q.vy*dt; q.vx *= 0.98; q.vy *= 0.98; q.age += dt; });
+    if(debris && !debris.down){ coast(debris, dt); debris.ang += debris.spin*dt; }
+    if(sat) coast(sat, dt);
+
+    // 1단 연료를 다 쓰면 잠시 뒤 자동으로 분리
+    if(state === 'flying' && s.stage === 0 && s.prop[0] <= 0){
+      emptyT += dt;
+      if(emptyT > 6) separate(true);
+    }
+  }
+
+  function separate(automatic){
+    if(s.stage !== 0 || state !== 'flying') return;
+    debris = { x:s.x, y:s.y, vx:s.vx*0.995, vy:s.vy*0.995, ang:s.pitch*Math.PI/180, spin:0.4, drag:0.35*7/18000 };
+    s.stage = 1;
+    say(automatic ? '1단 연료가 다 떨어져서 <b>자동으로 단 분리</b>했어요. 2단 엔진 점화!' : '<b>1단 분리!</b> 가벼워진 로켓의 2단 엔진이 점화되었어요.');
+  }
+
+  function say(html){ $('gameLog').innerHTML = html; }
+  function showMsg(ok, html){
+    const m = $('gameMsg');
+    m.className = 'game-msg ' + (ok ? 'ok' : 'bad');
+    m.innerHTML = html + '<br><button type="button" class="tbtn mini" id="gMsgClose" style="margin-top:8px">계속 보기</button>';
+    m.hidden = false;
+    $('gMsgClose').onclick = () => { m.hidden = true; };
+  }
+  const km = v => (v/1000).toFixed(v < 100000 ? 1 : 0);
+
+  function record(success){
+    attempts++;
+    const o = orbit(s);
+    if(success && (!best.success || o.rp > best.rp)) best = { success:true, rp:o.rp, ra:o.ra, maxAlt:s.maxAlt, maxV:s.maxV };
+    else if(!best.success && s.maxAlt > best.maxAlt) best = { success:false, rp:o.rp, ra:o.ra, maxAlt:s.maxAlt, maxV:s.maxV };
+  }
+
+  function checkOutcome(){
+    if(state !== 'flying') return;
+    const o = orbit(s);
+    if(s.crashed){
+      state = 'fail'; record(false);
+      for(let i=0; i<60; i++) boom.push({ a:Math.random()*TAU, v:20 + Math.random()*90, age:0 });
+      showMsg(false, `<b class="big">💥 로켓이 지구로 떨어졌어요</b>최고 고도 ${km(s.maxAlt)} km · 최고 속력 ${(s.maxV/1000).toFixed(2)} km/s<br>힌트: 너무 일찍 눕히면 대기에 부딪히고, 끝까지 위로만 가면 다시 떨어져요.`);
+      say(`시도 ${attempts}회 — 실패. 기울기를 천천히 늘려 <b>옆으로 빨라지는</b> 비행을 해 보세요.`);
+      return;
+    }
+    if(o.rp - RE >= GOAL){
+      state = 'success'; s.throttle = 0; record(true);
+      sat = { x:s.x, y:s.y, vx:s.vx + s.vx/Math.hypot(s.vx, s.vy)*2, vy:s.vy + s.vy/Math.hypot(s.vx, s.vy)*2, drag:0 };
+      showMsg(true, `<b class="big">🛰️ 인공위성 궤도 진입 성공!</b>근지점 ${km(o.rp - RE)} km · 원지점 ${km(o.ra - RE)} km<br>속력 ${(Math.hypot(s.vx, s.vy)/1000).toFixed(2)} km/s · 남은 2단 연료 ${Math.round(s.prop[1]/STAGES[1].prop*100)}%<br>빨리 감기(×15)로 위성이 지구를 도는 모습을 지켜보세요.`);
+      say(`시도 ${attempts}회 — <b>성공!</b> 인공위성이 근지점 ${km(o.rp - RE)} km, 원지점 ${km(o.ra - RE)} km의 궤도를 돌고 있어요.`);
+      return;
+    }
+    if(s.stage === 1 && s.prop[1] <= 0 && !msgShown){
+      msgShown = true;
+      state = 'fail'; record(false);
+      showMsg(false, `<b class="big">⛽ 연료를 다 썼지만 궤도에 오르지 못했어요</b>${o.rp > RE ? `근지점 ${km(o.rp - RE)} km — 목표(150 km)보다 낮아 대기에 닿아 떨어져요.` : `수평 속도가 부족해 다시 지구로 떨어지고 있어요.`}<br>최고 고도 ${km(s.maxAlt)} km · 최고 속력 ${(s.maxV/1000).toFixed(2)} km/s<br>힌트: 지표 근처를 돌려면 수평 방향으로 약 7.9 km/s가 필요해요.`);
+      say(`시도 ${attempts}회 — 실패. 높이 올라가는 것보다 <b>옆으로 빨라지는 것</b>이 더 중요해요.`);
+    }
+  }
+
+  function autopilot(){
+    const r = Math.hypot(s.x, s.y), h = r - RE, v = Math.hypot(s.vx, s.vy), vr = (s.vx*s.x + s.vy*s.y)/r, o = orbit(s);
+    s.throttle = 1;
+    if(v < 60) s.pitch = 0;
+    else if(o.ra - RE < 240000) s.pitch = Math.min(72, 4 + 80*Math.pow(Math.min(1, h/100000), 0.55));
+    else s.pitch = clamp(90 + vr*0.03, 70, 100);
+    if(s.stage === 0 && s.prop[0] <= 0) separate(false);
+    $('gPit').value = Math.round(s.pitch); $('gThr').value = Math.round(s.throttle*100);
+  }
+
+  function updateLabels(){
+    $('gThrv').textContent = `${$('gThr').value}%`;
+    $('gPitv').textContent = `${$('gPit').value}°`;
+  }
+
+  /* ---------- 그리기 ---------- */
+  function drawRocket(x, y, ang, len, stage, thrust){
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(ang);
+    const w = len*0.13;
+    const top = -len*0.5, s1 = len*0.5, s2top = stage === 0 ? -len*0.05 : top + len*0.15;
+    // 불꽃
+    const bottom = stage === 0 ? s1 : s2top + len*0.4;
+    if(thrust > 0){
+      const fl = len*(0.35 + 0.55*thrust)*(0.88 + Math.random()*0.24)*(stage === 0 ? 1 : 0.7);
+      const g = ctx.createLinearGradient(0, bottom, 0, bottom + fl);
+      g.addColorStop(0, 'rgba(255,255,255,0.95)'); g.addColorStop(0.25, 'rgba(255,220,120,0.9)'); g.addColorStop(0.6, 'rgba(255,130,40,0.6)'); g.addColorStop(1, 'rgba(255,90,20,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(-w*0.45, bottom); ctx.quadraticCurveTo(0, bottom + fl*1.05, w*0.45, bottom); ctx.closePath(); ctx.fill();
+    }
+    // 2단 + 페어링
+    ctx.fillStyle = '#F2F4F7'; ctx.strokeStyle = '#8C94A6'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.rect(-w/2, top + len*0.15, w, (stage === 0 ? s1 - len*0.35 : len*0.25)); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-w/2, top + len*0.15); ctx.quadraticCurveTo(-w/2, top + len*0.02, 0, top); ctx.quadraticCurveTo(w/2, top + len*0.02, w/2, top + len*0.15); ctx.closePath();
+    ctx.fillStyle = '#DDE2EA'; ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#D8493B'; ctx.fillRect(-w/2, top + len*0.2, w, len*0.025);
+    if(stage === 0){
+      // 1단
+      ctx.fillStyle = '#F7F8FA'; ctx.fillRect(-w/2, -len*0.05, w, len*0.55); ctx.strokeRect(-w/2, -len*0.05, w, len*0.55);
+      ctx.fillStyle = '#2F3A52'; ctx.fillRect(-w/2, -len*0.05, w, len*0.03);
+      ctx.fillStyle = '#AEB6C6';
+      ctx.beginPath(); ctx.moveTo(-w/2, s1 - len*0.12); ctx.lineTo(-w*0.95, s1); ctx.lineTo(-w/2, s1); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(w/2, s1 - len*0.12); ctx.lineTo(w*0.95, s1); ctx.lineTo(w/2, s1); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.fillStyle = '#6A7286'; ctx.beginPath(); ctx.moveTo(-w*0.3, bottom - 2); ctx.lineTo(w*0.3, bottom - 2); ctx.lineTo(w*0.4, bottom + 3); ctx.lineTo(-w*0.4, bottom + 3); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawStage1(x, y, ang, len){
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+    const w = len*0.13;
+    ctx.fillStyle = '#E7EAF0'; ctx.strokeStyle = '#8C94A6'; ctx.fillRect(-w/2, -len*0.27, w, len*0.55); ctx.strokeRect(-w/2, -len*0.27, w, len*0.55);
+    ctx.restore();
+  }
+  function drawSat(x, y, size){
+    ctx.save(); ctx.translate(x, y); ctx.rotate(t*0.3);
+    ctx.fillStyle = '#C9A13A'; ctx.fillRect(-size*0.18, -size*0.18, size*0.36, size*0.36);
+    ctx.fillStyle = '#2F5DA8'; ctx.fillRect(-size*0.75, -size*0.12, size*0.5, size*0.24); ctx.fillRect(size*0.25, -size*0.12, size*0.5, size*0.24);
+    ctx.strokeStyle = '#9FB8E8'; ctx.lineWidth = 1; ctx.strokeRect(-size*0.75, -size*0.12, size*0.5, size*0.24); ctx.strokeRect(size*0.25, -size*0.12, size*0.5, size*0.24);
+    ctx.restore();
+  }
+
+  let t = 0;
+  function draw(){
+    st.begin();
+    const W = st.W, H = st.H;
+    const r = Math.hypot(s.x, s.y), h = r - RE, ux = s.x/r, uy = s.y/r, ex = uy, ey = -ux;
+    const target = (H*0.5)/clamp(260 + h*1.25, 260, 1.7e6);
+    cam = Math.exp(lerp(Math.log(cam), Math.log(target), 0.12));
+    const sc = cam, cx = W*0.4, cy = H*0.6;
+    const toScr = (x, y) => { const dx = x - s.x, dy = y - s.y; return [cx + (dx*ex + dy*ey)*sc, cy - (dx*ux + dy*uy)*sc]; };
+    const thR = Math.atan2(s.y, s.x);
+
+    // 하늘
+    const k = clamp(h/55000, 0, 1);
+    const top = [Math.round(lerp(70, 3, k)), Math.round(lerp(140, 5, k)), Math.round(lerp(220, 18, k))];
+    const bot = [Math.round(lerp(175, 8, k)), Math.round(lerp(215, 14, k)), Math.round(lerp(245, 40, k))];
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, `rgb(${top})`); g.addColorStop(1, `rgb(${bot})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const sa = clamp((h - 15000)/40000, 0, 1);
+    if(sa > 0) STARS.forEach(([x, y, a]) => { ctx.fillStyle = `rgba(230,235,255,${a*sa})`; ctx.fillRect(x*W, y*H, 1.3, 1.3); });
+
+    // 지구 (보이는 부분만 다각형으로)
+    const span = Math.min(Math.PI, (W*1.6)/(RE*sc) + 0.002);
+    const arc = [];
+    for(let i=0; i<=120; i++){ const ph = -span + 2*span*i/120; arc.push([cx + RE*Math.sin(ph)*sc, cy - (RE*Math.cos(ph) - r)*sc, ph]); }
+    if(h > 3000){
+      ctx.strokeStyle = `rgba(120,185,255,${clamp((h - 3000)/30000, 0, 0.5)})`;
+      ctx.lineWidth = clamp(70000*sc, 2, 50);
+      ctx.beginPath(); arc.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); if(span >= Math.PI) ctx.closePath(); ctx.stroke();
+    }
+    ctx.beginPath(); arc.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    if(span < Math.PI){ ctx.lineTo(W + 50, H + 50); ctx.lineTo(-50, H + 50); }
+    ctx.closePath();
+    ctx.fillStyle = '#1D4F7C'; ctx.fill();
+    // 육지(나로 우주 센터 주변)
+    const land0 = PAD_TH - 0.004, land1 = PAD_TH + 0.03;
+    ctx.beginPath();
+    let started = false;
+    for(let i=0; i<=60; i++){
+      const th = lerp(land0, land1, i/60), ph = thR - th;
+      if(Math.abs(ph) > span) continue;
+      const x = cx + RE*Math.sin(ph)*sc, y = cy - (RE*Math.cos(ph) - r)*sc;
+      started ? ctx.lineTo(x, y) : ctx.moveTo(x, y); started = true;
+    }
+    if(started){
+      for(let i=60; i>=0; i--){
+        const th = lerp(land0, land1, i/60), ph = thR - th, rr = RE - Math.min(400000, 3000/sc + 2000);
+        if(Math.abs(ph) > span) continue;
+        ctx.lineTo(cx + rr*Math.sin(ph)*sc, cy - (rr*Math.cos(ph) - r)*sc);
+      }
+      ctx.closePath(); ctx.fillStyle = '#3F7A3C'; ctx.fill();
+    }
+
+    // 발사대
+    if(sc > 0.02){
+      const [px, py] = toScr(0, RE);
+      const m = 60*sc;
+      ctx.save(); ctx.translate(px, py);
+      ctx.fillStyle = '#6E7486'; ctx.fillRect(-m*0.9, -m*0.06, m*1.8, m*0.06);
+      [-0.55, 0.55].forEach(dx => {
+        for(let i=0; i<6; i++){ ctx.fillStyle = i % 2 ? '#F2F4F7' : '#D8493B'; ctx.fillRect(dx*m - m*0.03, -m*(i + 1)/6*1.25, m*0.06, m*1.25/6); }
+      });
+      ctx.restore();
+    }
+
+    // 지나온 길
+    if(trail.length > 1){
+      ctx.strokeStyle = 'rgba(255,215,106,0.7)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); trail.forEach(([x, y], i) => { const p = toScr(x, y); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); ctx.stroke();
+    }
+    // 연기
+    smoke.forEach(q => {
+      const p = toScr(q.x, q.y), rad = Math.max(1.5, (10 + q.age*14)*sc), a = clamp(0.5 - q.age/30, 0, 0.5);
+      if(a <= 0) return;
+      ctx.fillStyle = `rgba(230,232,238,${a})`; ctx.beginPath(); ctx.arc(p[0], p[1], rad, 0, TAU); ctx.fill();
+    });
+
+    const len = clamp(47*sc, 44, 84);
+    if(debris && !debris.down){ const p = toScr(debris.x, debris.y); drawStage1(p[0], p[1], debris.ang, len); }
+    if(state !== 'fail' || !s.crashed) drawRocket(cx, cy, s.pitch*Math.PI/180, len, s.stage, s.F > 0 ? s.throttle : 0);
+    if(sat){ const p = toScr(sat.x, sat.y); drawSat(p[0], p[1], len*0.7); }
+    if(boom.length){
+      boom.forEach(b => {
+        const d = b.v*b.age*3, a = clamp(1 - b.age/2.5, 0, 1);
+        ctx.fillStyle = `rgba(255,${Math.round(160 + 80*a)},60,${a})`;
+        ctx.beginPath(); ctx.arc(cx + Math.cos(b.a)*d, cy + Math.sin(b.a)*d*0.6, 3 + 6*a, 0, TAU); ctx.fill();
+      });
+    }
+
+    drawHud(h);
+    drawMap();
+  }
+
+  function drawHud(h){
+    const v = Math.hypot(s.vx, s.vy), r = Math.hypot(s.x, s.y);
+    const vh = Math.abs((s.vx*s.y - s.vy*s.x)/r), vv = (s.vx*s.x + s.vy*s.y)/r;
+    const o = orbit(s);
+    const x = 10, y = 10, w = 188;
+    ctx.fillStyle = 'rgba(5,8,20,0.72)'; roundRect(ctx, x, y, w, 186, 10); ctx.fill();
+    ctx.font = FONT(12, 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const mm = Math.floor(s.t/60), ss = Math.floor(s.t % 60);
+    const rows = [
+      ['시간', `T+ ${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`],
+      ['고도', `${(h/1000).toFixed(1)} km`],
+      ['속력', `${(v/1000).toFixed(2)} km/s`],
+      ['수평 속도', `${(vh/1000).toFixed(2)} km/s`],
+      ['수직 속도', `${(vv/1000).toFixed(2)} km/s`],
+      ['원지점', s.launched ? (isFinite(o.ra) ? `${((o.ra - RE)/1000).toFixed(0)} km` : '탈출') : '—'],
+      ['근지점', s.launched ? (o.rp < RE ? '지구 속 (추락 궤도)' : `${((o.rp - RE)/1000).toFixed(0)} km`) : '—']
+    ];
+    rows.forEach(([a, b], i) => {
+      ctx.fillStyle = '#8A93A8'; ctx.fillText(a, x + 10, y + 8 + i*18);
+      ctx.fillStyle = i === 6 && o.rp - RE >= GOAL ? '#7CF0B5' : '#FFFFFF'; ctx.fillText(b, x + 74, y + 8 + i*18);
+    });
+    const bar = (label, frac, yy, on) => {
+      ctx.fillStyle = on ? '#C9D3F0' : '#5C6478'; ctx.fillText(label, x + 10, yy);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(x + 54, yy + 3, w - 66, 9);
+      ctx.fillStyle = on ? (frac > 0.2 ? '#FFD76A' : '#FF8A7A') : '#4A5164'; ctx.fillRect(x + 54, yy + 3, (w - 66)*frac, 9);
+    };
+    bar('1단', s.prop[0]/STAGES[0].prop, y + 136, s.stage === 0);
+    bar('2단', s.prop[1]/STAGES[1].prop, y + 156, true);
+  }
+
+  function drawMap(){
+    const W = st.W, m = Math.min(190, W*0.3), x0 = W - m - 10, y0 = 10, cx = x0 + m/2, cy = y0 + m/2, rE = m*0.3, k = rE/RE;
+    ctx.fillStyle = 'rgba(5,8,20,0.72)'; roundRect(ctx, x0, y0, m, m, 12); ctx.fill();
+    ctx.save(); roundRect(ctx, x0, y0, m, m, 12); ctx.clip();
+    const P = (x, y) => [cx + x*k, cy - y*k];
+    ctx.fillStyle = 'rgba(120,185,255,0.18)'; ctx.beginPath(); ctx.arc(cx, cy, (RE + 100000)*k, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#1D4F7C'; ctx.beginPath(); ctx.arc(cx, cy, rE, 0, TAU); ctx.fill();
+    ctx.strokeStyle = '#3F7A3C'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, rE - 1.5, -(PAD_TH + 0.03), -(PAD_TH - 0.004)); ctx.stroke();
+    if(trail.length > 1){
+      ctx.strokeStyle = 'rgba(255,215,106,0.8)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); trail.forEach(([x, y], i) => { const p = P(x, y); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); ctx.stroke();
+    }
+    if(s.launched){
+      const o = orbit(s), ok = o.rp - RE >= GOAL;
+      ctx.strokeStyle = ok ? '#7CF0B5' : '#FFB347'; ctx.lineWidth = 1.6; ctx.setLineDash(ok ? [] : [4, 3]);
+      ctx.beginPath();
+      let pen = false;
+      for(let i=0; i<=240; i++){
+        const nu = -Math.PI + TAU*i/240, den = 1 + o.e*Math.cos(nu);
+        if(den <= 0.02){ pen = false; continue; }
+        const rr = o.p/den;
+        if(rr < RE || rr > RE*3.2){ pen = false; continue; }
+        const a = o.w + nu, p = P(rr*Math.cos(a), rr*Math.sin(a));
+        pen ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); pen = true;
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    const p = P(s.x, s.y);
+    ctx.fillStyle = '#FF6B5A'; ctx.beginPath(); ctx.arc(p[0], p[1], 3.5, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.font = FONT(11, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = '#C9D3F0';
+    ctx.fillText('궤도 예측 지도', cx, y0 + 6);
+    if(m >= 170){
+      ctx.font = FONT(10, 700); ctx.textBaseline = 'bottom'; ctx.fillStyle = '#8A93A8';
+      ctx.fillText('초록: 궤도 진입 · 주황: 추락 궤도', cx, y0 + m - 5);
+    }
+  }
+
+  /* ---------- 루프 · 조작 ---------- */
+  let trailT = 0;
+  function frame(now, dt){
+    if(state === 'flying' || state === 'success' || state === 'fail'){
+      if(state === 'flying'){
+        if(auto) autopilot();
+        else { s.throttle = Number($('gThr').value)/100; s.pitch = Number($('gPit').value); }
+      }
+      const n = Math.min(900, Math.round(dt*warp/DT));
+      for(let i=0; i<n; i++){
+        if(state === 'fail' && s.crashed) break;
+        step(DT); checkOutcome();
+        trailT += DT;
+        if(trailT > 2){ trailT = 0; trail.push([s.x, s.y]); if(trail.length > 1500) trail.shift(); }
+      }
+      boom.forEach(b => b.age += dt);
+    }
+    t += dt;
+    if(st.visible) draw();
+  }
+
+  $('gLaunch').addEventListener('click', () => {
+    if(state !== 'ready') fresh();
+    auto = false;
+    if(Number($('gThr').value) < 60) $('gThr').value = 100;
+    state = 'flying'; updateLabels();
+    say('🚀 발사! 속도가 붙으면(약 100 m/s) <b>기울기를 조금씩</b> 늘려 보세요. 1단 연료가 떨어지면 <b>단 분리</b>!');
+  });
+  $('gStage').addEventListener('click', () => separate(false));
+  $('gReset').addEventListener('click', () => { auto = false; fresh(); say('다시 준비 완료! <b>발사!</b>를 눌러 보세요.'); });
+  $('gAuto').addEventListener('click', () => {
+    fresh(); auto = true; state = 'flying'; warp = 15;
+    document.querySelectorAll('[data-warp]').forEach(b => b.classList.toggle('active', b.dataset.warp === '15'));
+    say('🤖 자동 비행 중: 처음엔 똑바로 올라가다가 점점 기울여 <b>수평 방향으로 가속</b>하는 모습을 관찰해 보세요.');
+  });
+  document.querySelectorAll('[data-warp]').forEach(b => b.addEventListener('click', () => {
+    warp = Number(b.dataset.warp);
+    document.querySelectorAll('[data-warp]').forEach(x => x.classList.toggle('active', x === b));
+  }));
+  ['gThr', 'gPit'].forEach(id => $(id).addEventListener('input', () => { if(auto) auto = false; updateLabels(); }));
+  document.addEventListener('keydown', e => {
+    if(!st.visible || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && document.activeElement.type !== 'range') return;
+    const map = { ArrowLeft:['gPit', -2], ArrowRight:['gPit', 2], ArrowUp:['gThr', 5], ArrowDown:['gThr', -5] };
+    if(map[e.key]){
+      const [id, d] = map[e.key], el = $(id);
+      el.value = clamp(Number(el.value) + d, Number(el.min), Number(el.max)); auto = false; updateLabels(); e.preventDefault();
+    } else if(e.key === ' ' && state === 'flying'){ separate(false); e.preventDefault(); }
+  });
+
+  fresh();
+  return {
+    frame,
+    result: () => attempts === 0 ? '시도 안 함'
+      : best.success ? `성공 (시도 ${attempts}회, 근지점 ${km(best.rp - RE)} km, 원지점 ${isFinite(best.ra) ? km(best.ra - RE) : '-'} km)`
+      : `실패 (시도 ${attempts}회, 최고 고도 ${km(best.maxAlt)} km, 최고 속력 ${(best.maxV/1000).toFixed(2)} km/s)`
+  };
+})();
+
+/* ==========================================================
+   4. 우주에서 온 기술 카드
+=========================================================== */
+(function(){
+  const SPIN = [
+    ['💧', '정수기', '물을 깨끗하게', '<b>우주 정거장의 물 정화 기술</b>우주에서는 물이 아주 귀해서, 사용한 물을 걸러 다시 마실 수 있게 하는 정화 기술이 개발되었다. 이 기술이 가정용 정수기에 쓰인다.'],
+    ['👟', '에어쿠션 운동화', '충격을 흡수', '<b>우주 헬멧을 만드는 기술</b>고무 속에 공기를 불어넣어 모양을 만드는 우주 헬멧 제작 기술이 운동화 밑창의 에어쿠션에 쓰였다.'],
+    ['🔥', '화재경보기', '연기를 감지', '<b>우주 정거장의 화재 감지 장치</b>우주선에서 발생할 수 있는 화재와 유독 가스를 미리 알아채기 위해 개발된 연기 감지 기술이 화재경보기로 발전하였다.'],
+    ['🛏️', '메모리폼', '몸에 맞게 눌림', '<b>좌석의 충격을 줄이는 소재</b>미국 항공 우주국(NASA)에서 비행할 때 받는 충격을 줄이려고 개발한 소재로, 지금은 베개와 매트리스에 쓰인다.'],
+    ['📷', '스마트폰 카메라', '작고 선명한 센서', '<b>우주 탐사선용 이미지 센서</b>탐사선에 실을 작고 전기를 적게 쓰는 카메라를 만들기 위해 개발된 이미지 센서(CMOS)가 스마트폰 카메라에 쓰인다.'],
+    ['🎾', '가벼운 운동용품', '가볍고 튼튼하게', '<b>로켓을 가볍게 만드는 소재</b>로켓을 쏘아 올릴 때 무게를 줄이기 위해 개발된 가볍고 튼튼한 소재가 테니스 라켓, 자전거 등 운동용품에 쓰인다.']
+  ];
+  $('spinGrid').innerHTML = SPIN.map(([ico, name, hint, back]) =>
+    `<div class="spin" tabindex="0" role="button" aria-label="${name}"><div class="spin-inner"><div class="spin-face spin-front"><span class="ico">${ico}</span><b>${name}</b><small>${hint} · 눌러서 뒤집기</small></div><div class="spin-face spin-back">${back}</div></div></div>`).join('');
+  $('spinGrid').addEventListener('click', e => { const c = e.target.closest('.spin'); if(c) c.classList.toggle('flip'); });
+  $('spinGrid').addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('spin')){ e.target.classList.toggle('flip'); e.preventDefault(); } });
+})();
+
+/* ==========================================================
+   5. AI 조사 도우미 (Gemini — Apps Script를 거쳐 호출, API 키는 노출되지 않음)
+=========================================================== */
+const AI = (function(){
+  const MAX_Q = 10;
+  let used = 0, ready = false, busy = false, topic = '';
+  const STARTERS = {
+    '': ['우주 탐사의 의의를 중학생 눈높이로 알려 줘', '우주 탐사가 인류에게 미친 영향은?'],
+    '우리 생활에 적용된 우주 기술': ['우주 기술이 적용된 생활용품 3가지를 알려 줘', '화재경보기는 우주 탐사와 어떤 관련이 있어?', '인공위성은 우리 생활 어디에 쓰여?'],
+    '우주 탐사 기술의 발달': ['우주 탐사를 위해 발달한 기술에는 무엇이 있어?', '재사용 로켓은 왜 중요해?', '누리호는 어떤 로켓이야?'],
+    '우주 탐사와 관련된 새로운 직업의 탄생': ['우주 탐사와 관련된 직업에는 무엇이 있어?', '위성 관제 센터 연구원은 무슨 일을 해?', '우주 관련 직업을 가지려면 무엇을 공부해야 해?'],
+    '우주에 관한 호기심 해결': ['화성에 생명체가 있을 가능성은?', '보이저 1호는 지금 어디에 있어?', '제임스 웹 우주 망원경은 무엇을 발견했어?']
+  };
+  const EXAMPLES = {
+    '우리 생활에 적용된 우주 기술': '예) 화재경보기: 우주선에서 발생할 수 있는 화재를 예방하기 위해 개발되었다.',
+    '우주 탐사 기술의 발달': '예) 재사용 로켓: 한 번 쓴 로켓을 다시 착륙시켜 발사 비용을 크게 줄였다.',
+    '우주 탐사와 관련된 새로운 직업의 탄생': '예) 위성 관제 센터 연구원: 인공위성의 상태를 살피고 궤도를 조정한다.',
+    '우주에 관한 호기심 해결': '예) 화성 탐사 로버: 화성 땅을 조사해 옛날에 물이 흘렀던 흔적을 찾았다.'
+  };
+  const log = $('aiLog');
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+  // 간단한 마크다운(굵게, 목록)만 안전하게 표시
+  function format(text){
+    const lines = esc(text).split(/\n+/);
+    let html = '', inList = false;
+    lines.forEach(line => {
+      const l = line.trim().replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+      const m = l.match(/^([-*•]|\d+[.)])\s+(.*)$/);
+      if(m){ if(!inList){ html += '<ul>'; inList = true; } html += `<li>${m[2]}</li>`; }
+      else { if(inList){ html += '</ul>'; inList = false; } if(l) html += `<p>${l}</p>`; }
+    });
+    if(inList) html += '</ul>';
+    return html;
+  }
+  function bubble(cls, html){
+    const d = document.createElement('div');
+    d.className = 'ai-msg ' + cls; d.innerHTML = html;
+    log.appendChild(d); log.scrollTop = log.scrollHeight;
+    return d;
+  }
+  function student(){ return { stuClass:$('ws-class').value.trim(), stuNumber:$('ws-number').value.trim(), name:$('ws-name').value.trim() }; }
+  function updateCount(){ $('aiCount').textContent = ready ? `남은 질문 ${MAX_Q - used} / ${MAX_Q}` : ''; }
+
+  // 60초가 지나도 답이 없으면 기다리기를 멈춘다
+  async function call(body, onTick){
+    const ctrl = new AbortController(), t0 = Date.now();
+    const timer = setInterval(() => onTick && onTick(Math.floor((Date.now() - t0)/1000)), 1000);
+    const stop = setTimeout(() => ctrl.abort(), 60000);
+    try{
+      const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body), signal:ctrl.signal });
+      return await res.json();
+    }catch(err){
+      if(err.name === 'AbortError') return { result:'error', message:'AI의 답이 너무 오래 걸려서 멈췄어요. 잠시 뒤 다시 질문해 주세요.' };
+      throw err;
+    }finally{
+      clearInterval(timer); clearTimeout(stop);
+    }
+  }
+
+  async function ask(q){
+    q = q.trim();
+    if(!q || busy) return;
+    if(!ready){ bubble('bot err', 'AI 조사 도우미가 아직 준비되지 않았어요. 교과서와 한국항공우주연구원 누리집으로 조사해 보세요.'); return; }
+    if(used >= MAX_Q){ bubble('bot err', `이 화면에서는 질문을 ${MAX_Q}번까지 할 수 있어요. 이제 조사한 내용을 내 말로 정리해 볼까요?`); return; }
+    busy = true; $('aiSend').disabled = true;
+    bubble('me', esc(q));
+    $('aiQ').value = '';
+    const wait = bubble('bot', '<span class="ai-typing">조사하는 중</span>');
+    try{
+      const r = await call({ action:'ai', mode:'ask', topic, question:q, ...student() },
+        s => { wait.innerHTML = `<span class="ai-typing">조사하는 중 (${s}초)</span>`; });
+      if(r.result === 'success'){
+        used++;
+        const src = (r.sources || []).map(s => `<a href="${esc(s.uri)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join('');
+        wait.innerHTML = format(r.text) + (src ? `<div class="ai-src">출처: ${src}</div>` : '') + '<small>AI의 답은 틀릴 수 있어요. 출처를 확인하고 내 말로 정리해요.</small>';
+      } else {
+        wait.classList.add('err'); wait.textContent = r.message || 'AI 응답을 받지 못했어요.';
+      }
+    }catch(err){
+      wait.classList.add('err'); wait.textContent = 'AI 조사 도우미에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.';
+    }finally{
+      busy = false; $('aiSend').disabled = false; updateCount();
+      log.scrollTop = log.scrollHeight;
+    }
+  }
+
+  async function feedback(){
+    const meaning = $('boardMeaning').value.trim(), body = $('boardTopic').value.trim(), box = $('aiFeedbackBox');
+    box.hidden = false;
+    if(!ready){ box.textContent = 'AI 조사 도우미가 아직 준비되지 않았어요.'; return; }
+    if(!meaning && !body){ box.textContent = '먼저 발표하기 칸에 조사한 내용을 정리해 주세요.'; return; }
+    if(busy) return;
+    busy = true; $('aiFeedback').disabled = true;
+    box.innerHTML = '<span class="ai-typing">AI가 정리한 글을 읽는 중</span>';
+    try{
+      const summary = `우주 탐사의 의의: ${meaning}\n${topic || '조사 내용'}: ${body}`;
+      const r = await call({ action:'ai', mode:'feedback', topic, summary, ...student() },
+        s => { box.innerHTML = `<span class="ai-typing">AI가 정리한 글을 읽는 중 (${s}초)</span>`; });
+      box.innerHTML = r.result === 'success' ? `<b>✦ AI 피드백</b>${format(r.text)}` : esc(r.message || 'AI 응답을 받지 못했어요.');
+    }catch(err){
+      box.textContent = 'AI 조사 도우미에 연결하지 못했어요.';
+    }finally{
+      busy = false; $('aiFeedback').disabled = false;
+    }
+  }
+
+  function setTopic(tp){
+    topic = tp;
+    document.querySelectorAll('#topicRow .topic').forEach(b => b.classList.toggle('active', b.dataset.topic === tp));
+    $('boardTopicTag').textContent = tp || '조사한 사례';
+    $('boardTopicEx').textContent = EXAMPLES[tp] || '';
+    $('aiStarters').innerHTML = [...STARTERS[''], ...(tp ? STARTERS[tp] || [] : [])]
+      .map(q => `<button type="button">${esc(q)}</button>`).join('');
+  }
+
+  $('topicRow').addEventListener('click', e => { const b = e.target.closest('.topic'); if(b) setTopic(b.dataset.topic); });
+  $('aiStarters').addEventListener('click', e => { const b = e.target.closest('button'); if(b) ask(b.textContent); });
+  $('aiSend').addEventListener('click', () => ask($('aiQ').value));
+  $('aiQ').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing) ask($('aiQ').value); });
+  $('aiFeedback').addEventListener('click', feedback);
+  setTopic('');
+
+  // 선생님이 Code.gs에 Gemini 키를 설정했는지 확인
+  fetch(APPS_SCRIPT_URL + '?action=ai_status').then(r => r.json()).then(r => {
+    if(r && r.ai === true){ ready = true; $('aiState').textContent = r.search ? 'Gemini 연결됨 · 구글 검색 출처와 함께 답해요' : 'Gemini 연결됨'; }
+    else if(r && r.ai === false){ $('aiState').textContent = '선생님이 아직 AI 키를 설정하지 않았어요'; }
+    else { $('aiState').textContent = '선생님이 Code.gs를 업데이트하면 사용할 수 있어요'; }
+    updateCount();
+  }).catch(() => { $('aiState').textContent = '연결할 수 없어요 — 인터넷 연결을 확인하거나, 선생님이 Apps Script에서 testGemini를 실행해 권한을 승인해야 해요'; });
+
+  return { topic:() => topic, used:() => used };
+})();
+
+/* ==========================================================
+   애니메이션 루프
+=========================================================== */
+(function(){
+  let last = 0;
+  function loop(ts){
+    const dt = last ? Math.min(0.05, (ts - last)/1000) : 0;
+    last = ts;
+    TELESCOPE.frame(ts, dt);
+    GAME.frame(ts, dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ==========================================================
+   채점 · 제출
+=========================================================== */
+document.querySelectorAll('.choice-group').forEach(group => {
+  group.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('picked'));
+      btn.classList.add('picked');
+    });
+  });
+});
+const ANSWERS = {
+  qT1:'갈릴레이', qT2:'많이', qT3:'낮이나 흐린 날에도', qT4:'대기의 방해를 받지 않기 때문',
+  qP1:'스푸트니크 1호', qP2:'보이저 1호', qP3:'주노호',
+  qU1:'기상 위성', qU2:'방송 통신 위성', qU3:'방송 통신 위성', qU4:'항법 위성',
+  qS1:'인공위성', qS2:'우주 탐사선', qS3:'나로 우주 센터'
+};
+function getAnswer(id){
+  const el = $(id);
+  if(el.tagName === 'SELECT') return el.value;
+  const p = el.querySelector('.choice-btn.picked');
+  return p ? p.dataset.value : '';
+}
+function checkGroup(ids, fb){
+  const ok = ids.every(id => getAnswer(id) === ANSWERS[id]), el = $(fb);
+  el.textContent = ok ? '✅ 정답이에요!' : `❌ 다시 확인해 보세요. (정답: ${ids.map(id => ANSWERS[id]).join(' / ')})`;
+  el.className = 'q-feedback ' + (ok ? 'ok' : 'bad');
+}
+$('checkT').addEventListener('click', () => checkGroup(['qT1','qT2','qT3','qT4'], 'tFeedback'));
+$('checkP').addEventListener('click', () => checkGroup(['qP1','qP2','qP3'], 'pFeedback'));
+$('checkU').addEventListener('click', () => checkGroup(['qU1','qU2','qU3','qU4'], 'uFeedback'));
+$('checkS').addEventListener('click', () => checkGroup(['qS1','qS2','qS3'], 'sFeedback'));
+
+const submitBtn = $('ws-submit'), wsResult = $('ws-result'), wsStatus = $('ws-status');
+submitBtn.addEventListener('click', async () => {
+  const name = $('ws-name').value.trim(), classNum = $('ws-class').value.trim(), number = $('ws-number').value.trim();
+  if(!classNum || !number || !name){ alert('반, 번호, 이름을 모두 입력해 주세요.'); return; }
+  const v = id => $(id).value.trim();
+  if(!v('startAnswer')){ alert('"함께 시작하기"에 우주를 탐사하는 까닭을 적어 주세요.'); return; }
+  const ids = Object.keys(ANSWERS), picked = {};
+  ids.forEach(id => picked[id] = getAnswer(id));
+  if(ids.some(id => !picked[id])){ alert('아직 고르지 않은 문항이 있어요. 모든 문항을 채워 주세요.'); return; }
+  if(!AI.topic()){ alert('5번 배움 활동에서 조사 주제를 하나 골라 주세요.'); return; }
+  if(!v('boardMeaning') || !v('boardTopic')){ alert('5번 발표하기의 두 칸(우주 탐사의 의의, 조사한 사례)을 모두 정리해 주세요.'); return; }
+  const ev = n => (document.querySelector(`input[name=ev${n}]:checked`) || {}).value || '';
+  if(!ev(1) || !ev(2) || !ev(3)){ alert('스스로 평가하기 세 문항에 모두 답해 주세요.'); return; }
+
+  const correct = ids.filter(id => picked[id] === ANSWERS[id]).length, total = ids.length;
+  wsResult.textContent = `${correct} / ${total} 개 정답`;
+  wsResult.className = 'ws-result ' + (correct === total ? 'ok' : '');
+  submitBtn.disabled = true;
+  wsStatus.textContent = '제출 중...';
+
+  // Code.gs 동적 저장: form 값이 시트(탭) 이름, 나머지 키가 열 제목이 됩니다.
+  const payload = {
+    form:'우주탐사_답안',
+    submittedAt:new Date().toISOString(),
+    stuClass:classNum, stuNumber:number, name,
+    '점수':`${correct}/${total}`,
+    '함께시작하기':v('startAnswer'),
+    '망원경-1':picked.qT1, '망원경-2':picked.qT2, '망원경-3':picked.qT3, '망원경-4':picked.qT4,
+    '탐사선-1':picked.qP1, '탐사선-2':picked.qP2, '탐사선-3':picked.qP3,
+    '발사게임':GAME.result(),
+    '생활위성-1':picked.qU1, '생활위성-2':picked.qU2, '생활위성-3':picked.qU3, '생활위성-4':picked.qU4,
+    '조사주제':AI.topic(),
+    '발표-우주탐사의의의':v('boardMeaning'),
+    '발표-조사사례':v('boardTopic'),
+    '출처':v('boardSource'),
+    'AI질문수':AI.used(),
+    '정리-1':picked.qS1, '정리-2':picked.qS2, '정리-3':picked.qS3,
+    '자기평가-1':ev(1), '자기평가-2':ev(2), '자기평가-3':ev(3)
+  };
+
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body:JSON.stringify(payload)
+    });
+    wsStatus.textContent = '채점 완료! 선생님 스프레드시트에 결과가 전송되었어요.';
+  }catch(err){
+    console.error('스프레드시트 전송 오류:', err);
+    wsStatus.textContent = '채점은 완료됐지만 스프레드시트 전송에 실패했어요. 인터넷 연결을 확인해 주세요.';
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+</script>
+
+</body>
+</html>
