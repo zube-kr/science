@@ -216,11 +216,14 @@ const AI_SYSTEM_PROMPT = [
   "수업 주제는 '미래에 대한 도전, 우주 탐사 — 우주 탐사의 의의와 인류에게 미치는 영향'이다.",
   "규칙:",
   "1. 항상 한국어로, 중학교 3학년이 이해할 수 있는 쉬운 말로 답한다.",
-  "2. 핵심만 3~5개의 짧은 항목(- 로 시작)으로 정리하고, 전체 500자를 넘기지 않는다.",
-  "3. 연도·이름·수치는 정확한 것만 쓰고, 확실하지 않으면 '확인이 필요하다'고 밝힌다.",
-  "4. 마지막 줄에 학생이 더 찾아볼 수 있는 검색어나 기관(NASA, 한국항공우주연구원 등)을 한 가지 제안한다.",
-  "5. 우주·천문·과학기술과 관계없는 질문, 개인정보, 부적절한 내용은 정중히 거절하고 수업 주제로 돌아오도록 안내한다.",
-  "6. 학생의 과제를 대신 완성해 주지 말고, 학생이 스스로 정리할 수 있도록 조사의 출발점을 제공한다."
+  "2. 4~6개의 항목(- 로 시작)으로 정리한다. 항목마다 '언제·무엇을·왜 중요한지'를 1~2문장으로 설명한다.",
+  "   예: - 2022년 누리호 발사 성공 — 외국 기술 없이 1톤급 위성을 쏘아 올릴 수 있게 되어, 우주 개발을 스스로 할 수 있는 나라가 되었다는 의미가 있다.",
+  "3. 전체 길이는 1,000~1,200자 정도로 쓰고, 문장이 중간에 끊기지 않게 마무리한다.",
+  "4. 연도·이름·수치는 정확한 것만 쓰고, 확실하지 않으면 '확인이 필요하다'고 밝힌다.",
+  "5. 항목 뒤에 '더 찾아볼 곳:'으로 시작하는 한 줄에 검색어나 기관(NASA, 한국항공우주연구원 등)을 한 가지 제안한다.",
+  "6. 맨 마지막 줄에 '더 생각해 볼 질문:'으로 시작하는 질문을 하나 써서, 학생이 스스로 생각을 넓혀 보게 한다.",
+  "7. 우주·천문·과학기술과 관계없는 질문, 개인정보, 부적절한 내용은 정중히 거절하고 수업 주제로 돌아오도록 안내한다.",
+  "8. 학생의 과제를 대신 완성해 주지 말고, 학생이 스스로 정리할 수 있도록 조사의 출발점을 제공한다. 학생이 제출할 글을 통째로 써 달라고 하면 정중히 거절하고 정리하는 방법을 안내한다."
 ].join("\n");
 
 const AI_FEEDBACK_PROMPT = [
@@ -265,7 +268,7 @@ function callGemini_(cfg, system, userText, useSearch) {
   const body = {
     system_instruction: { parts: [{ text: system }] },
     contents: [{ role: "user", parts: [{ text: userText }] }],
-    generationConfig: { temperature: 0.4, maxOutputTokens: 1024 }
+    generationConfig: { temperature: 0.4, maxOutputTokens: 2048 }
   };
   if (useSearch) body.tools = [{ google_search: {} }];
   const send = function (withHeader) {
@@ -383,7 +386,7 @@ function handleAi_(data) {
     if (c.web && c.web.uri && sources.length < 5) sources.push({ title: c.web.title || c.web.uri, uri: c.web.uri });
   });
 
-  logAi_(data, mode === "ask" ? "질문" : "피드백", topic, mode === "ask" ? question : summary, text.slice(0, 1000));
+  logAi_(data, mode === "ask" ? "질문" : "피드백", topic, mode === "ask" ? question : summary, text.slice(0, 3000));
   return json_({ result: "success", text: text, sources: sources });
 }
 
