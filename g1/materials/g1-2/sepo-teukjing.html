@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅱ-1-02 — 종류에 따라 다양한 세포의 특징</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅱ. 생물의 구성과 다양성</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p46-cartoon.jpg" alt="운동 경기에 따라 공의 모양이 다른 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅱ. 생물의 구성과 다양성 · 1. 생물의 구성 · 02 <span class="pg" style="margin:0">46~47쪽</span></span>
+      <h1>종류에 따라 다양한<br><span>세포의 특징</span></h1>
+      <p>“나는 고깔 모양이고, 깃털이 있어.” “나는 동그란 모양이고, 실밥이 있어.” 운동 경기에 따라 공의 모양이 다른 까닭은 무엇일까? 과자 모형과 가상 혈관으로 세포의 모양과 기능이 어떤 관계인지 알아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 세포의 종류에 따라 특징이 다른 까닭을 추론하여 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>세포의 모양이 다양한 까닭 알아보기 <span class="pg">46쪽</span></div>
+    <p class="lead-q">세포의 종류에 따라 모양과 기능은 어떻게 다를까?</p>
+    <div class="book"><p>우리가 주변에서 흔히 보는 생물은 대부분 수많은 세포로 이루어져 있다. 또한 세포의 종류도 다양하고, 세포마다 모양과 기능 같은 특징이 다르다.</p></div>
+    <figure class="fig"><img src="img/p46-crackers.jpg" alt="가늘고 긴 과자와 넓적한 과자로 공책 덮기"><figcaption><span class="tb">46쪽</span>넓적한 과자 · 가늘고 긴 과자</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>과자로 공책 덮기 · 꼭짓점 잇기</div>
+    <div class="card-hint">과제와 과자를 고르고 [과자 놓기]를 누르면 과자가 하나씩 놓여요. 과제를 끝내는 데 필요한 과자 수를 비교해 보자.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>과제</label><select id="ck-task"><option value="cover">① 공책 1 쪽을 덮어 가리기</option><option value="link">② 공책의 꼭짓점을 대각선으로 잇기</option></select></div>
+      <div class="ctrl"><label>과자</label><select id="ck-kind"><option value="flat">넓적한 과자</option><option value="long">가늘고 긴 과자</option></select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="ck-go">🍪 과자 놓기</button><button type="button" class="btn ghost small" id="ck-reset">↺ 처음부터</button></div>
+    <div class="light-stage"><canvas id="ck-cv"></canvas></div>
+    <div class="scroll-x"><table class="data-t" id="ck-tb"></table></div>
+    <div class="q" data-why="넓적한 과자는 넓은 면을 덮기(가리기)에, 가늘고 긴 과자는 먼 곳을 잇기에 알맞아요. 세포도 하는 일에 알맞은 모양을 가져요." data-hint="네 가지 경우를 모두 해 보고 기록표의 과자 수를 비교하세요.">
+      <div class="q-text"><span class="q-num">1</span>적은 개수로 공책을 덮기에 알맞은 과자는 <span class="choice-group" data-key="ck1" data-answer="flat"><button type="button" class="choice-btn" data-value="flat">넓적한 과자</button><button type="button" class="choice-btn" data-value="long">가늘고 긴 과자</button></span>이고, 적은 개수로 꼭짓점을 잇기에 알맞은 과자는 <span class="choice-group" data-key="ck2" data-answer="long"><button type="button" class="choice-btn" data-value="flat">넓적한 과자</button><button type="button" class="choice-btn" data-value="long">가늘고 긴 과자</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>과자를 세포에 비유할 때 세포의 모양과 기능이 어떤 관계가 있는지 이야기해 보자.</div>
+      <textarea class="free" data-key="ck_talk" rows="2" data-keywords="모양,기능,알맞" data-model="과자의 모양에 따라 잘하는 일이 다르듯이, 세포도 하는 일(기능)에 알맞은 모양을 가지고 있다. 넓적한 세포는 덮어서 보호하는 데, 길게 뻗은 세포는 먼 곳까지 신호를 전달하는 데 알맞다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>여러 가지 세포의 모양과 기능 <span class="pg">47쪽</span></div>
+    <div class="book"><p>생물을 이루는 세포 중 신경세포, 상피세포, 적혈구는 <b>그림 2-2</b>와 같이 서로 특징이 다르다. <span class="key">신경세포</span>는 몸 곳곳에 퍼져 있는 ●신경을 이루는 세포이다. 나뭇가지처럼 사방으로 길게 뻗은 모양으로, 여러 방향에서 신호를 받아들이고, 한곳에서 다른 곳으로 신호를 빠르게 전달하는 데 알맞다. <span class="key">상피세포</span>는 몸 표면이나 몸속 기관의 안쪽 표면을 덮고 있는 상피조직을 구성하는 세포이다. 피부를 구성하는 상피세포는 넓고 얇게 퍼진 모양으로, 몸을 보호하는 데 알맞다. <span class="key">적혈구</span>는 혈액을 이루며 산소를 운반하는 세포이다. 가운데가 오목한 원반 모양으로, 혈관을 따라 몸속을 이동하는 데 알맞다. 이처럼 세포의 모양은 세포의 기능과 관련이 있다. 생물은 특징이 다른 다양한 세포로 이루어져 있어서 여러 가지 생명활동을 할 수 있다.</p></div>
+    <figure class="fig"><img src="img/p47-fig2-2.jpg" alt="여러 가지 세포의 모양과 기능"><figcaption><span class="tb">그림 2-2</span>신경세포 · 상피세포 · 적혈구 (전자현미경 사진에 색을 입힌 것)</figcaption></figure>
+    <div class="tip-box"><b>●신경</b> 몸의 각 부분에서 서로 신호를 전달하는 기능을 담당하는 구조 · <b>●μm(마이크로미터)</b> 미터(m)의 100만분의 1 · <b>오개념 바로잡기</b> 모든 세포는 크기가 작을까? 세포는 대부분 현미경으로 관찰해야 할 만큼 작지만, 달걀·타조알·개구리알처럼 맨눈으로 볼 수 있을 만큼 큰 세포도 있다.</div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>모양을 바꾼 적혈구로 가느다란 혈관 통과하기</div>
+    <div class="card-hint">적혈구의 모양을 골라 [출발]을 눌러 보자. 가장 가느다란 혈관(모세 혈관)은 적혈구보다도 좁아요. 통과할 수 있을까? 산소를 얼마나 빨리 주고받을 수 있는지(표면적)도 비교하자.</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>적혈구 모양</label><select id="rb-s"><option value="disc">가운데가 오목한 원반 (실제)</option><option value="ball">공 모양 (딱딱함)</option><option value="cube">주사위 모양</option></select></div></div>
+    <div class="btn-row"><button type="button" class="btn main small" id="rb-go">▶ 출발</button></div>
+    <div class="sim-stage"><canvas id="rb-cv"></canvas><span class="tag" id="rb-tag">-</span></div>
+    <div class="scroll-x"><table class="data-t" id="rb-tb"></table></div>
+    <div class="q" data-why="가운데가 오목한 원반 모양은 얇고 유연해서 좁은 혈관에서 휘어져 통과할 수 있고, 같은 부피에 비해 표면이 넓어 산소를 잘 주고받아요." data-hint="세 모양으로 모두 출발해 보고 기록표를 비교하세요.">
+      <div class="q-text"><span class="q-num">1</span>좁은 혈관을 통과한 모양은 <span class="choice-group" data-key="rb1" data-answer="disc"><button type="button" class="choice-btn" data-value="disc">오목한 원반</button><button type="button" class="choice-btn" data-value="ball">공 모양</button><button type="button" class="choice-btn" data-value="cube">주사위 모양</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>46쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">47쪽</span></div>
+    <div class="q" data-why="세포의 모양은 세포의 기능과 관련이 있어요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 세포의 종류에 따라 모양이 다른 것은 세포의 ( <input class="blank w-s" data-key="sc1" data-answer="기능"> )와/과 관련이 있다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 적혈구는 우리 몸 곳곳의 가느다란 혈관도 지나갈 수 있다. 그 까닭을 적혈구의 모양과 관련지어 설명해 보자.</div>
+      <textarea class="free" data-key="sc_rbc" rows="2" data-keywords="오목,원반,유연/휘" data-model="적혈구는 가운데가 오목한 원반 모양이라 얇고 유연하므로, 모양이 휘어지면서 자신보다 가느다란 혈관도 통과할 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 · 힌트 조각 2 (47쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="생물은 특징이 다른 여러 가지 세포로 이루어져 있어요.">
+        <div class="q-text" style="color:#3a1600">산호와 물고기들을 이루는 세포는 그 종류가 ( <span class="choice-group" data-key="blk2" data-answer="여러"><button type="button" class="choice-btn" data-value="한">한</button><button type="button" class="choice-btn" data-value="여러">여러</button></span> ) 가지이다. → 다음 조각은 ‘생물을 구성하는 단계’에서!</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>종류에 따라 다양한 세포의 특징</div>
+    <div class="q" data-why="세포의 종류에 따라 모양과 기능이 달라요. 신경을 이루는 세포는 신경세포예요.">
+      <div class="q-text"><span class="q-num">1</span>세포의 종류에 따라 세포의 <input class="blank w-s" data-key="t1a" data-answer="모양|기능"> 과 <input class="blank w-s" data-key="t1b" data-answer="기능|모양"> 이 다르다. 생물의 몸 곳곳에 퍼져 있는 신경을 이루는 세포는 ( <span class="choice-group" data-key="t2" data-answer="신경"><button type="button" class="choice-btn" data-value="신경">신경세포</button><button type="button" class="choice-btn" data-value="상피">상피세포</button><button type="button" class="choice-btn" data-value="적혈구">적혈구</button></span> )이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="혈관을 따라 이동·오목한 원반은 적혈구(C), 넓고 얇게 퍼진 모양·몸을 보호는 상피세포(B), 길게 뻗은 모양은 신경세포(A)예요.">
+      <div class="q-text"><span class="q-num">2</span>신경세포는 A, 상피세포는 B, 적혈구는 C를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">③ 혈관을 따라 몸속을 이동한다.</td><td><span class="choice-group" data-key="t3" data-answer="C"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span></td></tr>
+        <tr><td style="text-align:left">④ 주로 넓고 얇게 퍼진 모양이다.</td><td><span class="choice-group" data-key="t4" data-answer="B"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span></td></tr>
+        <tr><td style="text-align:left">⑤ 나뭇가지처럼 사방으로 길게 뻗은 모양이다.</td><td><span class="choice-group" data-key="t5" data-answer="A"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 병원균 등으로부터 장벽의 역할을 하여 몸을 보호한다.</td><td><span class="choice-group" data-key="t6" data-answer="B"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 가운데가 오목한 원반 모양이다.</td><td><span class="choice-group" data-key="t7" data-answer="C"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="신경세포는 신호를 빠르게 전달하고, 적혈구는 가느다란 혈관도 통과해요(⑨ O). 세포의 모양은 기능과 관련이 있어요(⑩ X).">
+      <div class="q-text"><span class="q-num">3</span>⑧ 신경세포의 모양은 한곳에서 다른 곳으로 신호를 ( <span class="choice-group" data-key="t8" data-answer="빠르게"><button type="button" class="choice-btn" data-value="느리게">느리게</button><button type="button" class="choice-btn" data-value="빠르게">빠르게</button></span> ) 전달하는 데 알맞다.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑨ 적혈구는 우리 몸 곳곳의 가느다란 혈관도 통과할 수 있다.</td><td><span class="choice-group" data-key="t9" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑩ 세포의 모양은 세포의 기능과 관련이 없다.</td><td><span class="choice-group" data-key="t10" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>다양한 세포의 특징 <span class="pg">50쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>다양한 세포의 특징</h4>
+      <div class="q" style="border-top:none" data-why="세포의 종류에 따라 기능과 모양 같은 특징이 다양해요.">
+        <div class="q-text">세포의 종류에 따라 기능과 <input class="blank w-s" data-key="s5" data-answer="모양"> 같은 특징이 다양하다.</div>
+        <table class="data-t" style="margin-top:6px">
+          <tr><th>종류</th><th>기능</th><th>모양</th></tr>
+          <tr><td>신경세포</td><td>몸 곳곳으로 빠르게 신호 전달</td><td><span class="choice-group" data-key="s_n" data-answer="가지"><button type="button" class="choice-btn" data-value="가지">사방으로 길게 뻗은 모양</button><button type="button" class="choice-btn" data-value="넓">넓고 얇게 퍼진 모양</button><button type="button" class="choice-btn" data-value="원반">오목한 원반 모양</button></span></td></tr>
+          <tr><td>상피세포</td><td>몸 표면이나 기관 안쪽 표면을 덮어 보호</td><td><span class="choice-group" data-key="s_e" data-answer="넓"><button type="button" class="choice-btn" data-value="가지">사방으로 길게 뻗은 모양</button><button type="button" class="choice-btn" data-value="넓">넓고 얇게 퍼진 모양</button><button type="button" class="choice-btn" data-value="원반">오목한 원반 모양</button></span></td></tr>
+          <tr><td>적혈구</td><td>온몸으로 산소 운반</td><td><span class="choice-group" data-key="s_r" data-answer="원반"><button type="button" class="choice-btn" data-value="가지">사방으로 길게 뻗은 모양</button><button type="button" class="choice-btn" data-value="넓">넓고 얇게 퍼진 모양</button><button type="button" class="choice-btn" data-value="원반">오목한 원반 모양</button></span></td></tr>
+        </table>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅱ. 생물의 구성과 다양성 · 1. 생물의 구성 · 02 종류에 따라 다양한 세포의 특징 · 비상교육 중학 과학 1 교과서(46~47쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅱ-1-02 종류에 따라 다양한 세포의 특징";
+const $ = id => document.getElementById(id);
+
+/* ── 과자 놓기 ── */
+// 공책 1쪽 18×24, 넓적한 과자 6×6, 가늘고 긴 과자 1×12. 대각선 길이 30
+const CK = { placed: [], rec: {}, timer: null };
+const NB = { w: 18, h: 24 };
+function plan(task, kind) {
+  const out = [];
+  if (task === "cover") { if (kind === "flat") { for (let y = 0; y < 24; y += 6) for (let x = 0; x < 18; x += 6) out.push([x, y, 6, 6, 0]); } else { for (let y = 0; y < 24; y += 1) for (let x = 0; x < 18; x += 12) out.push([x, y, Math.min(12, 18 - x), 1, 0]); } }
+  else { const L = Math.hypot(18, 24), a = Math.atan2(24, 18); const step = kind === "flat" ? 6 : 12; for (let s = 0; s < L - 0.01; s += step) out.push([s * Math.cos(a), s * Math.sin(a), kind === "flat" ? 6 : 12, kind === "flat" ? 6 : 1, a]); }
+  return out;
+}
+function ckReset() { clearInterval(CK.timer); CK.timer = null; CK.placed = []; ckDraw(); }
+$("ck-go").addEventListener("click", () => { if (CK.timer) return; const task = $("ck-task").value, kind = $("ck-kind").value, p = plan(task, kind); CK.placed = []; CK.timer = setInterval(() => { if (CK.placed.length >= p.length) { clearInterval(CK.timer); CK.timer = null; CK.rec[task + kind] = p.length; ckTable(); return; } CK.placed.push(p[CK.placed.length]); ckDraw(); }, p.length > 20 ? 40 : 160); });
+$("ck-reset").addEventListener("click", ckReset); ["ck-task", "ck-kind"].forEach(id => $(id).addEventListener("change", ckReset));
+function ckDraw() {
+  const g = LB.fit($("ck-cv"), 260), c = g.c, W = g.w, s = Math.min(9, (W - 40) / 18), ox = (W - 18 * s) / 2, oy = 20;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 260); c.fillStyle = "#f7f1e3"; c.fillRect(ox, oy, 18 * s, 24 * s); c.strokeStyle = "#c9b98f"; c.strokeRect(ox, oy, 18 * s, 24 * s);
+  c.strokeStyle = "rgba(200,180,140,.5)"; for (let y = 2; y < 24; y += 2) { c.beginPath(); c.moveTo(ox, oy + y * s); c.lineTo(ox + 18 * s, oy + y * s); c.stroke(); }
+  if ($("ck-task").value === "link") { c.strokeStyle = "#e4572e"; c.setLineDash([5, 5]); c.beginPath(); c.moveTo(ox, oy); c.lineTo(ox + 18 * s, oy + 24 * s); c.stroke(); c.setLineDash([]); }
+  const kind = $("ck-kind").value;
+  CK.placed.forEach(p => { c.save(); c.translate(ox + p[0] * s, oy + p[1] * s); c.rotate(p[4]); c.fillStyle = kind === "flat" ? "#e9b65f" : "#7a4a24"; c.fillRect(0, 0, p[2] * s - 1, p[3] * s - 1); if (kind === "flat") { c.fillStyle = "rgba(150,90,30,.5)"; for (let k = 0; k < 4; k++) { c.beginPath(); c.arc((1 + k % 2 * 3.5) * s, (1.5 + Math.floor(k / 2) * 3) * s, 1.5, 0, 7); c.fill(); } } c.restore(); });
+  c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif"; c.fillText("놓은 과자 " + CK.placed.length + "개", 10, 16);
+}
+function ckTable() { $("ck-tb").innerHTML = "<tr><th>과제</th><th>넓적한 과자</th><th>가늘고 긴 과자</th></tr>" + [["cover", "① 공책 덮기"], ["link", "② 꼭짓점 잇기"]].map(([k, n]) => `<tr><td>${n}</td><td>${CK.rec[k + "flat"] ? CK.rec[k + "flat"] + "개" : "-"}</td><td>${CK.rec[k + "long"] ? CK.rec[k + "long"] + "개" : "-"}</td></tr>`).join(""); }
+ckDraw(); ckTable(); window.addEventListener("resize", ckDraw);
+WS.custom("ck_log", { el: $("ck-tb"), value: () => JSON.stringify(CK.rec) });
+
+/* ── 적혈구와 모세 혈관 ── */
+const SH = { disc: ["오목한 원반", 8, 2, true, 1.0], ball: ["공 모양", 6, 6, false, 0.63], cube: ["주사위 모양", 5.2, 5.2, false, 0.55] }; // 이름, 지름, 두께(μm), 휘어짐, 표면적(상대)
+const RB = { x: -1, run: false, stuck: false, rec: {} };
+$("rb-go").addEventListener("click", () => Object.assign(RB, { x: 0, run: true, stuck: false }));
+$("rb-s").addEventListener("change", () => Object.assign(RB, { x: -1, run: false, stuck: false }));
+function rbDraw(dt, t) {
+  const k = $("rb-s").value, s = SH[k], g = LB.fit($("rb-cv"), 220), c = g.c, W = g.w, cy = 110, sc = 7;
+  c.fillStyle = "#2a0b10"; c.fillRect(0, 0, W, 220);
+  const narrowX = W * 0.45, narrowW = W * 0.35, wide = 70, narrow = 3 * sc; // 모세 혈관 지름 3 μm
+  c.fillStyle = "#f3c6c6"; c.beginPath(); c.moveTo(0, cy - wide); c.lineTo(narrowX - 30, cy - wide); c.lineTo(narrowX, cy - narrow); c.lineTo(narrowX + narrowW, cy - narrow); c.lineTo(narrowX + narrowW + 30, cy - wide); c.lineTo(W, cy - wide); c.lineTo(W, cy + wide); c.lineTo(narrowX + narrowW + 30, cy + wide); c.lineTo(narrowX + narrowW, cy + narrow); c.lineTo(narrowX, cy + narrow); c.lineTo(narrowX - 30, cy + wide); c.lineTo(0, cy + wide); c.closePath(); c.fill();
+  c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.fillText("모세 혈관 (지름 약 3 μm)", narrowX + 6, cy - narrow - 6);
+  if (RB.run) { const front = RB.x + s[1] * sc / 2; if (!s[3] && front >= narrowX && RB.x < narrowX + narrowW) { RB.stuck = true; RB.run = false; RB.rec[k] = "막힘"; tbl(); } else { RB.x += dt * 70; if (RB.x > W + 40) { RB.run = false; RB.rec[k] = "통과"; tbl(); } } }
+  if (RB.x >= 0) {
+    const inN = RB.x > narrowX - 10 && RB.x < narrowX + narrowW + 10, x = RB.x;
+    c.save(); c.translate(x, cy);
+    if (k === "disc") { const len = inN ? s[1] * sc * 1.5 : s[1] * sc, th = inN ? narrow * 1.6 : s[1] * sc * 0.9; c.fillStyle = "#c81e2e"; c.beginPath(); c.ellipse(0, 0, len / 2, th / 2, 0, 0, 7); c.fill(); c.fillStyle = "#8f1020"; c.beginPath(); c.ellipse(0, 0, len / 4, th / 4, 0, 0, 7); c.fill(); }
+    else if (k === "ball") { c.fillStyle = "#c81e2e"; c.beginPath(); c.arc(0, 0, s[1] * sc / 2, 0, 7); c.fill(); }
+    else { c.fillStyle = "#c81e2e"; c.fillRect(-s[1] * sc / 2, -s[1] * sc / 2, s[1] * sc, s[1] * sc); }
+    c.restore();
+  }
+  $("rb-tag").textContent = s[0] + (RB.stuck ? " · 좁은 혈관에 막혔어요!" : RB.run ? " · 이동 중" : "");
+}
+function tbl() { $("rb-tb").innerHTML = "<tr><th>모양</th><th>좁은 혈관</th><th>산소를 주고받는 표면(상대값)</th></tr>" + Object.keys(SH).map(k => `<tr><td>${SH[k][0]}</td><td>${RB.rec[k] || "-"}</td><td>${RB.rec[k] ? SH[k][4].toFixed(2) : "-"}</td></tr>`).join(""); }
+tbl(); LB.loop($("rb-cv"), rbDraw); rbDraw(0, 0);
+WS.custom("rb_log", { el: $("rb-tb"), value: () => JSON.stringify(RB.rec) });
+</script>
+</body>
+</html>

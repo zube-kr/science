@@ -1212,13 +1212,13 @@ body.frame-mode .frameview-header{
   <details class="grade" open>
     <summary><span class="gnum" style="--c:linear-gradient(135deg,#14b8a6,#3b82f6)">1</span>중학교 1학년</summary>
     <ul>
-      <li><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 13.6c2.6.2 4.5 2.1 4.5 4.9"/></svg><span class="unum">1</span>과학과 인류</li>
-      <li><svg class="ico" viewBox="0 0 24 24"><path d="M5 19c0-8.3 6-14 15-14 0 9-6 15-14.5 15"/><path d="M5 19l8-8"/></svg><span class="unum">2</span>생물의 다양성</li>
-      <li><svg class="ico" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg><span class="unum">3</span>열과 우리 생활</li>
+      <li onclick="openSubject('gwahak-illyu')"><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 13.6c2.6.2 4.5 2.1 4.5 4.9"/></svg><span class="unum">1</span>과학과 인류</li>
+      <li onclick="openSubject('saengmul-guseong')"><svg class="ico" viewBox="0 0 24 24"><path d="M5 19c0-8.3 6-14 15-14 0 9-6 15-14.5 15"/><path d="M5 19l8-8"/></svg><span class="unum">2</span>생물의 다양성</li>
+      <li onclick="openSubject('yeol')"><svg class="ico" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg><span class="unum">3</span>열과 우리 생활</li>
       <li onclick="openSubject('mul-sangtae-byeonhwa')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg><span class="unum">4</span>물질의 상태 변화</li>
       <li onclick="openSubject('him-jagyong')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)"/></svg><span class="unum">5</span>힘의 작용</li>
       <li onclick="openSubject('gi-seongjil')"><svg class="ico" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h16a3 3 0 1 1-3 3"/><path d="M3 16h8"/></svg><span class="unum">6</span>기체의 성질</li>
-      <li><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M5.2 15.8C2.6 17.6 1.6 19.3 2.4 20.1c1.4 1.4 7.2-1.4 12.4-6.6S22.9 3.5 21.5 2.1c-.8-.8-2.5.2-4.3 2.8"/></svg><span class="unum">7</span>태양계</li>
+      <li onclick="openSubject('taeyanggye')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M5.2 15.8C2.6 17.6 1.6 19.3 2.4 20.1c1.4 1.4 7.2-1.4 12.4-6.6S22.9 3.5 21.5 2.1c-.8-.8-2.5.2-4.3 2.8"/></svg><span class="unum">7</span>태양계</li>
       <li onclick="openSubject('j1-student-home')"><svg class="ico" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>1학년 학생홈페이지</li>
     </ul>
   </details>
@@ -1784,6 +1784,159 @@ const topicsData = {
       }
     ]
   },
+  "gwahak-illyu": {
+    title: "① 과학과 인류의 지속가능한 삶",
+    posts: [
+      {
+        title: "01 과학적 탐구 방법",
+        desc: "에이크만의 각기병 탐구 단계를 구분하고, 가상 종이 헬리콥터로 조건을 통제하며 과학적 탐구 방법의 절차를 밟아 보는 살아있는 교과서입니다(13~17쪽).",
+        url: "g1/materials/g1-1/tamgu-bangbeop.html",
+        ready: true
+      },
+      {
+        title: "02 탐구 문제를 발견하고 탐구 계획서 작성하기",
+        desc: "좋은 탐구 문제를 판정하고, 가상 감자 상자로 계획을 시험한 뒤 우리 모둠의 탐구 계획서를 작성하며 첫 번째 블록을 정리하는 살아있는 교과서입니다(18~20쪽).",
+        url: "g1/materials/g1-1/tamgu-gyehoek.html",
+        ready: true
+      },
+      {
+        title: "03 과학과 함께하는 우리 삶",
+        desc: "과학 원리·기술·기기의 관계를 정리하고, 가상 GPS로 위성 전파에서 위치를 찾으며, 미래 도시를 꾸며 첨단 과학기술과 인공지능 윤리를 생각하는 살아있는 교과서입니다(21~27쪽).",
+        url: "g1/materials/g1-1/gwahak-salm.html",
+        ready: true
+      },
+      {
+        title: "04 인류의 지속가능한 삶",
+        desc: "에너지 도시에서 신재생 에너지 비율을 바꿔 보고, 우리 반 약속을 정해 실천을 기록하며, 재활용 보조 기구 설계로 대단원을 마무리하는 살아있는 교과서입니다(28~32쪽).",
+        url: "g1/materials/g1-1/jisok-ganeung.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 · 초음파 센서로 종이 헬리콥터의 낙하 측정하기",
+        desc: "바닥에 놓은 초음파 센서로 떨어지는 종이 헬리콥터까지의 거리를 0.05초마다 재서 날개 길이에 따른 낙하 시간과 속력을 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-1/arduino-helicopter.html",
+        ready: true
+      }
+    ]
+  },
+  "saengmul-guseong": {
+    title: "② 생물의 구성과 다양성",
+    posts: [
+      {
+        title: "01 생명활동이 일어나는 기본 단위",
+        desc: "가상 현미경으로 입안 상피세포와 검정말잎 세포를 관찰하고, 3D 세포를 돌려 보며 세포 구성 요소의 기능을 알아보는 살아있는 교과서입니다(41~45쪽).",
+        url: "g1/materials/g1-2/sepo.html",
+        ready: true
+      },
+      {
+        title: "02 종류에 따라 다양한 세포의 특징",
+        desc: "과자로 공책을 덮고 잇는 모형과 가상 모세 혈관을 지나는 적혈구로 세포의 모양과 기능의 관계를 추론하는 살아있는 교과서입니다(46~47쪽).",
+        url: "g1/materials/g1-2/sepo-teukjing.html",
+        ready: true
+      },
+      {
+        title: "03 생물을 구성하는 단계",
+        desc: "동물과 식물의 구성 단계 카드를 늘어놓고, 가상 확대경으로 개체에서 세포까지 들어가며 첫 번째 블록을 정리하는 살아있는 교과서입니다(48~50쪽).",
+        url: "g1/materials/g1-2/guseong-dangye.html",
+        ready: true
+      },
+      {
+        title: "04 지구에 살고 있는 다양한 생물",
+        desc: "학교 두 장소의 생물 목록으로 생물다양성을 비교하고, 가상 갈라파고스에서 세대를 거치며 핀치의 부리가 변하는 모습을 관찰하는 살아있는 교과서입니다(51~55쪽).",
+        url: "g1/materials/g1-2/damyangseong.html",
+        ready: true
+      },
+      {
+        title: "05 생물을 분류하는 단계",
+        desc: "순서도로 같은 종인지 가려내고, 분류 사다리로 두 생물이 함께 속하는 가장 작은 단계를 찾는 살아있는 교과서입니다(56~57쪽).",
+        url: "g1/materials/g1-2/bunryu-dangye.html",
+        ready: true
+      },
+      {
+        title: "06 생물을 분류하는 체계",
+        desc: "단서 카드로 5계를 가려내는 분류 탐정 게임과 광합성 생물 순서도로 생물의 분류체계를 익히는 살아있는 교과서입니다(58~61쪽).",
+        url: "g1/materials/g1-2/bunryu-chegye.html",
+        ready: true
+      },
+      {
+        title: "07 학교와 주변 지역의 생물 분류하기",
+        desc: "가상 학교 지도에 관찰한 생물의 붙임 딱지를 붙여 생태 지도를 만들고 5계로 분류하며 두 번째 블록을 정리하는 살아있는 교과서입니다(62~64쪽).",
+        url: "g1/materials/g1-2/saengtae-jido.html",
+        ready: true
+      },
+      {
+        title: "08 소중한 생물다양성",
+        desc: "가상 생물 탑 쌓기 놀이와 먹이그물에서 한 종을 없애는 실험으로 생물다양성과 생태계 안정의 관계를 확인하는 살아있는 교과서입니다(65~69쪽).",
+        url: "g1/materials/g1-2/sojunghan.html",
+        ready: true
+      },
+      {
+        title: "09 생물다양성보전을 위한 노력",
+        desc: "나만의 실천 계획서를 쓰고, 도로로 나뉜 숲에 생태통로를 놓아 보며, 생물다양성보전 놀이 설계로 대단원을 마무리하는 살아있는 교과서입니다(70~74쪽).",
+        url: "g1/materials/g1-2/bojeon.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 · 서식 환경과 생물다양성 조사하기",
+        desc: "온습도 센서(DHT11)와 빛 센서로 학교 장소별 온도·습도·밝기를 재고 관찰한 생물의 종 수와 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-2/arduino-hwangyeong.html",
+        ready: true
+      }
+    ]
+  },
+  "yeol": {
+    title: "③ 열",
+    posts: [
+      {
+        title: "01 온도에 따른 입자의 움직임과 배치",
+        desc: "교과서 84~85쪽 그림과 함께 잉크 퍼짐 가상 실험, 온도에 따른 입자 운동 3D 시뮬레이션으로 온도와 입자의 관계를 탐구하는 살아있는 교과서입니다.",
+        url: "g1/materials/g1-3/ipja-umjigim.html",
+        ready: true
+      },
+      {
+        title: "02 온도가 같아지는 열평형",
+        desc: "3D 가상 열량계와 온도 센서로 뜨거운 물과 찬물의 온도 변화를 측정하고 열평형 과정을 입자 모형으로 설명하는 살아있는 교과서입니다(86~89쪽).",
+        url: "g1/materials/g1-3/yeol-pyeonghyeong.html",
+        ready: true
+      },
+      {
+        title: "03 열이 이동하는 방식",
+        desc: "가상 열화상 카메라로 금속판·플라스틱판의 전도를 비교하고, 3D 냄비에서 전도·대류·복사를 찾아보는 살아있는 교과서입니다(90~94쪽).",
+        url: "g1/materials/g1-3/yeol-idong.html",
+        ready: true
+      },
+      {
+        title: "04 비열과 우리 생활",
+        desc: "가상 가열 장치로 물과 식용유의 온도 변화를 비교하고, 비열 온도계 경주·바닷가와 아랄해 시뮬레이션으로 비열의 활용을 탐구하는 살아있는 교과서입니다(95~99쪽).",
+        url: "g1/materials/g1-3/biyeol.html",
+        ready: true
+      },
+      {
+        title: "05 열팽창과 우리 생활",
+        desc: "물과 에탄올의 부피 변화, 금속 막대 팽창, 3D 바이메탈 스위치와 기차선로 틈 시뮬레이션으로 열팽창을 탐구하는 살아있는 교과서입니다(100~104쪽).",
+        url: "g1/materials/g1-3/yeolpaengchang.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ① 열평형 온도 측정하기",
+        desc: "LM35와 써미스터 온도 센서 2개로 뜨거운 물과 찬물의 온도를 동시에 기록하고, 열평형 온도의 측정값과 이론값을 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-3/arduino-yeolpyeonghyeong.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ② 물과 식용유의 비열 비교하기",
+        desc: "같은 온도로 데운 물과 식용유가 식는 모습을 온도 센서 2개로 기록해 비열의 차이를 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-3/arduino-biyeol.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ③ 금속판과 플라스틱판의 열 전도",
+        desc: "뜨거운 금속 추 위에 올린 금속판과 플라스틱판 가장자리의 온도를 센서로 기록해 열이 전도되는 정도를 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-3/arduino-jeondo.html",
+        ready: true
+      }
+    ]
+  },
   "mul-sangtae-byeonhwa": {
     title: "④ 물질의 상태 변화",
     posts: [
@@ -1809,6 +1962,72 @@ const topicsData = {
         title: "4. 중단원 마무리 - 상태 변화와 열에너지",
         desc: "석빙고에 여름에도 얼음을 보관할 수 있었던 까닭을 단계별로 정리하며 배운 내용을 확인하는 마무리 워크시트입니다.",
         url: STATE_CHANGE_SUMMARY_URL,
+        ready: true
+      },
+      {
+        title: "01 퍼져 나가는 확산 현상",
+        desc: "가상 페트리 접시의 잉크 확산, 3D 교실에서 향수 뿌리기, 암모니아 빨대 실험으로 입자 운동을 탐구하는 살아있는 교과서입니다(113~117쪽).",
+        url: "g1/materials/g1-4/hwaksan.html",
+        ready: true
+      },
+      {
+        title: "02 액체 표면에서 일어나는 증발 현상",
+        desc: "가상 전자저울로 아세톤·에탄올·물의 증발을 측정하고 윗접시저울 대체 탐구로 증발 속도를 비교하는 살아있는 교과서입니다(118~120쪽).",
+        url: "g1/materials/g1-4/jeungbal.html",
+        ready: true
+      },
+      {
+        title: "03 물질의 세 가지 상태",
+        desc: "그릇 바꾸기와 주사기 누르기 가상 실험, 3D 입자 상자로 고체·액체·기체의 특징과 입자 배열을 탐구하는 살아있는 교과서입니다(121~125쪽).",
+        url: "g1/materials/g1-4/se-gaji-sangtae.html",
+        ready: true
+      },
+      {
+        title: "04 물질의 상태 변화",
+        desc: "얼음과 드라이아이스 주머니, 시계 접시와 염화 코발트 종이 가상 실험, 상태 변화 탐색기로 융해·응고·기화·액화·승화를 구분하는 살아있는 교과서입니다(126~129쪽).",
+        url: "g1/materials/g1-4/sangtae-byeonhwa.html",
+        ready: true
+      },
+      {
+        title: "05 상태 변화와 입자 배열의 변화",
+        desc: "3D 감압 장치로 아세톤의 상태 변화 시 질량과 부피를 측정하고, 같은 입자의 부피 변화를 3D로 확인하는 살아있는 교과서입니다(130~134쪽).",
+        url: "g1/materials/g1-4/ipja-baeyeol.html",
+        ready: true
+      },
+      {
+        title: "06 물질을 냉각할 때의 온도 변화",
+        desc: "가상 시험관으로 로르산·스테아르산·물을 냉각하며 30초마다 기록해 냉각 곡선을 그리고, 열에너지 방출을 입자 모형으로 설명하는 살아있는 교과서입니다(135~139쪽).",
+        url: "g1/materials/g1-4/naenggak.html",
+        ready: true
+      },
+      {
+        title: "07 물질을 가열할 때의 온도 변화",
+        desc: "3D 가열 장치와 가상 온도 센서로 물의 가열 곡선과 얼음이 녹을 때의 온도 변화를 측정하고, 열에너지 흡수를 설명하는 살아있는 교과서입니다(140~143쪽).",
+        url: "g1/materials/g1-4/gayeol.html",
+        ready: true
+      },
+      {
+        title: "08 상태 변화 시 열에너지 출입 이용",
+        desc: "가상 에어컨의 냉매 순환과 프놈펜 항아리 냉장고 시뮬레이션으로 상태 변화 시 열에너지 출입의 이용을 탐구하고 세 블록을 완성하는 살아있는 교과서입니다(144~148쪽).",
+        url: "g1/materials/g1-4/yeol-ipchul.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ① 로르산의 냉각 곡선 그리기",
+        desc: "LM35 온도 센서로 액체 로르산이 식는 동안 10초마다 온도를 자동 기록해 냉각 곡선을 그리고 응고 구간을 분석하는 실험 보고서입니다.",
+        url: "g1/materials/g1-4/arduino-naenggak.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ② 얼음이 녹을 때의 온도 변화",
+        desc: "약병 속 얼음(써미스터)과 바깥 물(LM35)의 온도를 동시에 기록해 융해하는 동안의 열에너지 흡수를 확인하는 실험 보고서입니다.",
+        url: "g1/materials/g1-4/arduino-eoreum.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ③ 기화할 때 열에너지 흡수 확인하기",
+        desc: "마른 휴지와 젖은 휴지로 감싼 온도 센서에 바람을 보내 기화에 의한 온도 변화를 비교하고 항아리 냉장고와 연결하는 실험 보고서입니다.",
+        url: "g1/materials/g1-4/arduino-gihwa.html",
         ready: true
       }
     ]
@@ -1857,6 +2076,78 @@ const topicsData = {
         desc: "기어, 도르래(풀리), 용수철 발사대, 회전 도구 같은 힘을 가하는 도구를 직접 배치해 나만의 가상 공간을 설계하고, 실행 버튼으로 실제 물리 효과를 확인하는 창의・융합(STEAM) 활동입니다.",
         url: VIRTUAL_FORCE_SPACE_URL,
         ready: true
+      },
+      {
+        title: "01 힘을 표현하는 방법",
+        desc: "가상 컬링 경기장에서 화살표로 힘을 주고, 작용점·방향·크기를 화살표로 나타내는 연습을 하는 살아있는 교과서입니다(157~159쪽).",
+        url: "g1/materials/g1-5/him-pyohyeon.html",
+        ready: true
+      },
+      {
+        title: "02 나란한 두 힘의 합력과 평형",
+        desc: "두 사람이 상자 밀기, 줄다리기, 고리 자석, 스쿠버 다이버 납 벨트 시뮬레이션으로 합력과 힘의 평형을 탐구하는 살아있는 교과서입니다(160~162쪽).",
+        url: "g1/materials/g1-5/hapryeok.html",
+        ready: true
+      },
+      {
+        title: "03 지구가 당기는 힘",
+        desc: "3D 지구 곳곳에서 공을 떨어뜨려 중력의 방향을 확인하고, 돌아간 사진 게임과 지구·달·화성·목성의 무게와 질량을 비교하는 살아있는 교과서입니다(163~165쪽).",
+        url: "g1/materials/g1-5/jungryeok.html",
+        ready: true
+      },
+      {
+        title: "04 원래대로 돌아가려는 힘",
+        desc: "고무공 당기기, 가상 힘 센서로 용수철 늘이기(스프레드시트·그래프), 추 매달기로 탄성력과 늘어난 길이의 비례 관계를 탐구하는 살아있는 교과서입니다(166~169쪽).",
+        url: "g1/materials/g1-5/tanseongryeok.html",
+        ready: true
+      },
+      {
+        title: "05 미끄러짐을 방해하는 힘",
+        desc: "가상 힘 센서로 나무 도막을 끌어 접촉면과 무게에 따른 마찰력을 측정하고 힘–시간 그래프를 해석하는 살아있는 교과서입니다(170~171쪽).",
+        url: "g1/materials/g1-5/marchal.html",
+        ready: true
+      },
+      {
+        title: "06 떠오르게 하는 힘",
+        desc: "3D 스탠드와 힘 센서로 추를 물에 담가 부력을 측정하고, 넘친 물의 무게와 부력의 관계를 확인하는 살아있는 교과서입니다(172~176쪽).",
+        url: "g1/materials/g1-5/buryeok.html",
+        ready: true
+      },
+      {
+        title: "07 알짜힘에 따라 달라지는 운동 상태",
+        desc: "가상 선풍기로 스펀지 공을 과녁에 멈추게 하고, 사과·대관람차·농구공의 운동을 화살표와 속력 그래프로 분류하는 살아있는 교과서입니다(177~181쪽).",
+        url: "g1/materials/g1-5/aljjahim.html",
+        ready: true
+      },
+      {
+        title: "08 일상생활에서 찾는 힘의 작용",
+        desc: "가방·승강기·열기구에 작용하는 힘의 평형을 확인하고, 3D 바닷속에서 부력 조절 장치로 다이버를 오르내리게 하는 살아있는 교과서입니다(182~185쪽).",
+        url: "g1/materials/g1-5/him-jakyong.html",
+        ready: true
+      },
+      {
+        title: "09 힘의 특징을 이용한 기구나 장치 설계하기",
+        desc: "용수철 가위와 경사로를 가상으로 시험하고, 우리 모둠의 기구와 달 여행 운동 기구를 설계하며 세 번째 블록과 대단원을 정리하는 살아있는 교과서입니다(186~188쪽).",
+        url: "g1/materials/g1-5/seolgye.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ① 초음파 센서로 용수철 저울 만들기",
+        desc: "초음파 센서로 추의 개수에 따른 용수철이 늘어난 길이를 0.1 cm까지 재고, 1 N당 늘어난 길이를 구해 용수철저울을 만드는 실험 보고서입니다.",
+        url: "g1/materials/g1-5/arduino-yongsucheol.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ② 용수철과 초음파 센서로 부력 측정하기",
+        desc: "힘 센서 없이 용수철이 덜 늘어나는 길이를 초음파 센서로 재서 물에 잠긴 부피에 따른 부력을 구하는 실험 보고서입니다.",
+        url: "g1/materials/g1-5/arduino-buryeok.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ③ 알짜힘과 운동 상태 변화 측정하기",
+        desc: "초음파 센서로 빗면을 내려오는 수레와 밀었다 놓은 수레의 거리–시간을 기록하고 0.5초마다의 속력으로 알짜힘과 운동의 관계를 확인하는 실험 보고서입니다.",
+        url: "g1/materials/g1-5/arduino-undong.html",
+        ready: true
       }
     ]
   },
@@ -1873,6 +2164,95 @@ const topicsData = {
         title: "2. 샤를의 법칙 — 아두이노로 온도와 기체 부피 측정하기",
         desc: "아두이노 우노에 온도센서·초음파센서를 연결해 USB로 직접 연결하고, 물 온도를 바꿔가며 실시간으로 측정한 데이터로 온도와 기체 부피의 관계를 그래프로 확인하는 실험 워크시트입니다.",
         url: CHARLES_LAW_ARDUINO_URL,
+        ready: true
+      },
+      {
+        title: "01 일정한 면적에 작용하는 힘",
+        desc: "가상 스펀지에 페트병을 올리고, 모래 위 벽돌과 누름못 위 풍선으로 압력이 힘과 면적에 따라 달라지는 것을 확인하는 살아있는 교과서입니다(197~199쪽).",
+        url: "g1/materials/g1-6/apryeok.html",
+        ready: true
+      },
+      {
+        title: "02 기체의 압력",
+        desc: "3D 페트병 속 쇠구슬을 흔들어 손바닥에 느껴지는 힘을 비교하고, 찌그러진 축구공에 공기를 넣으며 기체의 압력을 입자 운동으로 설명하는 살아있는 교과서입니다(200~204쪽).",
+        url: "g1/materials/g1-6/giche-apryeok.html",
+        ready: true
+      },
+      {
+        title: "03 기체의 압력과 부피 관계",
+        desc: "가상 주사기와 압력 센서로 압력–부피를 측정해 그래프로 나타내고, 추를 올린 실린더와 감압 용기로 입자 모형을 확인하는 살아있는 교과서입니다(205~209쪽).",
+        url: "g1/materials/g1-6/apryeok-bupi.html",
+        ready: true
+      },
+      {
+        title: "04 기체의 온도와 부피 관계",
+        desc: "온도가 다른 가상 비커 4 개에 스포이트를 넣어 물방울의 위치를 재고, 데우고 식히는 실린더로 입자의 운동성을 관찰하는 살아있는 교과서입니다(210~213쪽).",
+        url: "g1/materials/g1-6/ondo-bupi.html",
+        ready: true
+      },
+      {
+        title: "05 기체의 부피 변화 예 조사하기",
+        desc: "생활 속 부피 변화를 압력·온도로 구분하고, 산 위의 과자 봉지와 탁구공, 물 뿜는 인형 시뮬레이션으로 두 번째 블록과 대단원(풍선 놀이 틀 설계)을 정리하는 살아있는 교과서입니다(214~216쪽).",
+        url: "g1/materials/g1-6/bupi-byeonhwa.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 · 온도 센서와 초음파 센서로 기체의 온도와 부피 관계 알아보기",
+        desc: "물에 담근 병과 주사기를 연결하고 LM35로 물의 온도를, 초음파 센서로 피스톤이 올라간 높이를 재서 온도–부피 그래프를 그리는 실험 보고서입니다.",
+        url: "g1/materials/g1-6/arduino-charles.html",
+        ready: true
+      }
+    ]
+  },
+  "taeyanggye": {
+    title: "⑦ 태양계",
+    posts: [
+      {
+        title: "01 천체 망원경을 이용한 천체 관측",
+        desc: "3D 천체 망원경의 구조를 살펴보고, 가상 접안렌즈로 달·목성·토성·금성을 맨눈과 망원경으로 비교 관측하는 살아있는 교과서입니다(225~227쪽).",
+        url: "g1/materials/g1-7/mangwongyeong.html",
+        ready: true
+      },
+      {
+        title: "02 태양계를 구성하는 천체",
+        desc: "3D 태양계에서 천체 자료 카드를 모으고, 순서도로 행성·왜소 행성·소행성·위성을 구분하며 지구형·목성형 행성을 나누는 살아있는 교과서입니다(228~231쪽).",
+        url: "g1/materials/g1-7/taeyanggye.html",
+        ready: true
+      },
+      {
+        title: "03 활동하는 태양",
+        desc: "태양 필터를 단 가상 망원경과 3D 태양으로 흑점·쌀알 무늬·채층·코로나·홍염·플레어를 관찰하고, 흑점 수 그래프와 우주 날씨 시뮬레이션으로 태양 활동의 영향을 추론하는 살아있는 교과서입니다(232~236쪽).",
+        url: "g1/materials/g1-7/hwaldong-taeyang.html",
+        ready: true
+      },
+      {
+        title: "04 지구의 운동으로 나타나는 현상",
+        desc: "가상 밤하늘에서 네 방향의 별의 일주 운동 자취를 관찰하고, 3D 공전 모형으로 계절별 한밤중 별자리와 태양의 연주 운동을 확인하는 살아있는 교과서입니다(237~241쪽).",
+        url: "g1/materials/g1-7/jigu-undong.html",
+        ready: true
+      },
+      {
+        title: "05 모양이 달라지는 달",
+        desc: "전등·지구·달 3D 모형에서 달을 공전시키며 지구에서 본 달의 모양(삭·상현·망·하현)을 관찰하고 다누리를 알아보는 살아있는 교과서입니다(242~245쪽).",
+        url: "g1/materials/g1-7/dal-wisang.html",
+        ready: true
+      },
+      {
+        title: "06 가려지는 태양과 달",
+        desc: "일식·월식 시뮬레이터로 태양·달·지구의 배열과 그림자를 확인하고, 두 번째 블록과 대단원(천문대 관측)을 정리하는 살아있는 교과서입니다(246~248쪽).",
+        url: "g1/materials/g1-7/ilsik-wolsik.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ① 빛 센서로 달의 위상과 밝기 재기",
+        desc: "전등 빛을 받은 공(달)을 지구 둘레의 여덟 위치에 놓고 빛 센서로 달빛의 밝기를 재서 위상 변화와 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-7/arduino-wisang.html",
+        ready: true
+      },
+      {
+        title: "아두이노 실험 ② 빛 센서로 일식 관측하기",
+        desc: "빛 센서가 바라보는 전등 앞으로 공을 지나가게 하며 밝기–시간 그래프를 기록해 개기일식과 부분일식을 비교하는 실험 보고서입니다.",
+        url: "g1/materials/g1-7/arduino-ilsik.html",
         ready: true
       }
     ]
@@ -2315,13 +2695,13 @@ const icon = name => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${
 
 const GRADE_UNITS = {
   1: [
-    { name:"과학과 인류의 지속가능한 삶", area:"통합", desc:"과학이 인류 문명과 함께 발전해 온 과정을 살펴보고, 과학기술로 지속가능한 미래를 만드는 방법을 탐색합니다." },
-    { name:"생물의 구성과 다양성", area:"생명", desc:"세포에서 개체까지 생물의 구성 단계와 생물 다양성, 분류 체계, 보전 방법을 배웁니다." },
-    { name:"열", area:"물리", desc:"온도와 입자 운동, 전도·대류·복사에 의한 열의 이동, 비열과 열팽창을 탐구합니다." },
+    { name:"과학과 인류의 지속가능한 삶", area:"통합", key:"gwahak-illyu", desc:"과학이 인류 문명과 함께 발전해 온 과정을 살펴보고, 과학기술로 지속가능한 미래를 만드는 방법을 탐색합니다." },
+    { name:"생물의 구성과 다양성", area:"생명", key:"saengmul-guseong", desc:"세포에서 개체까지 생물의 구성 단계와 생물 다양성, 분류 체계, 보전 방법을 배웁니다." },
+    { name:"열", area:"물리", key:"yeol", desc:"온도와 입자 운동, 전도·대류·복사에 의한 열의 이동, 비열과 열팽창을 탐구합니다." },
     { name:"물질의 상태 변화", area:"화학", key:"mul-sangtae-byeonhwa", desc:"입자 운동으로 고체·액체·기체와 상태 변화를 설명하고, 이때 출입하는 열에너지를 이해합니다." },
     { name:"힘의 작용", area:"물리", key:"him-jagyong", desc:"중력, 탄성력, 마찰력, 부력 등 여러 힘을 측정하고 생활 속 힘의 작용을 탐구합니다." },
     { name:"기체의 성질", area:"화학", key:"gi-seongjil", desc:"기체의 압력·부피·온도 사이의 관계를 입자 모형으로 설명합니다." },
-    { name:"태양계", area:"지구", desc:"지구와 달의 크기와 운동, 태양계 행성의 특징과 태양 활동을 탐구합니다." }
+    { name:"태양계", area:"지구", key:"taeyanggye", desc:"지구와 달의 크기와 운동, 태양계 행성의 특징과 태양 활동을 탐구합니다." }
   ],
   2: [
     { name:"물질의 특성", area:"화학", key:"mul-teukseong", desc:"밀도·용해도·녹는점·끓는점 같은 물질의 특성으로 물질을 구별하고 혼합물을 분리합니다." },
@@ -2348,10 +2728,10 @@ const STUDENT_HOME_KEY = { 1:"j1-student-home", 2:"j2-student-home" };
 
 // 최근에 올라온 자료 (단원 키, 글 제목의 일부, 학년 표시)
 const HOME_RECENT = [
+  ["yeol", "온도에 따른 입자의 움직임", "중1"],
+  ["saengmul-guseong", "생명활동이 일어나는 기본 단위", "중1"],
   ["gi-seongjil", "보일 법칙", "중1"],
   ["dongmul-energy", "혈액 순환 미로", "중2"],
-  ["swieo-game", "볼링 게임", "게임"],
-  ["uju-tamsa", "성단과 성운", "중3"],
   ["energy-jeonhwan", "롤러코스터 크리에이터", "중3"]
 ];
 

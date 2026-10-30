@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅵ-2-03 — 기체의 부피 변화 예 조사하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+<style>
+.sb-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; }
+.sb-grid .scene{ background:#fff; border:1px solid #e3e8ea; border-radius:12px; padding:8px; }
+.sb-grid .scene b{ display:inline-block; background:#7a4fd6; color:#fff; border-radius:8px; padding:0 8px; font-size:12px; margin-bottom:4px; }
+.sb-grid textarea{ min-height:70px; }
+.sort-t td:first-child{ text-align:left; }
+</style>
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅵ. 기체의 성질</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p214-hot.jpg" alt="뜨거운 음식을 담은 그릇이 식탁 위에서 미끄러진 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅵ. 기체의 성질 · 2. 기체의 압력 및 온도와 부피 관계 · 03 <span class="pg" style="margin:0">214~216쪽 · 대단원 마무리</span></span>
+      <h1>기체의 부피 변화 예<br><span>조사하기</span></h1>
+      <p>“밀지도 않았는데 그릇이 혼자 미끄러지고 있어.” 뜨거운 음식을 담은 그릇은 왜 식탁 위에서 미끄러질까? 우리 주변에서 기체의 부피가 변하는 예를 찾아 원리를 설명하고, 물 뿜는 인형의 비밀을 풀어 보자.</p>
+      <div class="goal">🎯 이 탐구를 수행하면 — 우리 주변에서 기체의 부피가 변하는 예를 찾고, 그 원리를 설명하는 동영상을 만들어 발표할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">탐구 1</span>우리 주변의 기체 부피 변화 현상 <span class="pg">214쪽</span></div>
+    <div class="card-hint">각 현상이 일어난 원인이 <b>기체의 압력과 부피 관계</b>인지, <b>기체의 온도와 부피 관계</b>인지 골라 보자.</div>
+    <figure class="fig"><img src="img/p214-examples.jpg" alt="높은 산에서 부푼 과자 봉지, 뜨거운 물에 넣은 탁구공"><figcaption><span class="tb">214쪽</span>높은 산에 올라가니 과자 봉지가 부풀었다. · 찌그러진 탁구공을 뜨거운 물에 넣으니 펴졌다.</figcaption></figure>
+    <div class="q" data-why="높이 올라가 바깥 공기의 압력이 작아지는 현상(과자 봉지·비행기·운동화·잠수부의 공기 방울·주사기)은 압력과 부피 관계, 데우거나 식히는 현상(탁구공·생수병·뜨거운 그릇·열기구·겨울 타이어)은 온도와 부피 관계예요." data-hint="‘높이·누르기·물 깊이’는 압력, ‘뜨겁다·차갑다’는 온도와 관련 있어요.">
+      <div class="scroll-x"><table class="data-t sort-t">
+        <tr><th>현상</th><th>원인</th></tr>
+        <tr><td>① 높은 산에 올라가니 과자 봉지가 부풀었다.</td><td><span class="choice-group" data-key="e1" data-answer="P"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+        <tr><td>② 찌그러진 탁구공을 뜨거운 물에 넣으니 펴졌다.</td><td><span class="choice-group" data-key="e2" data-answer="T"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+        <tr><td>③ 뜨거운 음식을 담은 그릇이 식탁 위에서 혼자 미끄러졌다.</td><td><span class="choice-group" data-key="e3" data-answer="T"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+        <tr><td>④ 잠수부가 내뿜은 공기 방울은 수면으로 올라갈수록 커진다.</td><td><span class="choice-group" data-key="e4" data-answer="P"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+        <tr><td>⑤ 추운 겨울에는 자동차 타이어의 공기가 빠진 것처럼 보인다.</td><td><span class="choice-group" data-key="e5" data-answer="T"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+        <tr><td>⑥ 공기 주머니가 있는 운동화를 신고 걸으면 주머니가 납작해진다.</td><td><span class="choice-group" data-key="e6" data-answer="P"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+        <tr><td>⑦ 열기구 속 공기를 데우면 공기가 부풀어 열기구가 떠오른다.</td><td><span class="choice-group" data-key="e7" data-answer="T"><button type="button" class="choice-btn" data-value="P">압력–부피</button><button type="button" class="choice-btn" data-value="T">온도–부피</button></span></td></tr>
+      </table></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="sim">
+    <div class="card-title"><span class="badge sim">가상 실험</span>과자 봉지 들고 산에 오르기 · 탁구공 데우기</div>
+    <div class="card-hint">왼쪽: 산의 높이를 올려 보자. 위로 갈수록 공기의 양이 줄어 바깥 공기의 압력이 작아져요. 오른쪽: 찌그러진 탁구공을 담근 물의 온도를 올려 보자.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>올라간 높이 <output id="mt-h-o"></output></label><input type="range" id="mt-h" min="0" max="3000" step="50" value="0"></div>
+      <div class="ctrl"><label>탁구공을 담근 물의 온도 <output id="pp-t-o"></output></label><input type="range" id="pp-t" min="10" max="90" step="5" value="20"></div>
+    </div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="sim-stage"><canvas id="mt-cv"></canvas></div>
+      <div class="sim-stage"><canvas id="pp-cv"></canvas></div>
+    </div>
+    <div class="q" data-why="높이 올라갈수록 바깥 공기의 압력이 작아져 봉지 속 기체의 부피가 늘어나요. 탁구공은 온도가 높아질수록 속 공기의 부피가 늘어나 찌그러진 곳이 펴져요.">
+      <div class="q-text"><span class="q-num">1</span>백두산(약 2744 m) 꼭대기에서 과자 봉지 속 기체의 부피는 땅에서보다 <span class="choice-group" data-key="mt_v" data-answer="커"><button type="button" class="choice-btn" data-value="커">커진다</button><button type="button" class="choice-btn" data-value="작아">작아진다</button></span>. 탁구공을 담근 물의 온도가 높을수록 탁구공은 더 잘 <span class="choice-group" data-key="pp_v" data-answer="펴"><button type="button" class="choice-btn" data-value="펴">펴진다</button><button type="button" class="choice-btn" data-value="찌그러">찌그러진다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">탐구 2~6</span>예를 찾고 동영상 스토리보드 만들기 <span class="pg">214~215쪽</span></div>
+    <div class="steps-box"><b>준비물</b> 스마트 기기, 동영상 스토리보드(부록 268 쪽), 연필, 지우개<ol start="2">
+      <li><b>자료 수집</b> 기체의 압력과 부피 관계 또는 기체의 온도와 부피 관계를 확인할 수 있거나 이용한 예를 각각 하나씩 찾고 그 원리를 이야기한다.</li>
+      <li><b>협력적 소통</b> 과정 1이나 2의 예 중에서 한 가지를 선택하여 그 원리를 설명하는 동영상을 어떻게 만들지 이야기한다.</li>
+      <li>동영상 제작 과정에서 각 모둠 구성원이 맡은 역할을 표에 적는다.</li>
+      <li>각 장면에 대한 설명을 쓰거나 그림을 그려 스토리보드를 작성한다.</li>
+      <li>스토리보드에 맞춰 동영상을 만든다.</li>
+    </ol></div>
+    <div class="tip-box"><b>활동 도우미 · 동영상을 만드는 방법</b> 동영상은 약 30 초 내외로 짧게 만든다. 동영상 편집 앱의 자막 기능을 이용하여 동영상의 내용을 풍부하게 만들 수도 있다.</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>내가 찾은 예와 원리를 써 보자.</div>
+      <textarea class="free" data-key="find_p" rows="2" data-keywords="압력,부피" placeholder="압력–부피 관계의 예: … / 원리: …" data-model="예: 잠수부가 내뿜은 공기 방울이 위로 올라갈수록 커진다. 원리: 수면에 가까워질수록 공기 방울에 작용하는 압력이 작아져 부피가 늘어난다."></textarea>
+      <textarea class="free" data-key="find_t" rows="2" data-keywords="온도,부피" placeholder="온도–부피 관계의 예: … / 원리: …" data-model="예: 뜨거운 그릇이 식탁 위에서 미끄러진다. 원리: 그릇과 식탁 사이 공기의 온도가 높아져 부피가 늘어나며 그릇을 살짝 들어 올린다." style="margin-top:6px"></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">4</span>모둠 구성원의 역할 (예: ○○○ — 소품 준비, 동영상 편집)</div>
+      <textarea class="free" data-key="roles" rows="3" placeholder="이름 — 역할"></textarea>
+    </div>
+    <figure class="fig"><img src="img/p215-story.jpg" alt="과자 봉지 스토리보드 예시 6 장면"><figcaption><span class="tb">215쪽</span>스토리보드 예시 — 산에 올라가면 과자 봉지가 커진대!</figcaption></figure>
+    <div class="q-text" style="margin:6px 0"><span class="q-num">5</span>우리 모둠의 스토리보드 — 장면마다 대사나 설명을 써 보자.</div>
+    <div class="sb-grid">
+      <div class="scene"><b>장면 1</b><textarea class="free" data-key="sb1" placeholder="궁금한 현상 소개"></textarea></div>
+      <div class="scene"><b>장면 2</b><textarea class="free" data-key="sb2" placeholder="잘못된 생각이나 질문"></textarea></div>
+      <div class="scene"><b>장면 3</b><textarea class="free" data-key="sb3" placeholder="기체 입자 이야기"></textarea></div>
+      <div class="scene"><b>장면 4</b><textarea class="free" data-key="sb4" placeholder="압력이나 온도의 변화"></textarea></div>
+      <div class="scene"><b>장면 5</b><textarea class="free" data-key="sb5" placeholder="부피가 변하는 까닭"></textarea></div>
+      <div class="scene"><b>장면 6</b><textarea class="free" data-key="sb6" placeholder="정리하기"></textarea></div>
+    </div>
+    <figure class="fig" style="max-width:420px;margin-top:10px"><img src="img/p215-bag.jpg" alt="스마트 기기로 과자 봉지 촬영하기"><figcaption>스토리보드에 맞춰 동영상을 만든다.</figcaption></figure>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">정리해 볼까</span>동영상 발표와 점검 <span class="pg">215쪽</span></div>
+    <div class="card-hint">모둠별로 완성한 동영상을 발표하고, 우리 모둠이 발표한 동영상을 다음 기준에 따라 점검해 보자. (매우 잘함 ☆, 잘함 ○, 보통 △)</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">우리 모둠 활동 체크리스트</th><th>확인</th></tr>
+      <tr><td style="text-align:left">설명하려고 했던 원리를 잘 드러냈는가?</td><td><span class="choice-group" id="ck1"><button type="button" class="choice-btn" data-value="☆">☆</button><button type="button" class="choice-btn" data-value="○">○</button><button type="button" class="choice-btn" data-value="△">△</button></span></td></tr>
+      <tr><td style="text-align:left">스토리보드의 내용을 잘 표현했는가?</td><td><span class="choice-group" id="ck2"><button type="button" class="choice-btn" data-value="☆">☆</button><button type="button" class="choice-btn" data-value="○">○</button><button type="button" class="choice-btn" data-value="△">△</button></span></td></tr>
+      <tr><td style="text-align:left">모둠 구성원의 의견을 골고루 반영했는가?</td><td><span class="choice-group" id="ck3"><button type="button" class="choice-btn" data-value="☆">☆</button><button type="button" class="choice-btn" data-value="○">○</button><button type="button" class="choice-btn" data-value="△">△</button></span></td></tr>
+      <tr><td style="text-align:left">모둠 구성원 모두가 적극적으로 참여했는가?</td><td><span class="choice-group" id="ck4"><button type="button" class="choice-btn" data-value="☆">☆</button><button type="button" class="choice-btn" data-value="○">○</button><button type="button" class="choice-btn" data-value="△">△</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">2</span><b>협력적 소통</b> 보완할 수 있는 방법을 이야기해 보자.</div><textarea class="free" data-key="improve" rows="2" placeholder="보완할 점"></textarea></div>
+    <div class="alt-box"><h4>다르게 해 보기 · 기체의 부피 변화와 관련된 그림 전시회 열기</h4><p style="margin:0;font-size:14px">① 기체의 부피가 변하는 예를 조사하고, 관련 현상에 대한 그림을 인터넷에서 수집한다. ② 그림을 인쇄하고 원리를 적는다. ③ 그림을 교실 벽면에 붙여 전시회를 개최한다. <b>정리</b> 전시회를 관람하고 붙임 딱지에 소감을 적어 그림 아래에 붙여 보자.</p></div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 · 힌트 조각 2 (215쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="뜨거운 물을 부으면 인형 속 공기의 온도가 높아져 부피가 늘어나요.">
+        <div class="q-text" style="color:#3a1600">찌그러진 탁구공을 뜨거운 물에 넣으면 펴지는 것처럼 물 뿜는 인형에 뜨거운 물을 부으면 인형 속 공기의 부피가 ( <span class="choice-group" data-key="blk2" data-answer="늘어"><button type="button" class="choice-btn" data-value="줄어">줄어든다</button><button type="button" class="choice-btn" data-value="늘어">늘어난다</button></span> ).</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="sim">
+    <div class="card-title"><span class="badge sim">가상 실험</span>물 뿜는 인형의 비밀 — 두 블록 모으기</div>
+    <div class="card-hint">물 뿜는 인형에는 작은 구멍 하나만 있어요. 버튼을 차례대로 눌러 인형에 물을 넣고, 다시 물을 뿜게 해 보자. 인형 속 <b>공기의 온도·부피·압력</b>이 어떻게 변하는지 계기판을 보세요.</div>
+    <div class="btn-row"><button type="button" class="btn small" id="dl-hot">① ♨️ 뜨거운 물에 담그기</button><button type="button" class="btn small" id="dl-cold">② 🧊 찬물에 담그기</button><button type="button" class="btn small" id="dl-out">③ 꺼내기</button><button type="button" class="btn small" id="dl-pour">④ ♨️ 머리에 뜨거운 물 붓기</button><button type="button" class="btn ghost small" id="dl-reset">↺ 처음으로</button></div>
+    <div class="sim-stage"><canvas id="dl-cv"></canvas></div>
+    <div class="meter"><div class="m"><small>인형 속 공기의 온도</small><b id="dl-T">-</b></div><div class="m"><small>인형 속 물의 양</small><b id="dl-W">-</b></div><div class="m"><small>지금 일어나는 일</small><b id="dl-S" style="font-size:14px">-</b></div></div>
+    <div class="q" data-why="①에서 공기가 늘어나 일부가 거품으로 빠져나가고, ②에서 남은 공기가 식어 부피가 줄면 그 자리로 물이 빨려 들어와요. ④에서 뜨거운 물을 부으면 공기의 부피가 다시 늘어나며(압력이 커져) 물을 밀어내요.">
+      <div class="q-text"><span class="q-num">1</span>물이 인형 안으로 들어가는 단계는 <span class="choice-group" data-key="dl_in" data-answer="2"><button type="button" class="choice-btn" data-value="1">①</button><button type="button" class="choice-btn" data-value="2">②</button><button type="button" class="choice-btn" data-value="4">④</button></span>이고, 물이 뿜어져 나오는 단계는 <span class="choice-group" data-key="dl_out" data-answer="4"><button type="button" class="choice-btn" data-value="1">①</button><button type="button" class="choice-btn" data-value="2">②</button><button type="button" class="choice-btn" data-value="4">④</button></span>이다. ①에서 인형의 구멍으로 거품이 나오는 까닭은 인형 속 공기의 부피가 <span class="choice-group" data-key="dl_bub" data-answer="늘어"><button type="button" class="choice-btn" data-value="늘어">늘어나기</button><button type="button" class="choice-btn" data-value="줄어">줄어들기</button></span> 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>기체의 부피 변화 예 · 두 번째 블록 찾기 <span class="pg">216쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">3</span>기체의 부피 변화 예</h4>
+      <div class="q" style="border-top:none" data-why="과자 봉지는 높이에 따른 압력 변화, 탁구공은 온도 변화로 부피가 변해요.">
+        <div class="q-text">(1) 기체의 <span class="choice-group" data-key="s7" data-answer="압력"><button type="button" class="choice-btn" data-value="압력">압력</button><button type="button" class="choice-btn" data-value="온도">온도</button></span>과 부피 관계 확인: 높은 산에 올라가니 과자 봉지가 부풀었다.<br>(2) 기체의 <span class="choice-group" data-key="s8" data-answer="온도"><button type="button" class="choice-btn" data-value="압력">압력</button><button type="button" class="choice-btn" data-value="온도">온도</button></span>와 부피 관계 확인: 찌그러진 탁구공을 뜨거운 물에 넣으니 펴졌다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 찾기 · 조각을 모아 답하기</b>
+      <div class="t">물 뿜는 인형에서 물은 어떻게 들어갔다가 나오는 걸까?</div>
+      <div style="font-size:13px;margin-bottom:6px">조각 1 (213쪽) 물 뿜는 인형을 뜨거운 물에 넣으면 인형 속 공기의 부피가 늘어나고, 다시 찬물에 넣으면 공기의 부피가 줄어든다. · 조각 2 (215쪽) 물 뿜는 인형에 뜨거운 물을 부으면 인형 속 공기의 부피가 늘어난다.</div>
+      <div class="q" style="border-top:none;padding:0">
+        <textarea class="free" data-key="block2" data-keywords="뜨거운,부피,늘어,찬물,줄어,들어" data-model="물 뿜는 인형을 뜨거운 물에 넣으면 인형 속 공기의 부피가 늘어나 일부가 빠져나간다. 이 인형을 찬물에 넣으면 공기의 부피가 줄어들어 그 자리로 물이 들어간다. 그 뒤 인형에 뜨거운 물을 부으면 공기의 부피가 늘어나 물을 밀어내므로 물이 뿜어져 나온다." placeholder="물 뿜는 인형을 뜨거운 물에 넣으면 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">대단원 마무리</span>재미있고 신나는 풍선 놀이 틀 설계하기</div>
+    <figure class="fig float-r"><img src="../g1-6/img/p202-fig6-4.jpg" alt="풍선 놀이 틀"><figcaption>풍선 놀이 틀 (그림 6-4)</figcaption></figure>
+    <div class="book"><p>풍선 놀이 틀은 풍선에 공기를 넣어 부풀린 것으로 강, 바다, 평지 등 여러 곳에 설치해 다양하게 활용한다. 먼저 풍선 놀이 틀을 설치할 장소를 정하고 풍선 놀이 틀의 설계도를 그린 다음, 놀이 방법과 안전 규칙이 포함된 안내판을 만들어 보자.</p></div>
+    <div class="q" style="clear:both">
+      <div class="q-text"><span class="q-num">💭</span><b>함께 발견하기</b> 풍선 놀이 틀을 놀이 기구로 이용할 때의 장점을 기체의 압력과 관련지어 이야기해 보자.</div>
+      <textarea class="free" data-key="bt_merit" data-keywords="압력,공기,부드럽/충격,가볍/옮기" data-model="공기를 채우면 기체의 압력이 커져 아이들의 무게를 견딜 수 있고, 부딪쳐도 공기가 충격을 흡수해 덜 다친다. 공기를 빼면 가볍게 접어서 옮길 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span><b>협력적 소통</b> 우리 모둠이 풍선 놀이 틀을 설치할 장소와 놀이 방법</div>
+      <textarea class="free" data-key="bt_place" rows="2" placeholder="장소: … / 놀이 방법: …"></textarea>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>새로운 풍선 놀이 틀의 설계도 설명 (모양, 크기, 공기를 넣는 곳 등 — 종이에 그린 설계도를 사진으로 찍어 선생님께 보내도 좋아요.)</div>
+      <textarea class="free" data-key="bt_design" rows="3" placeholder="설계도 설명"></textarea>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span>안내판에 들어갈 안전 규칙 — 기체의 압력과 부피 관계, 온도와 부피 관계를 한 가지 이상 활용해 보자.</div>
+      <textarea class="free" data-key="bt_rule" rows="3" data-keywords="압력/온도,부피" data-model="① 한 번에 정해진 인원만 들어간다(무게가 너무 크면 압력이 커져 풍선이 터질 수 있다). ② 한낮 햇볕에 온도가 높아지면 공기의 부피가 늘어나므로 공기를 조금 빼서 터지지 않게 한다. ③ 뾰족한 물건을 가지고 들어가지 않는다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 평가</span>Ⅵ. 기체의 성질 돌아보기 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 기준</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left"><b>지식·이해</b> 기체의 압력 및 온도와 부피 관계를 입자 운동으로 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left"><b>과정·기능</b> 기체의 압력 및 온도와 부피 관계를 해석할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left"><b>가치·태도</b> 탐구 활동을 하면서 협업의 중요성을 느꼈는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left">풍선 놀이 틀을 설계하기 위해 조사한 내용을 기체의 압력과 연관 지을 수 있는가?</td><td><span class="choice-group" id="self4"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left">모둠 구성원들이 서로 협력하며 과제를 수행하였는가?</td><td><span class="choice-group" id="self5"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>활동을 수행하면서 알게 된 점, 어려웠던 점, 더 알아보고 싶은 점, 선생님께 하고 싶은 말을 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="알게 된 점 / 어려웠던 점 / 더 알아보고 싶은 점"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅵ. 기체의 성질 · 2. 기체의 압력 및 온도와 부피 관계 · 03 기체의 부피 변화 예 조사하기 · 비상교육 중학 과학 1 교과서(214~216쪽)·탐구 활동지·대단원 마무리 활동지 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅵ-2-03 기체의 부피 변화 예 조사하기";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["ck1", "ck2", "ck3", "ck4", "self1", "self2", "self3", "self4", "self5"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+
+/* ── 산 오르기 ── */
+const MT = { s: 1 };
+$("mt-h").addEventListener("input", () => $("mt-h-o").textContent = $("mt-h").value + " m"); $("mt-h-o").textContent = "0 m";
+function mtDraw(dt) {
+  const h = +$("mt-h").value, P = Math.exp(-h / 8400), target = 1 / P; MT.s += (target - MT.s) * Math.min(1, dt * 3);
+  const g = LB.fit($("mt-cv"), 240), c = g.c, W = g.w;
+  const sky = c.createLinearGradient(0, 0, 0, 240); sky.addColorStop(0, "#1d3b5c"); sky.addColorStop(1, "#7fb3d5"); c.fillStyle = sky; c.fillRect(0, 0, W, 240);
+  c.fillStyle = "#3f6b45"; c.beginPath(); c.moveTo(0, 240); c.lineTo(W * 0.55, 40); c.lineTo(W, 240); c.closePath(); c.fill();
+  c.fillStyle = "#f4f7fb"; c.beginPath(); c.moveTo(W * 0.55, 40); c.lineTo(W * 0.5, 75); c.lineTo(W * 0.6, 75); c.closePath(); c.fill();
+  // 등산객 위치
+  const f = h / 3000, px = W * 0.08 + (W * 0.47) * f, py = 228 - 188 * f;
+  c.fillStyle = "#ffd166"; c.beginPath(); c.arc(px, py - 22, 6, 0, 7); c.fill(); c.fillStyle = "#e4572e"; c.fillRect(px - 5, py - 16, 10, 16);
+  // 과자 봉지 (확대)
+  const bx = W - 70, by = 70, bw = 34 * Math.pow(MT.s, 0.45), bh = 22 * Math.pow(MT.s, 1.2);
+  c.fillStyle = "rgba(255,255,255,.85)"; c.beginPath(); c.arc(bx, by, 52, 0, 7); c.fill();
+  c.fillStyle = "#2fae5d"; c.beginPath(); c.ellipse(bx, by, bw, bh, 0, 0, 7); c.fill(); c.fillStyle = "#c8f0d0"; c.fillRect(bx - bw, by - 3, 6, 6); c.fillRect(bx + bw - 6, by - 3, 6, 6);
+  c.fillStyle = "#fff"; c.font = "bold 13px Pretendard, sans-serif"; c.fillText(`높이 ${h} m`, 10, 20);
+  c.font = "12px Pretendard, sans-serif"; c.fillText(`바깥 공기의 압력 약 ${P.toFixed(2)} 기압`, 10, 38); c.fillText(`봉지 속 기체의 부피 ×${MT.s.toFixed(2)}`, 10, 56);
+  if (h >= 2700) { c.fillStyle = "#ffe066"; c.fillText("백두산 높이!", 10, 74); } else if (h >= 1900 && h < 2000) { c.fillStyle = "#ffe066"; c.fillText("한라산 높이!", 10, 74); }
+}
+LB.loop($("mt-cv"), mtDraw); mtDraw(1);
+
+/* ── 탁구공 ── */
+const PP = { d: 1 };
+$("pp-t").addEventListener("input", () => $("pp-t-o").textContent = $("pp-t").value + " ℃"); $("pp-t-o").textContent = "20 ℃";
+function ppDraw(dt) {
+  const t = +$("pp-t").value, target = Math.max(0, 1 - Math.max(0, t - 30) / 45); PP.d += (target - PP.d) * Math.min(1, dt * 1.5);
+  const g = LB.fit($("pp-cv"), 240), c = g.c, W = g.w, cx = W / 2, cy = 130, R = 60;
+  c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 240);
+  c.fillStyle = LB.heat((t - 10) / 100).replace("rgb", "rgba").replace(")", ",.35)"); c.fillRect(cx - 120, 90, 240, 140); c.strokeStyle = "#bcd"; c.lineWidth = 2; c.strokeRect(cx - 120, 90, 240, 140);
+  c.fillStyle = "#ff9f1c"; c.beginPath();
+  for (let i = 0; i <= 60; i++) { const a = i / 60 * 6.283, dent = PP.d * 0.4 * Math.max(0, Math.cos(a + 1.2)) ** 4; const r = R * (1 - dent); const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; i ? c.lineTo(x, y) : c.moveTo(x, y); }
+  c.closePath(); c.fill(); c.fillStyle = "rgba(255,255,255,.35)"; c.beginPath(); c.ellipse(cx - 20, cy - 25, 16, 8, -0.5, 0, 7); c.fill();
+  // 김
+  if (t > 50) { c.strokeStyle = "rgba(255,255,255,.35)"; c.lineWidth = 2; for (let k = 0; k < 4; k++) { const x = cx - 80 + k * 50, ph = performance.now() / 600 + k; c.beginPath(); c.moveTo(x, 86); c.quadraticCurveTo(x + 10 * Math.sin(ph), 66, x, 46); c.stroke(); } }
+  c.fillStyle = "#fff"; c.font = "bold 13px Pretendard, sans-serif"; c.fillText(`물의 온도 ${t} ℃`, 10, 20);
+  c.font = "12px Pretendard, sans-serif"; c.fillText(PP.d < 0.08 ? "탁구공이 펴졌어요!" : PP.d < 0.9 ? "조금씩 펴지는 중…" : "아직 찌그러져 있어요", 10, 38);
+}
+LB.loop($("pp-cv"), ppDraw); ppDraw(1);
+
+/* ── 물 뿜는 인형 ── */
+// 공기의 양 nAir(처음 1), 물의 양 w(인형 부피의 비율 0~1). 공기가 차지하는 부피 = nAir × (절대 온도 ÷ 293) (압력 일정)
+const DL = { T: 20, tgt: 20, nAir: 1, w: 0, place: "out", bub: [], jet: 0, msg: "물 뿜는 인형이 비어 있어요" };
+function dlReset() { Object.assign(DL, { T: 20, tgt: 20, nAir: 1, w: 0, place: "out", bub: [], jet: 0, msg: "물 뿜는 인형이 비어 있어요" }); }
+$("dl-hot").addEventListener("click", () => { DL.place = "hot"; DL.tgt = 70; }); $("dl-cold").addEventListener("click", () => { DL.place = "cold"; DL.tgt = 8; });
+$("dl-out").addEventListener("click", () => { DL.place = "out"; DL.tgt = 20; }); $("dl-pour").addEventListener("click", () => { DL.place = "pour"; DL.tgt = 60; }); $("dl-reset").addEventListener("click", dlReset);
+function dlStep(dt) {
+  DL.T += (DL.tgt - DL.T) * Math.min(1, dt * 0.9);
+  const want = DL.nAir * (DL.T + 273) / 293, space = 1 - DL.w; // 공기가 원하는 부피 vs 실제 공간
+  if (want > space + 0.002) {
+    if (DL.w > 0.003) { const out = Math.min(DL.w, (want - space) * dt * 6 + 0.001); DL.w -= out; DL.jet = Math.min(1, DL.jet + dt * 4); DL.msg = DL.place === "hot" || DL.place === "cold" ? "물속에서 물이 밀려나요" : "공기가 늘어나 물을 밀어내요 → 물이 뿜어져 나와요!"; }
+    else { DL.nAir = Math.max(0.05, DL.nAir - (want - space) * dt * 3); if (DL.place !== "out") { if (Math.random() < dt * 14) DL.bub.push({ x: 0, y: 0, v: 40 + Math.random() * 30 }); DL.msg = "공기가 늘어나 거품이 되어 빠져나가요"; } else DL.msg = "공기가 늘어나 구멍으로 빠져나가요"; }
+  } else if (want < space - 0.002) {
+    if (DL.place === "hot" || DL.place === "cold") { DL.w = Math.min(0.95, DL.w + (space - want) * dt * 5); DL.msg = "공기의 부피가 줄어 그 자리로 물이 빨려 들어가요"; }
+    else { DL.nAir += (space - want) * dt * 3; DL.msg = "바깥 공기가 조금 들어와요"; }
+  } else DL.msg = DL.w > 0.05 ? (DL.place === "out" ? "물이 들어 있는 인형 — 머리에 뜨거운 물을 부어 볼까?" : "변화가 멈췄어요") : DL.place === "out" ? "물 뿜는 인형이 비어 있어요" : "변화가 멈췄어요";
+  if (DL.place !== "pour" || DL.w < 0.003) DL.jet = Math.max(0, DL.jet - dt * 2);
+}
+function dlDraw(dt) {
+  dlStep(dt);
+  const g = LB.fit($("dl-cv"), 270), c = g.c, W = g.w, cx = Math.min(W / 2, 200), base = 240;
+  c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 270);
+  const inWater = DL.place === "hot" || DL.place === "cold";
+  if (inWater) { c.fillStyle = DL.place === "hot" ? "rgba(255,110,70,.35)" : "rgba(90,170,255,.35)"; c.fillRect(cx - 140, 70, 280, 190); c.strokeStyle = "#bcd"; c.lineWidth = 2; c.strokeRect(cx - 140, 70, 280, 190); c.fillStyle = "#cfe"; c.font = "11px Pretendard, sans-serif"; c.fillText(DL.place === "hot" ? "뜨거운 물" : "찬물", cx - 132, 86); }
+  // 인형 몸 (토끼 모양)
+  const bodyTop = 120, bodyH = 110;
+  c.save(); c.beginPath(); c.ellipse(cx, bodyTop + bodyH / 2, 58, bodyH / 2, 0, 0, 7); c.moveTo(cx + 38, bodyTop - 2); c.arc(cx, bodyTop - 4, 38, 0, 7); c.closePath();
+  c.fillStyle = "#e9e4dc"; c.fill(); c.clip();
+  // 물 (아래부터)
+  const totalTop = bodyTop - 42, totalH = bodyH + 42, wh = totalH * DL.w;
+  c.fillStyle = "rgba(60,150,230,.75)"; c.fillRect(cx - 70, totalTop + totalH - wh, 140, wh + 2);
+  c.restore();
+  c.strokeStyle = "#b7aa98"; c.lineWidth = 2; c.beginPath(); c.ellipse(cx, bodyTop + bodyH / 2, 58, bodyH / 2, 0, 0, 7); c.stroke(); c.beginPath(); c.arc(cx, bodyTop - 4, 38, 0, 7); c.stroke();
+  c.fillStyle = "#e9e4dc"; c.beginPath(); c.ellipse(cx - 18, bodyTop - 58, 9, 24, -0.2, 0, 7); c.ellipse(cx + 18, bodyTop - 58, 9, 24, 0.2, 0, 7); c.fill();
+  c.fillStyle = "#f2a0a8"; c.beginPath(); c.ellipse(cx - 18, bodyTop - 58, 4, 15, -0.2, 0, 7); c.ellipse(cx + 18, bodyTop - 58, 4, 15, 0.2, 0, 7); c.fill();
+  c.fillStyle = "#222"; c.beginPath(); c.arc(cx - 13, bodyTop - 10, 4, 0, 7); c.arc(cx + 13, bodyTop - 10, 4, 0, 7); c.fill();
+  // 구멍 (입)
+  const hx = cx, hy = bodyTop + 10; c.fillStyle = "#333"; c.beginPath(); c.arc(hx, hy, 3, 0, 7); c.fill();
+  // 공기 입자 (빠르기 ∝ 온도)
+  const nShow = Math.round(16 * DL.nAir), airTop = totalTop, airH = totalH - wh, sp = (DL.T + 273) / 293;
+  const t = performance.now() / 1000;
+  c.fillStyle = "#ffd166"; for (let i = 0; i < nShow; i++) { const fx = (Math.sin(i * 12.9898 + t * 2.1 * sp * (1 + i % 3 * 0.3)) * 0.5 + 0.5), fy = (Math.sin(i * 78.233 + t * 1.7 * sp) * 0.5 + 0.5); const x = cx - 40 + fx * 80, y = airTop + 30 + fy * Math.max(4, airH - 40); c.beginPath(); c.arc(x, y, 3, 0, 7); c.fill(); }
+  // 거품
+  DL.bub.forEach(b => { b.y -= b.v * dt; b.x += Math.sin(b.y / 8) * 0.6; c.strokeStyle = "rgba(255,255,255,.8)"; c.lineWidth = 1.5; c.beginPath(); c.arc(hx + b.x, hy + b.y, 4, 0, 7); c.stroke(); }); DL.bub = DL.bub.filter(b => hy + b.y > 72);
+  // 물줄기
+  if (DL.jet > 0.05 && !inWater) { c.strokeStyle = `rgba(90,170,255,${DL.jet})`; c.lineWidth = 4; c.beginPath(); c.moveTo(hx + 3, hy); c.quadraticCurveTo(hx + 90, hy - 40 * DL.jet, hx + 170 * DL.jet + 20, hy + 90); c.stroke(); }
+  if (DL.place === "pour") { c.fillStyle = "rgba(255,120,80,.8)"; c.fillRect(cx - 10, 10, 20, 34); c.fillStyle = "#cfe"; c.font = "11px Pretendard, sans-serif"; c.fillText("뜨거운 물", cx + 14, 26); }
+  $("dl-T").textContent = DL.T.toFixed(0) + " ℃"; $("dl-W").textContent = Math.round(DL.w * 100) + " %"; $("dl-S").textContent = DL.msg;
+}
+LB.loop($("dl-cv"), dlDraw); dlDraw(0.016);
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅰ 아두이노 실험 — 초음파 센서로 종이 헬리콥터의 낙하 측정하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅰ. 과학과 인류의 지속가능한 삶</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p16-kids.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 · Ⅰ. 과학과 인류의 지속가능한 삶 · 교과서 16~17쪽</span>
+      <h1>초음파 센서로 재는<br><span>종이 헬리콥터</span></h1>
+      <p>초시계로 재면 사람마다 누르는 순간이 달라 오차가 커요. 바닥에 놓은 초음파 센서가 위를 바라보며 떨어지는 종이 헬리콥터까지의 거리를 0.05초마다 재게 해 보자. 과학적 탐구 방법의 절차에 따라 날개 길이와 낙하 시간의 관계를 정밀하게 확인한다.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>날개 길이에 따른 종이 헬리콥터의 낙하 시간</div><div><b>관련 단원</b>Ⅰ-1. 과학적 탐구 방법</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + 초음파 센서(HC-SR04)</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 3월 20일 / 2모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 문제 인식 → 가설 설정 → 탐구 설계 및 수행 → 자료 해석 → 결론 도출의 절차에 따라 탐구하고, 센서로 얻은 자료를 그래프로 해석할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>문제 인식과 가설 설정</div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span><b>문제</b> 종이 헬리콥터를 천천히 떨어지게 하려면 어떻게 해야 할까?</div>
+      <textarea class="free" data-key="hypo" rows="2" data-keywords="날개 길이,길수록,오래/천천히" data-model="가설: 날개 길이가 길수록 종이 헬리콥터가 바닥에 떨어지는 데 걸리는 시간이 길어질 것이다."></textarea><span class="fb"></span></div>
+    <div class="q" data-why="날개 길이만 다르게 하고 날개 너비, 꼬리 길이, 클립 수, 떨어뜨리는 높이는 같게 해요.">
+      <div class="q-text"><span class="q-num">2</span><b>다르게 할 조건</b> <span class="choice-group" data-key="var" data-answer="길이"><button type="button" class="choice-btn" data-value="길이">날개 길이</button><button type="button" class="choice-btn" data-value="클립">클립 수</button><button type="button" class="choice-btn" data-value="높이">떨어뜨리는 높이</button></span></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 장치 꾸미기</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, 브레드보드, 초음파 센서(HC-SR04), 점퍼선, 색종이로 만든 종이 헬리콥터 2 개(날개 길이 6 cm, 10 cm), 클립, 두꺼운 종이(지름 10 cm 원판), 줄자, 노트북(크롬)</p></div>
+    <div class="steps-box"><ol>
+      <li>초음파 센서를 바닥에 눕혀 <b>위를 바라보게</b> 놓는다. 센서 둘레를 책으로 받쳐 흔들리지 않게 한다.</li>
+      <li>종이 헬리콥터 아래쪽(클립 부분)에 두꺼운 종이 원판을 붙이면 초음파가 잘 반사된다. (원판의 무게도 두 헬리콥터에 똑같이!)</li>
+      <li>센서 바로 위 1.5 m 높이에서 헬리콥터를 떨어뜨린다. 줄자로 높이를 표시해 매번 같은 높이에서 놓는다.</li>
+    </ol></div>
+    <div id="ul-circuit"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">3</span>측정하기</div>
+    <div class="card-hint">[기록 시작]을 누른 뒤 헬리콥터를 놓아요. 거리–시간 그래프에서 거리가 줄어들기 시작한 때부터 거의 0이 된 때까지가 <b>낙하 시간</b>이에요. 아래 속력 그래프에서 헬리콥터가 처음에는 빨라지다가 곧 일정한 빠르기로 떨어지는지도 확인하자.</div>
+    <div id="ul-lab"></div>
+    <table class="data-t" style="margin-top:8px">
+      <tr><th>헬리콥터</th><th>1 회</th><th>2 회</th><th>3 회</th><th>평균(초)</th></tr>
+      <tr><td>날개 6 cm</td><td><input class="blank w-s" id="a1" style="width:56px"></td><td><input class="blank w-s" id="a2" style="width:56px"></td><td><input class="blank w-s" id="a3" style="width:56px"></td><td id="a-avg">-</td></tr>
+      <tr><td>날개 10 cm</td><td><input class="blank w-s" id="b1" style="width:56px"></td><td><input class="blank w-s" id="b2" style="width:56px"></td><td><input class="blank w-s" id="b3" style="width:56px"></td><td id="b-avg">-</td></tr>
+    </table>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">4</span>자료 해석</div>
+    <div class="q" data-why="결과 표의 평균을 비교해요. 보통 날개가 긴 헬리콥터의 평균 낙하 시간이 더 길어요.">
+      <div class="q-text"><span class="q-num">1</span>내 결과에서 평균 낙하 시간이 더 긴 헬리콥터는 <span class="choice-group" id="longer"><button type="button" class="choice-btn" data-value="a">날개 6 cm</button><button type="button" class="choice-btn" data-value="b">날개 10 cm</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="떨어지기 시작하면 잠깐 빨라지다가, 공기의 저항이 무게와 같아지면 거의 일정한 빠르기로 떨어져요.">
+      <div class="q-text"><span class="q-num">2</span>속력 그래프를 보면 헬리콥터는 떨어지는 동안 대부분 <span class="choice-group" data-key="speed" data-answer="일정"><button type="button" class="choice-btn" data-value="빨라">계속 빨라졌다</button><button type="button" class="choice-btn" data-value="일정">거의 일정한 빠르기였다</button><button type="button" class="choice-btn" data-value="느려">계속 느려졌다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5</span>결론 도출과 토의</div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span><b>결론</b> 탐구 결과로 가설이 맞는지 확인하고 결론을 써 보자. 가설이 틀렸다면 어떻게 할지도 써 보자.</div>
+      <textarea class="free" data-key="concl" rows="3" data-keywords="가설,맞/틀,날개,수정" data-model="날개 10 cm 헬리콥터의 평균 낙하 시간이 더 길었으므로 가설이 맞다. 날개가 길수록 공기의 저항을 많이 받아 천천히 떨어진다. 만약 결과가 가설과 달랐다면 가설을 수정하여 다시 탐구한다."></textarea><span class="fb"></span></div>
+    <div class="q"><div class="q-text"><span class="q-num">2</span>초시계로 잴 때와 비교하여 센서로 측정할 때 좋은 점을 써 보자.</div>
+      <textarea class="free" data-key="merit" rows="2" data-keywords="오차,정확,반응/사람,그래프" data-model="사람이 초시계를 누르는 반응 시간에 따른 오차가 없어 더 정확하고, 거리와 속력이 시간에 따라 어떻게 변하는지 그래프로 볼 수 있다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">다르게 할 조건은 하나만 바꾸고 나머지 조건은 같게 하여 실험했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">센서 자료와 그래프를 해석하여 결론을 도출했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅰ. 과학과 인류의 지속가능한 삶 · 아두이노 실험 보고서 · 교과서 16~17쪽 탐구를 아두이노 초음파 센서로 재구성</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../g1-5/ultra-lab.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅰ 아두이노 종이 헬리콥터";
+const $ = id => document.getElementById(id);
+UL.base = "../g1-5/";
+// 예시: 1.5 m에서 놓은 날개 10 cm 헬리콥터 — 처음 0.3초 동안 빨라지다가 약 45 cm/s로 일정
+const SAMPLE = []; for (let i = 0; i <= 90; i++) { const t = i * 0.05; let d; if (t < 0.4) d = 150; else { const s = t - 0.4; d = 150 - (s < 0.3 ? 75 * s * s : 6.75 + 45 * (s - 0.3)); } SAMPLE.push([+t.toFixed(2), +Math.max(3, d + (Math.random() - 0.5) * 0.8).toFixed(1)]); }
+UL.circuit("ul-circuit");
+UL.stream({ root: "ul-lab", key: "fall_log", duration: 4.5, yMax: 160, vMax: 100, sample: SAMPLE });
+const num = id => { const v = WS.toNumber($(id).value); return isNaN(v) || $(id).value.trim() === "" ? null : v; };
+const avg = p => { const a = [1, 2, 3].map(k => num(p + k)).filter(v => v != null); return a.length ? a.reduce((s, x) => s + x, 0) / a.length : null; };
+function upd() { ["a", "b"].forEach(p => { const v = avg(p); $(p + "-avg").textContent = v != null ? v.toFixed(2) : "-"; }); }
+["a1", "a2", "a3", "b1", "b2", "b3"].forEach(id => { $(id).addEventListener("input", upd); WS.custom(id, { el: $(id), value: () => $(id).value }); });
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+const longer = () => { const a = avg("a"), b = avg("b"); return a == null || b == null ? null : (b >= a ? "b" : "a"); };
+const c = { el: $("longer"), value: picked("longer"), check: v => longer() == null ? null : v === longer() }; Object.defineProperty(c, "answer", { get: () => longer() === "b" ? "날개 10 cm" : longer() === "a" ? "날개 6 cm" : "결과 표를 채우기" }); WS.custom("longer", c);
+["self1", "self2"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+</script>
+</body>
+</html>

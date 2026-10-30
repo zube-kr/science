@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅶ-1-03 — 활동하는 태양</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅶ. 태양계</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p232-cartoon.jpg" alt="태양 활동이 활발해지면 지구에 어떤 일이 일어날까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 태양계 · 1. 태양계의 구성 · 03 <span class="pg" style="margin:0">232~236쪽</span></span>
+      <h1>활동하는<br><span>태양</span></h1>
+      <p>“나 이제 엄청나게 활동할 거야.” “주의해야 해!” 태양 활동이 활발해지면 지구에 어떤 일이 일어날까? 태양 필터를 단 가상 망원경과 3D 태양으로 태양의 표면과 대기를 관찰하고, 흑점 수 그래프로 태양 활동이 지구에 미치는 영향을 추론해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 태양의 표면과 대기에서 일어나는 현상을 알고, 태양 활동이 지구에 미치는 영향을 추론할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구</span>천체 망원경을 이용하여 태양 관측하기 <span class="pg">232~233쪽</span></div>
+    <p class="lead-q">태양은 어떤 모습일까?</p>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="steps-box" style="margin:0"><b>준비물</b> 천체 망원경, 대물렌즈용 태양 필터, 보조 망원경용 태양 필터, 스마트 기기, 스마트 기기 어댑터<ol>
+        <li>태양을 관측할 수 있는 곳에 천체 망원경을 설치한다.</li>
+        <li>대물렌즈와 보조 망원경에 태양 필터를 장착한다.</li>
+        <li><b>관찰</b> 경통이 태양을 향하도록 한 다음, 태양을 관측한다.</li>
+        <li>스마트 기기 어댑터로 스마트 기기를 접안렌즈에 고정한 다음, 태양을 촬영한다.</li>
+        <li><b>관찰</b> 촬영한 결과를 공유 플랫폼에 올리고, 친구들과 함께 관찰한다.</li>
+      </ol><div class="safe" style="margin-top:6px">⚠️ 맨눈으로 태양을 직접 보거나 태양 필터를 장착하지 않은 천체 망원경으로 태양을 관측하지 않도록 주의한다.</div></div>
+      <figure class="fig" style="margin:0"><img src="img/p232-telescope.jpg" alt="태양 필터를 장착한 천체 망원경"><figcaption><span class="tb">232쪽</span>대물렌즈용 · 보조 망원경용 태양 필터</figcaption></figure>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>태양 필터를 단 가상 망원경</div>
+    <div class="card-hint">먼저 <b>태양 필터를 장착</b>한 뒤 관측해 보자. 관측 날짜를 하루씩 넘기면 흑점의 위치가 어떻게 달라지는지도 보자. (가상 실험이므로 필터 없이 눌러 보아도 안전하지만, 실제로는 절대 안 돼요!)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label><input type="checkbox" id="sv-filter"> 대물렌즈와 보조 망원경에 태양 필터 장착</label></div>
+      <div class="ctrl"><label>관측 날짜 <output id="sv-day-o"></output></label><input type="range" id="sv-day" min="0" max="10" value="0"></div>
+      <div class="ctrl"><label>배율</label><select id="sv-zoom"><option value="1">태양 전체</option><option value="4">흑점 확대</option></select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="sv-look">👁 접안렌즈로 보기</button></div>
+    <div class="sim-stage" style="max-width:420px;margin:0 auto"><canvas id="sv-cv"></canvas><span class="tag" id="sv-tag">관측 준비</span></div>
+    <div class="q" data-why="태양 필터를 달고 보면 밝은 광구에 어두운 흑점과 쌀알 무늬가 보여요. 날짜가 지나면 흑점이 한쪽으로 이동하는데, 이는 태양이 자전하기 때문이에요." data-hint="필터를 장착하고 [보기]를 누른 다음 날짜를 바꿔 보세요.">
+      <div class="q-text"><span class="q-num">1</span>태양의 밝은 표면에서 보이는 어두운 점을 <span class="choice-group" data-key="sv_spot" data-answer="흑점"><button type="button" class="choice-btn" data-value="흑점">흑점</button><button type="button" class="choice-btn" data-value="홍염">홍염</button><button type="button" class="choice-btn" data-value="코로나">코로나</button></span>이라고 한다. 날짜가 지나면 흑점은 <span class="choice-group" data-key="sv_move" data-answer="이동"><button type="button" class="choice-btn" data-value="같">같은 자리에 있다</button><button type="button" class="choice-btn" data-value="이동">한쪽 방향으로 이동한다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>정리해 볼까</b> 태양의 모습에는 어떤 특징이 있는지 이야기해 보자.</div>
+      <textarea class="free" data-key="sv_talk" data-keywords="흑점,쌀알,밝,둥글" data-model="태양은 둥글고 밝게 빛나며, 표면에는 어두운 흑점과 쌀알 모양의 무늬가 보인다. 흑점은 날짜에 따라 위치가 이동한다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 태양 관측기 이용하기</h4>
+      <figure class="fig float-r" style="max-width:150px"><img src="img/p233-alt.jpg" alt="태양 관측기"><figcaption>렌즈 · 태양의 모습</figcaption></figure>
+      <p style="margin:0;font-size:14px">태양 관측기가 태양을 향하게 하고, 렌즈를 통해 들어온 햇빛의 초점을 맞추어 태양을 관측한다. <b>정리</b> 태양의 모습에는 어떤 특징이 있는지 이야기해 보자.</p><div style="clear:both"></div></div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>태양의 광구와 대기 <span class="pg">233쪽</span></div>
+    <div class="book"><p>스스로 빛을 내는 천체의 표면을 <span class="key">광구</span>라고 한다. 태양의 광구는 평균 온도가 약 <b>6000 ℃</b>이고, 광구에는 <b>그림 7-2</b>와 같이 흑점과 쌀알 무늬가 나타난다. <span class="key">흑점</span>은 광구에 나타나는 불규칙한 모양의 어두운 부분으로, 주변보다 온도가 낮아 어둡게 보인다. <span class="key">쌀알 무늬</span>는 광구에 나타나는 쌀알 모양의 무늬이다.</p>
+    <p>●태양의 대기는 채층과 코로나로 구분된다. <span class="key">채층</span>은 광구 바로 위를 얇게 둘러싼 부분이며 붉은색을 띤다. <span class="key">코로나</span>는 채층 위로 넓게 뻗어 있는 부분이며 진주색을 띤다.</p></div>
+    <div class="tip-box"><b>●태양의 대기 관측</b> 평소에는 광구가 밝아서 대기를 보기 어렵지만, 광구가 가려지면 대기를 볼 수 있다.</div>
+    <figure class="fig"><img src="img/p233-fig7-2.jpg" alt="태양의 광구와 대기"><figcaption><span class="tb">그림 7-2</span>태양의 광구와 대기 — 흑점, 쌀알 무늬, 채층, 코로나</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">3D 가상 실험</span>3D 태양 탐험</div>
+    <div class="card-hint">아래 이름을 누르면 3D 태양에서 그 부분을 찾아 보여 줘요. [광구 가리기]를 켜면 개기일식 때처럼 밝은 광구가 가려져 채층과 코로나가 보여요.</div>
+    <div class="btn-row" id="s3-btns"><button type="button" class="btn small ghost" data-f="photo">광구</button><button type="button" class="btn small ghost" data-f="spot">흑점</button><button type="button" class="btn small ghost" data-f="gran">쌀알 무늬</button><button type="button" class="btn small ghost" data-f="chromo">채층</button><button type="button" class="btn small ghost" data-f="corona">코로나</button><button type="button" class="btn small ghost" data-f="prom">홍염</button><button type="button" class="btn small ghost" data-f="flare">플레어</button><label style="font-size:13px;margin-left:6px"><input type="checkbox" id="s3-cover"> 광구 가리기</label></div>
+    <div class="sim-stage" id="s3-stage" style="height:360px"><span class="tag">3D 태양 · 드래그하여 돌리기</span><span class="tag2" id="s3-info">이름을 눌러 보세요</span></div>
+    <div class="q" data-why="흑점은 주변보다 온도가 낮아 어둡게 보여요. 채층은 붉은색, 코로나는 진주색이고, 광구가 가려질 때 잘 보여요." data-hint="3D 태양에서 [흑점], [채층], [코로나]를 눌러 설명을 읽어 보세요.">
+      <div class="q-text"><span class="q-num">1</span>흑점이 어둡게 보이는 까닭은 주변보다 온도가 <span class="choice-group" data-key="spot_t" data-answer="낮"><button type="button" class="choice-btn" data-value="높">높기</button><button type="button" class="choice-btn" data-value="낮">낮기</button></span> 때문이다. 붉은색을 띠는 대기는 <span class="choice-group" data-key="red" data-answer="채층"><button type="button" class="choice-btn" data-value="채층">채층</button><button type="button" class="choice-btn" data-value="코로나">코로나</button></span>, 진주색으로 넓게 뻗은 대기는 <span class="choice-group" data-key="pearl" data-answer="코로나"><button type="button" class="choice-btn" data-value="채층">채층</button><button type="button" class="choice-btn" data-value="코로나">코로나</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>홍염과 플레어 <span class="pg">234쪽</span></div>
+    <figure class="fig float-r"><img src="img/p234-fig7-3.jpg" alt="홍염과 플레어"><figcaption><span class="tb">그림 7-3</span>홍염과 플레어</figcaption></figure>
+    <div class="book"><p>태양의 대기에서는 <b>그림 7-3</b>과 같이 홍염과 플레어가 나타나기도 한다. <span class="key">홍염</span>은 광구에서 코로나까지 물질이 솟아오르는 현상으로, 불꽃이나 고리 등 다양한 모양으로 나타난다. <span class="key">플레어</span>는 흑점 부근에서 강력한 폭발이 일어나는 현상으로, 플레어가 나타나면 채층의 일부가 매우 밝아진다.</p></div>
+    <div class="tip-box" style="clear:both"><b>🔍 인터넷 검색</b> 국립전파연구원 우주전파센터(spaceweather.rra.go.kr) — 오늘의 태양 활동에서 태양의 모습을 확인할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>태양 활동이 지구에 미치는 영향 추론하기 <span class="pg">234쪽</span></div>
+    <p class="lead-q">태양 활동이 지구에 미치는 영향은 무엇일까?</p>
+    <div class="book"><p>태양의 광구에서는 흑점이 생겨나기도 하고 사라지기도 하면서 그 개수가 달라진다. 흑점 수는 약 <b>11 년</b>을 주기로 많아졌다 적어지는데, 태양의 활동이 활발할수록 많아진다. 태양의 활동이 활발해지면 코로나가 커지고, 홍염과 플레어가 자주 나타난다.</p></div>
+    <div class="card-hint">흑점 수 그래프에서 <b>흑점 수가 가장 많았던 해(극대기)</b>를 눌러 표시해 보자. 표시한 해 사이의 간격으로 주기를 구할 수 있어요. (해마다의 평균 흑점 수, 출처: 벨기에 왕립천문대 SILSO 자료를 바탕으로 함)</div>
+    <div class="light-stage"><canvas id="sn-cv" style="cursor:crosshair"></canvas></div>
+    <div class="btn-row"><button type="button" class="btn ghost small" id="sn-clear">🧹 표시 지우기</button><span id="sn-marks" style="font-size:13px;font-weight:700"></span></div>
+    <figure class="fig" style="max-width:360px"><img src="img/p234-graph.jpg" alt="흑점 수 변화 그래프"><figcaption><span class="tb">234쪽</span>흑점 수 변화 그래프 (출처: 미국해양대기청, 2023)</figcaption></figure>
+    <div class="q" data-why="흑점 수의 극대기는 약 1989년, 2000~2001년, 2014년이에요. 간격이 약 11년이므로 2014년 다음 극대기는 약 2025년 무렵이에요." data-hint="그래프의 봉우리를 세 개 찾아 표시하고 간격을 계산하세요.">
+      <div class="q-text"><span class="q-num">1</span>흑점 수가 많아졌다 적어지는 주기는 약 <input class="blank w-s" data-key="sn_period" data-num="11" data-abs="1" style="width:50px"> 년이다. 2020 년 이후에 태양 활동이 가장 활발해질 시기는 <span class="choice-group" data-key="sn_next" data-answer="2025"><button type="button" class="choice-btn" data-value="2021">2021년 무렵</button><button type="button" class="choice-btn" data-value="2025">2025년 무렵</button><button type="button" class="choice-btn" data-value="2031">2031년 무렵</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>태양 활동과 우주 날씨</div>
+    <div class="card-hint">태양 활동 정도를 바꿔 보자. 흑점·플레어·태양풍이 어떻게 달라지고, 지구에서는 어떤 일이 일어나는지 보자.</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>태양 활동 <output id="sw-a-o"></output></label><input type="range" id="sw-a" min="0" max="100" value="20"></div></div>
+    <div class="sim-stage"><canvas id="sw-cv"></canvas></div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>2020 년 이후 예상한 시기에는 태양 활동으로 지구에 어떤 일이 일어날지 추론해 보자.</div>
+      <textarea class="free" data-key="sw_guess" data-keywords="태양풍,오로라,통신/전파,인공위성/GPS/전력" data-model="2025년 무렵에는 흑점 수가 많아지고 플레어가 자주 일어나 태양풍이 강해질 것이다. 그래서 오로라가 더 자주 넓게 보이고, 무선 통신 장애나 인공위성·GPS 오류, 전력 시스템 고장이 생길 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>태양풍과 지구 <span class="pg">235쪽</span></div>
+    <div class="book"><p>태양에서는 전기적 성질을 띤 입자들이 우주로 방출되는데, 이를 <span class="key">태양풍</span>이라고 한다. 태양 활동이 활발할 때 태양풍은 더욱 강해지며, 이때 지구는 <b>그림 7-4</b>와 같은 영향을 받는다. 예를 들어 인공위성과 전력 시스템이 기능을 못하거나 무선 전파 통신에 장애가 생길 수 있고, ●오로라가 더 자주 발생한다. 오늘날에는 태양 활동을 지속적으로 관측하고 예보하여 태양 활동으로 생길 수 있는 영향에 대비하고 있다.</p></div>
+    <figure class="fig"><img src="img/p235-fig7-4.jpg" alt="태양 활동이 지구에 미치는 영향"><figcaption><span class="tb">그림 7-4</span>태양 활동이 지구에 미치는 영향 — 인공위성, 오로라, 전력 시스템, 무선 전파 통신, GPS</figcaption></figure>
+    <div class="tip-box"><b>●오로라</b> 태양에서 방출된 전기적 성질을 띤 입자가 지구 대기에 부딪쳐 빛을 내는 현상</div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>232쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">235쪽</span></div>
+    <div class="q" data-why="광구에서 코로나까지 물질이 솟아오르는 것은 홍염, 흑점 부근의 강력한 폭발은 플레어예요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 광구에서 코로나까지 물질이 솟아오르는 현상을 ( <input class="blank w-s" data-key="sc1" data-answer="홍염"> )(이)라고 하고, 흑점 부근에서 강력한 폭발이 일어나는 현상을 ( <input class="blank w-s" data-key="sc2" data-answer="플레어"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 태양 활동을 예보하는 일이 과거에 비해 현대 사회에서 더 중요해진 까닭을 설명해 보자.</div>
+      <textarea class="free" data-key="sc_forecast" data-keywords="인공위성,통신,GPS/전력,의존" data-model="현대 사회는 인공위성, GPS, 무선 통신, 전력 시스템에 크게 의존하는데, 태양 활동이 활발해지면 이들이 고장 나거나 장애가 생길 수 있으므로 미리 예보하여 대비해야 하기 때문이다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 · 힌트 조각 2 (235쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="태양의 대기는 채층과 코로나로 구분돼요.">
+        <div class="q-text" style="color:#3a1600">태양의 대기에는 채층과 ( <input class="blank w-s" data-key="blk2" data-answer="코로나" style="background:#fff"> )이/가 있다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>활동하는 태양</div>
+    <div class="q" data-why="평균 약 6000 ℃의 밝고 둥근 표면은 광구, 쌀알 모양 무늬는 쌀알 무늬, 어두운 부분은 흑점이에요.">
+      <div class="q-text"><span class="q-num">1</span>태양의 <input class="blank w-s" data-key="t1" data-answer="광구"> 는 평균 온도가 약 6000 ℃이고, 우리 눈에 보이는 태양의 밝고 둥근 표면이다. 태양의 표면에서 수많은 쌀알을 뿌려놓은 것 같은 무늬를 <input class="blank w-s" data-key="t2a" data-answer="쌀알 무늬|쌀알무늬"> 라 하고, 불규칙한 모양의 어두운 부분을 <input class="blank w-s" data-key="t2b" data-answer="흑점"> 이라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="(1) 광구를 얇게 둘러싼 붉은 대기는 채층, (2) 넓게 뻗은 진주색 대기는 코로나예요.">
+      <div class="q-text"><span class="q-num">2</span>그림 7-2의 태양의 대기에서 (1) 광구 바로 위를 얇게 둘러싼 붉은 부분: <input class="blank w-s" data-key="t3a" data-answer="채층"> , (2) 채층 위로 넓게 뻗은 진주색 부분: <input class="blank w-s" data-key="t3b" data-answer="코로나"></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="솟아오르는 것은 홍염, 흑점 부근의 폭발은 플레어, 전기적 성질을 띤 입자의 방출은 태양풍이에요. 흑점 수로 태양 활동의 주기(약 11년)를 알 수 있어요.">
+      <div class="q-text"><span class="q-num">3</span>광구에서 코로나까지 물질이 솟아오르는 현상으로, 불꽃이나 고리 등의 모양으로 나타나는 것은 <input class="blank w-s" data-key="t4" data-answer="홍염"> 이다. 흑점 부근에서 폭발이 일어나 채층의 일부가 순간 매우 밝아지는 현상을 <input class="blank w-s" data-key="t5" data-answer="플레어"> 라고 한다. 태양에서 전기적 성질을 띤 입자들이 우주로 방출되는 것은 <input class="blank w-s" data-key="t6" data-answer="태양풍"> 이다. 태양의 활동이 주기적으로 변하는 것은 <input class="blank w-s" data-key="t7" data-answer="흑점 수|흑점수|흑점의 수|흑점"> 의 변화로 알 수 있으며, 변화 주기는 약 11 년이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="태양 활동이 활발할수록 흑점 수가 많아지고 태양풍이 강해져요. 오로라는 더 자주 생기지만(⑨ O), 무선 통신은 오히려 장애가 생겨요(⑩ X).">
+      <div class="q-text"><span class="q-num">4</span>태양의 활동이 활발할수록 흑점 수가 <input class="blank w-s" data-key="t8a" data-answer="많아|많아진다|많아지|늘어"> 지고, 홍염과 플레어가 자주 나타나며, ( <span class="choice-group" data-key="t8b" data-answer="태양풍"><button type="button" class="choice-btn" data-value="태양풍">태양풍</button><button type="button" class="choice-btn" data-value="쌀알">쌀알 무늬</button></span> )이/가 더욱 강해진다.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑨ 태양의 활동이 활발할 때 지구에서는 오로라가 더 자주 발생한다.</td><td><span class="choice-group" data-key="t9" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑩ 태양의 활동이 활발할 때 지구에서는 무선 전파 통신이 잘 연결된다.</td><td><span class="choice-group" data-key="t10" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>태양과 태양 활동 · 첫 번째 블록 찾기 <span class="pg">236쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>태양과 태양 활동</h4>
+      <div class="q" style="border-top:none" data-why="광구의 어두운 부분은 흑점, 채층 위로 넓게 뻗은 대기는 코로나, 흑점 부근의 강력한 폭발은 플레어예요.">
+        <div class="q-text">(1) 태양<br>· <input class="blank w-s" data-key="s5" data-answer="흑점"> : 광구에 나타나는 불규칙한 모양의 어두운 부분 · 쌀알 무늬: 광구에 나타나는 쌀알 모양의 무늬<br>· 채층: 태양의 대기 중 광구 바로 위를 얇게 둘러싼 부분 · <input class="blank w-s" data-key="s6" data-answer="코로나"> : 태양의 대기 중 채층 위로 넓게 뻗어 있는 부분<br>· 홍염: 광구에서 코로나까지 물질이 솟아오르는 현상 · <input class="blank w-s" data-key="s7" data-answer="플레어"> : 흑점 부근에서 강력한 폭발이 일어나는 현상<br>(2) 태양 활동이 활발할 때 태양풍은 더욱 강해지며, 지구는 그 영향을 받는다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 찾기 · 조각을 모아 답하기</b>
+      <div class="t">태양은 어떤 특징이 있는 천체일까?</div>
+      <div style="font-size:13px;margin-bottom:6px">조각 1 (231쪽) 태양은 스스로 빛을 내는 천체이다. · 조각 2 (235쪽) 태양의 대기에는 채층과 코로나가 있다.</div>
+      <div class="q" style="border-top:none;padding:0">
+        <textarea class="free" data-key="block1" data-keywords="스스로,빛,광구/흑점,채층,코로나" data-model="태양은 태양계의 중심에서 스스로 빛을 내는 천체이다. 표면인 광구에는 흑점과 쌀알 무늬가 있고, 대기에는 채층과 코로나가 있으며, 홍염과 플레어 같은 활동이 일어난다." placeholder="태양은 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">나의 학습 확인하기</span>1. 태양계의 구성 돌아보기 <span class="pg">236쪽</span></div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left"><b>지식·이해</b> 태양계를 구성하는 천체를 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left"><b>과정·기능</b> 천체 망원경으로 천체를 관측할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left"><b>가치·태도</b> 밤하늘 천체에 호기심을 품고 천체를 관측하는 활동에 적극적으로 참여했는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>이번 활동에서 알게 된 점, 어려웠던 점, 더 알아보고 싶은 점을 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="알게 된 점 / 어려웠던 점 / 더 알아보고 싶은 점"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅶ. 태양계 · 1. 태양계의 구성 · 03 활동하는 태양 · 비상교육 중학 과학 1 교과서(232~236쪽)·탐구·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록 · 흑점 수 자료: SILSO, Royal Observatory of Belgium</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅶ-1-03 활동하는 태양";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2", "self3"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+// 흑점 (경도°, 위도°, 크기)
+const SPOTS = [[-40, 15, 1.0], [-30, 12, 0.5], [10, -18, 0.8], [18, -20, 0.4], [55, 8, 0.6]];
+
+/* ── 가상 망원경 ── */
+const SV = { on: false, flash: 0, looked: {} };
+$("sv-day").addEventListener("input", () => $("sv-day-o").textContent = $("sv-day").value + "일 뒤"); $("sv-day-o").textContent = "첫날";
+$("sv-look").addEventListener("click", () => { SV.on = true; if (!$("sv-filter").checked) SV.flash = 1.6; });
+// 쌀알 무늬용 점 (고정)
+const GR = Array.from({ length: 700 }, (_, i) => [Math.sin(i * 12.9898) * 0.5 + 0.5, Math.sin(i * 78.233) * 0.5 + 0.5, Math.sin(i * 3.7) * 0.5 + 0.5]);
+function svDraw(dt) {
+  const g = LB.fit($("sv-cv"), 380), c = g.c, W = g.w, cx = W / 2, cy = 190, Rv = Math.min(W / 2 - 8, 180);
+  c.fillStyle = "#000"; c.fillRect(0, 0, W, 380);
+  const filt = $("sv-filter").checked, z = +$("sv-zoom").value, day = +$("sv-day").value;
+  c.save(); c.beginPath(); c.arc(cx, cy, Rv, 0, 7); c.clip(); c.fillStyle = "#050505"; c.fillRect(0, 0, W, 380);
+  if (SV.on && filt) {
+    const R = 150 * z, ox = z > 1 ? -R * 0.32 : 0, oy = z > 1 ? -R * 0.18 : 0, sx = cx + ox, sy = cy + oy;
+    const lg = c.createRadialGradient(sx, sy, 0, sx, sy, R); lg.addColorStop(0, "#ffd27a"); lg.addColorStop(0.75, "#f3a93c"); lg.addColorStop(1, "#c76d18");
+    c.fillStyle = lg; c.beginPath(); c.arc(sx, sy, R, 0, 7); c.fill();
+    c.save(); c.beginPath(); c.arc(sx, sy, R, 0, 7); c.clip();
+    c.fillStyle = "rgba(150,70,10,.16)"; GR.forEach(p => { c.beginPath(); c.arc(sx - R + p[0] * 2 * R, sy - R + p[1] * 2 * R, (1.2 + p[2] * 1.8) * z, 0, 7); c.fill(); });
+    // 자전: 하루에 약 13°
+    SPOTS.forEach(s => { const lon = (s[0] + day * 13.2) * Math.PI / 180, lat = s[1] * Math.PI / 180; if (Math.cos(lon) <= 0.05) return; const x = sx + R * Math.cos(lat) * Math.sin(lon), y = sy - R * Math.sin(lat), fs = Math.cos(lon); const rr = s[2] * 9 * z; c.fillStyle = "rgba(120,55,10,.75)"; c.beginPath(); c.ellipse(x, y, rr * 1.6 * fs, rr * 1.6, 0, 0, 7); c.fill(); c.fillStyle = "#2a1205"; c.beginPath(); c.ellipse(x, y, rr * fs, rr, 0, 0, 7); c.fill(); });
+    c.restore();
+    SV.looked["f" + day] = 1;
+    $("sv-tag").textContent = "태양 필터 · " + (day ? day + "일 뒤" : "첫날");
+  } else if (SV.on) { $("sv-tag").textContent = "⚠️ 필터 없음"; }
+  c.restore();
+  if (SV.flash > 0) { SV.flash -= dt; c.fillStyle = `rgba(255,255,240,${Math.min(1, SV.flash)})`; c.fillRect(0, 0, W, 380); c.fillStyle = `rgba(200,0,0,${Math.min(1, SV.flash)})`; c.font = "900 20px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("위험! 실제라면 눈을 다쳐요", cx, cy); c.font = "bold 13px Pretendard, sans-serif"; c.fillText("태양 필터를 먼저 장착하세요", cx, cy + 24); c.textAlign = "left"; if (SV.flash <= 0) SV.on = false; }
+  c.strokeStyle = "#333"; c.lineWidth = 10; c.beginPath(); c.arc(cx, cy, Rv + 3, 0, 7); c.stroke();
+}
+LB.loop($("sv-cv"), svDraw); svDraw(0.016);
+WS.custom("sv_log", { el: $("sv-cv"), value: () => Object.keys(SV.looked).length });
+
+/* ── 3D 태양 ── */
+const FEAT = { photo: "광구 — 스스로 빛을 내는 태양의 표면. 평균 온도 약 6000 ℃", spot: "흑점 — 광구의 어두운 부분. 주변보다 온도가 낮아 어둡게 보인다.", gran: "쌀알 무늬 — 광구에 나타나는 쌀알 모양의 무늬", chromo: "채층 — 광구 바로 위를 얇게 둘러싼 붉은색 대기 (광구를 가려야 잘 보임)", corona: "코로나 — 채층 위로 넓게 뻗어 있는 진주색 대기 (광구를 가려야 잘 보임)", prom: "홍염 — 광구에서 코로나까지 물질이 솟아오르는 현상 (불꽃·고리 모양)", flare: "플레어 — 흑점 부근의 강력한 폭발. 채층의 일부가 매우 밝아진다." };
+const S3 = { f: null };
+$("s3-btns").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (!b) return; S3.f = b.dataset.f; $("s3-btns").querySelectorAll("[data-f]").forEach(x => x.classList.toggle("ghost", x !== b)); $("s3-info").textContent = FEAT[S3.f]; if (S3.f === "chromo" || S3.f === "corona") { $("s3-cover").checked = true; } if (S3.f === "spot" || S3.f === "gran" || S3.f === "photo" || S3.f === "flare") $("s3-cover").checked = false; });
+(function () {
+  const st = $("s3-stage"), T3 = LB.three(st, 360);
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:60px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 그림 7-2로 확인해 보세요.</div>'; return; }
+  const { r, scene, cam } = T3; scene.background = new THREE.Color(0x02050c);
+  LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0, 0), { R: 14, th: 0, ph: 1.45, min: 6, max: 22 });
+  // 광구 텍스처: 쌀알 무늬 + 흑점
+  const tc = document.createElement("canvas"); tc.width = 512; tc.height = 256; const x = tc.getContext("2d");
+  x.fillStyle = "#f6a63a"; x.fillRect(0, 0, 512, 256);
+  for (let i = 0; i < 5000; i++) { const px = Math.random() * 512, py = Math.random() * 256, rr = 1 + Math.random() * 2.2; x.fillStyle = Math.random() < 0.5 ? "rgba(255,220,140,.35)" : "rgba(170,80,15,.25)"; x.beginPath(); x.arc(px, py, rr, 0, 7); x.fill(); }
+  SPOTS.forEach(s => { const px = (s[0] + 180) / 360 * 512, py = (90 - s[1]) / 180 * 256, rr = s[2] * 9; x.fillStyle = "rgba(120,50,10,.8)"; x.beginPath(); x.ellipse(px, py, rr * 1.7, rr * 1.4, 0, 0, 7); x.fill(); x.fillStyle = "#2b1104"; x.beginPath(); x.ellipse(px, py, rr, rr * 0.8, 0, 0, 7); x.fill(); });
+  const photoMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(tc) });
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(3, 64, 40), photoMat); scene.add(sun);
+  const R = 3;
+  // 채층 (얇은 붉은 껍질)
+  const chromo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.025, 48, 32), new THREE.MeshBasicMaterial({ color: 0xff3355, transparent: true, opacity: 0.0, side: THREE.BackSide, depthWrite: false })); scene.add(chromo);
+  // 코로나 (스프라이트)
+  const cc = document.createElement("canvas"); cc.width = cc.height = 256; const y = cc.getContext("2d"), gr = y.createRadialGradient(128, 128, 40, 128, 128, 128); gr.addColorStop(0, "rgba(255,250,235,.9)"); gr.addColorStop(0.35, "rgba(235,240,255,.35)"); gr.addColorStop(1, "rgba(220,230,255,0)"); y.fillStyle = gr; y.fillRect(0, 0, 256, 256);
+  for (let k = 0; k < 40; k++) { const a = k / 40 * 6.283; y.strokeStyle = "rgba(255,255,255,.08)"; y.lineWidth = 3; y.beginPath(); y.moveTo(128 + Math.cos(a) * 45, 128 + Math.sin(a) * 45); y.lineTo(128 + Math.cos(a) * (90 + Math.random() * 38), 128 + Math.sin(a) * (90 + Math.random() * 38)); y.stroke(); }
+  const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.25 })); corona.scale.set(15, 15, 1); scene.add(corona);
+  // 광구를 가리는 원판 (카메라를 향함)
+  const cover = new THREE.Mesh(new THREE.CircleGeometry(R * 1.005, 64), new THREE.MeshBasicMaterial({ color: 0x000000 })); cover.visible = false; scene.add(cover);
+  // 홍염 (고리 모양)
+  const promMat = new THREE.MeshBasicMaterial({ color: 0xff5a2a, transparent: true, opacity: 0.85 });
+  const proms = [[0.6, 0.5], [2.3, 0.35], [4.0, 0.6]].map(([a, s]) => { const t = new THREE.Mesh(new THREE.TorusGeometry(s, 0.08, 8, 30, Math.PI), promMat.clone()); const n = new THREE.Vector3(Math.cos(a), Math.sin(a) * 0.8, 0.3).normalize(); t.position.copy(n.clone().multiplyScalar(R * 0.98)); t.lookAt(n.clone().multiplyScalar(10)); t.rotateX(Math.PI / 2); scene.add(t); return t; });
+  // 플레어 (흑점 근처의 번쩍임)
+  const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(glowCanvas()), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); scene.add(fl);
+  function glowCanvas() { const c = document.createElement("canvas"); c.width = c.height = 64; const z = c.getContext("2d"), g = z.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(1, "rgba(255,255,200,0)"); z.fillStyle = g; z.fillRect(0, 0, 64, 64); return c; }
+  const spotPos = () => { const s = SPOTS[0], lon = s[0] * Math.PI / 180, lat = s[1] * Math.PI / 180; return new THREE.Vector3(-Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon)).multiplyScalar(R * 1.02).applyQuaternion(sun.quaternion); };
+  // 처음에는 흑점이 보이도록 돌려 둔다
+  sun.rotation.y = -1.1;
+  LB.loop(st, (dt, t) => {
+    const cov = $("s3-cover").checked; sun.rotation.y += dt * 0.05;
+    const D = cam.position.length(); cover.visible = cov; cover.position.copy(cam.position.clone().normalize().multiplyScalar(R * 1.3)); cover.lookAt(cam.position); cover.scale.setScalar((D - R * 1.3) * R / Math.sqrt(D * D - R * R) * 1.004 / (R * 1.005));
+    chromo.material.opacity = cov ? 0.9 : 0.0; chromo.scale.setScalar(1);
+    corona.material.opacity = cov ? 0.95 : (S3.f === "corona" ? 0.4 : 0.18);
+    const pulse = 0.5 + 0.5 * Math.sin(t / 250);
+    proms.forEach(p => { p.material.opacity = S3.f === "prom" ? 0.6 + 0.4 * pulse : 0.65; p.scale.setScalar(S3.f === "prom" ? 1 + 0.15 * pulse : 1); });
+    const fp = spotPos(); fl.position.copy(fp); const on = S3.f === "flare" ? Math.max(0, Math.sin(t / 400)) : 0; fl.material.opacity = on; fl.scale.setScalar(0.6 + on * 1.6);
+    r.render(scene, cam);
+  });
+})();
+
+/* ── 흑점 수 그래프 ── */
+// 해마다의 평균 흑점 수 (SILSO 2.0을 반올림)
+const SN = [[1986, 14], [1987, 34], [1988, 123], [1989, 211], [1990, 192], [1991, 203], [1992, 133], [1993, 76], [1994, 45], [1995, 25], [1996, 12], [1997, 29], [1998, 88], [1999, 136], [2000, 174], [2001, 171], [2002, 164], [2003, 99], [2004, 65], [2005, 46], [2006, 25], [2007, 13], [2008, 4], [2009, 5], [2010, 25], [2011, 81], [2012, 85], [2013, 94], [2014, 113], [2015, 70], [2016, 40], [2017, 22], [2018, 7], [2019, 4], [2020, 9], [2021, 29], [2022, 83], [2023, 126]];
+const SNM = { marks: [] };
+function snDraw() {
+  const cv = $("sn-cv"); const g = LB.graph(cv, { h: 240, xMax: 40, yMin: 0, yMax: 250, xStep: 5, yStep: 50, xLabel: "연도(1985년부터)", yLabel: "흑점 수(개)", series: [{ color: "#e4572e", pts: SN.map(p => [p[0] - 1985, p[1]]), dots: true }] });
+  const c = cv.getContext("2d"); SNM.X = g.X; SNM.Y = g.Y;
+  c.font = "10px Pretendard, sans-serif"; c.fillStyle = "#6b7b85"; [1990, 2000, 2010, 2020].forEach(yv => c.fillText(String(yv), g.X(yv - 1985) - 12, 232));
+  SNM.marks.forEach(yv => { const p = SN.find(s => s[0] === yv); c.strokeStyle = "#2f7de1"; c.lineWidth = 2; c.beginPath(); c.moveTo(g.X(yv - 1985), 16); c.lineTo(g.X(yv - 1985), g.Y(0)); c.stroke(); c.fillStyle = "#2f7de1"; c.font = "bold 11px Pretendard, sans-serif"; c.fillText(yv + "년", g.X(yv - 1985) + 3, g.Y(p[1]) - 8); });
+  const ms = SNM.marks.slice().sort(); const gaps = ms.slice(1).map((m, i) => m - ms[i]);
+  $("sn-marks").textContent = ms.length ? "표시한 해: " + ms.join(", ") + (gaps.length ? " → 간격 " + gaps.join(", ") + "년" : "") : "";
+}
+$("sn-cv").addEventListener("click", e => { const b = $("sn-cv").getBoundingClientRect(), px = e.clientX - b.left; let best = SN[0], bd = 1e9; SN.forEach(s => { const d = Math.abs(SNM.X(s[0] - 1985) - px); if (d < bd) { bd = d; best = s; } }); const i = SNM.marks.indexOf(best[0]); if (i >= 0) SNM.marks.splice(i, 1); else SNM.marks.push(best[0]); snDraw(); });
+$("sn-clear").addEventListener("click", () => { SNM.marks = []; snDraw(); });
+snDraw(); window.addEventListener("resize", snDraw);
+WS.custom("sn_marks", { el: $("sn-cv"), value: () => SNM.marks.slice().sort().join(",") });
+
+/* ── 태양 활동과 우주 날씨 ── */
+$("sw-a").addEventListener("input", () => $("sw-a-o").textContent = +$("sw-a").value < 34 ? "조용함" : +$("sw-a").value < 67 ? "보통" : "매우 활발"); $("sw-a-o").textContent = "조용함";
+const SWP = Array.from({ length: 160 }, () => ({ x: Math.random(), y: Math.random() - 0.5, v: 0.5 + Math.random() }));
+function swDraw(dt, t) {
+  const a = +$("sw-a").value / 100, g = LB.fit($("sw-cv"), 260), c = g.c, W = g.w, H = 260;
+  c.fillStyle = "#030712"; c.fillRect(0, 0, W, H);
+  // 태양
+  const sx = 10, sy = H / 2, sr = 120; const sg = c.createRadialGradient(sx - 40, sy, 10, sx - 40, sy, sr + 30 + 40 * a); sg.addColorStop(0, "#ffcf6b"); sg.addColorStop(0.7, "#f39a2b"); sg.addColorStop(1, "rgba(243,154,43,0)"); c.fillStyle = sg; c.beginPath(); c.arc(sx - 40, sy, sr + 30 + 40 * a, 0, 7); c.fill();
+  const nSpot = Math.round(1 + a * 9); c.fillStyle = "#3a1607"; for (let i = 0; i < nSpot; i++) { const yy = sy - 70 + (i * 37) % 140, xx = sx + 30 + Math.sin(i * 7) * 10; c.beginPath(); c.arc(xx, yy, 3 + (i % 3), 0, 7); c.fill(); }
+  if (a > 0.5 && Math.sin(t / 300) > 0.6) { c.fillStyle = "rgba(255,255,255,.9)"; c.beginPath(); c.arc(sx + 40, sy - 20, 10 + 20 * a, 0, 7); c.fill(); c.fillStyle = "#fff"; c.font = "bold 11px Pretendard, sans-serif"; c.fillText("플레어!", sx + 60, sy - 40); }
+  // 지구
+  const ex = W - 70, ey = H / 2; c.strokeStyle = `rgba(120,180,255,${0.25 + 0.3 * a})`; c.lineWidth = 2; c.beginPath(); c.ellipse(ex + 8, ey, 48 - 10 * a, 58, 0, 0, 7); c.stroke();
+  c.fillStyle = "#2f6fd6"; c.beginPath(); c.arc(ex, ey, 26, 0, 7); c.fill(); c.fillStyle = "#3fae5a"; c.beginPath(); c.ellipse(ex - 6, ey - 4, 10, 14, 0.4, 0, 7); c.fill();
+  // 오로라 (극지방)
+  const au = Math.max(0, a - 0.15); if (au > 0) { [-1, 1].forEach(s => { c.strokeStyle = `rgba(80,255,150,${Math.min(0.9, au * 1.3)})`; c.lineWidth = 3 + au * 6; c.beginPath(); c.arc(ex, ey + s * 4, 30 + au * 6, s < 0 ? -2.6 : 0.5, s < 0 ? -0.5 : 2.6); c.stroke(); }); }
+  // 태양풍 입자
+  const n = Math.round(20 + a * 140), sp = 60 + a * 160;
+  c.fillStyle = "#ffd166"; for (let i = 0; i < n; i++) { const p = SWP[i]; p.x += p.v * sp * dt / W; if (p.x > 1) { p.x = 0.12; p.y = Math.random() - 0.5; } const px = 120 + p.x * (W - 220), py = H / 2 + p.y * (180 - p.x * 80); c.fillRect(px, py, 2, 2); }
+  // 영향 표시
+  const fx = [["🛰 인공위성 오류", 0.55], ["📡 무선 통신 장애", 0.6], ["📍 GPS 오류", 0.65], ["⚡ 전력 시스템 고장", 0.8]];
+  c.font = "bold 12px Pretendard, sans-serif";
+  fx.forEach((f, i) => { const on = a >= f[1]; c.fillStyle = on ? "#ff6b6b" : "rgba(255,255,255,.25)"; c.fillText(f[0], W - 210 > 150 ? W - 210 : 150, 22 + i * 18); });
+  c.fillStyle = au > 0.2 ? "#7dffb2" : "rgba(255,255,255,.25)"; c.fillText("🌌 오로라 자주·넓게", W - 210 > 150 ? W - 210 : 150, 22 + 4 * 18);
+  c.fillStyle = "#cfe"; c.font = "12px Pretendard, sans-serif"; c.fillText(`흑점 ${nSpot * 18}개쯤 · 태양풍 ${a < 0.34 ? "약함" : a < 0.67 ? "보통" : "강함"}`, 10, H - 10);
+}
+LB.loop($("sw-cv"), swDraw); swDraw(0.016, 0);
+</script>
+</body>
+</html>

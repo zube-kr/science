@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅴ 아두이노 실험 ② — 용수철과 초음파 센서로 부력 측정하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅴ. 힘의 작용</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p172-setup.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 ② · Ⅴ. 힘의 작용 · 교과서 172~174쪽</span>
+      <h1>힘 센서 없이<br><span>부력 재기</span></h1>
+      <p>힘 센서가 없어도 괜찮아! ‘아두이노 실험 ①’의 용수철저울과 초음파 센서로 추를 물에 담글 때 용수철이 덜 늘어나는 길이를 재서 부력의 크기를 구해 보자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>물에 잠긴 추의 부피와 부력의 크기</div><div><b>관련 단원</b>Ⅴ-2. 떠오르게 하는 힘</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + 초음파 센서(HC-SR04)</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 11월 9일 / 3모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 추가 물에 잠길 때 용수철이 늘어난 길이의 변화로 부력의 크기를 구하고, 물에 잠긴 부피와 부력의 관계를 설명할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span>용수철에 매단 추 2개를 물에 하나씩 담그면 용수철이 늘어난 길이는 어떻게 될지 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" data-keywords="줄어/짧아,부력,위" data-model="추가 물에 잠기면 위로 부력이 작용하므로 용수철을 당기는 힘이 줄어 늘어난 길이가 짧아질 것이다. 추 2개가 모두 잠기면 더 짧아질 것이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 실험 ①의 장치(용수철, 추걸이, 종이 카드, 초음파 센서), 같은 추 2개(부피가 큰 것일수록 좋음 — 예: 물을 채운 작은 약병 2개), 물이 담긴 비커, 받침대(높이 조절용 책), 노트북(크롬)</p></div>
+    <div class="tip-box"><b>💡 부력을 크게 만들기</b> 쇠 추는 부피가 작아 부력이 작아요(약 0.01~0.06 N). 물을 가득 채운 <b>작은 플라스틱 약병</b>이나 <b>찰흙 덩어리</b>를 추로 쓰면 부피가 커서 용수철 길이 변화가 더 잘 보여요.</div>
+    <div id="ul-circuit"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="steps-box"><ol>
+      <li>센서는 위에서 카드를 내려다보게 둔다(물에서 멀리!). 추걸이만 매단 상태에서 [기준(d₀)]을 누른다.</li>
+      <li>추 1개를 공기 중에 매달고 기록, 추 2개를 공기 중에 매달고 기록한다. (용수철이 1 N당 몇 cm 늘어나는지 알 수 있다.)</li>
+      <li>비커를 받침대로 천천히 올려 <b>아래 추 1개만</b> 물에 완전히 잠기게 하고 기록한다.</li>
+      <li>비커를 더 올려 <b>추 2개 모두</b> 물에 잠기게 하고 기록한다. (추가 비커 바닥에 닿지 않게!)</li>
+    </ol></div>
+    <div class="safe">⚠️ 물이 아두이노·브레드보드·노트북에 튀지 않도록 거리를 둔다. 센서와 전선은 비커 위로 지나가지 않게 한다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>추 1개의 무게 (전자저울로 잰 질량 × 0.0098) <output id="w1-o"></output></label><input type="number" id="w1" value="0.49" step="0.01" style="width:100%"></div></div>
+    <div id="ul-lab"></div>
+    <table class="data-t" id="calc" style="margin-top:8px"></table>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" id="q-res" data-why="공기 중 추 2개일 때보다 물에 잠겼을 때 줄어든 길이를 ‘1 N당 늘어난 길이’로 나누면 부력의 크기예요. 추 2개가 잠기면 부피가 2배라 부력도 약 2배예요.">
+      <div class="q-text"><span class="q-num">1</span>내 용수철은 1 N당 <input class="blank w-s" id="rk" style="width:60px"> cm 늘어난다.</div>
+      <div class="q-text"><span class="q-num">2</span>추 1개가 잠겼을 때 부력: <input class="blank w-s" id="rb1" style="width:60px"> N, 추 2개가 잠겼을 때 부력: <input class="blank w-s" id="rb2" style="width:60px"> N</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="물에 잠긴 추의 부피가 클수록(1개 → 2개) 부력이 커져요. 그래서 용수철이 덜 늘어나요.">
+      <div class="q-text"><span class="q-num">3</span>물에 잠긴 추의 부피가 클수록 부력은 <span class="choice-group" data-key="vol" data-answer="커"><button type="button" class="choice-btn" data-value="커">커진다</button><button type="button" class="choice-btn" data-value="작아">작아진다</button><button type="button" class="choice-btn" data-value="같">같다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span><b>결론</b> 추가 물에 잠기면 용수철이 덜 늘어나는 까닭을 추에 작용하는 힘(중력, 탄성력, 부력)으로 설명해 보자.</div>
+      <textarea class="free" data-key="concl" data-keywords="중력,부력,위,탄성력,평형/작아" data-model="추에는 아래로 중력, 위로 탄성력이 작용하고, 물에 잠기면 위로 부력이 더 작용한다. 정지했을 때 탄성력 + 부력 = 중력이므로 부력만큼 탄성력이 작아져 용수철이 덜 늘어난다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>더 탐구하기</b> 물 대신 진한 소금물에 담그면 결과가 어떻게 될지 예상하고 확인 방법을 써 보자.</div>
+      <textarea class="free" data-key="next" data-keywords="소금물,부력,커/덜 늘어" data-model="소금물은 물보다 같은 부피의 무게가 커서 부력이 더 클 것이므로, 용수철이 물에서보다 더 덜 늘어날 것이다. 같은 추를 물과 소금물에 차례로 담가 늘어난 길이를 비교한다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">센서와 전기 부품을 물에서 멀리 두고 안전하게 실험했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">늘어난 길이의 변화로 부력을 계산했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅴ. 힘의 작용 · 아두이노 실험 보고서 ② 부력 · 교과서 172~173쪽 탐구를 용수철과 아두이노 초음파 센서로 재구성</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="ultra-lab.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅴ 아두이노② 부력";
+const $ = id => document.getElementById(id);
+const W1 = () => +$("w1").value || 0.49;
+// 상태 코드: 1 공기 중 추 1개, 2 공기 중 추 2개, 3 추 1개 잠김, 4 추 2개 잠김
+UL.circuit("ul-circuit");
+UL.points({ root: "ul-lab", key: "buoy_log", xName: "상태", options: [[1, "공기 중 · 추 1개"], [2, "공기 중 · 추 2개"], [3, "물속 · 추 1개 잠김"], [4, "물속 · 추 2개 잠김"]],
+  sample: [[1, 4.1], [2, 8.2], [3, 6.9], [4, 5.6]],
+  graph: (cv, rows) => LB.graph(cv, { h: 220, xMax: 5, yMin: 0, yMax: 12, xStep: 1, yStep: 2, xLabel: "상태 번호", yLabel: "늘어난 길이(cm)", series: [{ color: "#2f7de1", dots: true, pts: rows.map(r => [r[0], r[1]]) }] }) });
+const R = n => { const r = UL.rows().find(x => x[0] === n); return r ? r[1] : null; };
+function k() { const a = R(1), b = R(2); if (a == null || b == null) return null; return (a / W1() + b / (2 * W1())) / 2; } // cm/N
+function buoy(n) { const kk = k(), air = R(2), s = R(n); return kk && air != null && s != null ? (air - s) / kk : null; }
+function calc() { const kk = k(); $("calc").innerHTML = `<tr><th>계산</th><th>값</th></tr><tr><td>1 N당 늘어난 길이</td><td>${kk ? kk.toFixed(2) + " cm/N" : "-"}</td></tr><tr><td>추 1개가 잠겼을 때 부력 = (공기 중 2개 − 1개 잠김) ÷ 1 N당 길이</td><td>${buoy(3) != null ? buoy(3).toFixed(2) + " N" : "-"}</td></tr><tr><td>추 2개가 잠겼을 때 부력</td><td>${buoy(4) != null ? buoy(4).toFixed(2) + " N" : "-"}</td></tr>`; $("w1-o").textContent = W1().toFixed(2) + " N"; }
+UL.onChange(calc); $("w1").addEventListener("input", calc); calc();
+function dyn(key, el, ans, check) { const c = { el, value: () => el.value, check }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+dyn("rk", $("rk"), () => k() ? "약 " + k().toFixed(1) : "공기 중 기록 필요", v => k() ? Math.abs(WS.toNumber(v) - k()) <= 0.3 : null);
+[3, 4].forEach((n, i) => dyn("rb" + (i + 1), $("rb" + (i + 1)), () => buoy(n) != null ? "약 " + buoy(n).toFixed(2) : "기록 필요", v => buoy(n) != null ? Math.abs(WS.toNumber(v) - buoy(n)) <= 0.03 : null));
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+</script>
+</body>
+</html>

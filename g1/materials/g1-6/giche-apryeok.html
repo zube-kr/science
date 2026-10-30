@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅵ-1-02 — 기체의 압력</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅵ. 기체의 성질</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p200-tube.jpg" alt="공기를 넣은 튜브를 누르면 손이 밀리는 것처럼 느껴지는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅵ. 기체의 성질 · 1. 기체의 압력 · 02 <span class="pg" style="margin:0">200~204쪽</span></span>
+      <h1>기체의<br><span>압력</span></h1>
+      <p>“튜브를 눌렀는데 내 손이 밀리는 것 같아.” 공기를 넣은 튜브는 왜 손을 밀어낼까? 3D 페트병 속 쇠구슬을 흔들어 보고, 찌그러진 축구공에 공기를 넣어 보며 기체의 압력이 나타나는 까닭을 입자 운동으로 알아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 기체의 압력을 입자 운동으로 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구</span>기체의 압력 알아보기 <span class="pg">200~201쪽</span></div>
+    <p class="lead-q">기체의 압력이 나타나는 까닭은 무엇일까?</p>
+    <div class="book"><p>튜브에 공기를 넣으면 튜브가 사방으로 부풀어 오르고, 공기를 넣은 튜브를 손으로 누르면 손을 밀어내는 힘이 느껴진다. 이것은 공기와 같은 기체에서도 압력이 나타나기 때문이다.</p></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p200-shake.jpg" alt="페트병에 쇠구슬을 넣고 흔들기"><figcaption><span class="tb">200쪽</span>쇠구슬 15 개를 넣고 좌우로 흔든다.</figcaption></figure>
+      <div class="steps-box" style="margin:0"><b>준비물</b> 크기와 모양이 같은 페트병 2 개, 쇠구슬, 실험복<ol>
+        <li><b>관찰</b> 페트병에 쇠구슬 15 개를 넣고 뚜껑을 닫은 다음, 양손으로 잡고 좌우로 흔들어 손바닥에 느껴지는 힘을 확인한다.</li>
+        <li>다른 페트병에 쇠구슬 30 개를 넣고 뚜껑을 닫는다.</li>
+        <li><b>관찰</b> 각각의 페트병을 같은 빠르기로 좌우로 흔들면서 손바닥에 느껴지는 힘을 비교한다.</li>
+      </ol><div class="safe" style="margin-top:6px">⚠️ 쇠구슬이 튀어 나가지 않도록 뚜껑을 세게 닫는다.</div></div>
+    </div>
+    <figure class="fig"><img src="img/p201-shake.jpg" alt="쇠구슬 15 개와 30 개를 넣은 페트병 흔들기"><figcaption><span class="tb">201쪽</span>쇠구슬 15 개 · 30 개</figcaption></figure>
+
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">3D 가상 실험</span>3D 페트병 속 쇠구슬 흔들기</div>
+    <div class="card-hint">쇠구슬의 개수를 정하고 [흔들기]를 누르면 양손으로 잡은 페트병이 좌우로 흔들려요. 쇠구슬이 <b>병 벽에 부딪칠 때마다</b> 벽이 반짝이고, 아래 계기판에 손바닥에 느껴지는 힘이 나타나요. 화면을 드래그하면 돌려 볼 수 있어요.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>쇠구슬의 개수 <output id="sb-n-o"></output></label><input type="range" id="sb-n" min="5" max="40" step="5" value="15"></div>
+      <div class="ctrl"><label>흔드는 빠르기 <output id="sb-f-o"></output></label><input type="range" id="sb-f" min="1" max="3" step="1" value="2"></div>
+      <div class="ctrl"><label>모형</label><select id="sb-mode"><option value="ball">쇠구슬 (손으로 흔들기)</option><option value="gas">기체 입자 (스스로 운동)</option></select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="sb-go">↔ 흔들기</button><button type="button" class="btn small" id="sb-rec">📍 지금 결과 기록</button></div>
+    <div class="sim-stage" id="sb-stage" style="height:330px"><span class="tag">3D 페트병 · 드래그하여 돌리기</span><span class="tag2" id="sb-tag">쇠구슬 15 개</span></div>
+    <div class="meter"><div class="m"><small>✋ 왼손에 느껴지는 힘</small><b id="sb-L">0</b></div><div class="m"><small>✋ 오른손에 느껴지는 힘</small><b id="sb-R">0</b></div><div class="m"><small>1초 동안 벽 전체에 부딪친 횟수</small><b id="sb-hit">0</b></div></div>
+    <div class="scroll-x"><table class="data-t" id="sb-tb"></table></div>
+    <div class="q" data-why="쇠구슬은 한 방향이 아니라 위·아래·앞·뒤·좌·우 모든 방향으로 움직이며 병 벽에 부딪쳐요." data-hint="3D 화면을 돌려 보며 쇠구슬이 어느 쪽 벽에 부딪치는지 보세요.">
+      <div class="q-text"><span class="q-num">1</span><b>정리해 볼까</b> 과정 1에서 쇠구슬은 <span class="choice-group" data-key="sb_dir" data-answer="모든"><button type="button" class="choice-btn" data-value="좌우">좌우로만</button><button type="button" class="choice-btn" data-value="아래">아래로만</button><button type="button" class="choice-btn" data-value="모든">모든 방향으로</button></span> 움직이며 페트병 벽에 부딪친다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="같은 빠르기로 흔들 때 쇠구슬이 많을수록 벽에 부딪치는 횟수가 많아져 손바닥에 느껴지는 힘이 커요." data-hint="15 개와 30 개를 같은 빠르기로 흔들어 기록하고 비교하세요.">
+      <div class="q-text"><span class="q-num">2</span>과정 3의 결과, 손바닥에 느껴지는 힘은 쇠구슬이 <span class="choice-group" data-key="sb_more" data-answer="30"><button type="button" class="choice-btn" data-value="15">15 개</button><button type="button" class="choice-btn" data-value="30">30 개</button><button type="button" class="choice-btn" data-value="같">같다</button></span>일 때 더 크다. 그 까닭은 쇠구슬이 벽에 부딪치는 횟수가 <span class="choice-group" data-key="sb_hits" data-answer="많"><button type="button" class="choice-btn" data-value="많">많아지기</button><button type="button" class="choice-btn" data-value="적">적어지기</button></span> 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>결과 해석 및 결론 도출</b> 쇠구슬이 기체 물질을 구성하는 입자라면 손바닥에 느껴지는 힘은 무엇을 뜻하는지 말하고, 실험 결과와 관련하여 그 힘의 특징을 이야기해 보자. ([모형]을 ‘기체 입자’로 바꿔 보면 도움이 돼요.)</div>
+      <textarea class="free" data-key="sb_concl" data-keywords="기체의 압력/압력,모든 방향,입자,많/수" data-model="손바닥에 느껴지는 힘은 기체 입자가 충돌해서 가하는 힘, 즉 기체의 압력을 뜻한다. 입자가 모든 방향으로 운동하므로 기체의 압력은 모든 방향으로 작용하고, 입자의 수가 많을수록 충돌 횟수가 늘어 압력이 커진다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 기체 입자의 운동 실험 장치로 기체의 압력 알아보기</h4>
+      <figure class="fig float-r" style="max-width:150px"><img src="img/p201-alt.jpg" alt="기체 입자의 운동 실험 장치"><figcaption>피스톤과 쇠구슬</figcaption></figure>
+      <p style="margin:0;font-size:14px">① 스마트 기기로 피스톤과 쇠구슬의 움직임을 슬로 모션으로 촬영하여 관찰한다. ② 실험 장치에 쇠구슬을 더 넣은 뒤 과정 ①을 반복한다.<br><b>정리</b> 쇠구슬을 기체 입자라고 할 때, 피스톤을 밀어 올리는 힘은 어떤 특징이 있는지 이야기해 보자.</p>
+      <div class="q" style="clear:both" data-why="쇠구슬(입자)이 많을수록 피스톤에 부딪치는 횟수가 많아져 피스톤을 밀어 올리는 힘(압력)이 커져요.">
+        <div class="q-text">쇠구슬을 더 넣으면 피스톤은 <span class="choice-group" data-key="alt_up" data-answer="높이"><button type="button" class="choice-btn" data-value="높이">더 높이 올라간다</button><button type="button" class="choice-btn" data-value="낮게">더 낮게 내려온다</button></span>.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>기체의 압력 <span class="pg">201~202쪽</span></div>
+    <div class="book"><p>기체 물질을 구성하는 입자는 끊임없이 운동하면서 물체에 충돌해 힘을 가한다. 이때 일정한 면적에 기체 입자가 충돌해서 가하는 힘을 <span class="key">기체의 압력</span>이라고 한다. 기체 입자가 모든 방향으로 운동하면서 충돌하기 때문에 기체의 압력은 <b>모든 방향</b>으로 작용한다. 또 일정한 크기의 용기 안에 들어 있는 기체 입자의 수가 많으면 입자가 용기 벽에 충돌하는 횟수가 늘어 기체의 압력은 <b>커진다</b>.</p>
+    <p>찌그러진 축구공에 공기를 넣으면 <b>그림 6-3</b>과 같이 축구공 속 공기 입자의 수가 늘어나 공기의 압력이 커진다. 또 공기의 압력이 모든 방향으로 작용하므로 축구공이 사방으로 부풀어 오른다.</p></div>
+    <figure class="fig"><img src="img/p202-fig6-3.jpg" alt="공기의 압력 — 축구공"><figcaption><span class="tb">그림 6-3</span>공기의 압력 — 공기 입자가 많을수록 축구공 벽에 더 많이 충돌하여 공기의 압력이 커진다.</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>찌그러진 축구공에 공기 넣기</div>
+    <div class="card-hint">[펌프질]을 누를 때마다 공기 입자가 들어가요. 입자의 수가 늘면 축구공 벽에 부딪치는 횟수와 공기의 압력이 어떻게 변하는지, 축구공 모양은 어떻게 되는지 보자.</div>
+    <div class="btn-row"><button type="button" class="btn main small" id="sc-pump">⛽ 펌프질 (입자 +4)</button><button type="button" class="btn ghost small" id="sc-out">💨 공기 빼기</button><button type="button" class="btn ghost small" id="sc-reset">↺ 처음으로</button></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="sim-stage"><canvas id="sc-cv"></canvas><span class="tag" id="sc-tag">공기 입자 6 개</span></div>
+      <div class="light-stage"><canvas id="sc-g"></canvas></div>
+    </div>
+    <div class="q" data-why="공기를 넣으면 입자 수가 증가하고, 입자가 축구공 벽에 충돌하는 횟수가 증가하여 압력이 증가해요. 압력이 모든 방향으로 작용해 사방으로 부풀어요." data-hint="그래프에서 입자 수가 늘 때 충돌 횟수를 보세요.">
+      <div class="q-text"><span class="q-num">1</span>축구공에 공기를 넣으면 공기 입자의 수가 <span class="choice-group" data-key="sc_n" data-answer="증가"><button type="button" class="choice-btn" data-value="증가">증가</button><button type="button" class="choice-btn" data-value="감소">감소</button></span>하므로 입자가 축구공 벽에 충돌하는 횟수가 <span class="choice-group" data-key="sc_hit" data-answer="증가"><button type="button" class="choice-btn" data-value="증가">증가</button><button type="button" class="choice-btn" data-value="감소">감소</button></span>하여 압력이 <span class="choice-group" data-key="sc_p" data-answer="증가"><button type="button" class="choice-btn" data-value="증가">증가</button><button type="button" class="choice-btn" data-value="감소">감소</button></span>한다. 축구공이 <span class="choice-group" data-key="sc_dir" data-answer="사방"><button type="button" class="choice-btn" data-value="위">위쪽으로만</button><button type="button" class="choice-btn" data-value="사방">사방으로</button></span> 부풀어 오르는 것은 압력이 모든 방향으로 작용하기 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>일상생활에서 경험할 수 있는 기체의 압력 <span class="pg">202쪽</span></div>
+    <div class="book"><p>기체의 압력은 <b>그림 6-4</b>와 같이 다양한 상황에서 경험할 수 있다. 운전자의 충격을 줄여 주는 자동차 에어백이나 아이들이 즐겁게 놀 수 있는 풍선 놀이 틀은 기체가 차면서 기체의 압력이 커져 부풀어 오른다. 또한 우리는 공기에 둘러싸여 있으므로 늘 공기의 압력을 받고 있고, 보통 위로 올라갈수록 공기의 양이 줄어들어 공기의 압력은 작아진다.</p></div>
+    <figure class="fig"><img src="img/p202-fig6-4.jpg" alt="에어백과 풍선 놀이 틀"><figcaption><span class="tb">그림 6-4</span>일상생활에서 경험할 수 있는 기체의 압력 — 에어백, 풍선 놀이 틀</figcaption></figure>
+    <div class="tip-box"><b># 검색어</b> 기압 · 높이에 따른 기압 — 공기의 압력인 기압의 특징과 높이에 따른 기압 변화를 알아볼 수 있다.</div>
+    <div class="q" data-why="위로 올라갈수록 공기의 양(입자 수)이 줄어들어 공기의 압력이 작아져요.">
+      <div class="q-text"><span class="q-num">1</span>높은 산 위로 올라갈수록 공기의 압력은 <span class="choice-group" data-key="alt_p" data-answer="작아"><button type="button" class="choice-btn" data-value="커">커진다</button><button type="button" class="choice-btn" data-value="작아">작아진다</button><button type="button" class="choice-btn" data-value="같">변하지 않는다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">과학이 톡</span>스포츠 속의 첨단 과학, 압력 센서 <span class="pg">203쪽</span></div>
+    <figure class="fig float-r"><img src="img/p203-sensor.jpg" alt="신발과 태권도 경기복에 부착한 압력 센서"><figcaption><span class="tb">203쪽</span>신발 · 태권도 경기복에 부착한 압력 센서</figcaption></figure>
+    <div class="book"><p>사물 인터넷(IoT) 기술이 발달하면서 스포츠 분야에서는 센서를 선수의 몸이나 장비에 부착하여 실시간으로 데이터를 수집·분석함으로써 선수들의 능력 향상을 꾀하고 있다. 신발 안에 압력 센서를 넣고 발이 누르는 압력을 측정하여 바른 자세로 뛰거나 걷고 있는지 판단할 수 있다. 태권도에서는 압력 센서를 부착한 경기복을 입고 시합을 하여 공정한 판정을 내리고, 농구에서는 3 점 슛 라인에 압력 센서를 부착하여 득점 상황을 판정하기도 한다.</p></div>
+    <div class="q" style="clear:both">
+      <div class="q-text"><span class="q-num">💡</span><b>창의성 쏙! 가상 인터뷰하기</b> 센서 개발자가 하는 일, 적성과 흥미, 관련 학과와 자격, 일자리 전망 중 두 가지를 조사해 질문과 대답을 써 보자.</div>
+      <textarea class="free" data-key="interview" placeholder="Q. 센서 개발자는 어떤 일을 하나요?&#10;A. …"></textarea>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>200쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">202쪽</span></div>
+    <div class="q" data-why="일정한 면적에 기체 입자가 충돌해서 가하는 힘이 기체의 압력이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 일정한 면적에 기체 입자가 충돌해서 가하는 힘을 기체의 ( <input class="blank w-s" data-key="sc1" data-answer="압력"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 공기가 들어 있는 풍선의 한쪽을 누르면 다른 쪽이 튀어나온다. 그 까닭을 입자 운동으로 설명해 보자.</div>
+      <textarea class="free" data-key="sc_balloon" data-keywords="입자,모든 방향,충돌,압력" data-model="풍선 속 공기 입자는 모든 방향으로 운동하며 풍선 벽에 충돌하므로 기체의 압력이 모든 방향으로 작용한다. 한쪽을 누르면 그 안의 공기 입자가 다른 쪽 벽에 더 많이 충돌하여 다른 쪽이 튀어나온다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 · 힌트 조각 2 (202쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="공기 입자가 끊임없이 운동하며 인형 벽에 충돌하므로 기체의 압력이 나타나요.">
+        <div class="q-text" style="color:#3a1600">물 뿜는 인형에 들어 있는 공기 입자가 끊임없이 운동하면서 인형 벽에 충돌하기 때문에 기체의 ( <input class="blank w-s" data-key="blk2" data-answer="압력" style="background:#fff"> )이/가 나타난다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>기체의 압력</div>
+    <div class="q" data-why="기체 입자는 모든 방향으로 운동하며 충돌해 힘을 가하고, 이 힘이 기체의 압력이에요. 쇠구슬이 병 벽에 충돌하는 것이 압력의 모형이에요.">
+      <div class="q-text"><span class="q-num">1</span>기체 물질을 구성하는 입자는 끊임없이 <input class="blank w-s" data-key="t1" data-answer="모든"> 방향으로 운동하면서 물체에 충돌해 힘을 가한다. 일정한 면적에 기체 입자가 충돌해서 가하는 힘을 기체의 <input class="blank w-s" data-key="t2" data-answer="압력"> 이라고 한다.<br>페트병에 쇠구슬을 넣고 흔들면 쇠구슬이 페트병 벽에 <input class="blank w-s" data-key="t3a" data-answer="충돌"> 한다. 이러한 힘 때문에 <input class="blank w-s" data-key="t3b" data-answer="압력|기체의 압력"> 이 나타난다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="헬륨을 넣으면 입자 수가 늘어 충돌 횟수가 ‘증가’해서 팽팽해져요(⑤ X). 공기를 채우면 입자 수가 증가해요(⑥ O).">
+      <div class="q-text"><span class="q-num">2</span>옳으면 O, 옳지 않으면 X를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">④ 끊임없이 운동하는 기체 입자들이 용기 벽에 충돌하면서 힘을 가하기 때문에 압력이 나타난다.</td><td><span class="choice-group" data-key="t4" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑤ 풍선에 헬륨을 넣으면 풍선이 팽팽해지는 까닭은 헬륨 기체 입자의 충돌 횟수가 감소하기 때문이다.</td><td><span class="choice-group" data-key="t5" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 바람 빠진 농구공에 공기를 채우면 농구공 속 기체 입자 수가 증가한다.</td><td><span class="choice-group" data-key="t6" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="공기를 넣으면 입자 수 증가 → 충돌 횟수 증가 → 압력 증가예요.">
+      <div class="q-text"><span class="q-num">3</span>바람 빠진 농구공에 공기를 넣으면 기체 입자의 수가 <input class="blank w-s" data-key="t7a" data-answer="증가|늘어|증가한다"> 하므로 기체 입자가 농구공 벽에 충돌하는 횟수가 <input class="blank w-s" data-key="t7b" data-answer="증가|늘어|증가한다"> 하여 압력이 <input class="blank w-s" data-key="t7c" data-answer="증가|커|증가한다"> 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="에어백과 풍선 놀이 틀은 기체의 압력을 이용한 예(O)이고, 고드름은 물의 상태 변화(응고)예요(X).">
+      <div class="q-text"><span class="q-num">4</span>일상생활에서 경험할 수 있는 기체의 압력이면 O, 아니면 X를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑧ 자동차가 충격을 받으면 에어백이 부풀어 오르면서 운전자의 충격을 줄여 준다.</td><td><span class="choice-group" data-key="t8" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑨ 큰 풍선 놀이 틀에 공기를 가득 채우면 아이들의 무게를 이겨 낼 수 있다.</td><td><span class="choice-group" data-key="t9" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑩ 겨울철 처마 끝에 고드름이 생긴다.</td><td><span class="choice-group" data-key="t10" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>기체의 압력 · 첫 번째 블록 찾기 <span class="pg">204쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>기체의 압력</h4>
+      <div class="q" style="border-top:none" data-why="기체의 압력은 일정한 면적에 기체 입자가 충돌해서 가하는 힘이고, 입자 수가 많으면 충돌 횟수가 늘어 압력이 커져요.">
+        <div class="q-text">(1) 기체의 압력: 일정한 면적에 기체 <input class="blank w-s" data-key="s6" data-answer="입자"> 이/가 충돌해서 가하는 힘<br>(2) 기체의 압력은 모든 방향으로 작용한다.<br>(3) 용기 안에 들어 있는 기체 입자의 수가 많으면 기체 입자의 충돌 횟수가 늘어 기체의 압력은 <input class="blank w-s" data-key="s7" data-answer="커진다|커짐|증가한다|크다"> .<br>(4) 기체의 압력을 이용한 예: 에어백, 풍선 놀이 틀</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <figure class="fig" style="max-width:520px"><img src="img/u1-hero.jpg" alt="물 뿜는 인형과 물총"><figcaption>첫 번째 블록 · 물 뿜는 인형에서 물은 어떻게 뿜어져 나올까?</figcaption></figure>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 찾기 · 두 조각을 모아 답하기</b>
+      <div class="t">물 뿜는 인형에서 물은 어떻게 뿜어져 나올까?</div>
+      <div style="font-size:13px;margin-bottom:6px">조각 1 (199쪽) 일정한 면적에 작용하는 힘을 압력이라고 한다. · 조각 2 (202쪽) 공기 입자가 끊임없이 운동하며 인형 벽에 충돌하기 때문에 기체의 압력이 나타난다.</div>
+      <div class="q" style="border-top:none;padding:0">
+        <textarea class="free" data-key="block1" data-keywords="공기 입자/입자,충돌,압력,물" data-model="물 뿜는 인형에 들어 있는 공기 입자가 끊임없이 운동하면서 인형 벽과 물에 충돌하여 기체의 압력이 나타나고, 이 압력이 물을 밀어내므로 물이 구멍으로 뿜어져 나온다." placeholder="물 뿜는 인형에 들어 있는 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">나의 학습 확인하기</span>1. 기체의 압력 돌아보기 <span class="pg">204쪽</span></div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left"><b>지식·이해</b> 기체의 압력을 입자 운동으로 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left"><b>과정·기능</b> 모형을 이용하여 기체의 압력 실험을 수행할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left"><b>가치·태도</b> 현상을 과학적 원리로 설명하면서 흥미를 느꼈는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>이번 활동에서 알게 된 점, 어려웠던 점, 더 알아보고 싶은 점을 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="알게 된 점 / 어려웠던 점 / 더 알아보고 싶은 점"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅵ. 기체의 성질 · 1. 기체의 압력 · 02 기체의 압력 · 비상교육 중학 과학 1 교과서(200~204쪽)·탐구 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅵ-1-02 기체의 압력";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2", "self3"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+
+/* ── 3D 페트병과 쇠구슬 ── */
+// 병 좌표: 길이 방향 x(-L~L), 반지름 RB. 양 끝(뚜껑 쪽·바닥 쪽)을 양손으로 잡고 x 방향으로 흔든다.
+const SB = { on: false, t: 0, off: 0, balls: [], hitsWin: [], impL: [], impR: [], rows: {} };
+const L = 2.2, RB = 0.9, RS = 0.13;
+function sbMode() { return $("sb-mode").value; }
+function sbInit() {
+  const n = +$("sb-n").value, gas = sbMode() === "gas"; SB.balls = [];
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.28, r = Math.random() * (RB - RS) * (gas ? 1 : 0.6);
+    const sp = gas ? 3.2 : 0; const th = Math.random() * 6.28, ph = Math.acos(2 * Math.random() - 1);
+    SB.balls.push({ p: new (window.THREE ? THREE.Vector3 : Object)(), x: (Math.random() * 2 - 1) * (L - RS), y: gas ? r * Math.sin(a) : -RB + RS + Math.random() * 0.15, z: r * Math.cos(a), vx: sp * Math.sin(ph) * Math.cos(th), vy: sp * Math.sin(ph) * Math.sin(th), vz: sp * Math.cos(ph) });
+  }
+  $("sb-n-o").textContent = n + "개"; $("sb-tag").textContent = (gas ? "기체 입자 " : "쇠구슬 ") + n + " 개";
+  SB.hitsWin = []; SB.impL = []; SB.impR = []; if (window.SB3) SB3.rebuild(n);
+}
+const FREQ = { 1: [0.9, "느리게"], 2: [1.4, "보통"], 3: [1.9, "빠르게"] };
+$("sb-f").addEventListener("input", () => $("sb-f-o").textContent = FREQ[$("sb-f").value][1]); $("sb-f-o").textContent = "보통";
+$("sb-n").addEventListener("input", sbInit); $("sb-mode").addEventListener("change", () => { sbInit(); $("sb-go").textContent = sbMode() === "gas" ? "▶ 관찰 시작" : "↔ 흔들기"; });
+$("sb-go").addEventListener("click", () => { SB.on = !SB.on; $("sb-go").textContent = SB.on ? "⏸ 멈추기" : (sbMode() === "gas" ? "▶ 관찰 시작" : "↔ 흔들기"); });
+function sbStep(dt) {
+  const gas = sbMode() === "gas", f = FREQ[$("sb-f").value][0], A = 1.1;
+  let wallV = 0;
+  if (SB.on && !gas) { SB.t += dt; SB.off = A * Math.sin(6.283 * f * SB.t); wallV = A * 6.283 * f * Math.cos(6.283 * f * SB.t); } else if (!gas) { SB.off *= 0.9; }
+  const now = performance.now() / 1000; let hits = 0, iL = 0, iR = 0;
+  const sub = 4, h = dt / sub;
+  for (let s = 0; s < sub; s++) SB.balls.forEach(b => {
+    if (!gas) b.vy -= 9.8 * h;
+    if (gas && !SB.on) return;
+    b.x += b.vx * h; b.y += b.vy * h; b.z += b.vz * h;
+    // 병 벽은 off만큼 움직이므로 병에 대한 상대 위치로 판단
+    const lx = b.x - SB.off;
+    if (lx > L - RS) { const rel = b.vx - wallV; if (rel > 0) { const nv = wallV - rel * (gas ? 1 : 0.75); iR += Math.abs(nv - b.vx); b.vx = nv; hits++; b.flash = 1; } b.x = SB.off + L - RS; }
+    if (lx < -L + RS) { const rel = b.vx - wallV; if (rel < 0) { const nv = wallV - rel * (gas ? 1 : 0.75); iL += Math.abs(nv - b.vx); b.vx = nv; hits++; b.flash = 1; } b.x = SB.off - L + RS; }
+    const rr = Math.hypot(b.y, b.z);
+    if (rr > RB - RS) { const ny = b.y / rr, nz = b.z / rr, vn = b.vy * ny + b.vz * nz; if (vn > 0) { const k = gas ? 2 : 1.6; b.vy -= k * vn * ny; b.vz -= k * vn * nz; if (vn > 0.4 || gas) { hits++; b.flash = 1; } if (!gas) { b.vx += (wallV - b.vx) * Math.min(1, h * 0.3); } } b.y = ny * (RB - RS); b.z = nz * (RB - RS); }
+    if (!gas && !SB.on) { b.vx *= 0.98; }
+    b.flash = Math.max(0, (b.flash || 0) - h * 4);
+  });
+  SB.hitsWin.push([now, hits]); SB.impL.push([now, iL]); SB.impR.push([now, iR]);
+  [SB.hitsWin, SB.impL, SB.impR].forEach(a => { while (a.length && now - a[0][0] > 1) a.shift(); });
+  const sum = a => a.reduce((s, x) => s + x[1], 0);
+  // 힘 = 1초 동안 받은 충격량 (쇠구슬 1개 질량을 1로 잡은 상대값)
+  const FL = sum(SB.impL) / 10, FR = sum(SB.impR) / 10, H = sum(SB.hitsWin);
+  $("sb-L").textContent = FL.toFixed(0); $("sb-R").textContent = FR.toFixed(0);
+  $("sb-hit").textContent = H + " 번";
+  SB.cur = { n: SB.balls.length, f: $("sb-f").value, gas, F: (FL + FR) / 2, H };
+}
+function sbTable() {
+  const keys = Object.keys(SB.rows);
+  $("sb-tb").innerHTML = "<tr><th>모형</th><th>개수</th><th>빠르기</th><th>손바닥에 느껴지는 힘(평균)</th><th>1초 동안 충돌 횟수</th></tr>" + (keys.length ? keys.map(k => { const r = SB.rows[k]; return `<tr><td>${r.gas ? "기체 입자" : "쇠구슬"}</td><td>${r.n}</td><td>${r.gas ? "-" : FREQ[r.f][1]}</td><td>${r.F.toFixed(0)}</td><td>${r.H}</td></tr>`; }).join("") : '<tr><td colspan="5" style="color:#8a9a9c">[흔들기] 중에 [지금 결과 기록]을 눌러요</td></tr>');
+}
+$("sb-rec").addEventListener("click", () => { if (!SB.cur || (!SB.on)) { alert("흔들거나 관찰하는 중에 기록해요."); return; } const c = SB.cur; SB.rows[(c.gas ? "g" : "b") + c.n + "-" + c.f] = Object.assign({}, c); sbTable(); });
+sbTable();
+WS.custom("sb_log", { el: $("sb-tb"), value: () => Object.values(SB.rows).map(r => (r.gas ? "g" : "b") + r.n + ":" + r.F.toFixed(0)).join(" ") });
+sbInit();
+(function () {
+  const st = $("sb-stage"), T3 = LB.three(st, 330);
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:60px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 계기판의 숫자로 비교해 보세요.</div>'; LB.loop(st, sbStep); return; }
+  const { r, scene, cam } = T3; LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0, 0), { R: 9, th: 0.3, ph: 1.25, min: 5, max: 16 });
+  scene.background = new THREE.Color(0x0d1b26);
+  const bottle = new THREE.Group(); scene.add(bottle);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(RB, RB, 2 * L, 32, 1, true), new THREE.MeshStandardMaterial({ color: 0xbfe3ff, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
+  body.rotation.z = Math.PI / 2; bottle.add(body);
+  const capMat = new THREE.MeshStandardMaterial({ color: 0x9fd3ff, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide });
+  const endL = new THREE.Mesh(new THREE.CircleGeometry(RB, 32), capMat.clone()); endL.position.x = -L; endL.rotation.y = Math.PI / 2; bottle.add(endL);
+  const endR = new THREE.Mesh(new THREE.CircleGeometry(RB, 32), capMat.clone()); endR.position.x = L; endR.rotation.y = -Math.PI / 2; bottle.add(endR);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.3, 20), new THREE.MeshStandardMaterial({ color: 0x2f6fe0 })); cap.rotation.z = Math.PI / 2; cap.position.x = L + 0.15; bottle.add(cap);
+  const handMat = new THREE.MeshStandardMaterial({ color: 0xf1c7a3, transparent: true, opacity: 0.85 });
+  const hL = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.6, 1.3), handMat); hL.position.x = -L - 0.35; bottle.add(hL);
+  const hR = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.6, 1.3), handMat.clone()); hR.position.x = L + 0.5; bottle.add(hR);
+  let mesh = null; const dummy = new THREE.Object3D(), colA = new THREE.Color(0xc8ccd4), colB = new THREE.Color(0xffe066), tmp = new THREE.Color();
+  window.SB3 = { rebuild(n) { if (mesh) scene.remove(mesh); const gas = sbMode() === "gas"; mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(gas ? 0.09 : RS, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: gas ? 0 : 0.6, roughness: 0.35 }), n); mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(n * 3), 3); scene.add(mesh); colA.set(gas ? 0x7dd3fc : 0xc8ccd4); } };
+  SB3.rebuild(SB.balls.length);
+  let flL = 0, flR = 0;
+  LB.loop(st, dt => { try {
+    sbStep(dt);
+    bottle.position.x = SB.off;
+    SB.balls.forEach((b, i) => { dummy.position.set(b.x, b.y, b.z); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); tmp.copy(colA).lerp(colB, b.flash || 0); mesh.setColorAt(i, tmp); });
+    mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    const li = SB.impL.length ? SB.impL[SB.impL.length - 1][1] : 0, ri = SB.impR.length ? SB.impR[SB.impR.length - 1][1] : 0;
+    flL = Math.max(flL * 0.9, Math.min(1, li / 3)); flR = Math.max(flR * 0.9, Math.min(1, ri / 3));
+    endL.material.opacity = 0.25 + flL * 0.6; endR.material.opacity = 0.25 + flR * 0.6; endL.material.color.setHex(flL > 0.2 ? 0xffb347 : 0x9fd3ff); endR.material.color.setHex(flR > 0.2 ? 0xffb347 : 0x9fd3ff);
+    hL.visible = hR.visible = cap.visible = sbMode() !== "gas";
+    r.render(scene, cam);
+  } catch (e) { window.__sbErr = String(e && e.stack || e); } });
+})();
+
+/* ── 축구공에 공기 넣기 ── */
+const SC = { ps: [], hits: [], hist: [] };
+function scAdd(k) { for (let i = 0; i < k; i++) { const a = Math.random() * 6.28; SC.ps.push({ x: -0.95, y: 0.05 * (Math.random() - 0.5), vx: Math.cos(a) * 0.9 + 0.6, vy: Math.sin(a) * 0.9 }); } }
+function scReset() { SC.ps = []; SC.hits = []; SC.hist = []; scAdd(6); }
+$("sc-pump").addEventListener("click", () => { if (SC.ps.length < 60) scAdd(4); });
+$("sc-out").addEventListener("click", () => SC.ps.splice(0, Math.min(4, SC.ps.length - 2)));
+$("sc-reset").addEventListener("click", scReset); scReset();
+function scDraw(dt) {
+  const n = SC.ps.length, now = performance.now() / 1000;
+  // 입자가 적으면 공이 찌그러져 있다 (꽉 찬 정도 0~1)
+  const full = Math.min(1, n / 36);
+  const g = LB.fit($("sc-cv"), 240), c = g.c, W = g.w, cx = W / 2, cy = 125, R = 92;
+  c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 240);
+  // 공 경계: 위쪽이 눌린 모양
+  const dent = (1 - full) * 0.55;
+  const rad = th => { const top = Math.max(0, -Math.sin(th)); return R * (1 - dent * Math.pow(top, 3)); };
+  c.beginPath(); for (let i = 0; i <= 80; i++) { const th = i / 80 * 6.283, rr = rad(th); const x = cx + Math.cos(th) * rr, y = cy + Math.sin(th) * rr * (0.92 + 0.08 * full); i ? c.lineTo(x, y) : c.moveTo(x, y); } c.closePath();
+  c.fillStyle = "#f2f4f7"; c.fill(); c.strokeStyle = "#9aa3ad"; c.lineWidth = 3; c.stroke();
+  c.save(); c.clip(); c.fillStyle = "rgba(120,80,90,.18)"; c.fillRect(0, 0, W, 240); c.restore();
+  let hits = 0;
+  SC.ps.forEach(p => {
+    p.x += p.vx * dt * 1.6; p.y += p.vy * dt * 1.6;
+    const th = Math.atan2(p.y, p.x), rr = rad(th) / R - 0.05, d = Math.hypot(p.x, p.y);
+    if (d > rr) { const nx = p.x / d, ny = p.y / d, vn = p.vx * nx + p.vy * ny; if (vn > 0) { p.vx -= 2 * vn * nx; p.vy -= 2 * vn * ny; hits++; p.f = 1; } p.x = nx * rr; p.y = ny * rr; }
+    const sp = Math.hypot(p.vx, p.vy); if (sp < 1.1) { p.vx *= 1.1 / sp; p.vy *= 1.1 / sp; }
+    p.f = Math.max(0, (p.f || 0) - dt * 4);
+    const px = cx + p.x * R, py = cy + p.y * R;
+    c.fillStyle = p.f > 0.2 ? "#ffe066" : "#5ad16a"; c.beginPath(); c.arc(px, py, 5, 0, 7); c.fill();
+    c.strokeStyle = "rgba(255,255,255,.6)"; c.lineWidth = 1.2; c.beginPath(); c.moveTo(px, py); c.lineTo(px + p.vx * 9, py + p.vy * 9); c.stroke();
+  });
+  SC.hits.push([now, hits]); while (SC.hits.length && now - SC.hits[0][0] > 1) SC.hits.shift();
+  const H = SC.hits.reduce((s, x) => s + x[1], 0);
+  c.fillStyle = "#cfe"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(`1초 동안 벽에 충돌한 횟수: ${H} 번`, 10, 232);
+  $("sc-tag").textContent = `공기 입자 ${n} 개`;
+  if (!SC.last || now - SC.last > 0.5) { SC.last = now; const e = SC.hist.find(h => h[0] === n); if (e) e[1] = e[1] * 0.7 + H * 0.3; else SC.hist.push([n, H]); SC.hist.sort((a, b) => a[0] - b[0]);
+    LB.graph($("sc-g"), { h: 240, xMax: 60, yMin: 0, yMax: 400, xStep: 10, yStep: 100, xLabel: "입자 수(개)", yLabel: "1초 동안 충돌 횟수", series: [{ color: "#2fae5d", pts: SC.hist.map(h => [h[0], h[1]]), dots: true }] }); }
+}
+LB.loop($("sc-cv"), scDraw); scDraw(0.016);
+</script>
+</body>
+</html>

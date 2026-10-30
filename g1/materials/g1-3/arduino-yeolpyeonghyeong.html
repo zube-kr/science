@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅲ 아두이노 실험 ① — 열평형 온도 측정하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅲ. 열</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p87-mbl.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 ① · Ⅲ. 열 · 교과서 86~88쪽</span>
+      <h1>온도 센서 2개로<br><span>열평형</span> 측정하기</h1>
+      <p>교과서의 MBL 온도 센서 대신 아두이노와 LM35·써미스터 온도 센서로 뜨거운 물과 찬물의 온도를 동시에 측정하고, 실험 보고서를 완성하자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>온도가 다른 두 물이 접촉할 때의 온도 변화</div><div><b>관련 단원</b>Ⅲ-1. 열의 이동 · 열평형</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + 온도 센서 2개</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 10월 26일 / 3모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 온도가 다른 두 물체를 접촉시켰을 때 시간에 따른 온도 변화를 측정하고, 두 물체가 열평형에 이르는 과정을 설명할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q" data-why="뜨거운 물은 열을 잃어 온도가 낮아지고, 찬물은 열을 얻어 온도가 높아지다가 두 온도가 같아질 거예요.">
+      <div class="q-text"><span class="q-num">1</span>뜨거운 물이 담긴 알루미늄 컵을 찬물에 넣으면 두 물의 온도는 어떻게 될까? 까닭과 함께 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" data-keywords="뜨거운 물,낮아,찬물,높아,같아" data-model="뜨거운 물에서 찬물로 열이 이동하므로 뜨거운 물의 온도는 낮아지고 찬물의 온도는 높아지다가, 시간이 지나면 두 물의 온도가 같아질 것이다." placeholder="~하면 ~할 것이다. 왜냐하면 ~"></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="물의 양이 같으면 열평형 온도는 두 처음 온도의 평균에 가깝고, 찬물이 더 많으면 찬물 쪽 온도에 가까워져요.">
+      <div class="q-text"><span class="q-num">2</span>뜨거운 물 100 g과 찬물 200 g을 사용할 때, 열평형 온도는 두 처음 온도의 한가운데보다 <span class="choice-group" data-key="hypo_side" data-answer="찬물"><button type="button" class="choice-btn" data-value="뜨거운">뜨거운 물 쪽에 가까울</button><button type="button" class="choice-btn" data-value="가운데">딱 가운데일</button><button type="button" class="choice-btn" data-value="찬물">찬물 쪽에 가까울</button></span> 것이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, USB 케이블, LM35 온도 센서, 써미스터(10 kΩ)와 10 kΩ 저항(또는 아날로그 온도 센서 모듈), 브레드보드, 점퍼선, 랩(또는 열수축 튜브), 열량계, 알루미늄 컵, 뜨거운 물(약 70 ℃), 찬물, 전자저울, 알코올 온도계, 노트북(크롬), 보안경, 내열 장갑</p></div>
+    <div id="al-circuit"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="fig-row" style="grid-template-columns:minmax(150px,260px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p86-setup.jpg" alt="알루미늄 컵을 열량계에 넣은 장치"><figcaption><span class="tb">86쪽</span>센서 1은 알루미늄 컵(뜨거운 물), 센서 2는 열량계(찬물)에 꽂는다.</figcaption></figure>
+      <div class="steps-box" style="margin:0"><ol>
+        <li>두 센서를 같은 물에 넣고 알코올 온도계와 비교해 <b>보정값</b>을 정한다.</li>
+        <li>전자저울로 질량을 재어 열량계에 찬물 200 g, 알루미늄 컵에 뜨거운 물 100 g을 담는다. (질량을 아래 칸에 기록)</li>
+        <li>센서 1을 뜨거운 물에, 센서 2를 찬물에 꽂고 값이 안정되면 처음 온도를 확인한다.</li>
+        <li>알루미늄 컵을 열량계에 넣고 뚜껑을 닫는 순간 [▶ 자동 기록 시작]을 누른다.</li>
+        <li>10분 동안 10초마다 자동으로 기록되는 값을 관찰한다. (센서 끝이 바닥에 닿지 않게 한다.)</li>
+      </ol></div>
+    </div>
+    <div class="safe">⚠️ 뜨거운 물을 다룰 때는 내열 장갑과 보안경을 착용한다. 물이 아두이노·브레드보드·노트북에 튀지 않도록 실험대 한쪽에 따로 둔다.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>🔴 뜨거운 물의 질량 (g)</label><input type="number" id="m-hot" value="100" min="1" style="width:100%"></div>
+      <div class="ctrl"><label>🔵 찬물의 질량 (g)</label><input type="number" id="m-cold" value="200" min="1" style="width:100%"></div>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기 — 실시간 기록</div>
+    <div id="al-lab"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="card-hint">표와 그래프에서 값을 읽어 적어 보자. (기록한 값과 비교해 자동으로 확인해 줘요.)</div>
+    <div class="q" id="q-res" data-why="처음 값은 기록표의 첫 줄, 나중 값은 기록표의 마지막 줄에서 읽어요.">
+    <table class="data-t" style="max-width:560px">
+      <tr><th></th><th>처음 온도(℃)</th><th>나중 온도(℃)</th><th>온도 변화(℃)</th></tr>
+      <tr><td>🔴 뜨거운 물</td><td><input class="blank w-s" id="r-h0" style="width:70px"></td><td><input class="blank w-s" id="r-h1" style="width:70px"></td><td id="r-hd">-</td></tr>
+      <tr><td>🔵 찬물</td><td><input class="blank w-s" id="r-c0" style="width:70px"></td><td><input class="blank w-s" id="r-c1" style="width:70px"></td><td id="r-cd">-</td></tr>
+    </table>
+
+      <span class="fb"></span>
+    </div>
+    <div class="q" id="q-teq" data-why="열이 두 물 사이에서만 이동한다면, 뜨거운 물이 잃은 열의 양 = 찬물이 얻은 열의 양이에요. 같은 물이므로 질량 × 온도 변화가 같아져서 열평형 온도 = (m₁T₁ + m₂T₂) ÷ (m₁ + m₂)로 계산할 수 있어요.">
+      <div class="q-text"><span class="q-num">1</span><b>이론값 계산</b> 열이 두 물 사이에서만 이동한다고 할 때, 열평형 온도 = (뜨거운 물 질량 × 처음 온도 + 찬물 질량 × 처음 온도) ÷ (두 질량의 합) = <input class="blank w-s" id="r-theory" style="width:80px"> ℃</div>
+      <div class="q-text"><span class="q-num">2</span><b>측정값</b> 실험에서 측정한 열평형 온도(두 센서가 거의 같아진 온도) = <input class="blank w-s" id="r-meas" style="width:80px"> ℃</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="실제로는 뜨거운 물의 열 일부가 알루미늄 컵을 데우거나 열량계 밖 공기로 빠져나가기 때문에, 측정한 열평형 온도가 이론값보다 조금 낮게 나오는 경우가 많아요.">
+      <div class="q-text"><span class="q-num">3</span>측정값이 이론값과 다른 까닭을 두 가지 이상 생각해 보자.</div>
+      <textarea class="free" data-key="err" data-keywords="컵/알루미늄,공기/밖/빠져,센서/보정/오차" data-model="뜨거운 물의 열 일부가 알루미늄 컵을 데우는 데 쓰였고, 열량계 뚜껑 틈으로 열이 바깥 공기로 빠져나갔다. 또 센서 값에 오차가 있었고, 질량을 잴 때 오차가 생겼을 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q" data-why="두 그래프는 점점 가까워지다가 만나서 나란히 수평이 돼요. 이 상태가 열평형이에요.">
+      <div class="q-text"><span class="q-num">1</span>그래프에서 두 선은 시간이 지날수록 <span class="choice-group" data-key="c_graph" data-answer="만나"><button type="button" class="choice-btn" data-value="멀어">점점 멀어진다</button><button type="button" class="choice-btn" data-value="만나">가까워지다가 만나 수평이 된다</button><button type="button" class="choice-btn" data-value="교차">교차하여 위아래가 바뀐다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="처음에는 온도 차이가 커서 열이 빠르게 이동하므로 온도가 빨리 변하고, 온도 차이가 작아질수록 이동하는 열이 줄어 천천히 변해요.">
+      <div class="q-text"><span class="q-num">2</span>온도가 가장 빠르게 변한 때는 <span class="choice-group" data-key="c_fast" data-answer="처음"><button type="button" class="choice-btn" data-value="처음">실험 처음</button><button type="button" class="choice-btn" data-value="중간">실험 중간</button><button type="button" class="choice-btn" data-value="끝">실험 끝</button></span>이다. 그 까닭을 온도 차이와 관련지어 설명해 보자.</div>
+      <textarea class="free" data-key="c_fast_why" data-keywords="온도 차이,크,열,빠르" data-model="처음에는 두 물의 온도 차이가 커서 열이 빠르게 이동하기 때문이다. 온도 차이가 작아질수록 이동하는 열이 줄어 온도가 천천히 변한다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>결론</b> 이 실험으로 알게 된 사실을 열의 이동 방향, 열평형, 입자의 움직임을 모두 넣어 정리해 보자.</div>
+      <textarea class="free" data-key="concl" data-keywords="뜨거운 물,찬물,열,열평형,입자,둔해,활발" data-model="열은 온도가 높은 뜨거운 물에서 온도가 낮은 찬물로 이동하여 뜨거운 물의 온도는 낮아지고 찬물의 온도는 높아지다가 두 온도가 같은 열평형 상태가 된다. 이때 뜨거운 물의 입자 움직임은 둔해지고 찬물의 입자 움직임은 활발해진다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">4</span><b>더 탐구하기</b> 실험을 다시 한다면 어떤 변인을 바꿔 보고 싶은가? 바꿀 변인과 예상 결과를 써 보자.</div>
+      <textarea class="free" data-key="next" data-keywords="변인,양/질량/온도/컵,예상" data-model="찬물의 양을 300 g으로 늘려 보고 싶다. 찬물이 많을수록 열평형 온도가 더 낮아지고, 열평형에 이르는 데 걸리는 시간이 길어질 것이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>잘함</th><th>보통</th><th>노력 필요</th></tr>
+      <tr><td style="text-align:left">아두이노와 센서를 안전하게 연결하고 측정했다.</td><td colspan="3"><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">그래프를 해석하여 열평형 과정을 설명했다.</td><td colspan="3"><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">모둠원과 역할을 나누어 협력했다.</td><td colspan="3"><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록(시간·온도)도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅲ. 열 · 아두이노 실험 보고서 ① 열평형 · 교과서 86~88쪽 탐구를 아두이노 온도 센서로 재구성</footer>
+</div>
+
+<script src="livebook.js"></script>
+<script src="arduino-lab.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅲ 아두이노① 열평형";
+const $ = id => document.getElementById(id);
+// 예시 값: 70 ℃ 물 100 g → 20 ℃ 물 200 g, 열이 조금 빠져나가 약 35.9 ℃에서 열평형
+const SAMPLE = []; for (let s = 0; s <= 600; s += 10) { const e = Math.exp(-s / 75), Te = 36.7 - 0.0014 * s; SAMPLE.push([s, +(Te + (70 - 36.7) * e + (Math.random() - .5) * 0.3).toFixed(1), +(Te - (36.7 - 20) * e + (Math.random() - .5) * 0.3).toFixed(1)]); }
+AL.circuit("al-circuit");
+AL.setup({ root: "al-lab", key: "eq_log", ch: ["뜨거운 물", "찬물"], every: 10, duration: 600, yMin: 0, yMax: 90, sample: SAMPLE });
+
+const R = () => AL.rows().filter(r => r[1] != null && r[2] != null);
+const near = (v, x, tol) => !isNaN(v) && Math.abs(v - x) <= tol;
+function theory() { const r = R(); if (!r.length) return NaN; const mh = +$("m-hot").value, mc = +$("m-cold").value; return (mh * r[0][1] + mc * r[0][2]) / (mh + mc); }
+function measured() { const r = R(); if (r.length < 3) return NaN; const last = r.slice(-3); return last.reduce((s, x) => s + (x[1] + x[2]) / 2, 0) / 3; }
+function diffs() { const v = id => WS.toNumber($(id).value); const hd = v("r-h1") - v("r-h0"), cd = v("r-c1") - v("r-c0"); $("r-hd").textContent = isNaN(hd) ? "-" : hd.toFixed(1); $("r-cd").textContent = isNaN(cd) ? "-" : (cd >= 0 ? "+" : "") + cd.toFixed(1); }
+["r-h0", "r-h1", "r-c0", "r-c1"].forEach(id => $(id).addEventListener("input", diffs));
+const resIds = { "r-h0": r => r[0][1], "r-h1": r => r[r.length - 1][1], "r-c0": r => r[0][2], "r-c1": r => r[r.length - 1][2] };
+// 학생 기록에 따라 정답이 달라지는 칸 (answer는 채점할 때마다 새로 읽음)
+function dyn(key, el, ans, check, why) { const c = { el, value: () => el.value, check, why }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+Object.entries(resIds).forEach(([id, f]) => dyn(id.replace("-", "_"), $(id), () => { const r = R(); return r.length ? f(r).toFixed(1) : "기록 없음"; }, v => { const r = R(); return r.length ? near(WS.toNumber(v), f(r), 0.25) : null; }));
+dyn("r_theory", $("r-theory"), () => isNaN(theory()) ? "기록 없음" : theory().toFixed(1), v => isNaN(theory()) ? null : near(WS.toNumber(v), theory(), 0.6), "질량과 처음 온도를 넣어 계산해요.");
+dyn("r_meas", $("r-meas"), () => isNaN(measured()) ? "기록 없음" : "약 " + measured().toFixed(1), v => isNaN(measured()) ? null : near(WS.toNumber(v), measured(), 1.0));
+// 자기 평가는 점수 없이 기록만
+["self1", "self2", "self3"].forEach(id => WS.custom(id, { el: $(id), value: () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; } }));
+</script>
+</body>
+</html>

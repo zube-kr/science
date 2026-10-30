@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅱ-2-03 — 생물을 분류하는 체계</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+<style>
+.flow{ display:grid; gap:6px; margin:8px 0; }
+.flow .node{ background:#fff8e6; border:2px solid #f2c26b; border-radius:12px; padding:8px 10px; font-size:14px; }
+.flow .node.on{ border-color:#e4572e; }
+.flow .node.done{ opacity:.6; }
+.flow .res{ background:#eaf7ef; border:2px solid #2fae5d; border-radius:12px; padding:8px 10px; font-weight:800; }
+.kcard{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; }
+.kcard .c{ background:#fff; border:1px solid #e3e8ea; border-radius:12px; padding:8px; font-size:13px; }
+.kcard .c b{ font-size:14px; }
+</style>
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅱ. 생물의 구성과 다양성</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p58-cartoon.jpg" alt="어떤 생물이 식물인지 균류인지 확인하려면 어떤 정보가 필요할까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅱ. 생물의 구성과 다양성 · 2. 생물다양성과 분류 · 03 <span class="pg" style="margin:0">58~61쪽</span></span>
+      <h1>생물을<br><span>분류하는 체계</span></h1>
+      <p>“와, 너는 나랑 비슷하게 생겼네. 너는 무슨 식물이니?” “나는…… 식물이 아니라 버섯이야.” 어떤 생물이 식물인지 균류인지 확인하려면 어떤 정보가 필요할까? 생물 카드의 단서로 5계를 가려내는 분류 탐정이 되어 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 생물의 분류체계를 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>생물의 5계 <span class="pg">58~59쪽</span></div>
+    <p class="lead-q">생물의 분류체계는 어떻게 이루어져 있을까?</p>
+    <div class="book"><p>18 세기에 린네(Linne, C. von, 1707~1778)가 생물을 동물계와 식물계로 분류한 이후, 과학이 발달함에 따라 생물의 분류체계는 계속 변해 왔다. 지구의 다양한 생물은 동물계, 식물계, 균계, 원생생물계, 원핵생물계의 <span class="key">5계</span>로 ●분류할 수 있다.</p></div>
+    <div class="tip-box"><b>●생물을 분류하는 기준</b> 생물을 계 단위로 분류할 때는 세포 내 핵 유무, 광합성 여부 등을 기준으로 삼는다.</div>
+    <div class="kcard">
+      <div class="c"><b>🐾 동물계</b><br>핵이 있는 세포 여러 개. 다른 생물을 먹이로 삼아 양분을 얻는다. 대부분 운동성이 있고 기관이 발달했다.</div>
+      <div class="c"><b>🌱 식물계</b><br>핵과 세포벽이 있는 세포 여러 개. 광합성을 하여 양분을 스스로 만든다. 대부분 뿌리·줄기·잎이 발달했고 육지에서 생활한다.</div>
+      <div class="c"><b>🍄 균계</b><br>핵이 있는 세포. 양분을 스스로 만들 수 없어 대부분 죽은 생물을 분해하여 양분을 얻는다. 버섯·곰팡이는 실 모양의 균사가 얽힌 구조.</div>
+      <div class="c"><b>🦠 원생생물계</b><br>핵이 있는 세포로 이루어진 생물 중 동물계·식물계·균계를 제외한 나머지. 대부분 세포 한 개이지만 여러 개인 것도 있다. 다시마처럼 광합성을 하는 종류도 있다.</div>
+      <div class="c"><b>🔬 원핵생물계</b><br>핵이 없고 세포벽이 있는 세포. 대부분 세포 한 개. 매우 작아 현미경으로 관찰해야 하고, 염주말처럼 광합성을 하는 종류도 있다.</div>
+    </div>
+    <figure class="fig"><img src="img/p58-fig2-9.jpg" alt="동물계에 속하는 생물"><figcaption><span class="tb">그림 2-9</span>동물계 — 말, 호랑나비, 달팽이, 별불가사리, 보름달물해파리, 화산따개비</figcaption></figure>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p59-fig2-10.jpg" alt="식물계에 속하는 생물"><figcaption><span class="tb">그림 2-10</span>식물계 — 우산이끼, 해바라기, 소나무</figcaption></figure>
+      <figure class="fig" style="margin:0"><img src="img/p59-fig2-11.jpg" alt="균계에 속하는 생물"><figcaption><span class="tb">그림 2-11</span>균계 — 느타리, 표고, 기는줄기뿌리곰팡이</figcaption></figure>
+      <figure class="fig" style="margin:0"><img src="img/p59-fig2-12.jpg" alt="원생생물계에 속하는 생물"><figcaption><span class="tb">그림 2-12</span>원생생물계 — 아메바, 짚신벌레, 다시마</figcaption></figure>
+      <figure class="fig" style="margin:0"><img src="img/p59-fig2-13.jpg" alt="원핵생물계에 속하는 생물"><figcaption><span class="tb">그림 2-13</span>원핵생물계 — 충치균, 대장균, 염주말</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="card" data-part="sim">
+    <div class="card-title"><span class="badge sim">분류 탐정</span>단서 카드로 5계 가려내기</div>
+    <div class="card-hint">생물 카드를 하나씩 뽑아 단서를 읽고 어느 계인지 골라 보자. 맞히면 다음 카드가 나와요. 틀리면 어떤 단서를 놓쳤는지 알려 줘요. 10 장을 모두 분류해 보자!</div>
+    <div class="tip-box" id="dt-card" style="background:#f2f7ff;font-size:15px"></div>
+    <div class="btn-row" id="dt-btns"></div>
+    <div class="tip-box" id="dt-msg">카드를 읽고 계를 골라 보세요.</div>
+    <div class="scroll-x"><table class="data-t" id="dt-tb"></table></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">해 보기</span>광합성을 하는 생물 분류하기 <span class="pg">60쪽</span></div>
+    <div class="book"><p>생물 중에는 서로 다른 계에 속하지만 특징이 비슷한 것도 있다. 순서도를 이해하여 광합성을 하는 생물을 계 수준으로 분류해 보자.</p></div>
+    <figure class="fig"><img src="img/p60-photo.jpg" alt="광합성을 하는 생물 분류 순서도"><figcaption><span class="tb">60쪽</span>흔들말 · 파래 · 유글레나 · 고사리</figcaption></figure>
+    <div class="ctrl-grid"><div class="ctrl"><label>분류 대상 선택</label><select id="ph-obj"></select></div></div>
+    <div class="tip-box" id="ph-fact" style="background:#f2f7ff"></div>
+    <div class="flow" id="ph-box"></div>
+    <div class="scroll-x"><table class="data-t" id="ph-tb"></table></div>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>식물계에 속하는 생물은 무엇인지 말하고, 나머지 생물이 식물계에 속하지 않는 까닭을 각각 이야기해 보자.</div>
+      <textarea class="free" data-key="ph_talk" rows="3" data-keywords="고사리,흔들말,핵,파래,뿌리,유글레나,한 개" data-model="식물계는 고사리이다. 흔들말은 핵이 없어 원핵생물계, 파래는 뿌리·줄기·잎이 구분되지 않아 원생생물계, 유글레나는 세포 한 개로 이루어져 원생생물계이다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>58쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">60쪽</span></div>
+    <div class="q" data-why="세포에 핵이 없는 생물은 원핵생물계예요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 세포에 핵이 없는 생물은 ( <input class="blank w-s" data-key="sc1" data-answer="원핵생물"> )계로 분류한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <figure class="fig float-r" style="max-width:150px"><img src="img/p60-venus.jpg" alt="파리지옥의 잎"><figcaption>파리지옥의 잎</figcaption></figure>
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 파리지옥은 덫처럼 생긴 잎으로 작은 벌레를 잡아먹지만 식물계로 분류하는 까닭을 설명해 보자.</div>
+      <textarea class="free" data-key="sc_venus" rows="2" data-keywords="광합성,양분,스스로,뿌리" data-model="파리지옥은 핵과 세포벽이 있는 세포 여러 개로 이루어져 있고, 엽록체로 광합성을 하여 양분을 스스로 만들며 뿌리·줄기·잎이 있기 때문이다. 벌레는 부족한 영양소를 보충하는 것이다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q" style="clear:both">
+      <b>🧩 두 번째 블록 · 힌트 조각 2 (60쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="잘피는 광합성으로 양분을 스스로 만들고 뿌리를 내리므로 식물계예요.">
+        <div class="q-text" style="color:#3a1600">잘피는 산호와 달리 광합성으로 ( <input class="blank w-s" data-key="blk2a" data-answer="양분" style="background:#fff"> )을/를 스스로 만들고, 바다 밑바닥에 뿌리를 내려 생활하므로 ( <input class="blank w-s" data-key="blk2b" data-answer="식물" style="background:#fff"> )계에 속한다. → 다음 조각은 ‘학교와 주변 지역의 생물 분류하기’에서!</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">과학이 톡</span>첨단 과학기술로 분류한 대왕판다 <span class="pg">61쪽</span></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p61-panda.jpg" alt="대왕판다"><figcaption>대왕판다 — 곰과</figcaption></figure>
+      <figure class="fig" style="margin:0"><img src="img/p61-redpanda.jpg" alt="레서판다"><figcaption>레서판다 — 너구리과로 분류했던 동물</figcaption></figure>
+    </div>
+    <div class="book"><p>대왕판다는 곰과에 속하는 동물이지만 예전에는 너구리과로 분류했다. ‘판다’라는 이름을 지닌 레서판다를 이미 너구리과로 분류했기 때문이다. 과거에는 생물의 생김새, 행동 등을 분류 기준으로 삼았지만, 오늘날에는 화석이나 DNA를 분석하여 조상이 어떤 생물에 더 가까운지 판단하여 생물을 분류한다. 이에 따라 조상이 너구리보다 곰에 더 가까운 대왕판다를 곰과로 분류하게 되었다. 과학은 새로운 발견이나 증거 분석에 따라 계속 발전하고 있다.</p></div>
+    <div class="q" data-why="오늘날에는 생김새보다 화석과 DNA로 조상이 얼마나 가까운지를 분석하여 분류해요.">
+      <div class="q-text"><span class="q-num">1</span>대왕판다를 곰과로 다시 분류하게 된 근거는 <span class="choice-group" data-key="panda" data-answer="dna"><button type="button" class="choice-btn" data-value="얼굴">너구리를 닮은 얼굴 무늬</button><button type="button" class="choice-btn" data-value="dna">화석과 DNA 분석</button><button type="button" class="choice-btn" data-value="먹이">대나무를 먹는 습성</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">💡</span><b>창의성 쏙!</b> 생물과 관련하여 미래에 나타날 수 있는 직업을 예상하여 소개해 보자.</div><textarea class="free" data-key="job" rows="2" placeholder="예) 생물 정보 분석가 — DNA 자료로 새로 발견된 생물을 분류한다."></textarea></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>생물을 분류하는 체계</div>
+    <div class="q" data-why="생물은 5계로 분류하고, 균사가 얽힌 구조는 균계예요. 핵이 없는 것은 원핵생물계(⑤)예요.">
+      <div class="q-text"><span class="q-num">1</span>지구의 다양한 생물은 동물계, 식물계, 균계, 원생생물계, 원핵생물계의 <input class="blank w-s" data-key="t1" data-answer="5계|5 계|오계"> 로 분류할 수 있다. 버섯이나 곰팡이와 같이 실 모양의 균사가 얽힌 구조로 된 생물은 <input class="blank w-s" data-key="t2" data-answer="균계"> 로 분류한다. 5계 중 핵이 없는 것은? <span class="choice-group" data-key="t3" data-answer="5"><button type="button" class="choice-btn" data-value="1">① 동물계</button><button type="button" class="choice-btn" data-value="2">② 식물계</button><button type="button" class="choice-btn" data-value="3">③ 균계</button><button type="button" class="choice-btn" data-value="4">④ 원생생물계</button><button type="button" class="choice-btn" data-value="5">⑤ 원핵생물계</button></span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="먹이를 먹고 운동성 → 동물계, 분해·균사 → 균계, 나머지 → 원생생물계, 광합성·뿌리줄기잎 → 식물계, 핵이 없음 → 원핵생물계예요.">
+      <div class="q-text"><span class="q-num">2</span>설명에 해당하는 계를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">④ 핵이 있고 여러 개의 세포로 이루어져 있으며 다른 생물을 먹이로 삼아 양분을 얻는다. 대부분 운동성이 있다.</td><td><span class="choice-group" data-key="t4" data-answer="동물"><button type="button" class="choice-btn" data-value="동물">동물계</button><button type="button" class="choice-btn" data-value="식물">식물계</button><button type="button" class="choice-btn" data-value="균">균계</button><button type="button" class="choice-btn" data-value="원생">원생생물계</button><button type="button" class="choice-btn" data-value="원핵">원핵생물계</button></span></td></tr>
+        <tr><td style="text-align:left">⑤ 핵이 있고 대부분 죽은 생물의 몸을 분해하여 양분을 얻는다. 균사가 얽힌 구조로 되어 있다.</td><td><span class="choice-group" data-key="t5" data-answer="균"><button type="button" class="choice-btn" data-value="동물">동물계</button><button type="button" class="choice-btn" data-value="식물">식물계</button><button type="button" class="choice-btn" data-value="균">균계</button><button type="button" class="choice-btn" data-value="원생">원생생물계</button><button type="button" class="choice-btn" data-value="원핵">원핵생물계</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 핵이 있는 세포로 이루어진 생물 중 동물계, 식물계, 균계를 제외한 나머지이다.</td><td><span class="choice-group" data-key="t6" data-answer="원생"><button type="button" class="choice-btn" data-value="동물">동물계</button><button type="button" class="choice-btn" data-value="식물">식물계</button><button type="button" class="choice-btn" data-value="균">균계</button><button type="button" class="choice-btn" data-value="원생">원생생물계</button><button type="button" class="choice-btn" data-value="원핵">원핵생물계</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 핵이 있고 여러 개의 세포로 이루어져 있으며 광합성을 하여 양분을 스스로 만든다. 대부분 뿌리, 줄기, 잎이 발달했다.</td><td><span class="choice-group" data-key="t7" data-answer="식물"><button type="button" class="choice-btn" data-value="동물">동물계</button><button type="button" class="choice-btn" data-value="식물">식물계</button><button type="button" class="choice-btn" data-value="균">균계</button><button type="button" class="choice-btn" data-value="원생">원생생물계</button><button type="button" class="choice-btn" data-value="원핵">원핵생물계</button></span></td></tr>
+        <tr><td style="text-align:left">⑧ 핵이 없고 세포벽이 있는 세포로 이루어져 있다. 염주말처럼 광합성을 할 수 있는 종류도 있다.</td><td><span class="choice-group" data-key="t8" data-answer="원핵"><button type="button" class="choice-btn" data-value="동물">동물계</button><button type="button" class="choice-btn" data-value="식물">식물계</button><button type="button" class="choice-btn" data-value="균">균계</button><button type="button" class="choice-btn" data-value="원생">원생생물계</button><button type="button" class="choice-btn" data-value="원핵">원핵생물계</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="원생생물계는 핵이 있고, 다시마처럼 광합성을 하는 것도 있으며, 대부분 세포 한 개지만 세포 여러 개인 것도 있어요.">
+      <div class="q-text"><span class="q-num">3</span>⑨ 원생생물계: ⑴ <input class="blank w-s" data-key="t9a" data-answer="핵"> 이 있다. ⑵ 다시마처럼 <input class="blank w-s" data-key="t9b" data-answer="광합성"> 을 할 수 있는 종류도 있다. ⑶ 대부분 <input class="blank w-s" data-key="t9c" data-answer="세포"> 한 개로 이루어져 있지만 세포 여러 개로 이루어져 있는 것도 있다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="동물계-화산따개비·보름달물해파리, 식물계-솔이끼·민들레, 균계-느타리·효모, 원생생물계-미역·짚신벌레, 원핵생물계-염주말·젖산균이에요.">
+      <div class="q-text"><span class="q-num">4</span>⑩ 5계와 각 계에 속하는 생물을 짝지어 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td>⑴ 동물계</td><td><span class="choice-group" data-key="m1" data-answer="ㄱ"><button type="button" class="choice-btn" data-value="ㄱ">㉠ 화산따개비, 보름달물해파리</button><button type="button" class="choice-btn" data-value="ㄴ">㉡ 염주말, 젖산균</button><button type="button" class="choice-btn" data-value="ㄷ">㉢ 솔이끼, 민들레</button><button type="button" class="choice-btn" data-value="ㄹ">㉣ 미역, 짚신벌레</button><button type="button" class="choice-btn" data-value="ㅁ">㉤ 느타리, 효모</button></span></td></tr>
+        <tr><td>⑵ 식물계</td><td><span class="choice-group" data-key="m2" data-answer="ㄷ"><button type="button" class="choice-btn" data-value="ㄱ">㉠ 화산따개비, 보름달물해파리</button><button type="button" class="choice-btn" data-value="ㄴ">㉡ 염주말, 젖산균</button><button type="button" class="choice-btn" data-value="ㄷ">㉢ 솔이끼, 민들레</button><button type="button" class="choice-btn" data-value="ㄹ">㉣ 미역, 짚신벌레</button><button type="button" class="choice-btn" data-value="ㅁ">㉤ 느타리, 효모</button></span></td></tr>
+        <tr><td>⑶ 균계</td><td><span class="choice-group" data-key="m3" data-answer="ㅁ"><button type="button" class="choice-btn" data-value="ㄱ">㉠ 화산따개비, 보름달물해파리</button><button type="button" class="choice-btn" data-value="ㄴ">㉡ 염주말, 젖산균</button><button type="button" class="choice-btn" data-value="ㄷ">㉢ 솔이끼, 민들레</button><button type="button" class="choice-btn" data-value="ㄹ">㉣ 미역, 짚신벌레</button><button type="button" class="choice-btn" data-value="ㅁ">㉤ 느타리, 효모</button></span></td></tr>
+        <tr><td>⑷ 원생생물계</td><td><span class="choice-group" data-key="m4" data-answer="ㄹ"><button type="button" class="choice-btn" data-value="ㄱ">㉠ 화산따개비, 보름달물해파리</button><button type="button" class="choice-btn" data-value="ㄴ">㉡ 염주말, 젖산균</button><button type="button" class="choice-btn" data-value="ㄷ">㉢ 솔이끼, 민들레</button><button type="button" class="choice-btn" data-value="ㄹ">㉣ 미역, 짚신벌레</button><button type="button" class="choice-btn" data-value="ㅁ">㉤ 느타리, 효모</button></span></td></tr>
+        <tr><td>⑸ 원핵생물계</td><td><span class="choice-group" data-key="m5" data-answer="ㄴ"><button type="button" class="choice-btn" data-value="ㄱ">㉠ 화산따개비, 보름달물해파리</button><button type="button" class="choice-btn" data-value="ㄴ">㉡ 염주말, 젖산균</button><button type="button" class="choice-btn" data-value="ㄷ">㉢ 솔이끼, 민들레</button><button type="button" class="choice-btn" data-value="ㄹ">㉣ 미역, 짚신벌레</button><button type="button" class="choice-btn" data-value="ㅁ">㉤ 느타리, 효모</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>생물의 분류체계 <span class="pg">64쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">3</span>생물의 분류체계 — 5계</h4>
+      <div class="q" style="border-top:none" data-why="식물계는 광합성, 균계는 균사, 나머지는 원생생물계, 핵이 없으면 원핵생물계예요.">
+        <div class="q-text">· 동물계: 핵이 있는 세포 여러 개, 운동성이 있으며, 다른 생물을 먹이로 삼아 양분을 얻는다.<br>· 식물계: 핵이 있는 세포 여러 개, <input class="blank w-s" data-key="s5" data-answer="광합성"> 을/를 하여 스스로 양분을 만들며, 대부분 뿌리, 줄기, 잎이 발달했다.<br>· 균계: 핵이 있는 세포, 특히 버섯이나 곰팡이는 실 모양의 <input class="blank w-s" data-key="s6" data-answer="균사"> 이/가 얽힌 구조이다.<br>· <input class="blank w-s" data-key="s7" data-answer="원생생물계|원생생물"> : 핵이 있는 세포로 이루어진 생물 중 동물계, 식물계, 균계를 제외한 나머지<br>· <input class="blank w-s" data-key="s8" data-answer="원핵생물계|원핵생물"> : 세포에 핵이 없고, 대부분 세포 한 개로 이루어져 있다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅱ. 생물의 구성과 다양성 · 2. 생물다양성과 분류 · 03 생물을 분류하는 체계 · 비상교육 중학 과학 1 교과서(58~61쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅱ-2-03 생물을 분류하는 체계";
+const $ = id => document.getElementById(id);
+const KG = { 동물: "동물계", 식물: "식물계", 균: "균계", 원생: "원생생물계", 원핵: "원핵생물계" };
+
+/* ── 분류 탐정 ── */
+const CARDS = [
+  ["해파리", "핵이 있는 세포 여러 개 · 촉수로 작은 동물을 잡아먹는다 · 헤엄쳐 움직인다", "동물", "다른 생물을 먹이로 삼고 운동성이 있어요."],
+  ["효모", "핵이 있는 세포 한 개 · 광합성을 하지 못한다 · 빵 반죽의 당을 분해해 양분을 얻는다", "균", "핵이 있지만 스스로 양분을 만들지 못하고 분해하여 양분을 얻으면 균계예요(세포 한 개여도 균계)."],
+  ["대장균", "핵이 없는 세포 한 개 · 세포벽이 있다 · 크기 약 2 μm", "원핵", "핵이 없으면 무조건 원핵생물계예요."],
+  ["민들레", "핵과 세포벽이 있는 세포 여러 개 · 광합성을 한다 · 뿌리·줄기·잎이 있다", "식물", "광합성을 하고 뿌리·줄기·잎이 있어요."],
+  ["짚신벌레", "핵이 있는 세포 한 개 · 섬모로 헤엄친다 · 세균을 먹는다", "원생", "세포 한 개이고 동물·식물·균 어디에도 속하지 않아요."],
+  ["푸른곰팡이", "핵이 있는 세포 · 실 모양의 균사가 얽혀 있다 · 썩은 귤에서 자란다", "균", "균사와 분해하여 얻는 양분은 균계의 단서예요."],
+  ["다시마", "핵이 있는 세포 여러 개 · 광합성을 한다 · 뿌리·줄기·잎이 구분되지 않는다", "원생", "광합성을 해도 뿌리·줄기·잎이 구분되지 않으면 원생생물계예요."],
+  ["염주말", "핵이 없는 세포가 염주처럼 이어져 있다 · 광합성을 한다", "원핵", "광합성을 해도 핵이 없으면 원핵생물계예요."],
+  ["우산이끼", "핵과 세포벽이 있는 세포 여러 개 · 광합성을 한다 · 축축한 육지에서 산다", "식물", "광합성을 하는 다세포 생물로 육지에서 사는 식물이에요."],
+  ["산호", "핵이 있는 세포 여러 개 · 촉수로 먹이를 잡아먹는다 · 바닥에 붙어 산다", "동물", "움직이지 않아도 먹이를 잡아먹는 다세포 생물이면 동물계예요."]
+];
+const DT = { i: 0, res: {}, tries: {} };
+$("dt-btns").innerHTML = Object.keys(KG).map(k => `<button type="button" class="btn small" data-k="${k}">${KG[k]}</button>`).join("");
+function dtShow() { if (DT.i >= CARDS.length) { $("dt-card").innerHTML = "🎉 10 장을 모두 분류했어요!"; return; } const c = CARDS[DT.i]; $("dt-card").innerHTML = `<b>카드 ${DT.i + 1}/10 · ${c[0]}</b><br>🔎 ${c[1]}`; }
+$("dt-btns").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b || DT.i >= CARDS.length) return; const c = CARDS[DT.i]; DT.tries[c[0]] = (DT.tries[c[0]] || 0) + 1; if (b.dataset.k === c[2]) { DT.res[c[0]] = DT.tries[c[0]] === 1 ? "한 번에 ✅" : DT.tries[c[0]] + "번 만에"; $("dt-msg").innerHTML = `⭕ 맞아요! <b>${c[0]}</b> → ${KG[c[2]]}. ${c[3]}`; DT.i++; dtShow(); dtTable(); } else $("dt-msg").innerHTML = `❌ ${KG[b.dataset.k]}가 아니에요. 단서를 다시 읽어 보세요 — 핵이 있나? 광합성을 하나? 세포는 몇 개? 양분은 어떻게?`; });
+function dtTable() { $("dt-tb").innerHTML = "<tr><th>생물</th><th>계</th><th>결과</th></tr>" + CARDS.map(c => `<tr><td>${c[0]}</td><td>${DT.res[c[0]] ? KG[c[2]] : "-"}</td><td>${DT.res[c[0]] || "-"}</td></tr>`).join(""); }
+dtShow(); dtTable();
+WS.custom("detective", { el: $("dt-tb"), value: () => Object.keys(DT.res).length + "/10", check: v => v === "10/10" ? true : false, answer: "10장 모두 분류" });
+
+/* ── 광합성 생물 순서도 ── */
+const PH = [["흔들말", "핵이 없는 세포 여러 개가 모여 실 같은 모양을 이루고 있다.", [0], "원핵생물계"], ["파래", "핵이 있는 세포 여러 개로 이루어져 있다. 뿌리, 줄기, 잎이 구분되지 않는다.", [1, 1, 0], "원생생물계"], ["유글레나", "핵이 있는 세포 1 개로 이루어져 있다.", [1, 0], "원생생물계"], ["고사리", "핵이 있는 세포 여러 개로 이루어져 있다. 뿌리, 줄기, 잎이 구분된다.", [1, 1, 1], "식물계"]];
+const PQ = ["핵이 있는 세포로 이루어져 있는가?", "세포 여러 개로 이루어져 있는가?", "뿌리, 줄기, 잎이 구분되는가?"], PN = ["원핵생물계", "원생생물계", "원생생물계"];
+const PF = { i: 0, ans: [], out: {} };
+$("ph-obj").innerHTML = PH.map((p, i) => `<option value="${i}">${p[0]}</option>`).join("");
+$("ph-obj").addEventListener("change", () => { PF.i = +$("ph-obj").value; PF.ans = []; phDraw(); });
+function phDraw() {
+  const p = PH[PF.i]; $("ph-fact").innerHTML = `<b>📋 ${p[0]}</b> ${p[1]}`;
+  let h = `<div class="node done">시작 → ${p[0]}</div>`, res = null;
+  for (let k = 0; k < 3; k++) { if (k > PF.ans.length) break; const a = PF.ans[k]; if (a == null) { h += `<div class="node on">${k + 1}. ${PQ[k]} <span class="btn-row" style="display:inline-flex;margin:0 0 0 6px"><button type="button" class="btn small" data-yn="1">예</button><button type="button" class="btn small ghost" data-yn="0">아니요</button></span></div>`; break; } h += `<div class="node done">${k + 1}. ${PQ[k]} → <b>${a ? "예" : "아니요"}</b></div>`; if (!a) { res = PN[k]; break; } if (k === 2) res = "식물계"; }
+  if (res) { h += `<div class="res">결과: ${p[0]} → ${res}</div>`; PF.out[p[0]] = res; phTable(); }
+  $("ph-box").innerHTML = h;
+}
+$("ph-box").addEventListener("click", e => { const b = e.target.closest("[data-yn]"); if (!b) return; PF.ans.push(+b.dataset.yn); phDraw(); });
+function phTable() { $("ph-tb").innerHTML = "<tr><th>생물</th><th>분류 결과</th></tr>" + PH.map(p => `<tr><td>${p[0]}</td><td>${PF.out[p[0]] || "-"}</td></tr>`).join(""); }
+phDraw(); phTable();
+PH.forEach((p, i) => WS.custom("ph" + i, { el: $("ph-tb"), value: () => PF.out[p[0]] || "", check: v => v === p[3], answer: p[0] + " → " + p[3] }));
+</script>
+</body>
+</html>
