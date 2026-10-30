@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅲ-1-03 — 열이 이동하는 방식</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅲ. 열</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/p90-fire.jpg" alt="">
+    <img class="lb-qmark" src="img/p92-thermal.jpg" alt="열화상 카메라 화면">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅲ. 열 · 1. 열의 이동 · 03 <span class="pg" style="margin:0">90~93쪽</span></span>
+      <h1>열이 이동하는<br><span>방식</span></h1>
+      <p>“멀리 떨어져 있는데도 뜨겁네.” 모닥불의 열기는 어떻게 멀리까지 전달되는 것일까? 가상 열화상 카메라로 금속판과 플라스틱판을 비교하고, 3D 냄비 속에서 전도·대류·복사를 직접 찾아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 열이 전도, 대류, 복사로 전달됨을 설명하고, 열이 이동하는 방식을 모형 등을 사용하여 다양하게 표현할 수 있다.</div>
+    </div>
+  </div>
+
+  <!-- 1. 전도 -->
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>열은 어떤 방식으로 이동할까? — 전도 <span class="pg">90쪽</span></div>
+    <div class="book">
+      <figure class="fig float-r"><img src="img/p90-fig3-4.jpg" alt="열의 전도"><figcaption><span class="tb">그림 3-4</span>열의 전도</figcaption></figure>
+      <p>금속 막대의 한쪽 끝을 가열하면 <b>그림 3-4</b>와 같이 가열한 부분의 입자가 더 활발하게 움직이고, 이 입자의 움직임이 이웃한 입자에 차례로 전달되면서 다른 쪽 끝까지 뜨거워진다. 이와 같이 물체를 구성하는 입자의 움직임이 이웃한 입자에 차례로 전달되어 열이 이동하는 방식을 <span class="key">전도</span>라고 한다.</p>
+      <p>다음 탐구로 서로 다른 물체에서 열이 전도되는 정도를 비교해 보자.</p>
+      <div class="clear"></div>
+    </div>
+    <div class="card-hint" style="margin-top:6px">▼ <b>입자 사슬 모형</b> — 왼쪽 끝을 가열하면 입자의 움직임이 이웃 입자로 차례로 전달돼요. 가열 버튼을 눌러 보세요.</div>
+    <div class="btn-row"><button type="button" class="btn main small" id="ch-heat">🔥 왼쪽 끝 가열하기</button><button type="button" class="btn ghost small" id="ch-reset">↺ 처음으로</button></div>
+    <div class="light-stage"><canvas id="ch-cv"></canvas></div>
+    <div class="q" data-why="전도는 입자가 제자리에서 진동하며 그 움직임을 이웃한 입자에 차례로 전달하는 방식이에요. 입자 자체가 다른 곳으로 이동하지는 않아요." data-hint="모형에서 입자들이 오른쪽 끝으로 몰려가는지, 제자리에서 흔들리는지 보세요.">
+      <div class="q-text"><span class="q-num">1</span>전도가 일어날 때 입자는 <span class="choice-group" data-key="ch_move" data-answer="제자리"><button type="button" class="choice-btn" data-value="이동">뜨거운 쪽에서 차가운 쪽으로 직접 이동한다</button><button type="button" class="choice-btn" data-value="제자리">제자리에서 움직임을 이웃 입자에 전달한다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 2. 탐구: 열화상 카메라 -->
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구</span>열화상 카메라를 이용하여 물체에서 열의 전도 비교하기 <span class="pg">90~91쪽</span></div>
+    <div class="fig-row">
+      <figure class="fig"><img src="img/p90-plates.jpg" alt="검은색 종이를 붙인 금속판과 플라스틱판"><figcaption><span class="tb">90쪽</span>검은색 종이를 붙인 금속판과 플라스틱판</figcaption></figure>
+      <figure class="fig"><img src="img/p91-setup.jpg" alt="뜨거운 금속 추 위의 두 판을 열화상 카메라로 촬영"><figcaption><span class="tb">91쪽</span>뜨거운 금속 추 위의 두 판을 열화상 카메라로 촬영</figcaption></figure>
+      <figure class="fig"><img src="img/p91-phone.jpg" alt="스마트폰용 열화상 카메라"><figcaption><span class="tb">●열화상 카메라</span>물체의 온도를 색깔로 나타내어 보여 주는 장치</figcaption></figure>
+    </div>
+    <div class="steps-box"><h4>어떻게 할까</h4><ol>
+      <li>양면 접착테이프를 이용하여 플라스틱판과 금속판의 한쪽 면에 각각 검은색 종이를 붙인다.</li>
+      <li>금속 추 2개를 뜨거운 물을 담은 비커에 넣고 시간이 지난 뒤에 뜨거운 물에서 금속 추 2개를 집게로 꺼낸다. (금속 추가 뜨거운 물과 열평형에 이를 수 있도록 충분한 시간 동안 넣어 둔다.)</li>
+      <li><b>디지털 탐구 도구 활용</b> 플라스틱판과 금속판을 뜨거운 금속 추 위에 각각 올려놓고, 열화상 카메라로 두 판의 온도 변화를 동영상으로 촬영한다.</li>
+    </ol></div>
+    <div class="safe">⚠️ 뜨거운 물과 금속 추를 사용할 때 화상을 입지 않도록 주의한다.</div>
+
+    <div class="card-title" style="margin-top:14px"><span class="badge sim">가상 실험</span>가상 열화상 카메라</div>
+    <div class="card-hint">두 판의 물질과 금속 추의 온도를 정하고 [판 올려놓기]를 누르면 열화상 카메라 화면이 녹화돼요. 판 가운데 흰 원이 금속 추가 닿는 자리예요. 화면 아래 색 막대가 온도를 나타내요.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>왼쪽 판 <output id="pa-o"></output></label><select id="pa"></select></div>
+      <div class="ctrl"><label>오른쪽 판 <output id="pb-o"></output></label><select id="pb"></select></div>
+      <div class="ctrl"><label>금속 추 온도 <output id="tw-o"></output></label><input type="range" id="tw" min="40" max="90" value="70"></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="ir-go">▶ 판 올려놓기 (녹화 시작)</button><button type="button" class="btn ghost small" id="ir-reset">↺ 처음으로</button></div>
+    <div class="sim-stage" id="ir-stage"><canvas id="ir-cv"></canvas><span class="tag">● REC 열화상 카메라</span><span class="tag2" id="ir-time">0초</span></div>
+    <div class="meter"><div class="m"><small>왼쪽 판 평균 온도</small><b id="ir-a">-</b></div><div class="m"><small>오른쪽 판 평균 온도</small><b id="ir-b">-</b></div><div class="m"><small>왼쪽 판 모서리 온도</small><b id="ir-ae">-</b></div><div class="m"><small>오른쪽 판 모서리 온도</small><b id="ir-be">-</b></div></div>
+    <div class="light-stage"><canvas id="ir-graph"></canvas></div>
+
+    <h4 style="margin:14px 0 4px">정리해 볼까</h4>
+    <div class="q" data-why="금속판은 금속 추가 닿은 가운데부터 바깥쪽으로 빠르게 붉은색(높은 온도)이 퍼지지만, 플라스틱판은 가운데만 조금 따뜻해지고 거의 변하지 않아요." data-hint="기본 설정(왼쪽 알루미늄, 오른쪽 플라스틱)으로 녹화해 보세요.">
+      <div class="q-text"><span class="q-num">1</span>시간이 지날 때 온도가 판 전체로 빠르게 퍼지는 것은 <span class="choice-group" data-key="ir_fast" data-answer="금속"><button type="button" class="choice-btn" data-value="금속">금속판</button><button type="button" class="choice-btn" data-value="플라스틱">플라스틱판</button><button type="button" class="choice-btn" data-value="같">두 판이 같다</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>플라스틱판과 금속판의 온도가 변한 까닭을 열의 이동과 관련지어 설명해 보자.</div>
+      <textarea class="free" data-key="ir_why" data-keywords="금속 추,열,이동/전달,입자,이웃/차례로,전도" data-model="온도가 높은 금속 추에서 온도가 낮은 판으로 열이 이동하고, 판을 구성하는 입자의 움직임이 이웃한 입자에 차례로 전달되는 전도가 일어나 판의 온도가 높아졌다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="금속은 열을 빠르게 전달하고, 나무·플라스틱·유리는 열을 느리게 전달해요. 열이 전도되는 정도는 물질의 종류에 따라 달라요." data-hint="여러 물질을 바꿔 가며 평균 온도 그래프의 기울기를 비교해 보세요.">
+      <div class="q-text"><span class="q-num">3</span>가상 실험으로 열이 전도되는 정도를 비교하여, <b>빠른 것부터</b> 순서대로 나열해 보자. (끌어서 옮기기)</div>
+      <ol class="order-list" data-key="cond_order" data-answer="cu,al,st,gl,pl,wd">
+        <li data-id="pl">플라스틱</li><li data-id="st">스테인리스</li><li data-id="wd">나무</li><li data-id="cu">구리</li><li data-id="gl">유리</li><li data-id="al">알루미늄</li>
+      </ol>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="열을 빠르게 전달하는 금속은 음식에 열이 잘 전달되도록 냄비 바닥에, 열을 느리게 전달하는 나무나 플라스틱은 손이 뜨겁지 않도록 손잡이에 써요.">
+      <div class="q-text"><span class="q-num">4</span>냄비의 바닥은 <span class="choice-group" data-key="pot_bottom" data-answer="금속"><button type="button" class="choice-btn" data-value="금속">금속</button><button type="button" class="choice-btn" data-value="나무">나무·플라스틱</button></span>으로, 손잡이는 <span class="choice-group" data-key="pot_handle" data-answer="나무"><button type="button" class="choice-btn" data-value="금속">금속</button><button type="button" class="choice-btn" data-value="나무">나무·플라스틱</button></span>으로 만든다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 3. 다르게 해 보기 -->
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">다르게 해 보기</span>열변색 붙임 딱지로 열의 전도 비교하기 <span class="pg">91쪽</span></div>
+    <div class="fig-row" style="grid-template-columns:minmax(140px,220px) 1fr;align-items:center">
+      <figure class="fig" style="margin:0"><img src="img/p91-alt.jpg" alt="열변색 붙임 딱지를 붙인 플라스틱판과 금속판"></figure>
+      <div style="font-size:13.5px;line-height:1.8">① 열변색 붙임 딱지를 붙인 플라스틱판과 금속판을 스탠드에 고정한다.<br>② 뜨거운 물에 두 판을 끝부분만 닿도록 넣고, 열변색 붙임 딱지의 색 변화를 관찰한다.<br>🎨 가상 딱지는 <b>약 35 ℃</b>가 넘으면 보라색에서 분홍색으로 변해요.</div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="st-go">▶ 뜨거운 물에 담그기</button><button type="button" class="btn ghost small" id="st-reset">↺ 꺼내기</button><span style="font-size:12px;align-self:center;color:var(--ink-soft)">위의 가상 실험에서 고른 두 물질이 그대로 쓰여요.</span></div>
+    <div class="light-stage"><canvas id="st-cv"></canvas></div>
+    <div class="q" data-why="금속판은 열이 빠르게 전도되어 딱지의 색이 위쪽까지 빠르게 변하지만, 플라스틱판은 열이 느리게 전도되어 아래쪽 일부만 변해요.">
+      <div class="q-text"><span class="q-num">1</span>같은 시간 동안 딱지의 색이 더 높이까지 변한 판은 <span class="choice-group" data-key="st_high" data-answer="금속"><button type="button" class="choice-btn" data-value="금속">금속판</button><button type="button" class="choice-btn" data-value="플라스틱">플라스틱판</button></span>이므로, 물체의 종류에 따라 열이 전도되는 정도가 <span class="choice-group" data-key="st_diff" data-answer="다르다"><button type="button" class="choice-btn" data-value="같다">같다</button><button type="button" class="choice-btn" data-value="다르다">다르다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 4. 대류와 복사 -->
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>대류와 복사 <span class="pg">92쪽</span></div>
+    <div class="book">
+      <p>열이 전도되는 정도는 물체를 이루는 물질의 종류에 따라 다르다. 구리, 스테인리스와 같은 금속은 열을 빠르게 전달한다. 또 나무, 플라스틱 등은 열을 느리게 전달한다. 따라서 냄비와 같은 조리 도구의 바닥 부분은 음식이 잘 익을 수 있도록 금속으로 만든다. 또 냄비의 손잡이는 안전하게 잡을 수 있도록 나무, 플라스틱 등으로 만든다.</p>
+      <p>물이 든 냄비의 아래쪽을 가열하면 <b>그림 3-5</b>와 같이 뜨거워진 물이 위로 올라가고 찬물이 위에서 아래로 내려오면서 물의 온도가 전체적으로 높아진다. 이와 같이 액체나 기체 물질을 구성하는 입자가 직접 이동하면서 열이 이동하는 방식을 <span class="key">대류</span>라고 한다.</p>
+      <p>햇빛이 비치는 곳에 있거나 난로 가까이에 있으면 따뜻함을 느낄 수 있다. 이는 전도나 대류와 달리 태양과 난로에서 열이 직접 이동하여 전달되기 때문이다. 이와 같이 열이 물질을 거치지 않고 직접 이동하는 방식을 <span class="key">복사</span>라고 한다.</p>
+    </div>
+    <figure class="fig"><img src="img/p92-fig3-5.jpg" alt="다양한 열의 이동 방식"><figcaption><span class="tb">그림 3-5</span>다양한 열의 이동 방식</figcaption></figure>
+    <div class="tip-box"><b>오개념 바로잡기 · 뜨거운 물체에서만 복사가 일어날까?</b><br>일반적으로 모든 물체는 온도의 높고 낮음과 관계없이 복사의 형태로 열을 방출한다. 사람의 몸에서도 복사의 형태로 열을 방출하기 때문에 열화상 카메라로 촬영하면 체온 분포를 알 수 있다.</div>
+
+    <div class="card-title" style="margin-top:14px"><span class="badge sim">3D 움직이는 교과서</span>그림 3-5를 3D로 — 냄비 속 세 가지 열 이동</div>
+    <div class="card-hint">불꽃 세기를 조절하고, 버튼으로 보고 싶은 열 이동 방식을 켜 보세요. 드래그하면 돌아가고 휠로 확대돼요. <b>대류</b>를 켜면 물 입자가 직접 돌며 이동하고, <b>복사</b>를 켜면 불에서 손으로 열이 곧바로 날아가요.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>불꽃 세기 <output id="fl-o"></output></label><input type="range" id="fl" min="0" max="3" value="2"></div>
+    </div>
+    <div class="btn-row" id="mode-row"><button type="button" class="btn small main" data-m="all">모두 보기</button><button type="button" class="btn small ghost" data-m="cond">🟧 전도</button><button type="button" class="btn small ghost" data-m="conv">🔵 대류</button><button type="button" class="btn small ghost" data-m="rad">〰️ 복사</button></div>
+    <div class="sim-wrap">
+      <div class="sim-stage" id="pot-stage" style="height:340px"><span class="tag" id="pot-tag">모두 보기</span></div>
+      <div class="panel">
+        <div class="meter" style="margin:0"><div class="m"><small>냄비 바닥</small><b id="pt-b">-</b></div><div class="m"><small>물 위쪽</small><b id="pt-t">-</b></div><div class="m"><small>물 아래쪽</small><b id="pt-w">-</b></div></div>
+        <div class="tip-box" id="pot-say" style="margin:0">불을 켜면 냄비 바닥부터 데워져요.</div>
+      </div>
+    </div>
+    <div class="q" data-why="냄비 바닥부터 데워진 뒤 점차 냄비 표면 전체가 뜨거워지는 것은 전도, 뜨거워진 물이 위로 올라가고 찬물이 아래로 내려가는 것은 대류, 열이 불에서 물질을 거치지 않고 손으로 직접 이동하는 것은 복사예요.">
+      <div class="q-text"><span class="q-num">1</span>3D 냄비에서 찾아보자.<br>(가) 냄비 바닥부터 데워진 뒤 냄비 표면 전체가 뜨거워진다 → <span class="choice-group" data-key="pot_a" data-answer="전도"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span><br>(나) 뜨거워진 물이 위로 올라가고 찬물이 아래로 내려간다 → <span class="choice-group" data-key="pot_b" data-answer="대류"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span><br>(다) 냄비 옆에 댄 손이 불 쪽에서 따뜻함을 느낀다 → <span class="choice-group" data-key="pot_c" data-answer="복사"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 5. 해 보기 -->
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">해 보기</span>열 이동 방식 표현하기 <span class="pg">93쪽</span></div>
+    <p class="lead-q">열은 전도, 대류, 복사의 방식으로 이동한다. 다음 활동으로 열이 이동하는 방식을 다양하게 표현해 보자.</p>
+    <figure class="fig mid"><img src="img/p93-phones.jpg" alt="스마트폰을 이용해 전도를 표현한 예시"><figcaption><span class="tb">93쪽</span>스마트폰 화면 색으로 열의 이동을 표현한 예 — “난 뜨거워.” “난 차가워.”</figcaption></figure>
+    <div class="steps-box"><h4>어떻게 할까</h4><ol>
+      <li>모둠별로 주변의 물건이나 몸을 이용해 열이 이동하는 방식인 전도, 대류, 복사를 표현하는 방법을 각각 토의한다.</li>
+      <li>토의한 내용을 바탕으로 열 이동 방식 중 한 가지를 정해 발표한다.</li>
+      <li>다른 모둠이 표현한 열 이동 방식이 어떤 것일지 구별하여 말한다.</li>
+    </ol><div style="font-size:12.5px;color:var(--ink-soft);margin-top:4px">💡 활동 도우미: 온도의 높고 낮은 정도를 어떻게 표현할지, 비유가 알맞은지, 표현이 창의적인지 등을 주로 이야기한다.</div></div>
+    <div class="q" data-why="위 그림은 뜨거운(빨간) 화면이 옆 화면에 차례로 색을 전달하는 모습이므로, 입자의 움직임이 이웃 입자에 차례로 전달되는 전도를 표현한 거예요.">
+      <div class="q-text"><span class="q-num">1</span>위 그림의 스마트폰 표현은 <span class="choice-group" data-key="phone_mode" data-answer="전도"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span>를 나타낸 것이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="(1) 공을 바로 던져 주는 것은 중간 물질 없이 직접 전달되는 복사, (2) 줄을 선 사람들이 손에서 손으로 넘겨 주는 것은 전도, (3) 사람이 직접 들고 걸어가 전달하는 것은 대류에 비유할 수 있어요." data-hint="‘누가 움직이는지’와 ‘중간에 거치는 것이 있는지’를 생각하세요.">
+      <div class="q-text"><span class="q-num">2</span>교실 앞에서 뒤로 공(열)을 보내는 방법을 열 이동 방식에 비유하였다.<br>(1) 앞사람이 뒤쪽 친구에게 공을 바로 던져 준다 → <span class="choice-group" data-key="an1" data-answer="복사"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span><br>(2) 자리에 앉은 친구들이 옆 사람에게 차례로 공을 건넨다 → <span class="choice-group" data-key="an2" data-answer="전도"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span><br>(3) 공을 든 친구가 직접 걸어가서 뒤쪽에 전해 준다 → <span class="choice-group" data-key="an3" data-answer="대류"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span>🧑‍🤝‍🧑 우리 모둠이 정한 열 이동 방식과 표현 방법을 쓰고, 전도·대류·복사의 특징과 관련하여 잘된 점과 보완할 점을 써 보자.</div>
+      <textarea class="free" data-key="my_model" data-keywords="전도/대류/복사,입자/직접,잘된 점/보완" data-model="우리 모둠은 대류를 표현했다. 뜨거운 물 역할의 친구들이 빨간 모자를 쓰고 교실 아래에서 위로 걸어 올라가고, 찬물 역할의 친구들은 위에서 아래로 내려오며 원을 그렸다. 입자가 직접 이동한다는 점은 잘 표현했지만, 온도가 높아질수록 더 빨리 움직이는 것은 보완해야 한다." placeholder="정한 방식 / 표현 방법 / 잘된 점 / 보완할 점"></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 6. 스스로 확인하기 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>90쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">93쪽</span></div>
+    <div class="q" data-why="열이 물질을 거치지 않고 직접 이동하는 방식은 복사예요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 열이 물질을 거치지 않고 직접 이동하는 방식을 ( <span class="choice-group" data-key="sc_rad" data-answer="복사"><button type="button" class="choice-btn" data-value="전도">전도</button><button type="button" class="choice-btn" data-value="대류">대류</button><button type="button" class="choice-btn" data-value="복사">복사</button></span> )라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 접촉식 체온계와 비접촉식 체온계가 체온을 측정하는 방법의 차이를 열 이동 방식과 관련지어 설명해 보자.</div>
+      <figure class="fig small"><img src="img/p93-therm.jpg" alt="접촉식 체온계와 비접촉식 체온계"></figure>
+      <textarea class="free" data-key="therm2" data-keywords="접촉식,전도,비접촉식,복사" data-model="접촉식 체온계는 몸에 직접 닿아 몸의 열이 전도로 체온계에 전달되어 열평형이 된 온도를 측정하고, 비접촉식 체온계는 몸에서 복사의 형태로 방출되는 열을 감지하여 체온을 측정한다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 7. 5분 테스트 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>어떤 열 이동 방식일까?</div>
+    <div class="q" data-why="고체에서는 물체를 이루는 물질의 종류에 따라 열이 전도되는 정도가 달라요.">
+      <div class="q-text"><span class="q-num">1</span>고체에서 물체를 이루는 물질의 종류에 따라 열이 <input class="blank" data-key="t4" data-answer="전도되는 정도|전도되는정도|전도 정도|전도"> 가 다르다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="5 아래쪽만 가열해도 물이 골고루 데워짐 → 대류 / 6 금속 의자가 더 차갑게 느껴짐 → 전도(금속이 몸의 열을 빠르게 빼앗음) / 7 적외선 카메라 → 복사 / 8 뜨거운 물은 위로, 찬물은 아래로 → 대류 / 9 토스터·오븐 → 복사">
+      <div class="q-text"><span class="q-num">2</span>전도에 의한 현상은 ‘전’, 대류는 ‘대’, 복사는 ‘복’을 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑤ 주전자에 든 물을 끓일 때 아래쪽만 가열해도 물이 골고루 데워진다.</td><td><span class="choice-group" data-key="t5" data-answer="대"><button type="button" class="choice-btn" data-value="전">전</button><button type="button" class="choice-btn" data-value="대">대</button><button type="button" class="choice-btn" data-value="복">복</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 추운 날 실외의 금속으로 된 의자는 나무로 된 의자보다 더 차갑게 느껴진다.</td><td><span class="choice-group" data-key="t6" data-answer="전"><button type="button" class="choice-btn" data-value="전">전</button><button type="button" class="choice-btn" data-value="대">대</button><button type="button" class="choice-btn" data-value="복">복</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 적외선 카메라로 물체나 사람을 촬영하면 온도 분포를 알 수 있다.</td><td><span class="choice-group" data-key="t7" data-answer="복"><button type="button" class="choice-btn" data-value="전">전</button><button type="button" class="choice-btn" data-value="대">대</button><button type="button" class="choice-btn" data-value="복">복</button></span></td></tr>
+        <tr><td style="text-align:left">⑧ 뜨거워진 물은 위로 올라가고, 찬물은 아래로 내려간다.</td><td><span class="choice-group" data-key="t8" data-answer="대"><button type="button" class="choice-btn" data-value="전">전</button><button type="button" class="choice-btn" data-value="대">대</button><button type="button" class="choice-btn" data-value="복">복</button></span></td></tr>
+        <tr><td style="text-align:left">⑨ 토스터나 오븐으로 요리를 한다.</td><td><span class="choice-group" data-key="t9" data-answer="복"><button type="button" class="choice-btn" data-value="전">전</button><button type="button" class="choice-btn" data-value="대">대</button><button type="button" class="choice-btn" data-value="복">복</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 8. 스스로 정리하기 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>열 이동 방식 · 첫 번째 블록 찾기 <span class="pg">94쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">3</span>열 이동 방식</h4>
+      <table>
+        <tr><th style="width:130px">이동 방식</th><th>뜻</th></tr>
+        <tr><td><input class="blank w-s" data-key="s7" data-answer="전도" style="width:90px"></td><td>물체를 구성하는 입자의 움직임이 이웃한 입자에 차례로 전달되어 열이 이동하는 방식</td></tr>
+        <tr><td><input class="blank w-s" data-key="s8" data-answer="대류" style="width:90px"></td><td>액체나 기체 물질을 구성하는 입자가 직접 이동하면서 열이 이동하는 방식</td></tr>
+        <tr><td><input class="blank w-s" data-key="s9" data-answer="복사" style="width:90px"></td><td>열이 물질을 거치지 않고 직접 이동하는 방식</td></tr>
+      </table>
+      <div class="block-q">
+        <b>첫 번째 블록 찾기</b>
+        <div class="t">물이 든 조리 도구를 가열할 때 열은 어떻게 이동할까?</div>
+        <div style="font-size:13px;line-height:1.7;margin-bottom:6px">힌트 블록 — 88쪽: 뜨거운 주전자에 찬물을 담으면 주전자에서 물로 열이 이동하여 물의 온도가 높아진다. / 93쪽: 주전자를 가열하면 열이 전도되어 주전자 표면 전체가 뜨거워지고, 주전자의 열이 물로 전달되면 물이 대류하여 물 전체가 뜨거워진다.</div>
+        <textarea class="free" data-key="block1" data-keywords="전도,대류,열평형/온도가 같아/물로 열이 이동" data-model="주전자와 같은 조리 도구를 가열하면 열이 전도되어 주전자 표면 전체가 뜨거워지고, 온도가 높은 주전자에서 온도가 낮은 물로 열이 이동한다. 물로 전달된 열은 대류를 통해 물 전체로 퍼져 물 전체가 뜨거워진다." placeholder="주전자와 같은 조리 도구를 가열하면 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅲ. 열 · 1. 열의 이동 · 03 열이 이동하는 방식 · 비상교육 중학 과학 1 교과서(90~94쪽)·탐구 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅲ-1-03 열이 이동하는 방식";
+const $ = id => document.getElementById(id);
+
+/* ── 입자 사슬 모형 ── */
+const CH = { T: Array(14).fill(20), on: false };
+$("ch-heat").addEventListener("click", () => CH.on = !CH.on || true);
+$("ch-reset").addEventListener("click", () => { CH.on = false; CH.T.fill(20); });
+function chainStep(dt, tt) {
+  if (CH.on) CH.T[0] = Math.min(95, CH.T[0] + dt * 60);
+  const n = CH.T.slice(); for (let i = 0; i < 14; i++) { const l = CH.T[Math.max(0, i - 1)], r = CH.T[Math.min(13, i + 1)]; n[i] += dt * 2.2 * (l + r - 2 * CH.T[i]); }
+  if (CH.on) n[0] = CH.T[0]; CH.T = n;
+  const g = LB.fit($("ch-cv"), 120), c = g.c, W = g.w, gap = (W - 60) / 13;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 120);
+  c.fillStyle = "#cfd8dc"; c.fillRect(20, 52, W - 40, 16);
+  if (CH.on) { c.font = "26px serif"; c.fillText("🔥", 2, 104); }
+  CH.T.forEach((T, i) => { const a = (T - 15) / 12, x = 30 + i * gap + Math.sin(tt * 0.03 + i * 1.7) * a, y = 60 + Math.cos(tt * 0.037 + i * 2.3) * a;
+    c.fillStyle = LB.heat((T - 15) / 85); c.beginPath(); c.arc(x, y, Math.min(13, gap * .42), 0, 7); c.fill(); c.strokeStyle = "rgba(0,0,0,.2)"; c.stroke(); });
+  c.fillStyle = "#26393b"; c.font = "bold 11px Pretendard, sans-serif"; c.fillText("가열한 쪽 " + CH.T[0].toFixed(0) + " ℃", 24, 20); c.textAlign = "right"; c.fillText("반대쪽 끝 " + CH.T[13].toFixed(0) + " ℃", W - 20, 20); c.textAlign = "left";
+}
+LB.loop($("ch-cv"), chainStep);
+
+/* ── 가상 열화상 카메라 ── */
+const MAT = { cu: ["구리", 1.0], al: ["알루미늄", 0.72], st: ["스테인리스", 0.25], gl: ["유리", 0.06], pl: ["플라스틱", 0.03], wd: ["나무", 0.018] };
+["pa", "pb"].forEach((id, k) => { $(id).innerHTML = Object.entries(MAT).map(([v, m]) => `<option value="${v}">${m[0]}</option>`).join(""); $(id).value = k ? "pl" : "al"; });
+const N = 21, IR = { run: false, t: 0, g: [null, null], hist: [[], []], last: "" };
+function irReset() { IR.run = false; IR.t = 0; IR.g = [0, 1].map(() => new Float32Array(N * N).fill(25)); IR.hist = [[[0, 25]], [[0, 25]]]; irDraw(); }
+function avg(g) { let s = 0; for (const v of g) s += v; return s / g.length; }
+function irStep(dt) {
+  if (!IR.run) return;
+  const sub = 6, h = dt * 2 / sub, Tw = +$("tw").value;
+  for (let s = 0; s < sub; s++) [$("pa").value, $("pb").value].forEach((m, k) => {
+    const D = MAT[m][1] * 9, g = IR.g[k], n = new Float32Array(g);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const i = y * N + x, l = g[y * N + Math.max(0, x - 1)], r = g[y * N + Math.min(N - 1, x + 1)], u = g[Math.max(0, y - 1) * N + x], d = g[Math.min(N - 1, y + 1) * N + x];
+      n[i] += h * (D * (l + r + u + d - 4 * g[i]) - 0.012 * (g[i] - 25));
+      const dx = x - 10, dy = y - 10; if (dx * dx + dy * dy <= 7) n[i] += h * 1.2 * (Tw - g[i]);
+    }
+    IR.g[k] = n;
+  });
+  IR.t += dt * 2;
+  const tt = IR.t; if (tt - IR.hist[0][IR.hist[0].length - 1][0] > 0.5) IR.g.forEach((g, k) => IR.hist[k].push([tt, avg(g)]));
+  if (IR.t >= 60) IR.run = false;
+}
+function irDraw() {
+  const g = LB.fit($("ir-cv"), 260), c = g.c, W = g.w, H = 260, Tw = +$("tw").value;
+  c.fillStyle = "#101820"; c.fillRect(0, 0, W, H);
+  const sz = Math.min((W - 60) / 2, 200), cell = sz / N, ox = [W / 2 - sz - 15, W / 2 + 15];
+  IR.g.forEach((gr, k) => {
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { c.fillStyle = LB.heat((gr[y * N + x] - 20) / 72); c.fillRect(ox[k] + x * cell, 22 + y * cell, cell + .6, cell + .6); }
+    c.strokeStyle = "rgba(255,255,255,.7)"; c.setLineDash([3, 3]); c.beginPath(); c.arc(ox[k] + sz / 2, 22 + sz / 2, cell * 2.6, 0, 7); c.stroke(); c.setLineDash([]);
+    c.fillStyle = "#fff"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(MAT[[$("pa").value, $("pb").value][k]][0] + "판", ox[k], 16);
+  });
+  for (let i = 0; i < 120; i++) { c.fillStyle = LB.heat(i / 120); c.fillRect(W / 2 - 120 + i * 2, H - 18, 2, 8); }
+  c.fillStyle = "#cfe"; c.font = "10px Pretendard, sans-serif"; c.fillText("20 ℃", W / 2 - 150, H - 10); c.fillText("92 ℃", W / 2 + 124, H - 10);
+  const a = avg(IR.g[0]), b = avg(IR.g[1]);
+  $("ir-a").textContent = a.toFixed(1) + " ℃"; $("ir-b").textContent = b.toFixed(1) + " ℃"; $("ir-ae").textContent = IR.g[0][0].toFixed(1) + " ℃"; $("ir-be").textContent = IR.g[1][0].toFixed(1) + " ℃";
+  $("ir-time").textContent = IR.t.toFixed(0) + "초";
+  LB.graph($("ir-graph"), { h: 200, xMax: 60, yMin: 20, yMax: 70, xStep: 10, yStep: 10, xLabel: "시간(초)", yLabel: "판의 평균 온도(℃)", series: [{ color: "#e4572e", pts: IR.hist[0], label: MAT[$("pa").value][0] }, { color: "#2f7de1", pts: IR.hist[1], label: MAT[$("pb").value][0] }] });
+}
+$("tw").addEventListener("input", () => { $("tw-o").textContent = $("tw").value + " ℃"; });
+["pa", "pb"].forEach(id => $(id).addEventListener("change", () => { irReset(); stReset(); }));
+$("ir-go").addEventListener("click", () => { irReset(); IR.run = true; IR.last = `${MAT[$("pa").value][0]}/${MAT[$("pb").value][0]}·추${$("tw").value}℃`; });
+$("ir-reset").addEventListener("click", irReset);
+$("tw-o").textContent = $("tw").value + " ℃";
+irReset();
+LB.loop($("ir-cv"), dt => { if (IR.run) { irStep(dt); irDraw(); } });
+WS.custom("ir_run", { el: $("ir-time"), value: () => IR.last });
+
+/* ── 열변색 붙임 딱지 ── */
+const ST = { on: false, t: 0, T: [new Float32Array(30).fill(25), new Float32Array(30).fill(25)] };
+function stReset() { ST.on = false; ST.t = 0; ST.T.forEach(a => a.fill(25)); }
+$("st-go").addEventListener("click", () => { stReset(); ST.on = true; });
+$("st-reset").addEventListener("click", stReset);
+function stDraw(dt) {
+  if (ST.on && ST.t < 40) { ST.t += dt * 2; const sub = 5, h = dt * 2 / sub; ST.T.forEach((a, k) => { const D = MAT[[$("pa").value, $("pb").value][k]][1] * 14;
+    for (let s = 0; s < sub; s++) { const n = new Float32Array(a); for (let i = 0; i < 30; i++) { const u = a[Math.max(0, i - 1)], d = a[Math.min(29, i + 1)]; n[i] += h * (D * (u + d - 2 * a[i]) - 0.01 * (a[i] - 25)); if (i >= 26) n[i] += h * 2 * (75 - a[i]); } a.set(n); } }); }
+  const g = LB.fit($("st-cv"), 250), c = g.c, W = g.w;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 250);
+  c.fillStyle = "#555"; c.fillRect(W / 2 - 90, 10, 180, 8);
+  c.fillStyle = "rgba(120,180,230,.25)"; c.fillRect(W / 2 - 110, ST.on ? 160 : 200, 220, ST.on ? 82 : 42); c.strokeStyle = "#9bb"; c.strokeRect(W / 2 - 110, 120, 220, 122);
+  c.fillStyle = "#2f7de1"; c.font = "11px Pretendard, sans-serif"; c.fillText("뜨거운 물 75 ℃", W / 2 + 18, 236);
+  const y0 = ST.on ? 30 : 70;
+  ST.T.forEach((a, k) => { const x = W / 2 - 60 + k * 75;
+    c.fillStyle = k ? "#e6e6e6" : "#b9c3cb"; c.fillRect(x - 4, y0 - 4, 44, 158);
+    for (let i = 0; i < 30; i++) { const hot = a[i] > 35; c.fillStyle = hot ? `rgb(${230},${90 + Math.min(80, (a[i] - 35) * 3)},${170})` : "#4b2fa8"; c.fillRect(x, y0 + i * 5, 36, 5.2); }
+    c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(MAT[[$("pa").value, $("pb").value][k]][0] + "판", x - 4, y0 + 168 > 245 ? 245 : y0 + 168);
+    const hgt = [...a].filter(v => v > 35).length; c.fillText("변색 " + Math.round(hgt / 30 * 100) + "%", x - 4, 22);
+  });
+  c.font = "11px Pretendard, sans-serif"; c.fillStyle = "#6b7b85"; c.fillText(ST.t.toFixed(0) + "초", 8, 240);
+}
+LB.loop($("st-cv"), stDraw);
+
+/* ── 3D 냄비 ── */
+let MODE = "all";
+document.querySelectorAll("#mode-row button").forEach(b => b.addEventListener("click", () => { MODE = b.dataset.m; document.querySelectorAll("#mode-row button").forEach(x => { x.classList.toggle("main", x === b); x.classList.toggle("ghost", x !== b); }); $("pot-tag").textContent = b.textContent; }));
+const SAY = { all: "냄비 바닥은 전도로, 물은 대류로, 손은 복사로 데워져요.", cond: "전도: 불에 닿은 냄비 바닥부터 데워지고, 입자의 움직임이 이웃 입자로 전달되어 냄비 표면 전체가 뜨거워져요.", conv: "대류: 바닥에서 데워진 물이 위로 올라가고 위의 찬물이 아래로 내려오며 물 전체가 데워져요.", rad: "복사: 열이 불에서 물질을 거치지 않고 손으로 직접 이동해요." };
+$("fl").addEventListener("input", () => $("fl-o").textContent = ["끔", "약", "중", "강"][$("fl").value]); $("fl-o").textContent = "중";
+(function () {
+  const st = $("pot-stage"), T3 = LB.three(st, 340);
+  const P = { bot: 25, wb: 25, wt: 25, side: 25 };
+  function physics(dt) { const f = +$("fl").value * 22; P.bot += dt * (f * 1.4 - (P.bot - P.wb) * 0.8 - (P.bot - 25) * 0.08); P.side += dt * ((P.bot - P.side) * 0.35 - (P.side - P.wt) * 0.15); P.wb += dt * ((P.bot - P.wb) * 0.12 - (P.wb - P.wt) * 0.25); P.wt += dt * ((P.wb - P.wt) * 0.22 - (P.wt - 25) * 0.01); P.wb = Math.min(100, P.wb); P.wt = Math.min(100, P.wt); P.bot = Math.min(260, P.bot); }
+  function meters() { $("pt-b").textContent = P.bot.toFixed(0) + " ℃"; $("pt-t").textContent = P.wt.toFixed(0) + " ℃"; $("pt-w").textContent = P.wb.toFixed(0) + " ℃"; $("pot-say").textContent = +$("fl").value ? SAY[MODE] : "불을 켜면 냄비 바닥부터 데워져요."; }
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:60px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 교과서 그림 3-5로 확인해 보세요.</div>'; LB.loop(st, dt => { physics(dt); meters(); }); return; }
+  const { r, scene, cam } = T3;
+  LB.orbit(cam, r.domElement, new THREE.Vector3(-0.6, -0.6, 0), { R: 12.5, th: 0.25, ph: 1.2, min: 6, max: 18 });
+  const stove = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 0.5, 40), new THREE.MeshStandardMaterial({ color: 0x333a40 })); stove.position.y = -2.3; scene.add(stove);
+  const flames = []; for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.6, 10), new THREE.MeshBasicMaterial({ color: 0x3fa2ff, transparent: true, opacity: 0.85 })); const a = i / 10 * 6.28; m.position.set(Math.cos(a) * 0.9, -1.8, Math.sin(a) * 0.9); scene.add(m); flames.push(m); }
+  const potMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.7, roughness: 0.35, side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.8, 2.4, 48, 1, true), potMat); pot.position.y = -0.3; scene.add(pot);
+  const botMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.7, roughness: 0.35 });
+  const bot = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.12, 48), botMat); bot.position.y = -1.5; scene.add(bot);
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.25, 0.35), new THREE.MeshStandardMaterial({ color: 0x6b3f1f })); handle.position.set(2.5, 0.6, 0); scene.add(handle);
+  const water = new THREE.Mesh(new THREE.CylinderGeometry(1.78, 1.75, 1.9, 48), new THREE.MeshStandardMaterial({ color: 0x5aa9e6, transparent: true, opacity: 0.18 })); water.position.y = -0.5; scene.add(water);
+  const NP = 90, pg = new THREE.BufferGeometry(), pos = new Float32Array(NP * 3), col = new Float32Array(NP * 3), ph = [];
+  for (let i = 0; i < NP; i++) ph.push({ a: Math.random() * 6.28, s: Math.random(), side: i % 2 ? 1 : -1, z: (Math.random() - .5) * 1.6 });
+  pg.setAttribute("position", new THREE.BufferAttribute(pos, 3)); pg.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  const pts = new THREE.Points(pg, new THREE.PointsMaterial({ size: 0.22, vertexColors: true })); scene.add(pts);
+  // 대류 화살표(고리)
+  const loopMat = new THREE.MeshBasicMaterial({ color: 0x2f7de1, transparent: true, opacity: 0.0 });
+  [-1, 1].forEach(sd => { const t = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.035, 8, 40), loopMat); t.position.set(sd * 0.85, -0.5, 0); scene.add(t); });
+  // 손과 복사선
+  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 16), new THREE.MeshStandardMaterial({ color: 0xf1c7a3 })); hand.scale.set(1, 1.4, 0.5); hand.position.set(-3.4, -1.2, 0); scene.add(hand);
+  const waves = []; for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.03, 6, 24, Math.PI * 0.7), new THREE.MeshBasicMaterial({ color: 0xff7b2e, transparent: true, opacity: 0 })); m.rotation.y = Math.PI / 2; m.rotation.x = 0; scene.add(m); waves.push(m); }
+  const hc = T => new THREE.Color(LB.heat((T - 20) / 90));
+  LB.loop(st, (dt, tt) => {
+    physics(dt); meters();
+    const f = +$("fl").value, sh = m => MODE === "all" || MODE === m;
+    flames.forEach((m, i) => { m.visible = f > 0; m.scale.y = 0.6 + f * 0.35 + Math.sin(tt * 0.02 + i) * 0.15; });
+    const k = Math.min(1, (P.bot - 25) / 140);
+    botMat.color = sh("cond") ? hc(25 + k * 90) : new THREE.Color(0x9aa4ad);
+    potMat.color = sh("cond") ? hc(P.side * 0.9) : new THREE.Color(0x9aa4ad); potMat.opacity = sh("cond") ? 0.7 : 0.35;
+    const speed = Math.max(0, (P.wb - P.wt) * 0.06 + (f ? 0.25 : 0)) * (sh("conv") ? 1 : 0.15);
+    loopMat.opacity = sh("conv") && f ? 0.55 : 0;
+    ph.forEach((p, i) => { p.a += dt * speed * (1 + p.s * 0.5) * p.side; const rr = 0.25 + p.s * 0.45; const x = p.side * 0.85 + Math.cos(p.a) * rr * p.side, y = -0.5 + Math.sin(p.a) * rr * 1.25;
+      pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = p.z; const up = Math.cos(p.a) * p.side < 0 ? 1 : 0; const T = 0.5 * (P.wb + P.wt) + (up ? 1 : -1) * Math.abs(P.wb - P.wt) * 0.5 + (y < -1.1 ? 4 : 0);
+      const cc = sh("conv") ? hc(T) : new THREE.Color(0x7fb8ea); col[i * 3] = cc.r; col[i * 3 + 1] = cc.g; col[i * 3 + 2] = cc.b; });
+    pg.attributes.position.needsUpdate = true; pg.attributes.color.needsUpdate = true;
+    waves.forEach((m, i) => { const u = ((tt * 0.0006 * (0.5 + f * 0.4)) + i / 4) % 1; m.position.set(-1.2 - u * 1.9, -1.75 + u * 0.55, 0); m.material.opacity = sh("rad") && f ? (1 - u) * 0.9 : 0; });
+    r.render(scene, cam);
+  });
+})();
+</script>
+</body>
+</html>

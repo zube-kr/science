@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅲ 아두이노 실험 ③ — 금속판과 플라스틱판의 열 전도 비교하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅲ. 열</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p91-setup.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 ③ · Ⅲ. 열 · 교과서 90~91쪽</span>
+      <h1>온도 센서로 재는<br><span>열의 전도</span></h1>
+      <p>교과서에서는 열화상 카메라로 두 판의 색 변화를 보았다. 이번에는 금속판과 플라스틱판의 <b>가장자리</b>에 온도 센서를 붙이고, 뜨거운 금속 추의 열이 판을 따라 얼마나 빨리 전도되는지 숫자로 측정해 보자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>물질의 종류에 따른 열의 전도 정도 비교</div><div><b>관련 단원</b>Ⅲ-1. 열이 이동하는 방식 · 전도</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + 온도 센서 2개</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 10월 26일 / 3모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 금속판과 플라스틱판에서 열이 전도되는 정도를 온도 센서로 측정하여 비교할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q" data-why="금속은 열을 빠르게 전달하므로 금속판 가장자리의 온도가 더 빨리, 더 많이 올라갈 거예요.">
+      <div class="q-text"><span class="q-num">1</span>뜨거운 금속 추 위에 금속판과 플라스틱판을 올려놓으면, 판 가장자리의 온도는 어느 쪽이 더 빨리 올라갈까? 까닭과 함께 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" data-keywords="금속판,빨리/빠르게,전도,입자" data-model="금속판 가장자리의 온도가 더 빨리 올라갈 것이다. 금속은 입자의 움직임이 이웃한 입자에 빠르게 전달되어 열을 빠르게 전도하기 때문이다." placeholder="~하면 ~할 것이다. 왜냐하면 ~"></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="판의 종류만 다르게 하고, 판의 크기·두께, 금속 추의 온도, 센서를 붙이는 위치(추에서의 거리)는 같게 해야 공정한 비교가 돼요.">
+      <div class="q-text"><span class="q-num">2</span>같게 해야 하는 변인을 모두 골라 보자.</div>
+      <div class="multi-group" data-key="v_ctrl" data-answer="size,weight,pos"><button type="button" class="multi-btn" data-value="kind">판을 이루는 물질</button><button type="button" class="multi-btn" data-value="size">판의 크기와 두께</button><button type="button" class="multi-btn" data-value="weight">금속 추의 온도</button><button type="button" class="multi-btn" data-value="pos">센서를 붙이는 위치</button></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, USB 케이블, LM35 온도 센서, 써미스터(10 kΩ)와 10 kΩ 저항(또는 아날로그 온도 센서 모듈), 브레드보드, 점퍼선, 크기와 두께가 같은 금속판(알루미늄)과 플라스틱판, 금속 추 2개, 뜨거운 물(약 80 ℃)이 든 비커, 집게, 종이테이프, 자, 노트북(크롬), 보안경, 내열 장갑</p></div>
+    <div id="al-circuit"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="fig-row" style="grid-template-columns:minmax(150px,260px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p90-plates.jpg" alt="금속판과 플라스틱판"><figcaption><span class="tb">90쪽</span>센서 1은 금속판, 센서 2는 플라스틱판의 가장자리에 붙인다.</figcaption></figure>
+      <div class="steps-box" style="margin:0"><ol>
+        <li>두 판의 가운데에서 같은 거리(약 5 cm) 떨어진 가장자리에 센서의 감지부를 대고 종이테이프로 붙인다. (센서 1: 금속판, 센서 2: 플라스틱판)</li>
+        <li>금속 추 2개를 뜨거운 물에 충분히 오래 넣어 두어 뜨거운 물과 열평형을 이루게 한다.</li>
+        <li>집게로 금속 추를 꺼내 실험대 위에 놓고, 두 판을 각각 추 위에 동시에 올려놓는 순간 [▶ 자동 기록 시작]을 누른다.</li>
+        <li>3분 동안 5초마다 자동으로 기록되는 값을 관찰한다.</li>
+      </ol></div>
+    </div>
+    <div class="safe">⚠️ 뜨거운 물과 금속 추를 다룰 때는 집게와 내열 장갑을 사용한다. 센서 전선이 뜨거운 추에 직접 닿지 않게 한다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기 — 실시간 기록</div>
+    <div id="al-lab"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" id="q-res" data-why="처음 값은 기록표의 첫 줄, 3분 뒤 값은 기록표의 마지막 줄에서 읽어요.">
+      <table class="data-t" style="max-width:560px">
+        <tr><th></th><th>처음 온도(℃)</th><th>3분 뒤 온도(℃)</th><th>온도 변화(℃)</th></tr>
+        <tr><td>🔴 금속판 가장자리</td><td><input class="blank w-s" id="r-h0" style="width:70px"></td><td><input class="blank w-s" id="r-h1" style="width:70px"></td><td id="r-hd">-</td></tr>
+        <tr><td>🔵 플라스틱판 가장자리</td><td><input class="blank w-s" id="r-c0" style="width:70px"></td><td><input class="blank w-s" id="r-c1" style="width:70px"></td><td id="r-cd">-</td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" id="q-first" data-why="온도가 처음보다 5 ℃ 높아지는 데 걸린 시간을 비교하면 열이 판의 가장자리까지 전도되는 빠르기를 알 수 있어요. 시간이 짧을수록 열이 빠르게 전도된 거예요.">
+      <div class="q-text"><span class="q-num">1</span>가장자리 온도가 처음보다 <b>5 ℃</b> 높아지는 데 걸린 시간 — 금속판: <input class="blank w-s" id="r-tm" style="width:70px"> 초, 플라스틱판: <input class="blank w-s" id="r-tp" style="width:70px"> 초 (3분 안에 5 ℃ 오르지 않았으면 ‘없음’)</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q" data-why="금속판 가장자리의 온도가 더 빠르게 높아졌으므로 금속이 플라스틱보다 열을 빠르게 전도해요.">
+      <div class="q-text"><span class="q-num">1</span>열이 더 빠르게 전도되는 판은 <span class="choice-group" data-key="c_fast" data-answer="금속"><button type="button" class="choice-btn" data-value="금속">금속판</button><button type="button" class="choice-btn" data-value="플라스틱">플라스틱판</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>결론</b> 금속 추에서 판의 가장자리까지 열이 이동한 방식을 입자의 움직임으로 설명하고, 두 판의 차이를 정리해 보자.</div>
+      <textarea class="free" data-key="concl" data-keywords="전도,입자,이웃/차례로,금속,플라스틱,물질의 종류" data-model="뜨거운 금속 추에 닿은 판의 입자가 활발하게 움직이고 이 움직임이 이웃한 입자에 차례로 전달되는 전도로 열이 가장자리까지 이동했다. 금속판은 플라스틱판보다 열을 빠르게 전도하므로, 열이 전도되는 정도는 물질의 종류에 따라 다르다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="열화상 카메라는 판 전체의 온도 분포를 색으로 한눈에 보여 주고, 온도 센서는 한 지점의 온도를 정확한 숫자로 시간에 따라 기록할 수 있어요.">
+      <div class="q-text"><span class="q-num">3</span>교과서의 열화상 카메라 실험과 비교하여, 온도 센서로 측정할 때의 좋은 점과 아쉬운 점을 써 보자.</div>
+      <textarea class="free" data-key="cmp" data-keywords="숫자/정확,시간,한 지점/전체,색" data-model="온도 센서는 한 지점의 온도를 정확한 숫자로 시간에 따라 기록해 그래프로 비교할 수 있어서 좋다. 하지만 열화상 카메라처럼 판 전체의 온도 분포를 한눈에 볼 수는 없다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="냄비 바닥은 열이 잘 전도되는 금속으로, 손잡이는 열이 잘 전도되지 않는 플라스틱·나무로 만들어요.">
+      <div class="q-text"><span class="q-num">4</span><b>생활과 연결</b> 이 결과를 이용하면 냄비의 손잡이는 <span class="choice-group" data-key="c_handle" data-answer="플라스틱"><button type="button" class="choice-btn" data-value="금속">금속</button><button type="button" class="choice-btn" data-value="플라스틱">플라스틱</button></span>으로 만드는 것이 안전하다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">센서를 같은 위치에 붙여 공정하게 비교했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">측정 자료로 열이 전도되는 정도를 비교했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">뜨거운 물과 추를 안전하게 다루었다.</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록(시간·온도)도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅲ. 열 · 아두이노 실험 보고서 ③ 전도 · 교과서 90~91쪽 탐구를 아두이노 온도 센서로 재구성</footer>
+</div>
+
+<script src="livebook.js"></script>
+<script src="arduino-lab.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅲ 아두이노③ 전도";
+const $ = id => document.getElementById(id);
+// 예시 값: 80 ℃ 추 위의 알루미늄판·플라스틱판 가장자리(추에서 5 cm)
+const SAMPLE = []; for (let s = 0; s <= 180; s += 5) { const m = 29 + 22 * (1 - Math.exp(-Math.max(0, s - 4) / 45)), p = 29 + 3.2 * (1 - Math.exp(-Math.max(0, s - 20) / 160)); SAMPLE.push([s, +(m + (Math.random() - .5) * 0.2).toFixed(1), +(p + (Math.random() - .5) * 0.2).toFixed(1)]); }
+AL.circuit("al-circuit");
+AL.setup({ root: "al-lab", key: "cd_log", ch: ["금속판", "플라스틱판"], every: 5, duration: 180, yMin: 20, yMax: 60, yStep: 5, sample: SAMPLE });
+
+const R = () => AL.rows().filter(r => r[1] != null && r[2] != null);
+const near = (v, x, tol) => !isNaN(v) && Math.abs(v - x) <= tol;
+function diffs() { const v = id => WS.toNumber($(id).value); const hd = v("r-h1") - v("r-h0"), cd = v("r-c1") - v("r-c0"); $("r-hd").textContent = isNaN(hd) ? "-" : "+" + hd.toFixed(1); $("r-cd").textContent = isNaN(cd) ? "-" : "+" + cd.toFixed(1); }
+["r-h0", "r-h1", "r-c0", "r-c1"].forEach(id => $(id).addEventListener("input", diffs));
+function dyn(key, el, ans, check, value) { const c = { el, value: value || (() => el.value), check }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+const resIds = { "r-h0": r => r[0][1], "r-h1": r => r[r.length - 1][1], "r-c0": r => r[0][2], "r-c1": r => r[r.length - 1][2] };
+Object.entries(resIds).forEach(([id, f]) => dyn(id.replace("-", "_"), $(id), () => { const r = R(); return r.length ? f(r).toFixed(1) : "기록 없음"; }, v => { const r = R(); return r.length ? near(WS.toNumber(v), f(r), 0.25) : null; }));
+// 처음보다 5 ℃ 오른 첫 기록 시각 (없으면 null)
+function t5(k) { const r = R(); if (r.length < 2) return undefined; const hit = r.find(x => x[k] - r[0][k] >= 5); return hit ? hit[0] : null; }
+[["r-tm", 1], ["r-tp", 2]].forEach(([id, k]) => dyn(id.replace("-", "_"), $(id), () => { const t = t5(k); return t === undefined ? "기록 없음" : t === null ? "없음" : t + "초"; },
+  v => { const t = t5(k); if (t === undefined) return null; if (t === null) return /없/.test(v); return near(WS.toNumber(v), t, 5); }));
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2", "self3"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+</script>
+</body>
+</html>

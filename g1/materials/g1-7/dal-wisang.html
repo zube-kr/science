@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅶ-2-02 — 모양이 달라지는 달</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅶ. 태양계</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p242-cartoon.jpg" alt="달의 모양이 왜 다를까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 태양계 · 2. 지구와 달 · 02 <span class="pg" style="margin:0">242~245쪽</span></span>
+      <h1>모양이<br><span>달라지는 달</span></h1>
+      <p>“내 모습이 며칠 전에는 다르게 찍혔네.” 달의 모양은 왜 날마다 다를까? 3D 모형에서 전등(태양) 빛을 받는 달을 지구 주위로 돌리며, 지구에서 보이는 달의 모양이 어떻게 바뀌는지 관찰해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 달의 위상이 달라지는 까닭을 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구</span>모형을 이용하여 달의 위상 변화 관찰하기 <span class="pg">242~243쪽</span></div>
+    <p class="lead-q">달의 위상이 달라지는 까닭은 무엇일까?</p>
+    <div class="book"><p>매일 달을 관찰하면 달의 위상이 달라지는 것을 볼 수 있다. <span class="key">달의 위상</span>은 지구에서 보이는 달의 모양을 말한다.</p></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="steps-box" style="margin:0"><b>준비물</b> 스마트 기기, 스마트 기기 거치대, 전등, 막대를 꽂은 스타이로폼 공, 원형 돌림판, 연필, 지우개<ol>
+        <li><b>관찰</b> 한국천문연구원 누리집(astro.kasi.re.kr → 생활천문관 → 월별 천문현상)에서 한 달 동안 달의 위상 변화를 조사한다.</li>
+        <li><b>가설 설정</b> 달의 위상이 달라지는 까닭을 예상한다.</li>
+        <li>실내를 어둡게 하고 한쪽에 전등을 켠 다음, 원형 돌림판 가운데에 스마트 기기를 놓는다.</li>
+        <li>스타이로폼 공을 스마트 기기와 마주 보는 곳에 놓고, 원형 돌림판을 시계 반대 방향으로 돌리며 동영상으로 촬영한다.</li>
+        <li><b>관찰</b> 공이 (가)~(라) 위치에 있을 때 밝게 보이는 부분과 어둡게 보이는 부분을 구분하여 표시한다.</li>
+      </ol></div>
+      <figure class="fig" style="margin:0"><img src="img/p242-cartoon.jpg" alt="달의 모양이 왜 다를까?"><figcaption><span class="tb">242쪽</span>내 모습이 며칠 전에는 다르게 찍혔네.</figcaption></figure>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>가설 설정</b> 달의 위상은 …</div>
+      <textarea class="free" data-key="hypo" rows="2" data-keywords="햇빛,반사,위치/공전" data-model="달의 위상은 달이 지구 주위를 공전하면서 햇빛을 반사하는 밝은 부분이 지구에서 보이는 정도가 달라지기 때문에 변할 것이다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <figure class="fig"><img src="img/p243-setup.jpg" alt="원형 돌림판, 스마트 기기, 막대를 꽂은 스타이로폼 공, 전등 빛"><figcaption><span class="tb">243쪽</span>스타이로폼 공의 위치 (가)~(라)와 전등 빛</figcaption></figure>
+
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">3D 가상 실험</span>3D 달 모형 — 지구에서 본 달</div>
+    <div class="card-hint">위치 버튼을 누르거나 [▶ 공전]으로 달을 시계 반대 방향(서→동)으로 돌려 보자. 큰 화면은 위에서 내려다본 모습, 오른쪽 아래 작은 화면은 <b>지구(스마트 기기)에서 본 달</b>이에요. 달은 언제나 태양 쪽 절반만 밝다는 것도 확인해 보자.</div>
+    <div class="btn-row" id="mp-pos"><button type="button" class="btn small ghost" data-a="90">(가)</button><button type="button" class="btn small ghost" data-a="180">(나)</button><button type="button" class="btn small ghost" data-a="270">(다)</button><button type="button" class="btn small ghost" data-a="0">(라)</button><button type="button" class="btn main small" id="mp-go">▶ 공전</button></div>
+    <div class="ctrl-grid"><div class="ctrl"><label>달의 위치 (삭에서부터 돈 각도) <output id="mp-a-o"></output></label><input type="range" id="mp-a" min="0" max="359" value="90"></div></div>
+    <div class="sim-stage" id="mp-stage" style="height:380px"><span class="tag">3D 모형 · 드래그하여 돌리기</span><span class="tag2" id="mp-tag">-</span></div>
+    <div class="q" data-why="(가)는 오른쪽 반원이 밝고(상현), (나)는 전체가 밝으며(망, 보름달), (다)는 왼쪽 반원이 밝고(하현), (라)는 지구 쪽이 모두 어두워 보이지 않아요(삭)." data-hint="위치 버튼을 하나씩 눌러 작은 화면의 달 모양을 보세요.">
+      <div class="q-text"><span class="q-num">1</span>스타이로폼 공의 위치에 따라 지구(스마트 기기)에서 보이는 모습을 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td>(가)</td><td><span class="choice-group" data-key="p_a" data-answer="R"><button type="button" class="choice-btn" data-value="R">오른쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="F">전체가 밝다</button><button type="button" class="choice-btn" data-value="L">왼쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="N">보이지 않는다</button></span></td></tr>
+        <tr><td>(나)</td><td><span class="choice-group" data-key="p_b" data-answer="F"><button type="button" class="choice-btn" data-value="R">오른쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="F">전체가 밝다</button><button type="button" class="choice-btn" data-value="L">왼쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="N">보이지 않는다</button></span></td></tr>
+        <tr><td>(다)</td><td><span class="choice-group" data-key="p_c" data-answer="L"><button type="button" class="choice-btn" data-value="R">오른쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="F">전체가 밝다</button><button type="button" class="choice-btn" data-value="L">왼쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="N">보이지 않는다</button></span></td></tr>
+        <tr><td>(라)</td><td><span class="choice-group" data-key="p_d" data-answer="N"><button type="button" class="choice-btn" data-value="R">오른쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="F">전체가 밝다</button><button type="button" class="choice-btn" data-value="L">왼쪽 반원이 밝다</button><button type="button" class="choice-btn" data-value="N">보이지 않는다</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="전등이 태양이면, 가운데의 스마트 기기는 지구, 스타이로폼 공은 달을 나타내요.">
+      <div class="q-text"><span class="q-num">2</span>전등을 태양이라고 할 때 스마트 기기는 <span class="choice-group" data-key="m_phone" data-answer="지구"><button type="button" class="choice-btn" data-value="지구">지구</button><button type="button" class="choice-btn" data-value="달">달</button></span>, 스타이로폼 공은 <span class="choice-group" data-key="m_ball" data-answer="달"><button type="button" class="choice-btn" data-value="지구">지구</button><button type="button" class="choice-btn" data-value="달">달</button></span>을 나타낸다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>자료 해석</b> 스타이로폼 공의 위치에 따라 밝게 보이는 부분과 어둡게 보이는 부분이 달라지는 까닭을 이야기하고, 가설과 비교하여 달의 위상이 달라지는 까닭을 정리해 보자.</div>
+      <textarea class="free" data-key="concl" data-keywords="햇빛/전등 빛,반사,절반,위치,공전" data-model="공(달)은 언제나 전등(태양) 쪽 절반만 빛을 반사해 밝다. 공이 스마트 기기(지구) 주위를 돌면 밝은 절반 중 지구에서 보이는 부분이 달라진다. 따라서 달이 지구 주위를 공전하면서 태양, 지구, 달의 상대적인 위치가 달라지므로 위상이 달라진다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 달의 위상 변화 모의실험 하기</h4><p style="margin:0;font-size:14px">스마트 기기로 달의 위상 변화 모의실험 프로그램을 찾아 달의 위상 변화를 관찰한다. <b>정리</b> 달의 위상이 달라지는 까닭을 이야기해 보자.</p></div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>달의 공전과 위상 변화 <span class="pg">244쪽</span></div>
+    <div class="book"><p>탐구에서 스타이로폼 공이 전등 빛을 반사하여 밝게 보이는 것과 같이 달은 햇빛을 반사하여 밝게 보인다. 또한 스타이로폼 공이 위치에 따라 스마트 기기에서 밝게 보이는 부분이 달라지는 것과 같이 달도 위치에 따라 위상이 달라진다.</p>
+    <p>달은 서쪽에서 동쪽으로 지구 주위를 공전하여, <b>그림 7-8</b>과 같은 위상 변화가 나타난다. 달이 공전하면서 태양과 같은 방향에 있을 때를 <span class="key">삭</span>이라고 한다. 이때 지구에서는 달이 보이지 않는다. 또 달이 태양의 반대 방향에 있을 때를 <span class="key">망</span>이라고 한다. 이때 달은 보름달로 보인다. 그리고 달과 태양이 지구를 중심으로 직각을 이루어 달의 오른쪽 반원이 보일 때를 <span class="key">상현</span>, 왼쪽 반원이 보일 때를 <span class="key">하현</span>이라고 한다.</p></div>
+    <figure class="fig"><img src="img/p244-fig7-8.jpg" alt="달의 공전과 위상 변화"><figcaption><span class="tb">그림 7-8</span>달의 공전과 위상 변화 — 삭, 상현, 망, 하현</figcaption></figure>
+    <div class="tip-box"><b>오개념 바로잡기 · 우리나라에서 보름달이 보일 때, 우리나라 반대쪽에서는 밤에 달이 보이지 않을까?</b><br>달의 위상은 달의 위치에 따라 달라진다. 따라서 같은 날 달을 관측하면, 달의 위상은 어디에서나 같게 보인다.</div>
+    <div class="q" data-why="달이 태양과 같은 방향에 있을 때는 삭이에요. 3D 모형에서 (라) 위치예요.">
+      <div class="q-text"><span class="q-num">1</span>그림 7-8에서 달이 태양과 같은 방향에 있을 때 나타나는 위상은 <span class="choice-group" data-key="same_dir" data-answer="삭"><button type="button" class="choice-btn" data-value="삭">삭</button><button type="button" class="choice-btn" data-value="상현">상현</button><button type="button" class="choice-btn" data-value="망">망</button><button type="button" class="choice-btn" data-value="하현">하현</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>242쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">244쪽</span></div>
+    <div class="q" data-why="태양과 같은 방향은 삭, 반대 방향은 망이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 달이 태양과 같은 방향에 있을 때를 ( <input class="blank w-s" data-key="sc1" data-answer="삭"> )(이)라고 하고, 태양의 반대 방향에 있을 때를 ( <input class="blank w-s" data-key="sc2" data-answer="망"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 보름달이 동쪽 하늘에서 보일 때 태양은 서쪽 하늘에 있다. 그 까닭을 설명해 보자.</div>
+      <textarea class="free" data-key="sc_full" data-keywords="망,반대,태양" data-model="보름달(망)은 달이 지구를 중심으로 태양의 정반대 방향에 있을 때 보이므로, 달이 동쪽 하늘에 있으면 태양은 그 반대인 서쪽 하늘에 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 · 힌트 조각 1 (244쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="달은 지구 주위를 서쪽에서 동쪽으로 공전해요.">
+        <div class="q-text" style="color:#3a1600">달은 지구 주위를 서쪽에서 동쪽으로 ( <input class="blank w-s" data-key="blk1" data-answer="공전" style="background:#fff"> )한다. → 다음 조각은 ‘가려지는 태양과 달’에서!</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">과학이 톡</span>우리나라 최초의 달 탐사 궤도선, 다누리 <span class="pg">245쪽</span></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p245-danuri.jpg" alt="다누리를 실은 우주선 발사"><figcaption>다누리를 실은 우주선이 발사되는 모습</figcaption></figure>
+      <figure class="fig" style="margin:0"><img src="img/p245-earth.jpg" alt="다누리가 달에서 촬영한 지구와 달"><figcaption>다누리가 달에서 촬영한 지구와 달</figcaption></figure>
+    </div>
+    <div class="book"><p>다누리는 ‘달’과 누리다의 ‘누리’가 더해진 이름이다. 다누리는 2022 년 8 월 5 일에 발사됐고, 12 월 27 일에 임무 궤도 진입에 성공했다. 이로써 우리나라는 일곱 번째 달 탐사 국가가 됐다. 다누리는 달 주위를 공전하면서 달의 표면 물질을 분석하고, 달 탐사선이 착륙할 수 있는 후보지를 탐색하며, 세계 최초로 우주 인터넷 기술을 검증하는 등의 임무를 수행했다.</p></div>
+    <div class="q" data-why="다누리는 달 주위를 도는 ‘궤도선’이므로 달의 인공위성이에요.">
+      <div class="q-text"><span class="q-num">1</span>다누리처럼 달 주위를 공전하는 탐사선은 달을 중심으로 도는 인공 <span class="choice-group" data-key="danuri" data-answer="위성"><button type="button" class="choice-btn" data-value="행성">행성</button><button type="button" class="choice-btn" data-value="위성">위성</button><button type="button" class="choice-btn" data-value="혜성">혜성</button></span>이라고 할 수 있다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">💡</span><b>창의성 쏙! 우주 탐사 연구원 알아보기</b> 우주 탐사 연구원이 하는 일을 조사하고, 우주 탐사 연구원이 된 나의 모습을 상상하여 글로 써 보자.</div>
+      <textarea class="free" data-key="career" rows="3" placeholder="우주 탐사 연구원은 … / 내가 연구원이 된다면 …"></textarea>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>모양이 달라지는 달</div>
+    <div class="q" data-why="지구에서 보이는 달의 모양은 위상, 달은 약 한 달에 한 바퀴 서쪽에서 동쪽으로 지구 주위를 공전해요.">
+      <div class="q-text"><span class="q-num">1</span>지구에서 보이는 달의 모양을 달의 <input class="blank w-s" data-key="t1" data-answer="위상"> 이라고 한다. 달은 지구 주위를 약 한 달에 한 바퀴씩 <input class="blank w-s" data-key="t2" data-answer="공전"> 한다. 달의 공전 방향은 <input class="blank w-s" data-key="t3a" data-answer="서쪽|서"> 에서 <input class="blank w-s" data-key="t3b" data-answer="동쪽|동"> 이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="3D 모형의 (가) 상현·오른쪽, (나) 망·보름달, (다) 하현·왼쪽, (라) 삭·보이지 않음과 같아요.">
+      <div class="q-text"><span class="q-num">2</span>3D 모형(태양 빛이 오른쪽에서 옴)의 위치에서<br>(가): <input class="blank w-s" data-key="t4a" data-answer="상현"> — <input class="blank w-s" data-key="t4b" data-answer="오른쪽"> 이 밝은 반달 · (나): <input class="blank w-s" data-key="t5a" data-answer="망"> — <input class="blank w-s" data-key="t5b" data-answer="보름달"> 로 보인다.<br>(다): <input class="blank w-s" data-key="t6a" data-answer="하현"> — <input class="blank w-s" data-key="t6b" data-answer="왼쪽"> 이 밝은 반달 · (라): <input class="blank w-s" data-key="t7a" data-answer="삭"> — 달이 <input class="blank w-s" data-key="t7b" data-answer="보이지 않는다|안 보인다|보이지 않음"> .</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="위상이 달라지는 까닭은 달의 공전으로 태양·지구·달의 위치가 달라지기 때문이에요. 달은 햇빛을 반사할 뿐 스스로 빛을 내지 않고(⑨ X), 오른쪽 반원이 보이면 상현이에요(⑩ X).">
+      <div class="q-text"><span class="q-num">3</span>달의 위상이 달라지는 까닭은 달이 지구 주위를 <input class="blank w-s" data-key="t8" data-answer="공전"> 하면서 태양, 지구, 달의 상대적인 위치가 달라지기 때문이다.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑨ 달은 스스로 빛을 내어 밝게 보인다.</td><td><span class="choice-group" data-key="t9" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑩ 달과 태양이 지구를 중심으로 직각을 이루어 달의 오른쪽 반원이 보일 때를 하현이라고 한다.</td><td><span class="choice-group" data-key="t10" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>달의 공전으로 나타나는 현상 <span class="pg">248쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>달의 공전으로 나타나는 현상</h4>
+      <div class="q" style="border-top:none" data-why="달이 지구를 중심으로 도는 운동은 공전, 지구에서 보이는 달의 모양은 위상이에요.">
+        <div class="q-text">(1) 달의 <input class="blank w-s" data-key="s6" data-answer="공전"> : 달이 지구를 중심으로 서쪽에서 동쪽으로 도는 운동<br>(2) 달의 위상 변화<br>· 달의 <input class="blank w-s" data-key="s7" data-answer="위상"> : 지구에서 보이는 달의 모양<br>· 달의 위상이 달라지는 까닭: 달이 지구를 중심으로 공전하면서 태양, 지구, 달의 상대적인 위치가 달라지기 때문이다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅶ. 태양계 · 2. 지구와 달 · 02 모양이 달라지는 달 · 비상교육 중학 과학 1 교과서(242~245쪽)·탐구 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅶ-2-02 모양이 달라지는 달";
+const $ = id => document.getElementById(id);
+const PHASE = a => { a = ((a % 360) + 360) % 360; if (a < 12 || a > 348) return "삭"; if (a < 78) return "초승달"; if (a <= 102) return "상현"; if (a < 168) return "상현과 망 사이"; if (a <= 192) return "망 (보름달)"; if (a < 258) return "망과 하현 사이"; if (a <= 282) return "하현"; return "그믐달"; };
+const MP = { a: 90, go: false, seen: {} };
+$("mp-a").addEventListener("input", () => { MP.a = +$("mp-a").value; MP.go = false; $("mp-go").textContent = "▶ 공전"; });
+$("mp-pos").addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (!b) return; MP.a = +b.dataset.a; $("mp-a").value = MP.a; MP.go = false; $("mp-go").textContent = "▶ 공전"; });
+$("mp-go").addEventListener("click", () => { MP.go = !MP.go; $("mp-go").textContent = MP.go ? "⏸ 멈추기" : "▶ 공전"; });
+WS.custom("mp_seen", { el: $("mp-stage"), value: () => Object.keys(MP.seen).join(",") });
+(function () {
+  const st = $("mp-stage"), T3 = LB.three(st, 380);
+  const tag = () => { const nm = PHASE(MP.a); $("mp-a-o").textContent = Math.round(MP.a) + "° · 약 " + (MP.a / 360 * 29.5).toFixed(1) + "일째"; $("mp-tag").textContent = "지구에서 본 달: " + nm; MP.seen[nm] = 1; };
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:80px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 그림 7-8로 확인해 보세요.</div>'; setInterval(tag, 300); return; }
+  const { r, scene, cam } = T3; scene.background = new THREE.Color(0x060b16);
+  scene.children.forEach(o => { if (o.isDirectionalLight) o.position.set(30, 0, 0); if (o.isAmbientLight) o.intensity = 0.06; });
+  scene.children.filter(o => o.isDirectionalLight).forEach(o => { o.intensity = 1.2; });
+  LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0, 0), { R: 32, th: 0, ph: 0.35, min: 14, max: 50 });
+  // 전등(태양)과 빛
+  const lamp = new THREE.Mesh(new THREE.SphereGeometry(1.6, 24, 18), new THREE.MeshBasicMaterial({ color: 0xffd166 })); lamp.position.set(15, 0, 0); scene.add(lamp);
+  for (let k = -2; k <= 2; k++) scene.add(new THREE.ArrowHelper(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(13, 0, k * 2.2), 3, 0xffc23a, 0.7, 0.4));
+  // 지구(가운데 스마트 기기)
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(1.4, 32, 24), new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.7 })); scene.add(earth);
+  const RM = 8;
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 129 }, (_, k) => new THREE.Vector3(Math.cos(k / 128 * 6.283) * RM, 0, -Math.sin(k / 128 * 6.283) * RM))), new THREE.LineBasicMaterial({ color: 0x6688bb })));
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(1.0, 48, 36), new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 1 })); scene.add(moon);
+  // 위치 이름표
+  [["(가)", 90], ["(나)", 180], ["(다)", 270], ["(라)", 0]].forEach(([t, a]) => { const c = document.createElement("canvas"); c.width = 128; c.height = 64; const x = c.getContext("2d"); x.fillStyle = "#ffd166"; x.font = "bold 40px sans-serif"; x.textAlign = "center"; x.fillText(t, 64, 46); const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true })); s.scale.set(2.6, 1.3, 1); const rr = RM + 2.4; s.position.set(Math.cos(a * Math.PI / 180) * rr, 0.2, -Math.sin(a * Math.PI / 180) * rr); scene.add(s); });
+  const eyeCam = new THREE.PerspectiveCamera(16, 1, 0.1, 100);
+  LB.loop(st, dt => {
+    if (MP.go) { MP.a = (MP.a + dt * 30) % 360; $("mp-a").value = Math.round(MP.a); }
+    const a = MP.a * Math.PI / 180; moon.position.set(Math.cos(a) * RM, 0, -Math.sin(a) * RM);
+    tag();
+    const W = r.domElement.clientWidth, H = r.domElement.clientHeight;
+    r.setScissorTest(false); r.setViewport(0, 0, W, H); r.render(scene, cam);
+    const iw = Math.round(Math.min(170, W * 0.36)); eyeCam.aspect = 1; eyeCam.updateProjectionMatrix();
+    eyeCam.position.set(0, 0, 0); eyeCam.up.set(0, 1, 0); eyeCam.lookAt(moon.position);
+    earth.visible = false; r.setScissorTest(true); r.setScissor(W - iw - 8, 8, iw, iw); r.setViewport(W - iw - 8, 8, iw, iw); r.setClearColor(0x000000, 1); r.clear(); r.render(scene, eyeCam); r.setScissorTest(false); r.setClearColor(0x000000, 0); earth.visible = true;
+  });
+})();
+</script>
+</body>
+</html>

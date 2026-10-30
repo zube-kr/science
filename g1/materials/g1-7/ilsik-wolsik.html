@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅶ-2-03 — 가려지는 태양과 달</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅶ. 태양계</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p246-cartoon.jpg" alt="앞에 놓인 도토리가 잘 보이지 않는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 태양계 · 2. 지구와 달 · 03 <span class="pg" style="margin:0">246~248쪽 · 대단원 마무리</span></span>
+      <h1>가려지는<br><span>태양과 달</span></h1>
+      <p>“내 도토리가 어디에 있지?” “나 여기에 있어!” 앞에 놓인 도토리가 잘 보이지 않는 까닭은 무엇일까? 태양, 지구, 달을 한 줄로 세워 보며 일식과 월식이 일어나는 원리를 알아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 일식과 월식의 원리를 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>태양과 달이 가려지는 원리 알아보기 <span class="pg">246쪽</span></div>
+    <p class="lead-q">태양과 달이 가려지는 현상은 어떻게 나타날까?</p>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="steps-box" style="margin:0"><b>준비물</b> 전등, 스타이로폼 공, 스마트 기기<ol>
+        <li>태양과 달이 가려지는 현상을 조사하여 관찰한다. (검색어: 일식, 월식)</li>
+        <li>지구에서 보았을 때 태양과 달이 가려지는 현상이 나타나려면 태양, 지구, 달이 어떻게 배열되어야 할지 이야기해 보자.</li>
+        <li>스마트 기기로 동영상을 촬영하면서 전등과 스타이로폼 공의 위치를 조정하여 과정 2에서 이야기한 내용을 구현해 보자.</li>
+      </ol><div class="safe" style="margin-top:6px">⚠️ 전등을 깨뜨려 다치지 않도록, 켜진 전등에 화상을 입지 않도록 주의한다.</div></div>
+      <figure class="fig" style="margin:0"><img src="img/p246-setup.jpg" alt="전등과 스타이로폼 공을 스마트 기기로 촬영"><figcaption><span class="tb">246쪽</span>스마트 기기를 지구라고 할 때, 전등과 스타이로폼 공은 각각 무엇을 뜻할까?</figcaption></figure>
+    </div>
+    <div class="q" data-why="스마트 기기가 지구라면 전등은 태양, 스타이로폼 공은 달이에요.">
+      <div class="q-text"><span class="q-num">?</span>스마트 기기를 지구라고 할 때, 전등은 <span class="choice-group" data-key="m_lamp" data-answer="태양"><button type="button" class="choice-btn" data-value="태양">태양</button><button type="button" class="choice-btn" data-value="달">달</button></span>, 스타이로폼 공은 <span class="choice-group" data-key="m_ball" data-answer="달"><button type="button" class="choice-btn" data-value="태양">태양</button><button type="button" class="choice-btn" data-value="달">달</button></span>을 뜻한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>일식·월식 시뮬레이터</div>
+    <div class="card-hint">달의 위치를 바꿔 보자(달은 지구 주위를 서→동, 시계 반대 방향으로 돌아요). 달의 그림자(검은 원뿔)가 지구에 닿거나, 달이 지구의 그림자에 들어가면 무슨 일이 일어날까? 오른쪽 작은 화면에서 지구의 관측자가 본 하늘을 확인하자. (크기와 거리는 실제 비율과 달라요.)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>달의 위치 <output id="ec-a-o"></output></label><input type="range" id="ec-a" min="0" max="359" value="150"></div>
+      <div class="ctrl"><label>일식을 보는 관측자의 위치</label><select id="ec-obs"><option value="0">달 그림자의 한가운데</option><option value="1">달 그림자의 가장자리</option><option value="2">그림자 밖</option></select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn small" data-a="180">☀️🌑🌍 태양-달-지구 일직선</button><button type="button" class="btn small" data-a="0">☀️🌍🌑 태양-지구-달 일직선</button><button type="button" class="btn small" data-a="6">달이 지구 그림자 가장자리에</button><button type="button" class="btn main small" id="ec-go">▶ 공전</button></div>
+    <div class="sim-stage"><canvas id="ec-cv"></canvas><span class="tag" id="ec-tag">-</span></div>
+    <div class="scroll-x" style="margin-top:8px"><table class="data-t" id="ec-tb"></table></div>
+    <div class="q" data-why="일식은 달이 삭의 위치에 와서 태양-달-지구 순서로 일직선일 때, 월식은 달이 망의 위치에 와서 태양-지구-달 순서로 일직선일 때 일어나요." data-hint="시뮬레이터의 두 버튼을 눌러 보고, 기록표를 채워 보세요.">
+      <div class="q-text"><span class="q-num">1</span>태양이 가려지는 현상(일식)은 달이 <span class="choice-group" data-key="ec_sol" data-answer="삭"><button type="button" class="choice-btn" data-value="삭">삭</button><button type="button" class="choice-btn" data-value="상현">상현</button><button type="button" class="choice-btn" data-value="망">망</button></span>의 위치에 있을 때, 달이 가려지는 현상(월식)은 달이 <span class="choice-group" data-key="ec_lun" data-answer="망"><button type="button" class="choice-btn" data-value="삭">삭</button><button type="button" class="choice-btn" data-value="하현">하현</button><button type="button" class="choice-btn" data-value="망">망</button></span>의 위치에 있을 때 일어난다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>태양과 달이 가려지는 현상이 일어날 때 천체의 배열은 각각 어떻게 되는지 이야기해 보자.</div>
+      <textarea class="free" data-key="ec_talk" data-keywords="태양,달,지구,일직선" data-model="태양이 가려질 때(일식)는 태양-달-지구 순서로 일직선상에 있고, 달이 가려질 때(월식)는 태양-지구-달 순서로 일직선상에 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>일식과 월식 <span class="pg">247쪽</span></div>
+    <div class="book"><p>태양과 달이 가려지는 현상은 <b>그림 7-9</b>와 같이 나타난다. 지구에서 보았을 때 달이 태양을 가리는 현상을 <span class="key">일식</span>이라고 한다. 일식은 달이 삭의 위치에 와서 태양, 달, 지구가 순서대로 일직선상에 있을 때 일어난다. 이때 달이 태양을 완전히 가리면 <b>개기일식</b>이라고 하고, 일부를 가리면 <b>부분일식</b>이라고 한다. 일식은 지구에서 달의 그림자가 생기는 지역에서만 볼 수 있다.</p>
+    <p>한편 지구에서 보았을 때 달이 지구의 그림자에 들어가 가려지는 현상을 <span class="key">월식</span>이라고 한다. 월식은 달이 망의 위치에 와서 태양, 지구, 달이 순서대로 일직선상에 있을 때 일어난다. 이때 달이 지구의 그림자에 완전히 가려져 붉게 보이면 ●<b>개기월식</b>이라고 하고, 일부가 가려지면 <b>부분월식</b>이라고 한다. 월식은 지구에서 밤인 지역 어디에서나 볼 수 있다.</p></div>
+    <figure class="fig"><img src="img/p247-fig7-9.jpg" alt="일식과 월식"><figcaption><span class="tb">그림 7-9</span>일식과 월식 (크기 및 거리 비례를 고려하지 않음)</figcaption></figure>
+    <div class="tip-box"><b>●개기월식이 일어날 때 달의 색깔</b> 개기월식이 일어날 때 달이 붉게 보이는 까닭은 빛이 대기를 지날 때 흩어지면서 달에 붉은 빛이 상대적으로 많이 도달하기 때문이다.</div>
+    <div class="tip-box"><b>💡 더 생각하기</b> 삭과 망은 매달 돌아오는데 일식과 월식은 매달 일어나지 않아요. 달이 도는 길(공전 궤도면)이 지구가 도는 길에 대해 약 5° 기울어져 있어서, 대부분의 삭과 망 때에는 태양-지구-달이 정확히 일직선이 되지 않기 때문이에요.</div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>246쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">247쪽</span></div>
+    <div class="q" data-why="지구의 그림자에 달이 가려지는 현상은 월식이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 지구에서 보았을 때 지구의 그림자에 달이 가려지는 현상을 ( <input class="blank w-s" data-key="sc1" data-answer="월식"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 일식보다 월식을 관측할 수 있는 지역이 넓은 까닭을 설명해 보자.</div>
+      <textarea class="free" data-key="sc_wide" data-keywords="그림자,좁,밤,어디" data-model="일식은 지구에 생기는 달의 작은 그림자 안의 좁은 지역에서만 볼 수 있지만, 월식은 달 자체가 지구의 그림자에 들어가 어두워지는 것이므로 달이 떠 있는 지구의 밤인 지역 어디에서나 볼 수 있기 때문이다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 · 힌트 조각 2 (247쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="일식은 태양-달-지구 순서로 일직선상에 있을 때 볼 수 있어요.">
+        <div class="q-text" style="color:#3a1600">일식은 태양, ( <input class="blank w-s" data-key="blk2" data-answer="달" style="background:#fff"> ), 지구가 순서대로 일직선상에 있을 때 볼 수 있다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>가려지는 태양과 달</div>
+    <div class="q" data-why="일식은 태양-달-지구 순서일 때, 월식은 태양-지구-달 순서일 때 일어나요. 지구의 그림자에 달의 일부가 가려지면 부분월식이에요.">
+      <div class="q-text"><span class="q-num">1</span>지구에서 보았을 때 달이 태양의 일부 또는 전체를 가리는 현상을 <input class="blank w-s" data-key="t1a" data-answer="일식"> 이라 하고, 천체가 태양 - <input class="blank w-s" data-key="t1b" data-answer="달"> - <input class="blank w-s" data-key="t1c" data-answer="지구"> 순으로 일직선상에 있을 때 나타난다.<br>달이 지구의 그림자 속으로 들어가 달의 일부 또는 전체가 가려지는 현상을 <input class="blank w-s" data-key="t3a" data-answer="월식"> 이라 하고, 천체가 태양 - <input class="blank w-s" data-key="t3b" data-answer="지구"> - <input class="blank w-s" data-key="t3c" data-answer="달"> 순으로 일직선상에 있을 때 나타난다.<br>지구의 그림자에 달의 일부가 가려지는 현상을 ( <span class="choice-group" data-key="t4" data-answer="부분월식"><button type="button" class="choice-btn" data-value="개기월식">개기월식</button><button type="button" class="choice-btn" data-value="부분월식">부분월식</button></span> )이라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="(1)은 태양이 완전히 가려진 개기일식, (2)는 일부만 가려진 부분일식이에요.">
+      <div class="q-text"><span class="q-num">2</span>다음은 달이 태양을 가리는 현상이다. 각각의 이름을 쓰시오.</div>
+      <div class="light-stage" style="max-width:420px;margin:6px 0"><canvas id="t2-cv"></canvas></div>
+      <div class="q-text">(1) <input class="blank w-s" data-key="t2a" data-answer="개기일식"> (2) <input class="blank w-s" data-key="t2b" data-answer="부분일식"></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="달의 본그림자(진한 그림자)가 닿는 A에서는 개기일식, 반그림자가 닿는 B에서는 부분일식이 보여요. 지구의 본그림자에 완전히 들어간 D는 개기월식, 일부만 걸친 E는 부분월식이에요.">
+      <div class="q-text"><span class="q-num">3</span>그림은 일식과 월식이 일어날 때 태양, 달, 지구의 위치를 나타낸 것이다.</div>
+      <div class="light-stage" style="margin:6px 0"><canvas id="t5-cv"></canvas></div>
+      <div class="q-text">개기일식이 보이는 지구의 위치 <span class="choice-group" data-key="t5a" data-answer="A"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button></span> · 부분일식이 보이는 위치 <span class="choice-group" data-key="t5b" data-answer="B"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button></span><br>개기월식이 일어날 때 달의 위치 <span class="choice-group" data-key="t6a" data-answer="D"><button type="button" class="choice-btn" data-value="C">C</button><button type="button" class="choice-btn" data-value="D">D</button><button type="button" class="choice-btn" data-value="E">E</button></span> · 부분월식이 일어날 때 달의 위치 <span class="choice-group" data-key="t6b" data-answer="E"><button type="button" class="choice-btn" data-value="C">C</button><button type="button" class="choice-btn" data-value="D">D</button><button type="button" class="choice-btn" data-value="E">E</button></span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="일식 때 달은 삭(⑦ X), 월식 때 달은 망(⑨ X)이에요. 일식은 달의 그림자 지역에서만(⑧ O), 월식은 밤인 곳 어디서나 보여 더 넓어요(⑩ O).">
+      <div class="q-text"><span class="q-num">4</span>옳으면 O, 옳지 않으면 X를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑦ 일식이 일어날 때의 달의 위치는 망이다.</td><td><span class="choice-group" data-key="t7" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑧ 일식은 달의 그림자가 생기는 지역에서만 볼 수 있다.</td><td><span class="choice-group" data-key="t8" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑨ 월식이 일어날 때의 달의 위치는 상현이다.</td><td><span class="choice-group" data-key="t9" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑩ 일식보다 월식을 관측할 수 있는 지역이 넓다.</td><td><span class="choice-group" data-key="t10" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>일식과 월식 · 두 번째 블록 정리하기 <span class="pg">248쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>달의 공전으로 나타나는 현상 — (3) 일식과 월식</h4>
+      <div class="q" style="border-top:none" data-why="일식은 지구에서 보았을 때 달이 태양을 가리는 현상이에요.">
+        <div class="q-text">· 일식: 지구에서 보았을 때 달이 <input class="blank w-s" data-key="s8" data-answer="태양"> 을/를 가리는 현상<br>· 월식: 지구에서 보았을 때 달이 지구의 그림자 속으로 들어가 가려지는 현상</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <figure class="fig" style="max-width:520px"><img src="img/u2-hero.jpg" alt="부분일식 영상"><figcaption>두 번째 블록 · 태양이 가려지는 현상은 왜 일어날까?</figcaption></figure>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 정리하기 · 조각을 모아 답하기</b>
+      <div class="t">태양이 가려지는 현상은 왜 일어날까?</div>
+      <div style="font-size:13px;margin-bottom:6px">조각 1 (244쪽) 달은 지구 주위를 서쪽에서 동쪽으로 공전한다. · 조각 2 (247쪽) 일식은 태양, 달, 지구가 순서대로 일직선상에 있을 때 볼 수 있다.</div>
+      <div class="q" style="border-top:none;padding:0">
+        <textarea class="free" data-key="block2" data-keywords="달,공전,태양,일직선,가리" data-model="달은 지구 주위를 서쪽에서 동쪽으로 공전하는데, 달이 삭의 위치에 와서 태양, 달, 지구가 순서대로 일직선상에 놓이면 지구에서 볼 때 달이 태양을 가리므로 태양이 가려지는 일식이 일어난다." placeholder="태양이 가려지는 현상은 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">대단원 마무리</span>천문대에서 천체 관측하기</div>
+    <div class="book"><p>천문대나 과학 교육원에서는 천체 관측실에서 천체를 관측할 수 있도록 다양한 행사를 진행한다. 주변에 있는 천문대나 과학 교육원을 찾아 천체 망원경으로 태양계를 구성하는 천체를 관측해 보자.</p></div>
+    <div class="q"><div class="q-text"><span class="q-num">💭</span><b>함께 발견하기</b> 학교에서 천체를 관측할 때 아쉬웠던 점을 이야기해 보자.</div><textarea class="free" data-key="pity" rows="2" placeholder="예) 도시의 불빛 때문에 별이 잘 보이지 않았다. / 망원경이 작아서 행성이 작게 보였다."></textarea></div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span><b>협력적 소통</b> 천체를 관측할 수 있는 천문대나 과학 교육원을 찾고, 방문하기 전에 미리 알아야 할 점을 조사해 보자.</div><textarea class="free" data-key="visit" rows="3" placeholder="기관 이름 / 관측 프로그램 / 예약 방법 / 준비물 / 날씨·달의 위상 확인 …"></textarea></div>
+    <div class="q"><div class="q-text"><span class="q-num">2~3</span>천체 관측 보고서 — 관측 날짜·장소, 관측한 천체, 관측한 모습(맨눈/망원경), 새로 알게 된 점</div><textarea class="free" data-key="report" rows="4" placeholder="관측 날짜: / 장소: / 관측한 천체: / 관측한 모습: / 새로 알게 된 점:"></textarea></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 평가</span>Ⅶ. 태양계 돌아보기 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 기준</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left"><b>지식·이해</b> 지구와 달의 운동으로 나타나는 현상을 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left"><b>과정·기능</b> 지구와 달의 운동으로 나타나는 현상을 설명하기 위해 모형을 이용할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left"><b>가치·태도</b> 지구와 달의 운동으로 나타나는 현상과 관련된 활동에 적극적으로 참여했는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left">천체 망원경 사용법을 알고, 유의 사항을 숙지하여 천체를 관측하였는가?</td><td><span class="choice-group" id="self4"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+      <tr><td style="text-align:left">천체를 관측하며 밤하늘에 대한 호기심이 생겼고, 모둠 구성원의 의견을 존중했는가?</td><td><span class="choice-group" id="self5"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">부족</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>활동을 수행하면서 알게 된 점, 어려웠던 점, 더 알아보고 싶은 점, 선생님께 하고 싶은 말을 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="알게 된 점 / 어려웠던 점 / 더 알아보고 싶은 점"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅶ. 태양계 · 2. 지구와 달 · 03 가려지는 태양과 달 · 비상교육 중학 과학 1 교과서(246~248쪽)·해 보기 활동지·5분 테스트·대단원 마무리 활동지 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅶ-2-03 가려지는 태양과 달";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2", "self3", "self4", "self5"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+
+/* ── 일식·월식 시뮬레이터 ── */
+// 각도: 0° = 지구 오른쪽(태양 반대쪽, 망), 180° = 지구 왼쪽(태양 쪽, 삭). 시계 반대 방향으로 증가
+const EC = { a: 150, go: false, rec: {} };
+$("ec-a").addEventListener("input", () => { EC.a = +$("ec-a").value; EC.go = false; $("ec-go").textContent = "▶ 공전"; });
+document.querySelectorAll("[data-a]").forEach(b => b.addEventListener("click", () => { EC.a = +b.dataset.a; $("ec-a").value = EC.a; EC.go = false; $("ec-go").textContent = "▶ 공전"; }));
+$("ec-go").addEventListener("click", () => { EC.go = !EC.go; $("ec-go").textContent = EC.go ? "⏸ 멈추기" : "▶ 공전"; });
+function ecState() {
+  const d = ((EC.a % 360) + 360) % 360, dSol = Math.abs(((d - 180 + 540) % 360) - 180), dLun = Math.min(d, 360 - d);
+  const obs = +$("ec-obs").value;
+  let sol = "없음", lun = "없음";
+  if (dSol < 2.5) sol = obs === 0 ? "개기일식" : obs === 1 ? "부분일식" : "없음"; else if (dSol < 7) sol = obs === 2 ? "없음" : "부분일식";
+  if (dLun < 3.5) lun = "개기월식"; else if (dLun < 9) lun = "부분월식";
+  return { d, dSol, dLun, sol, lun, obs };
+}
+function ecDraw(dt) {
+  if (EC.go) { EC.a = (EC.a + dt * 14) % 360; $("ec-a").value = Math.round(EC.a); }
+  const s = ecState(); $("ec-a-o").textContent = Math.round(s.d) + "° " + (s.dSol < 12 ? "(삭 근처)" : s.dLun < 12 ? "(망 근처)" : Math.abs(s.d - 90) < 12 ? "(하현 근처)" : Math.abs(s.d - 270) < 12 ? "(상현 근처)" : "");
+  const g = LB.fit($("ec-cv"), 300), c = g.c, W = g.w, H = 300, cy = 150;
+  c.fillStyle = "#050a14"; c.fillRect(0, 0, W, H);
+  const ex = W * 0.52, eR = 26, mOrb = Math.min(110, W * 0.22), mR = 10;
+  // 태양
+  const sg = c.createRadialGradient(-40, cy, 10, -40, cy, 130); sg.addColorStop(0, "#ffe08a"); sg.addColorStop(0.75, "#f6a230"); sg.addColorStop(1, "rgba(246,162,48,0)"); c.fillStyle = sg; c.beginPath(); c.arc(-40, cy, 130, 0, 7); c.fill();
+  c.fillStyle = "#fff"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText("태양", 8, H - 12);
+  // 지구의 그림자 (본그림자 + 반그림자)
+  c.fillStyle = "rgba(0,0,0,.35)"; c.beginPath(); c.moveTo(ex, cy - eR); c.lineTo(W, cy - eR - 26); c.lineTo(W, cy + eR + 26); c.lineTo(ex, cy + eR); c.fill();
+  c.fillStyle = "rgba(0,0,0,.7)"; c.beginPath(); c.moveTo(ex, cy - eR); c.lineTo(Math.min(W, ex + 300), cy - 6); c.lineTo(Math.min(W, ex + 300), cy + 6); c.lineTo(ex, cy + eR); c.fill();
+  // 달 궤도
+  c.strokeStyle = "rgba(150,180,220,.4)"; c.setLineDash([4, 4]); c.beginPath(); c.arc(ex, cy, mOrb, 0, 7); c.stroke(); c.setLineDash([]);
+  const a = s.d * Math.PI / 180, mx = ex + Math.cos(a) * mOrb, my = cy - Math.sin(a) * mOrb;
+  // 달의 그림자 (삭 근처일 때 지구 쪽으로)
+  if (s.dSol < 25) { const tip = ex - eR * 0.2; c.fillStyle = "rgba(0,0,0,.4)"; c.beginPath(); c.moveTo(mx, my - mR); c.lineTo(ex + 6, my - mR - 14 + (cy - my) * 0.6); c.lineTo(ex + 6, my + mR + 14 + (cy - my) * 0.6); c.lineTo(mx, my + mR); c.fill(); c.fillStyle = "rgba(0,0,0,.85)"; c.beginPath(); c.moveTo(mx, my - mR); c.lineTo(tip, my + (cy - my) * 0.9); c.lineTo(mx, my + mR); c.fill(); }
+  // 지구 (햇빛 받는 쪽 밝게)
+  c.fillStyle = "#1e3a8a"; c.beginPath(); c.arc(ex, cy, eR, 0, 7); c.fill(); c.fillStyle = "#3b82f6"; c.beginPath(); c.arc(ex, cy, eR, Math.PI / 2, -Math.PI / 2); c.fill(); c.fillStyle = "rgba(63,174,90,.9)"; c.beginPath(); c.ellipse(ex - 8, cy - 6, 8, 12, 0.4, 0, 7); c.fill();
+  // 관측자
+  if (s.dSol < 25) { const oy = cy + (my - cy) * 0.9 + [0, 14, 30][s.obs]; c.fillStyle = "#ffd166"; c.beginPath(); c.arc(ex - eR * Math.cos(Math.asin(Math.min(0.95, (oy - cy) / eR))), Math.min(cy + eR - 2, Math.max(cy - eR + 2, oy)), 3.5, 0, 7); c.fill(); }
+  // 달 (태양 쪽 절반이 밝음, 지구 그림자 안에서는 붉게)
+  const inUmbra = s.dLun < 3.5, inPart = s.dLun < 9;
+  c.fillStyle = inUmbra ? "#8a3a22" : "#3a3a3a"; c.beginPath(); c.arc(mx, my, mR, 0, 7); c.fill();
+  if (!inUmbra) { c.fillStyle = inPart ? "#9a6a55" : "#e5e5e5"; c.beginPath(); c.arc(mx, my, mR, Math.PI / 2, -Math.PI / 2); c.fill(); }
+  c.fillStyle = "#cfe"; c.font = "11px Pretendard, sans-serif"; c.fillText("지구", ex - 12, cy + eR + 16); c.fillText("달", mx + mR + 3, my - mR);
+  // 작은 화면: 지구에서 본 하늘
+  const iw = 110, ix = W - iw - 8, iy = 8;
+  c.fillStyle = "#000"; c.fillRect(ix, iy, iw, iw * 2 + 22); c.strokeStyle = "#456"; c.strokeRect(ix, iy, iw, iw * 2 + 22);
+  // 태양 쪽 보기
+  const scx = ix + iw / 2, scy = iy + iw / 2, sr = 30;
+  c.fillStyle = "#cfe"; c.font = "10px Pretendard, sans-serif"; c.fillText("낮: 태양 쪽 하늘", ix + 4, iy + 12);
+  if (s.sol === "개기일식") { const cg = c.createRadialGradient(scx, scy, sr, scx, scy, sr * 1.9); cg.addColorStop(0, "rgba(255,255,240,.9)"); cg.addColorStop(1, "rgba(255,255,240,0)"); c.fillStyle = cg; c.beginPath(); c.arc(scx, scy, sr * 1.9, 0, 7); c.fill(); }
+  c.fillStyle = "#ffcf5a"; c.beginPath(); c.arc(scx, scy, sr, 0, 7); c.fill();
+  if (s.dSol < 25 && s.obs !== 2 || (s.dSol < 7 && s.obs === 2 && false)) { const off = (((s.d - 180 + 540) % 360) - 180) / 7 * sr * 2 + [0, 0.9, 0][s.obs] * sr; c.fillStyle = "#0b0b0b"; c.beginPath(); c.arc(scx - off, scy + (s.obs === 1 ? sr * 0.55 : 0), sr * 1.03, 0, 7); c.fill(); }
+  // 밤: 달 쪽 보기
+  const lcy = iy + iw + 22 + iw / 2 - 6; c.fillStyle = "#cfe"; c.fillText("밤: 달 쪽 하늘", ix + 4, iy + iw + 18);
+  const rel = Math.cos(a), lit = (1 - rel) / 2; // 0: 망(전체 밝음)… 보이는 달
+  c.fillStyle = "#2a2a2a"; c.beginPath(); c.arc(scx, lcy, sr * 0.8, 0, 7); c.fill();
+  if (s.dLun < 25) {
+    c.fillStyle = "#e5e5e5"; c.beginPath(); c.arc(scx, lcy, sr * 0.8, 0, 7); c.fill();
+    const so = (s.dLun / 9) * sr * 1.6 * (s.d < 180 ? 1 : -1); c.fillStyle = inUmbra ? "rgba(140,50,25,.92)" : "rgba(120,40,20,.9)"; c.save(); c.beginPath(); c.arc(scx, lcy, sr * 0.8, 0, 7); c.clip(); c.beginPath(); c.arc(scx + so, lcy, sr * 1.45, 0, 7); c.fill(); c.restore();
+  } else { c.fillStyle = "rgba(255,255,255,.35)"; c.font = "10px Pretendard, sans-serif"; c.fillText("(망 근처에서 확인)", ix + 10, lcy + 4); }
+  const msg = s.sol !== "없음" ? s.sol + "! 태양-달-지구 일직선" : s.lun !== "없음" ? s.lun + "! 태양-지구-달 일직선" : "가려지는 현상 없음";
+  $("ec-tag").textContent = msg; if (s.sol !== "없음") EC.rec[s.sol] = 1; if (s.lun !== "없음") EC.rec[s.lun] = 1; ecTable();
+}
+let lastT = "";
+function ecTable() { const k = ["개기일식", "부분일식", "개기월식", "부분월식"].map(n => EC.rec[n] ? "✅" : "-").join(); if (k === lastT) return; lastT = k; $("ec-tb").innerHTML = "<tr><th>관찰한 현상</th><th>개기일식</th><th>부분일식</th><th>개기월식</th><th>부분월식</th></tr><tr><td>확인</td>" + ["개기일식", "부분일식", "개기월식", "부분월식"].map(n => `<td>${EC.rec[n] ? "✅" : "-"}</td>`).join("") + "</tr>"; }
+LB.loop($("ec-cv"), ecDraw); ecDraw(0.016);
+WS.custom("ec_log", { el: $("ec-tb"), value: () => Object.keys(EC.rec).join(",") });
+
+/* ── 5분 테스트 그림 ── */
+(function () {
+  const g = LB.fit($("t2-cv"), 140), c = g.c, W = g.w; c.fillStyle = "#050a14"; c.fillRect(0, 0, W, 140);
+  [[W * 0.27, 0, "(1)"], [W * 0.73, 1, "(2)"]].forEach(([x, k, t]) => { if (!k) { const cg = c.createRadialGradient(x, 70, 30, x, 70, 60); cg.addColorStop(0, "rgba(255,255,240,.9)"); cg.addColorStop(1, "rgba(255,255,240,0)"); c.fillStyle = cg; c.beginPath(); c.arc(x, 70, 60, 0, 7); c.fill(); } c.fillStyle = "#ffcf5a"; c.beginPath(); c.arc(x, 70, 32, 0, 7); c.fill(); c.fillStyle = "#0b0b0b"; c.beginPath(); c.arc(x + (k ? 20 : 0), 70 - (k ? 12 : 0), 33, 0, 7); c.fill(); c.fillStyle = "#cfe"; c.font = "bold 13px Pretendard, sans-serif"; c.fillText(t, x - 60, 20); });
+})();
+(function () {
+  const g = LB.fit($("t5-cv"), 220), c = g.c, W = g.w, cy = 110; c.fillStyle = "#fff"; c.fillRect(0, 0, W, 220);
+  c.fillStyle = "#f6a230"; c.beginPath(); c.arc(-30, cy, 90, 0, 7); c.fill(); c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText("태양", 8, 30);
+  const ex = W * 0.5; // 지구
+  c.fillStyle = "rgba(0,0,0,.12)"; c.beginPath(); c.moveTo(ex, cy - 24); c.lineTo(W, cy - 46); c.lineTo(W, cy + 46); c.lineTo(ex, cy + 24); c.fill();
+  c.fillStyle = "rgba(0,0,0,.35)"; c.beginPath(); c.moveTo(ex, cy - 24); c.lineTo(W, cy - 6); c.lineTo(W, cy + 6); c.lineTo(ex, cy + 24); c.fill();
+  // 달(삭) 과 그림자
+  const mx = ex - 80; c.fillStyle = "rgba(0,0,0,.15)"; c.beginPath(); c.moveTo(mx, cy - 9); c.lineTo(ex - 20, cy - 22); c.lineTo(ex - 20, cy + 22); c.lineTo(mx, cy + 9); c.fill(); c.fillStyle = "rgba(0,0,0,.55)"; c.beginPath(); c.moveTo(mx, cy - 9); c.lineTo(ex - 22, cy); c.lineTo(mx, cy + 9); c.fill();
+  c.fillStyle = "#9aa3ad"; c.beginPath(); c.arc(mx, cy, 9, 0, 7); c.fill();
+  c.fillStyle = "#3b82f6"; c.beginPath(); c.arc(ex, cy, 24, 0, 7); c.fill();
+  c.fillStyle = "#e4572e"; c.font = "bold 14px Pretendard, sans-serif"; c.fillText("A", ex - 40, cy + 5); c.fillText("B", ex - 34, cy - 24);
+  c.beginPath(); c.arc(ex - 24, cy, 2.5, 0, 7); c.arc(ex - 19, cy - 15, 2.5, 0, 7); c.fill();
+  // 망 쪽 달 C, D, E
+  [[ex + 120, cy - 60, "C"], [ex + 120, cy, "D"], [ex + 120, cy - 18, "E"]].forEach(([x, y, t]) => { c.fillStyle = "#9aa3ad"; c.beginPath(); c.arc(x, y, 9, 0, 7); c.fill(); c.fillStyle = "#e4572e"; c.fillText(t, x + 14, y + 5); });
+  c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.fillText("지구", ex - 12, cy + 40); c.fillText("달", mx - 6, cy + 24); c.fillText("진한 그림자: 본그림자 · 연한 그림자: 반그림자", 8, 212);
+})();
+</script>
+</body>
+</html>

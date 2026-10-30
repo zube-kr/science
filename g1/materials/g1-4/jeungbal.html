@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅳ-1-02 — 액체 표면에서 일어나는 증발 현상</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅳ. 물질의 상태 변화</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p118-laundry.jpg" alt="젖은 빨래가 마르는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅳ. 물질의 상태 변화 · 1. 물질을 구성하는 입자의 운동 · 02 <span class="pg" style="margin:0">118~120쪽</span></span>
+      <h1>액체 표면에서 일어나는<br><span>증발 현상</span></h1>
+      <p>“물에 젖으니 너무 축축해.” “조금만 참아. 나도 너처럼 젖었는데 마르는 중이야.” 젖은 빨래가 마르거나 물걸레로 닦아 둔 교실 바닥이 마르는 것은 어떻게 일어날까? 가상 전자저울로 아세톤이 사라지는 모습을 측정해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 증발 현상을 관찰하여 물질을 구성하는 입자가 운동하고 있음을 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>아세톤의 증발 현상 관찰하기 <span class="pg">118쪽</span></div>
+    <p class="lead-q">증발 현상은 어떻게 일어날까?</p>
+    <div class="fig-row" style="grid-template-columns:minmax(140px,260px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p118-setup.jpg" alt="전자저울 위 거름종이에 아세톤을 떨어뜨리는 모습"><figcaption><span class="tb">118쪽</span>전자저울 위 페트리 접시의 거름종이에 아세톤을 떨어뜨린다.</figcaption></figure>
+      <div class="steps-box" style="margin:0"><h4>준비물: 아세톤, 페트리 접시, 거름종이, 전자저울, 스포이트, 마스크, 보안경, 실험용 장갑</h4><ol>
+        <li>전자저울에 거름종이를 올린 페트리 접시를 놓고 영점을 맞춘다.</li>
+        <li>거름종이에 아세톤을 몇 방울 떨어뜨린 뒤 저울의 숫자를 읽고, 시간이 지남에 따라 저울의 숫자 변화를 관찰한다.</li>
+      </ol></div>
+    </div>
+    <div class="safe">⚠️ 실험하는 동안 창문을 열어 환기가 되도록 하고, 아세톤을 흡입하지 않도록 주의한다. 아세톤을 다룰 때 마스크를 착용하고, 눈이나 피부에 닿지 않게 주의한다. 남은 물질은 지정한 곳에 모아 처리한다.</div>
+
+    <div class="card-title" style="margin-top:14px"><span class="badge sim">가상 실험</span>가상 전자저울</div>
+    <div class="card-hint">액체와 방울 수를 고르고 [영점 맞추기] → [떨어뜨리기]를 눌러 보자. 저울의 숫자와 그래프가 시간에 따라 어떻게 변하는지, 오른쪽 <b>입자 확대 창</b>에서 액체 표면의 입자가 어떻게 되는지 관찰하자. (재생 속도: 화면 1초 = 실제 약 5초)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>액체 <output></output></label><select id="lq"><option value="ac">아세톤</option><option value="et">에탄올</option><option value="wa">물</option></select></div>
+      <div class="ctrl"><label>방울 수 <output id="dn-o"></output></label><input type="range" id="dn" min="1" max="10" value="6"></div>
+      <div class="ctrl"><label>주변 온도 <output id="at-o"></output></label><input type="range" id="at" min="10" max="40" value="25"></div>
+      <div class="ctrl"><label style="justify-content:flex-start;gap:6px"><input type="checkbox" id="fan"> 선풍기 바람</label><label style="justify-content:flex-start;gap:6px;margin-top:4px"><input type="checkbox" id="ff"> ⏩ 빨리 감기 (×6)</label></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn small" id="sc-zero">0.00 영점 맞추기</button><button type="button" class="btn main small" id="sc-drop">💧 떨어뜨리기</button><button type="button" class="btn ghost small" id="sc-reset">↺ 처음으로</button></div>
+    <div class="sim-wrap">
+      <div class="light-stage"><canvas id="sc-cv"></canvas></div>
+      <div class="panel">
+        <div class="light-stage"><canvas id="sc-part"></canvas></div>
+        <div class="meter" style="margin:0"><div class="m"><small>지난 시간</small><b id="sc-t">0초</b></div><div class="m"><small>날아간 양</small><b id="sc-lost">0 %</b></div></div>
+      </div>
+    </div>
+    <div class="light-stage" style="margin-top:8px"><canvas id="sc-graph"></canvas></div>
+    <div class="q" data-why="액체 아세톤이 기체로 변해 공기 중으로 날아가므로 거름종이 위에 남은 아세톤의 양이 줄어 저울의 숫자가 점점 작아지다가 0.00 g이 돼요." data-hint="아세톤 6방울로 측정해 그래프를 보세요.">
+      <div class="q-text"><span class="q-num">1</span>시간이 지남에 따라 저울의 숫자는 <span class="choice-group" data-key="sc_dir" data-answer="작아"><button type="button" class="choice-btn" data-value="커">점점 커진다</button><button type="button" class="choice-btn" data-value="작아">점점 작아진다</button><button type="button" class="choice-btn" data-value="같">변하지 않는다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="같은 방울 수로 비교하면 아세톤 > 에탄올 > 물 순서로 빨리 증발해요. 또 온도가 높거나 바람이 불면 증발이 더 빨리 일어나요(바람이 없어도 증발은 일어나요)." data-hint="액체만 바꿔 가며 다 날아가는 데 걸리는 시간을 비교해 보세요.">
+      <div class="q-text"><span class="q-num">2</span>세 액체를 같은 방울 수로 비교했을 때 <b>빨리 증발하는 것부터</b> 나열해 보자. (끌어서 옮기기)</div>
+      <ol class="order-list" data-key="ev_order" data-answer="ac,et,wa"><li data-id="wa">물</li><li data-id="ac">아세톤</li><li data-id="et">에탄올</li></ol>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span>저울의 숫자가 변한 까닭을 입자 운동으로 설명해 보자. (입자 확대 창의 모형을 참고)</div>
+      <figure class="fig small"><img src="img/p118-model.jpg" alt="아세톤 입자 모형 그리기"><figcaption><span class="tb">118쪽</span>아세톤 입자 모형</figcaption></figure>
+      <textarea class="free" data-key="sc_why" data-keywords="입자,스스로,운동,표면,기체/공기" data-model="아세톤 입자가 스스로 운동하여 액체 표면에서 기체로 변해 공기 중으로 날아가므로 거름종이에 남은 아세톤의 질량이 줄어들었기 때문이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">대체 탐구</span>물과 아세톤의 증발 속도</div>
+    <div class="card-hint">윗접시저울의 양쪽 접시에 거름종이를 1장씩 올려놓고, 한쪽에는 물 4방울을, 다른 쪽에는 아세톤 6방울을 떨어뜨렸다. [시작]을 눌러 저울이 어떻게 되는지 관찰해 보자.</div>
+    <div class="btn-row"><button type="button" class="btn main small" id="bl-go">▶ 시작</button><button type="button" class="btn ghost small" id="bl-reset">↺ 처음으로</button></div>
+    <div class="light-stage"><canvas id="bl-cv"></canvas></div>
+    <div class="q" data-why="처음에는 아세톤 6방울이 물 4방울보다 무거워 아세톤 쪽으로 기울어져요. 아세톤이 물보다 빨리 증발하므로 수평이 되었다가 물 쪽으로 기울어지고, 시간이 더 지나 물도 모두 증발하면 다시 수평이 돼요.">
+      <div class="q-text"><span class="q-num">1</span>처음 저울은 <span class="choice-group" data-key="bl_0" data-answer="아세톤"><button type="button" class="choice-btn" data-value="물">물 쪽으로</button><button type="button" class="choice-btn" data-value="아세톤">아세톤 쪽으로</button><button type="button" class="choice-btn" data-value="수평">수평으로</button></span> 기울어지고, 시간이 지나면 <span class="choice-group" data-key="bl_1" data-answer="물"><button type="button" class="choice-btn" data-value="물">물 쪽으로</button><button type="button" class="choice-btn" data-value="아세톤">아세톤 쪽으로</button></span> 기울어진다. 시간이 더 오래 지나면 저울은 <span class="choice-group" data-key="bl_2" data-answer="수평"><button type="button" class="choice-btn" data-value="수평">수평이 된다</button><button type="button" class="choice-btn" data-value="물">물 쪽으로 기울어진 채 그대로다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="아세톤이 물보다 빨리 증발하기 때문이에요. 이 탐구로 물질의 종류에 따라 증발 속도가 다르다는 것을 알 수 있어요(온도는 같으므로 온도에 따른 증발 속도는 알 수 없어요).">
+      <div class="q-text"><span class="q-num">2</span>이 탐구에 대한 설명으로 옳지 <b>않은</b> 것은?</div>
+      <div class="choice-group vertical" data-key="bl_q" data-answer="1">
+        <button type="button" class="choice-btn" data-value="1">① 온도에 따른 증발 속도를 알 수 있다.</button>
+        <button type="button" class="choice-btn" data-value="2">② 물보다 아세톤의 증발 속도가 빠르다.</button>
+        <button type="button" class="choice-btn" data-value="3">③ 아세톤 대신 에탄올을 이용해도 같은 실험 결과를 얻을 수 있다.</button>
+        <button type="button" class="choice-btn" data-value="4">④ 아세톤을 더 많이 떨어뜨리면 저울이 수평으로 돌아오는 데 더 많은 시간이 걸린다.</button>
+      </div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>증발 <span class="pg">119쪽</span></div>
+    <div class="book">
+      <p>아세톤을 떨어뜨린 거름종이가 점점 가벼워지는 것은 <b>그림 4-3</b>과 같이 액체 아세톤이 기체로 되면서 아세톤 입자가 공기 중으로 날아갔기 때문이다. 이처럼 물질을 구성하는 입자가 스스로 운동하여 액체 표면에서 기체로 변하는 현상을 <span class="key">증발</span>이라고 한다.</p>
+    </div>
+    <figure class="fig mid"><img src="img/p119-fig4-3.jpg" alt="아세톤의 증발 현상"><figcaption><span class="tb">그림 4-3</span>아세톤의 증발 현상</figcaption></figure>
+    <div class="book"><p>우리는 생활에서 증발 현상을 유용하게 이용하기도 한다. <b>그림 4-4</b>와 같이 오징어나 고추 등을 오래 보관하기 위해 말리는 것은 증발 현상을 이용한 경우이다.</p></div>
+    <figure class="fig"><img src="img/p119-fig4-4.jpg" alt="오징어 건조와 고추 건조"><figcaption><span class="tb">그림 4-4</span>우리 생활에서 이용하는 증발 현상 — 오징어 건조 / 고추 건조</figcaption></figure>
+    <div class="tip-box"><figure class="fig float-r" style="max-width:170px;margin-top:0"><img src="img/p119-jarikki.jpg" alt="자리끼"></figure><b>더 알아보기 · 조상의 지혜, 자리끼</b><br>밤에 자다가 깨었을 때 마시기 위해 잠자리의 머리맡에 준비해 두는 물을 ‘자리끼’라고 한다. 이것은 목마름을 해결해 주기도 하지만, 밤새 물이 증발하면서 방 안의 습도를 조절하는 역할도 한다.<div class="clear"></div></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>118쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">119쪽</span></div>
+    <div class="q" data-why="물질을 구성하는 입자가 스스로 운동하여 액체 표면에서 기체로 변하는 현상은 증발이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 물질을 구성하는 입자가 스스로 운동하여 액체 표면에서 기체로 변하는 현상을 ( <input class="blank w-s" data-key="sc1" data-answer="증발"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 확산 현상과 증발 현상이 일어나는 공통된 까닭을 입자 운동과 관련하여 설명해 보자.</div>
+      <textarea class="free" data-key="common" data-keywords="입자,스스로,끊임없이/운동" data-model="확산과 증발은 모두 물질을 구성하는 입자가 가만히 있지 않고 스스로 끊임없이 운동하기 때문에 일어난다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>액체 표면에서 일어나는 증발 현상</div>
+    <div class="q" data-why="증발은 입자가 스스로 운동하기 때문에 나타나요. 손등의 알코올은 기체가 되어 공기 중으로 날아가요.">
+      <div class="q-text"><span class="q-num">1</span>증발은 물질을 구성하는 입자가 스스로 <input class="blank w-s" data-key="t3" data-answer="운동"> 하기 때문에 나타나는 현상이다. 손등에 바른 알코올이 사라지는 까닭은 알코올 입자가 <input class="blank w-s" data-key="t5" data-answer="공기"> 중으로 날아가기 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="6 증발은 바람이 없어도 일어나요(X). 7 이슬이 사라지는 것은 증발(O). 8 오징어 말리기(O) · 10 염전에서 소금 얻기(O)는 증발을 이용하고, 9 석고 방향제는 확산을 이용해요(X).">
+      <div class="q-text"><span class="q-num">2</span>옳은 것은 O, 옳지 않은 것은 X를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑥ 증발은 바람이 불 때만 일어나는 현상이다.</td><td><span class="choice-group" data-key="t6" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 풀잎에 맺힌 이슬이 사라지는 것도 증발 현상의 예에 해당한다.</td><td><span class="choice-group" data-key="t7" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑧ (증발 이용) 오징어를 오래 보관하기 위해 말린다.</td><td><span class="choice-group" data-key="t8" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑨ (증발 이용) 석고 방향제를 놓아 방 안을 향기롭게 한다.</td><td><span class="choice-group" data-key="t9" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑩ (증발 이용) 염전에서 소금을 얻는다.</td><td><span class="choice-group" data-key="t10" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>증발 현상 · 첫 번째 블록 찾기 <span class="pg">120쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>증발 현상</h4>
+      <div class="q" style="border-top:none" data-why="증발은 입자가 스스로 운동하여 액체 표면에서 기체로 변하는 현상이에요. 아세톤 입자는 공기 중으로 날아가요. 오징어·고추를 말리는 것은 증발 현상을 이용한 거예요.">
+        <div class="q-text">(1) 증발: 물질을 구성하는 입자가 스스로 <input class="blank w-s" data-key="s4" data-answer="운동"> 하여 액체 표면에서 기체로 변하는 현상<br>(2) 아세톤을 떨어뜨린 거름종이가 점점 가벼워지는 까닭은 액체 아세톤이 기체로 되면서 아세톤 입자가 <input class="blank w-s" data-key="s5" data-answer="공기"> 중으로 날아갔기 때문이다.<br>(3) 우리 생활에서 이용하는 <input class="blank w-s" data-key="s6" data-answer="증발"> 현상: 오징어나 고추 등을 오래 보관하기 위해 말린다.</div>
+        <span class="fb"></span>
+      </div>
+      <div class="block-q">
+        <b>🧩 첫 번째 블록 찾기</b>
+        <div class="t">젖은 흙을 두 개의 항아리 사이에 넣는 까닭은 무엇일까?</div>
+        <div class="q" style="border-top:none;padding:0" data-why="두 항아리 사이에 넣은 젖은 흙에서는 물이 증발하는 현상이 일어나요.">
+          <div class="q-text" style="color:#3a1600">힌트 조각 1 (117쪽): 항아리 표면에 있는 작은 구멍을 통해 확산 현상이 잘 일어난다.<br>힌트 조각 2 (119쪽): 두 개의 항아리 사이에 넣은 젖은 흙에서는 ( <input class="blank w-s" data-key="blk1b" data-answer="증발" style="background:#fff"> ) 현상이 일어난다.</div>
+          <span class="fb"></span>
+        </div>
+        <textarea class="free" data-key="block1" data-keywords="증발,확산,구멍,수증기/물 입자" data-model="젖은 흙 속의 물 입자가 스스로 운동하여 증발하고, 생긴 수증기가 항아리 표면의 작은 구멍을 통해 바깥으로 확산해 나가기 때문에 흙이 계속 마르면서 항아리 안을 시원하게 한다." placeholder="젖은 흙을 넣는 까닭은 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅳ. 물질의 상태 변화 · 1. 물질을 구성하는 입자의 운동 · 02 액체 표면에서 일어나는 증발 현상 · 비상교육 중학 과학 1 교과서(118~120쪽)·대체 탐구 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅳ-1-02 액체 표면에서 일어나는 증발 현상";
+const $ = id => document.getElementById(id);
+// 한 방울 질량(g)과 증발 빠르기(25 ℃, 바람 없음일 때 g/초 · 방울이 넓게 퍼질수록 빨라짐)
+const LQ = { ac: ["아세톤", 0.016, 0.0016, "#7a4fd6"], et: ["에탄올", 0.016, 0.0006, "#e4572e"], wa: ["물", 0.05, 0.00011, "#2f7de1"] };
+const SC = { zeroed: false, m0: 0, m: 0, t: 0, run: false, hist: [], last: "" };
+const outs = () => { $("dn-o").textContent = $("dn").value + "방울"; $("at-o").textContent = $("at").value + " ℃"; };
+["dn", "at"].forEach(id => $(id).addEventListener("input", outs)); outs();
+function rate() { const k = LQ[$("lq").value][2]; return k * Math.pow(1.06, +$("at").value - 25) * ($("fan").checked ? 2.2 : 1); }
+function scReset() { SC.zeroed = false; SC.m0 = SC.m = 0; SC.t = 0; SC.run = false; SC.hist = []; }
+$("sc-zero").addEventListener("click", () => { SC.zeroed = true; });
+$("sc-drop").addEventListener("click", () => { if (!SC.zeroed) { alert("먼저 [영점 맞추기]를 눌러 거름종이와 접시의 질량을 0으로 맞춰요."); return; } const L = LQ[$("lq").value]; SC.m0 = SC.m = +$("dn").value * L[1]; SC.t = 0; SC.run = true; SC.hist = [[0, SC.m]]; SC.last = `${L[0]}${$("dn").value}방울/${$("at").value}℃${$("fan").checked ? "/바람" : ""}`; });
+$("sc-reset").addEventListener("click", scReset);
+["lq"].forEach(id => $(id).addEventListener("change", scReset));
+const PP = Array.from({ length: 26 }, (_, i) => ({ x: (i % 13) / 12, y: Math.floor(i / 13), fly: false, fx: 0, fy: 0, vx: 0, vy: 0, ph: Math.random() * 6 }));
+function scDraw(dt) {
+  if (SC.run) { const sdt = dt * 5 * ($("ff").checked ? 6 : 1); SC.t += sdt; const area = Math.min(1, SC.m / (SC.m0 || 1)) * 0.6 + 0.4; SC.m = Math.max(0, SC.m - rate() * sdt * area); if (SC.t - (SC.hist.length ? SC.hist[SC.hist.length - 1][0] : 0) > 2) SC.hist.push([SC.t, SC.m]); if (SC.m <= 0) { SC.run = false; SC.hist.push([SC.t, 0]); } }
+  const g = LB.fit($("sc-cv"), 230), c = g.c, W = g.w, L = LQ[$("lq").value];
+  c.fillStyle = "#f6fafa"; c.fillRect(0, 0, W, 230);
+  const cx = W / 2;
+  // 저울
+  c.fillStyle = "#e9eef2"; c.fillRect(cx - 150, 140, 300, 70); c.strokeStyle = "#b8c4cc"; c.strokeRect(cx - 150, 140, 300, 70);
+  c.fillStyle = "#cfd8de"; c.fillRect(cx - 110, 124, 220, 16);
+  c.fillStyle = "#16242b"; c.fillRect(cx - 80, 156, 160, 38);
+  const shown = SC.zeroed ? SC.m : 47.36 + SC.m;
+  c.fillStyle = "#7dffb2"; c.font = "bold 26px 'Courier New', monospace"; c.textAlign = "right"; c.fillText(shown.toFixed(2), cx + 50, 186); c.font = "bold 14px sans-serif"; c.fillText("g", cx + 72, 186); c.textAlign = "left";
+  // 접시와 거름종이
+  c.fillStyle = "rgba(200,230,240,.7)"; c.beginPath(); c.ellipse(cx, 116, 100, 16, 0, 0, 7); c.fill(); c.strokeStyle = "#8ab"; c.stroke();
+  c.fillStyle = "#fbfbf6"; c.beginPath(); c.ellipse(cx, 114, 86, 12, 0, 0, 7); c.fill();
+  const wet = SC.m0 ? SC.m / SC.m0 : 0; if (wet > 0) { c.fillStyle = L[3] + "55"; c.beginPath(); c.ellipse(cx, 114, 20 + 50 * wet * Math.sqrt(+$("dn").value / 6), 7 * Math.max(.3, wet), 0, 0, 7); c.fill(); }
+  // 날아가는 기체 입자
+  if (SC.run && Math.random() < rate() * 2000 * dt) PP.push({ fly: true, fx: cx + (Math.random() - .5) * 80, fy: 108, vx: (Math.random() - .5) * 30, vy: -20 - Math.random() * 30, life: 3, gas: true });
+  for (let i = PP.length - 1; i >= 0; i--) { const p = PP[i]; if (!p.gas) continue; p.fx += p.vx * dt; p.fy += p.vy * dt; p.life -= dt; if (p.life < 0) { PP.splice(i, 1); continue; } c.fillStyle = L[3]; c.globalAlpha = Math.min(1, p.life); c.beginPath(); c.arc(p.fx, p.fy, 3.4, 0, 7); c.fill(); c.globalAlpha = 1; }
+  c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.fillText(SC.zeroed ? "영점을 맞춘 상태" : "영점을 맞추기 전 (접시+거름종이 질량)", 10, 18);
+  $("sc-t").textContent = Math.round(SC.t) + "초"; $("sc-lost").textContent = SC.m0 ? Math.round((1 - SC.m / SC.m0) * 100) + " %" : "0 %";
+  // 입자 확대 창
+  const q = LB.fit($("sc-part"), 150), pc = q.c, PW = q.w; pc.fillStyle = "#fff"; pc.fillRect(0, 0, PW, 150);
+  pc.fillStyle = "#eef3f6"; pc.fillRect(0, 110, PW, 40);
+  const nLeft = Math.round(26 * wet);
+  PP.filter(p => !p.gas).forEach((p, i) => { if (i >= nLeft) return; const x = 14 + p.x * (PW - 28) + Math.sin(SC.t * 3 + p.ph) * 2, y = 100 - p.y * 13 + Math.cos(SC.t * 4 + p.ph) * 1.5; pc.fillStyle = L[3]; pc.beginPath(); pc.arc(x, y, 6, 0, 7); pc.fill(); });
+  if (wet > 0 && wet < 1) for (let k = 0; k < 4; k++) { const x = (SC.t * 37 + k * 71) % (PW - 20) + 10, y = 80 - ((SC.t * 30 + k * 23) % 70); pc.fillStyle = L[3]; pc.globalAlpha = 0.7; pc.beginPath(); pc.arc(x, y, 6, 0, 7); pc.fill(); pc.globalAlpha = 1; pc.fillStyle = "#888"; pc.font = "10px sans-serif"; pc.fillText("↑", x - 3, y - 9); }
+  pc.fillStyle = "#26393b"; pc.font = "bold 11px Pretendard, sans-serif"; pc.fillText("🔍 거름종이 위 " + L[0] + " 입자", 8, 14); pc.font = "10px Pretendard, sans-serif"; pc.fillText("거름종이", 8, 140);
+  const yMax = Math.max(0.1, Math.ceil((SC.m0 || 0.1) * 12) / 10);
+  LB.graph($("sc-graph"), { h: 200, xMax: Math.max(60, Math.ceil((SC.hist.length ? SC.hist[SC.hist.length - 1][0] : 0) / 60) * 60), yMin: 0, yMax, xStep: 30, yStep: yMax / 4, xLabel: "시간(초)", yLabel: "저울의 숫자(g)", series: [{ color: L[3], pts: SC.hist, label: L[0] }] });
+}
+LB.loop($("sc-cv"), scDraw); scDraw(0);
+WS.custom("sc_run", { el: $("sc-t"), value: () => SC.last });
+
+/* ── 윗접시저울 ── */
+const BL = { on: false, t: 0, w: 0.2, a: 0.27 }; // 물 4방울·아세톤 6방울(g)
+$("bl-go").addEventListener("click", () => { BL.on = true; BL.t = 0; BL.w = 0.2; BL.a = 0.27; });
+$("bl-reset").addEventListener("click", () => { BL.on = false; BL.t = 0; BL.w = 0.2; BL.a = 0.27; });
+function blDraw(dt) {
+  if (BL.on) { const s = dt * 20; BL.t += s; BL.a = Math.max(0, BL.a - 0.0016 * s); BL.w = Math.max(0, BL.w - 0.0004 * s); if (BL.w <= 0) BL.on = false; }
+  const g = LB.fit($("bl-cv"), 220), c = g.c, W = g.w, cx = W / 2, d = BL.a - BL.w, ang = Math.max(-0.22, Math.min(0.22, d * 2.2));
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 220);
+  c.fillStyle = "#8a97a0"; c.fillRect(cx - 60, 190, 120, 14); c.fillRect(cx - 6, 90, 12, 100);
+  const arm = Math.min(150, W / 2 - 40), lx = cx - Math.cos(ang) * arm, ly = 90 - Math.sin(ang) * arm, rx = cx + Math.cos(ang) * arm, ry = 90 + Math.sin(ang) * arm;
+  c.strokeStyle = "#556"; c.lineWidth = 5; c.beginPath(); c.moveTo(lx, ly); c.lineTo(rx, ry); c.stroke(); c.lineWidth = 1;
+  [[lx, ly, "물 " + Math.round(BL.w / 0.05 * 10) / 10 + "방울 분량", BL.w / 0.2, "#2f7de1"], [rx, ry, "아세톤 " + Math.round(BL.a / 0.045 * 10) / 10 + "방울 분량", BL.a / 0.27, "#7a4fd6"]].forEach(([x, y, n, f, col]) => {
+    c.strokeStyle = "#556"; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 40); c.stroke();
+    c.fillStyle = "#cfd8de"; c.fillRect(x - 50, y + 40, 100, 8); c.fillStyle = "#fbfbf6"; c.fillRect(x - 40, y + 34, 80, 6);
+    if (f > 0) { c.fillStyle = col + "66"; c.beginPath(); c.ellipse(x, y + 36, 10 + 22 * f, 3.5, 0, 0, 7); c.fill(); }
+    c.fillStyle = "#26393b"; c.font = "12px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(n.replace(/\.0방울/, "방울"), x, y + 66); c.textAlign = "left";
+  });
+  c.fillStyle = "#c2410c"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText((Math.abs(d) < 0.004 ? "수평" : d > 0 ? "아세톤 쪽으로 기울어짐" : "물 쪽으로 기울어짐") + " · " + Math.round(BL.t / 60) + "분", 10, 18);
+}
+LB.loop($("bl-cv"), blDraw); blDraw(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅲ-1-02 — 온도가 같아지는 열평형</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅲ. 열</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p86-fridge.jpg" alt="냉장고에 넣은 음료수는 왜 시간이 지나야 차가워질까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅲ. 열 · 1. 열의 이동 · 02 <span class="pg" style="margin:0">86~89쪽</span></span>
+      <h1>온도가 같아지는<br><span>열평형</span></h1>
+      <p>냉장고에 막 넣은 음료수는 왜 시간이 지나야 차가워질까? 가상 열량계에 뜨거운 물과 찬물을 넣고 온도 센서로 10분 동안 측정하며, 두 물의 온도와 입자의 움직임이 어떻게 변하는지 확인해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 온도가 다른 두 물체가 열평형에 도달하는 과정을 입자의 움직임과 배치로 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <!-- 1. 교과서 탐구 -->
+  <section class="card" data-part="concept lab">
+    <div class="card-title"><span class="badge lab">탐구</span>온도가 다른 두 물체를 접촉할 때의 온도 변화 측정하기 <span class="pg">86~87쪽</span></div>
+    <p class="lead-q">온도가 다른 두 물체를 접촉하면 어떤 변화가 일어날까?</p>
+    <div class="book"><p>미지근한 음료수를 차가운 얼음물에 담그면 시간이 지난 뒤 음료수가 차가워지고, 따뜻한 물에 담그면 시간이 지난 뒤 음료수가 따뜻해진다. 다음 탐구로 접촉한 두 물체의 온도가 시간에 따라 어떻게 변하는지 알아보자.</p></div>
+    <div class="fig-row">
+      <figure class="fig"><img src="img/p86-setup.jpg" alt="뜨거운 물이 담긴 알루미늄 컵과 찬물이 담긴 열량계"><figcaption><span class="tb">86쪽</span>뜨거운 물이 담긴 알루미늄 컵을 찬물이 담긴 열량계에 넣는다.</figcaption></figure>
+      <figure class="fig"><img src="img/p87-mbl.jpg" alt="온도 센서와 스마트 기기로 측정하는 모습"><figcaption><span class="tb">87쪽</span>온도 센서를 꽂고 온도 측정 앱으로 측정한다.</figcaption></figure>
+    </div>
+    <div class="steps-box"><h4>어떻게 할까</h4><ol>
+      <li>열량계와 알루미늄 컵에 각각 찬물과 뜨거운 물을 담고, 알루미늄 컵을 열량계에 넣는다.</li>
+      <li>열량계의 뚜껑을 닫고 스마트 기기와 연결된 온도 센서를 뜨거운 물과 찬물에 각각 꽂는다. (주의: 온도 센서의 끝 부분이 열량계 바닥에 닿지 않게 한다.)</li>
+      <li>온도 측정 앱을 실행하여 뜨거운 물과 찬물의 온도를 측정한다.</li>
+      <li>10분 뒤 앱에 기록된 시간–온도 그래프를 확인한다.</li>
+    </ol></div>
+    <div class="safe">⚠️ 뜨거운 물을 사용할 때 화상을 입지 않도록 주의한다. 준비물: 찬물, 뜨거운 물, 열량계, 알루미늄 컵, 온도 센서, 스마트 기기, 집게, 보안경, 내열 장갑, 실험복</div>
+  </section>
+
+  <!-- 2. 3D 가상 실험 -->
+  <section class="card" data-part="sim lab">
+    <div class="card-title"><span class="badge sim">3D 가상 실험</span>가상 열량계와 온도 센서(MBL)</div>
+    <div class="card-hint">뜨거운 물과 찬물의 온도·양을 정하고 [측정 시작]을 누르면 10분 동안의 변화가 빠르게 재생된다. 3D 장치를 드래그해 돌려 보고, 오른쪽 아래의 <b>입자 확대 창</b>에서 두 물의 입자 움직임을 비교하자. 화살표의 굵기는 이동하는 열의 양을 나타낸다. (단, 열은 두 물 사이에서만 이동한다고 가정한다.)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>🔴 뜨거운 물 온도 <output id="h-T-o"></output></label><input type="range" id="h-T" min="40" max="90" value="80"></div>
+      <div class="ctrl"><label>🔴 뜨거운 물의 양 <output id="h-m-o"></output></label><input type="range" id="h-m" min="50" max="300" step="10" value="100"></div>
+      <div class="ctrl"><label>🔵 찬물 온도 <output id="c-T-o"></output></label><input type="range" id="c-T" min="2" max="30" value="20"></div>
+      <div class="ctrl"><label>🔵 찬물의 양 <output id="c-m-o"></output></label><input type="range" id="c-m" min="50" max="300" step="10" value="200"></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="eq-go">▶ 측정 시작 (10분)</button><button type="button" class="btn ghost small" id="eq-reset">↺ 처음으로</button><span style="font-size:12px;color:var(--ink-soft);align-self:center">재생 속도: 실제 10분 → 약 15초</span></div>
+    <div class="sim-wrap">
+      <div class="sim-stage" id="eq-stage" style="height:330px"><span class="tag">열량계 3D · 드래그하여 돌리기</span></div>
+      <div class="panel">
+        <div class="meter" style="margin:0"><div class="m"><small>경과 시간</small><b id="eq-time">0:00</b></div><div class="m"><small>🔴 뜨거운 물</small><b id="eq-Th">-</b></div><div class="m"><small>🔵 찬물</small><b id="eq-Tc">-</b></div><div class="m"><small>온도 차이</small><b id="eq-dT">-</b></div></div>
+        <div class="light-stage"><canvas id="eq-part"></canvas></div>
+      </div>
+    </div>
+    <div class="light-stage" style="margin-top:10px"><canvas id="eq-graph"></canvas></div>
+    <div class="scroll-x" style="margin-top:8px"><table class="data-t" id="eq-table"></table></div>
+    <div class="q" data-why="뜨거운 물의 온도는 낮아지고 찬물의 온도는 높아져서 두 물의 온도 차이가 점점 줄어들다가, 시간이 지나면 온도가 같아져 온도 차이가 0이 돼요." data-hint="그래프에서 두 선 사이의 간격이 어떻게 변하는지 보세요.">
+      <div class="q-text"><span class="q-num">1</span><b>자료 해석</b> 시간이 지날수록 뜨거운 물과 찬물의 온도 차이는 <span class="choice-group" data-key="dT_trend" data-answer="줄어"><button type="button" class="choice-btn" data-value="커">점점 커진다</button><button type="button" class="choice-btn" data-value="줄어">점점 줄어들다가 0이 된다</button><button type="button" class="choice-btn" data-value="같">처음과 같다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="열이 두 물 사이에서만 이동하면 뜨거운 물이 잃은 열의 양과 찬물이 얻은 열의 양이 같아요. 물의 양이 같으면 나중 온도는 두 온도의 가운데인 (80 + 20) ÷ 2 = 50 ℃예요." data-hint="가상 실험에서 뜨거운 물 80 ℃ 200 g, 찬물 20 ℃ 200 g으로 측정해 보세요.">
+      <div class="q-text"><span class="q-num">2</span>80 ℃ 물 200 g과 20 ℃ 물 200 g을 접촉시켜 열평형에 이르면 두 물의 온도는 약 <input class="blank w-s" data-key="teq" data-num="50" data-abs="1.5"> ℃가 된다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="찬물의 양이 많을수록 같은 열을 얻어도 온도가 조금만 올라가므로 열평형 온도는 처음 찬물 온도 쪽에 가까워져요." data-hint="찬물의 양만 늘려 다시 측정해 보세요.">
+      <div class="q-text"><span class="q-num">3</span>뜨거운 물의 양은 그대로 두고 찬물의 양만 늘리면 열평형 온도는 <span class="choice-group" data-key="more_cold" data-answer="낮아"><button type="button" class="choice-btn" data-value="높아">높아진다</button><button type="button" class="choice-btn" data-value="낮아">낮아진다</button><button type="button" class="choice-btn" data-value="같">변하지 않는다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 3. 모형 이용 -->
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">정리해 볼까</span>모형 이용 — 입자의 움직임과 배치 그리기 <span class="pg">87쪽</span></div>
+    <figure class="fig"><img src="img/p87-model.jpg" alt="처음과 10분 뒤 입자 모형 그리기"><figcaption><span class="tb">87쪽</span>처음 뜨거운 물의 입자 모형이 그려져 있다. 나머지 세 원에 들어갈 모형을 골라 보자.</figcaption></figure>
+    <div class="q" data-why="처음 찬물은 입자의 움직임이 둔하고 입자 사이 거리가 가까워요. 10분 뒤에는 열평형에 이르러 두 물 모두 처음의 중간 정도로 움직이고 입자 사이 거리도 같아요. 열은 뜨거운 물에서 찬물로 이동해요.">
+      <div class="q-text"><span class="q-num">1</span>처음 찬물 원에 들어갈 모형은 <span class="choice-group" data-key="m_c0" data-answer="둔"><button type="button" class="choice-btn" data-value="활발">움직임 활발 · 거리 멂</button><button type="button" class="choice-btn" data-value="둔">움직임 둔함 · 거리 가까움</button></span>이다.</div>
+      <div class="q-text"><span class="q-num">2</span>10분 뒤 두 원의 입자 모형은 <span class="choice-group" data-key="m_10" data-answer="같"><button type="button" class="choice-btn" data-value="같">움직임과 배치가 서로 같다</button><button type="button" class="choice-btn" data-value="반대">처음과 반대로 바뀐다</button></span>. 열은 <span class="choice-group" data-key="m_dir" data-answer="hc"><button type="button" class="choice-btn" data-value="hc">뜨거운 물 → 찬물</button><button type="button" class="choice-btn" data-value="ch">찬물 → 뜨거운 물</button></span>로 이동한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 온도계를 이용하여 접촉한 두 물체의 온도 변화 측정하기</h4>
+      <div class="fig-row" style="grid-template-columns:150px 1fr;align-items:center"><figure class="fig" style="margin:0"><img src="img/p87-alt.jpg" alt="온도계와 열량계"></figure>
+      <div style="font-size:13.5px;line-height:1.8">① 뜨거운 물이 담긴 알루미늄 컵을 찬물이 담긴 열량계에 넣고, 각각에 온도계를 꽂는다.<br>② 1분 간격으로 뜨거운 물과 찬물의 온도를 측정하여 기록하고, 시간–온도 그래프로 나타낸다.<br>👉 가상 실험의 표가 바로 이 기록표예요. 측정이 끝나면 1분마다 값이 자동으로 채워져요.</div></div>
+    </div>
+  </section>
+
+  <!-- 4. 교과서 개념 -->
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>열평형 <span class="pg">88쪽</span></div>
+    <div class="book">
+      <p>뜨거운 물이 담긴 컵을 찬물에 넣으면 뜨거운 물의 온도는 낮아지고 찬물의 온도는 높아져서 시간이 지나면 온도가 서로 같아진다. 이는 뜨거운 물에서 찬물로 열이 이동하기 때문이다. 온도가 높은 물체에서 온도가 낮은 물체로 열이 이동하여 두 물체의 온도가 같아진 상태를 <span class="key">열평형</span>이라고 한다.</p>
+      <p>접촉한 두 물체가 열평형에 이르기까지 각 물체를 구성하는 입자의 움직임과 배치도 달라진다. 예를 들어 뜨거운 물과 찬물을 접촉하면 <b>그림 3-3</b>과 같이 뜨거운 물은 열을 잃어 입자의 움직임이 둔해지고, 입자 사이의 거리가 가까워진다. 반면 찬물은 열을 얻어 입자의 움직임이 활발해지고, 입자 사이의 거리가 멀어진다.</p>
+    </div>
+    <figure class="fig"><img src="img/p88-fig3-3.jpg" alt="뜨거운 물과 찬물의 온도 변화와 열평형"><figcaption><span class="tb">그림 3-3</span>뜨거운 물과 찬물의 온도 변화와 열평형</figcaption></figure>
+    <div class="q" data-why="(가)는 온도가 낮아지고 (나)는 온도가 높아지므로 열은 (가) → (나)로 이동해요. 두 온도가 같아진 C 구간이 열평형 상태이고, 열을 잃는 (가)의 입자 움직임이 둔해져요." data-hint="아래 그래프에서 두 선이 만나 수평이 되는 구간을 찾으세요.">
+      <div class="q-text"><span class="q-num">1</span>그래프는 물체 (가)와 (나)를 접촉시켰을 때의 온도 변화이다. 열은 <span class="choice-group" data-key="g_dir" data-answer="가나"><button type="button" class="choice-btn" data-value="가나">(가) → (나)</button><button type="button" class="choice-btn" data-value="나가">(나) → (가)</button></span>로 이동하고, 열평형 상태인 구간은 <span class="choice-group" data-key="g_sec" data-answer="C"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span>, 입자의 움직임이 둔해지는 물체는 <span class="choice-group" data-key="g_slow" data-answer="가"><button type="button" class="choice-btn" data-value="가">(가)</button><button type="button" class="choice-btn" data-value="나">(나)</button></span>이다.</div>
+      <div class="light-stage" style="margin-top:6px;max-width:520px"><canvas id="abc-graph"></canvas></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="열은 A(높은 온도)에서 B(낮은 온도)로 이동해 A는 온도가 낮아지고 입자 움직임이 둔해지며, B는 온도가 높아지고 활발해져요. 열이 A와 B 사이에서만 이동하면 A가 잃은 열의 양과 B가 얻은 열의 양은 같아요.">
+      <div class="q-text"><span class="q-num">2</span>온도가 높은 물체 A와 온도가 낮은 물체 B를 접촉시켰다(열은 A와 B 사이에서만 이동). A의 온도는 <span class="choice-group" data-key="ab_TA" data-answer="낮아"><button type="button" class="choice-btn" data-value="높아">높아</button><button type="button" class="choice-btn" data-value="낮아">낮아</button></span>지고, B 입자의 움직임은 점점 <span class="choice-group" data-key="ab_B" data-answer="활발"><button type="button" class="choice-btn" data-value="활발">활발해</button><button type="button" class="choice-btn" data-value="둔">둔해</button></span>진다. A가 잃은 열의 양은 B가 얻은 열의 양과 <span class="choice-group" data-key="ab_Q" data-answer="같다"><button type="button" class="choice-btn" data-value="많다">비교해 더 많다</button><button type="button" class="choice-btn" data-value="같다">같다</button><button type="button" class="choice-btn" data-value="적다">비교해 더 적다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 5. 스스로 확인하기 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>86쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">88쪽</span></div>
+    <div class="q" data-why="뜨거운 물은 열을 잃어 입자의 움직임이 둔해지고, 입자 사이의 거리가 가까워져요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 뜨거운 물과 찬물을 접촉하면 뜨거운 물은 입자의 움직임이 ( <span class="choice-group" data-key="sc1" data-answer="둔해지고"><button type="button" class="choice-btn" data-value="둔해지고">둔해지고</button><button type="button" class="choice-btn" data-value="활발해지고">활발해지고</button></span> ), 입자 사이의 거리가 ( <span class="choice-group" data-key="sc2" data-answer="가까워진다"><button type="button" class="choice-btn" data-value="가까워진다">가까워진다</button><button type="button" class="choice-btn" data-value="멀어진다">멀어진다</button></span> ).</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="뜨거운 주전자(온도 높음)에서 찬물(온도 낮음)로 열이 이동하므로 물의 온도가 높아져요.">
+      <div class="q-text"><span class="q-num">2</span>뜨거운 주전자에 찬물을 담으면 ( <span class="choice-group" data-key="pot_from" data-answer="주전자"><button type="button" class="choice-btn" data-value="주전자">주전자</button><button type="button" class="choice-btn" data-value="물">물</button></span> )에서 ( <span class="choice-group" data-key="pot_to" data-answer="물"><button type="button" class="choice-btn" data-value="주전자">주전자</button><button type="button" class="choice-btn" data-value="물">물</button></span> )로 열이 이동하여 물의 온도가 ( <span class="choice-group" data-key="pot_T" data-answer="높아진다"><button type="button" class="choice-btn" data-value="낮아진다">낮아진다</button><button type="button" class="choice-btn" data-value="높아진다">높아진다</button></span> ).</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>사고력</b> 접촉식 온도계로 물체의 온도를 측정할 때는 온도계를 꽂고 잠시 기다린 뒤에 측정해야 한다. 그 까닭을 열평형과 관련지어 설명해 보자.</div>
+      <textarea class="free" data-key="thermo" data-keywords="열평형,열이 이동/열 이동,온도계,같아" data-model="온도계를 물체에 꽂으면 물체와 온도계 사이에 열이 이동하는데, 시간이 지나 두 물체가 열평형에 이르러 온도가 같아져야 온도계가 물체의 온도를 정확하게 나타내기 때문이다." placeholder="온도계와 물체 사이의 열 이동을 생각해 보세요."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 6. 과학이 톡 -->
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">과학이 톡</span>온도 차이를 이용해 전기를 만드는 기술 <span class="pg">89쪽</span></div>
+    <div class="book">
+      <figure class="fig float-r"><img src="img/p89-wear.jpg" alt="체온으로 전기를 충전하는 웨어러블 장치 예상 모습"><figcaption><span class="tb">89쪽</span>체온으로 전기를 충전하는 웨어러블 장치 예상 모습</figcaption></figure>
+      <p><span class="key">열전 기술</span>은 열을 활용해서 전기를 만드는 기술이다. 특정 회로의 한 부분은 고온, 다른 부분은 저온으로 만들어 온도 차이가 생기면 회로에 전류가 흐르는 현상을 이용해 전기를 만든다. 현재는 자동차 엔진에서 발생하는 열이나 공장에서 발생하는 폐열을 재활용하여 전기를 만드는 데 활용하고 있다.</p>
+      <p>열전 기술을 연구하는 연구원들은 효율이 높은 열전 재료를 개발하고 있다. 열전 재료의 효율이 높아지면 체온으로도 전기를 생산할 수 있게 되며, 배터리를 충전하지 않아도 체온만으로 작동하는 웨어러블 장치를 만들 수도 있다.</p>
+      <div class="clear"></div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span>🧑‍🤝‍🧑 <b>창의성 쑥!</b> 우리 주변에서 열이 발생하여 온도 차이가 생기는 곳을 찾고, 그곳의 열을 활용하는 열전 기술 제품을 설계해 보자.</div>
+      <figure class="fig small" style="max-width:220px"><img src="img/p89-cup.jpg" alt="뜨거운 컵으로 충전하는 예시"></figure>
+      <textarea class="free" data-key="thermoelec" data-keywords="온도 차이,열,전기,제품" data-model="뜨거운 음료를 담는 컵 바깥쪽 슬리브에 열전 소자를 붙인다. 컵 안쪽(뜨거움)과 바깥 공기(차가움)의 온도 차이로 전기가 만들어져, 연결한 스마트폰이나 컵의 LED 온도 표시등을 충전할 수 있다." placeholder="온도 차이가 생기는 곳 / 제품 설계"></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 7. 스스로 정리하기 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>열평형 <span class="pg">94쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>열평형</h4>
+      <div class="q" style="border-top:none" data-why="열평형은 온도가 높은 물체에서 낮은 물체로 열이 이동하여 두 물체의 온도가 같아진 상태예요.">
+        <div class="q-text">(1) <b>열평형</b>: 온도가 높은 물체에서 온도가 낮은 물체로 열이 이동하여 두 물체의 <input class="blank w-s" data-key="s4" data-answer="온도"> 이/가 같아진 상태</div>
+        <span class="fb"></span>
+      </div>
+      <div class="q" data-why="온도가 높은 물체는 열을 잃어 입자의 움직임이 둔해지고 입자 사이 거리가 가까워지며, 온도가 낮은 물체는 열을 얻어 활발해지고 멀어져요.">
+        <div class="q-text">(2) 열평형 과정에서 입자의 움직임과 배치<br>• 온도가 <input class="blank w-s" data-key="s5" data-answer="높은" style="width:70px"> 물체: 입자의 움직임이 둔해지고, 입자 사이 거리가 가까워진다.<br>• 온도가 <input class="blank w-s" data-key="s6" data-answer="낮은" style="width:70px"> 물체: 입자의 움직임이 활발해지고, 입자 사이 거리가 멀어진다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요. 가상 실험의 마지막 측정 조건도 함께 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅲ. 열 · 1. 열의 이동 · 02 온도가 같아지는 열평형 · 비상교육 중학 과학 1 교과서(86~89쪽)·활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅲ-1-02 온도가 같아지는 열평형";
+const $ = id => document.getElementById(id);
+const I = { hT: $("h-T"), hm: $("h-m"), cT: $("c-T"), cm: $("c-m") };
+function outs() { $("h-T-o").textContent = I.hT.value + " ℃"; $("h-m-o").textContent = I.hm.value + " g"; $("c-T-o").textContent = I.cT.value + " ℃"; $("c-m-o").textContent = I.cm.value + " g"; }
+Object.values(I).forEach(x => x.addEventListener("input", () => { outs(); if (!EQ.run) reset(); }));
+const EQ = { run: false, t: 0, Th: 80, Tc: 20, hist: [], last: "" };
+function params() { const hT = +I.hT.value, cT = +I.cT.value, hm = +I.hm.value, cm = +I.cm.value; const Teq = (hm * hT + cm * cT) / (hm + cm); const k = 0.55 * (1 / hm + 1 / cm) * 100; return { hT, cT, hm, cm, Teq, k }; }
+function tempsAt(t) { const p = params(), e = Math.exp(-p.k * t); return [p.Teq + (p.hT - p.Teq) * e, p.Teq + (p.cT - p.Teq) * e]; }
+function reset() { EQ.run = false; EQ.t = 0; const p = params(); EQ.Th = p.hT; EQ.Tc = p.cT; EQ.hist = [[0, EQ.Th, EQ.Tc]]; draw(); table(); }
+function fmt(t) { const m = Math.floor(t), s = Math.round((t - m) * 60); return m + ":" + String(s === 60 ? 0 : s).padStart(2, "0"); }
+function draw() {
+  $("eq-time").textContent = fmt(EQ.t); $("eq-Th").textContent = EQ.Th.toFixed(1) + " ℃"; $("eq-Tc").textContent = EQ.Tc.toFixed(1) + " ℃"; $("eq-dT").textContent = (EQ.Th - EQ.Tc).toFixed(1) + " ℃";
+  const p = params();
+  LB.graph($("eq-graph"), { h: 250, xMax: 10, yMin: 0, yMax: 100, xStep: 1, yStep: 10, xLabel: "시간(분)", yLabel: "온도(℃)",
+    series: [{ color: "#e4572e", pts: EQ.hist.map(h => [h[0], h[1]]), label: "뜨거운 물" }, { color: "#2f7de1", pts: EQ.hist.map(h => [h[0], h[2]]), label: "찬물" }],
+    marks: EQ.t > 6 ? [{ y: p.Teq, text: "열평형 " + p.Teq.toFixed(1) + " ℃", color: "#3a9a5b" }] : [] });
+}
+function table() {
+  const rows = []; for (let m = 0; m <= 10; m++) { const done = EQ.t >= m - 1e-6; const [a, b] = tempsAt(m); rows.push([m, done ? a.toFixed(1) : "", done ? b.toFixed(1) : ""]); }
+  $("eq-table").innerHTML = `<tr><th>시간(분)</th>${rows.map(r => `<th>${r[0]}</th>`).join("")}</tr><tr><td>뜨거운 물(℃)</td>${rows.map(r => `<td>${r[1]}</td>`).join("")}</tr><tr><td>찬물(℃)</td>${rows.map(r => `<td>${r[2]}</td>`).join("")}</tr>`;
+}
+$("eq-go").addEventListener("click", () => { reset(); EQ.run = true; const p = params(); EQ.last = `뜨거운${p.hT}℃${p.hm}g/찬물${p.cT}℃${p.cm}g→${p.Teq.toFixed(1)}℃`; });
+$("eq-reset").addEventListener("click", reset);
+outs(); reset();
+let lastTab = -1;
+function step(dt) {
+  if (!EQ.run) return;
+  EQ.t = Math.min(10, EQ.t + dt * (10 / 15)); [EQ.Th, EQ.Tc] = tempsAt(EQ.t); EQ.hist.push([EQ.t, EQ.Th, EQ.Tc]);
+  if (Math.floor(EQ.t) !== lastTab) { lastTab = Math.floor(EQ.t); table(); }
+  if (EQ.t >= 10) { EQ.run = false; table(); }
+  draw();
+}
+WS.custom("eq_run", { el: $("eq-time"), value: () => EQ.last });
+
+/* 입자 확대 창 */
+const PP = [0, 1].map(() => Array.from({ length: 16 }, () => [Math.random(), Math.random(), Math.random() * 6.28, Math.random() * 6.28]));
+function drawParts(tt) {
+  const g = LB.fit($("eq-part"), 170), c = g.c, W = g.w;
+  [[EQ.Th, "뜨거운 물", "#fde2dc"], [EQ.Tc, "찬물", "#dcebfd"]].forEach(([T, n, bg], i) => {
+    const x0 = 8 + i * (W / 2), w = W / 2 - 16, sp = 0.3 + T / 45, sc = 0.55 + T / 220;
+    c.fillStyle = bg; c.fillRect(x0, 22, w, 140);
+    PP[i].forEach(p => {
+      const cx = x0 + w / 2 + (p[0] - .5) * w * sc, cy = 92 + (p[1] - .5) * 120 * sc;
+      const x = cx + Math.cos(tt * 0.006 * sp + p[2]) * 7 * sp, y = cy + Math.sin(tt * 0.007 * sp + p[3]) * 7 * sp;
+      c.fillStyle = "#4caf50"; c.beginPath(); c.arc(Math.max(x0 + 6, Math.min(x0 + w - 6, x)), Math.max(28, Math.min(156, y)), 5.5, 0, 7); c.fill();
+    });
+    c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(`${n} ${T.toFixed(1)} ℃`, x0 + 2, 15);
+  });
+  const d = EQ.Th - EQ.Tc;
+  if (d > 0.5) { c.fillStyle = "rgba(228,87,46,.85)"; const th = Math.max(2, d / 6); c.fillRect(W / 2 - 18, 92 - th / 2, 26, th); c.beginPath(); c.moveTo(W / 2 + 8, 92 - th); c.lineTo(W / 2 + 20, 92); c.lineTo(W / 2 + 8, 92 + th); c.fill(); c.font = "bold 10px Pretendard, sans-serif"; c.fillText("열", W / 2 - 14, 92 - th - 4); }
+}
+
+/* 3D 열량계 */
+(function () {
+  const st = $("eq-stage"), T3 = LB.three(st, 330);
+  const tcol = T => { const k = Math.max(0, Math.min(1, (T - 2) / 88)); return new THREE.Color().setHSL(0.62 - 0.62 * k, 0.75, 0.55); };
+  let cold, hot, sensH, sensC;
+  if (T3) {
+    const { r, scene, cam } = T3;
+    LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0.6, 0), { R: 8, th: 0.5, ph: 1.1, min: 5, max: 14 });
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.6, 0.35, 48), new THREE.MeshStandardMaterial({ color: 0x9aa7b0 })); base.position.y = -1.6; scene.add(base);
+    const outer = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 2.6, 48, 1, true), new THREE.MeshStandardMaterial({ color: 0xcfe6ff, transparent: true, opacity: 0.25, side: THREE.DoubleSide })); outer.position.y = -0.15; scene.add(outer);
+    cold = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 1.75, 2.0, 48), new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.55 })); cold.position.y = -0.45; scene.add(cold);
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 2.2, 40, 1, true), new THREE.MeshStandardMaterial({ color: 0xb8c0c8, metalness: 0.8, roughness: 0.3, side: THREE.DoubleSide })); cup.position.set(-0.55, -0.1, 0); scene.add(cup);
+    hot = new THREE.Mesh(new THREE.CylinderGeometry(0.76, 0.76, 1.8, 40), new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.85 })); hot.position.set(-0.55, -0.3, 0); scene.add(hot);
+    const lid = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.9, 0.12, 48), new THREE.MeshStandardMaterial({ color: 0xdfe8ee, transparent: true, opacity: 0.6 })); lid.position.y = 1.2; scene.add(lid);
+    const mkSensor = (x, col) => { const g = new THREE.Group(); const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 12), new THREE.MeshStandardMaterial({ color: 0x555555 })); rod.position.y = 0.6; g.add(rod); const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.9, 0.25), new THREE.MeshStandardMaterial({ color: col })); head.position.y = 2.2; g.add(head); g.position.x = x; scene.add(g); return head; };
+    sensH = mkSensor(-0.55, 0xe4572e); sensC = mkSensor(1.05, 0x2f7de1);
+    LB.loop(st, (dt, tt) => { step(dt); cold.material.color = tcol(EQ.Tc); hot.material.color = tcol(EQ.Th); drawParts(tt); r.render(scene, cam); });
+  } else {
+    st.innerHTML += '<div style="color:#cfe;padding:60px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 그래프와 입자 창으로 실험할 수 있어요.</div>';
+    LB.loop($("eq-part"), (dt, tt) => { step(dt); drawParts(tt); });
+  }
+})();
+
+/* (가)(나) 그래프 */
+(function () {
+  const pts1 = [], pts2 = []; for (let t = 0; t <= 10; t += 0.1) { const e = Math.exp(-0.55 * t); pts1.push([t, 45 + 35 * e]); pts2.push([t, 45 - 25 * e]); }
+  const o = LB.graph($("abc-graph"), { h: 200, xMax: 10, yMin: 0, yMax: 90, xStep: 2, yStep: 20, xLabel: "시간", yLabel: "온도", series: [{ color: "#e4572e", pts: pts1, label: "(가)" }, { color: "#2f7de1", pts: pts2, label: "(나)" }] });
+  const c = $("abc-graph").getContext("2d"); c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif";
+  [["A", 1], ["B", 3.5], ["C", 8]].forEach(([n, x]) => c.fillText(n, o.X(x), o.Y(86)));
+  [2, 6].forEach(x => { c.strokeStyle = "#aaa"; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(o.X(x), o.Y(90)); c.lineTo(o.X(x), o.Y(0)); c.stroke(); c.setLineDash([]); });
+})();
+</script>
+</body>
+</html>

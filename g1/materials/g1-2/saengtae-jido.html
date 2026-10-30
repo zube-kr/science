@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅱ-2-04 — 학교와 주변 지역의 생물 분류하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅱ. 생물의 구성과 다양성</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p62-cartoon.jpg" alt="우리 학교에서 쉽게 관찰되는 생물은 어떤 계에 속할까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅱ. 생물의 구성과 다양성 · 2. 생물다양성과 분류 · 04 <span class="pg" style="margin:0">62~64쪽</span></span>
+      <h1>학교와 주변 지역의<br><span>생물 분류하기</span></h1>
+      <p>“내 주변에는 다른 생물이 없는 것 같아.” “아니야. 내가 여기에 있잖아.” 우리 학교에서 쉽게 관찰되는 생물은 어떤 계에 속할까? 가상 학교 지도에 관찰한 생물의 붙임 딱지를 붙여 생태 지도를 만들고, 5계로 분류해 보자.</p>
+      <div class="goal">🎯 이 탐구를 수행하면 — 학교와 주변 지역의 생물을 관찰하여 생태 지도를 만들고, 생물을 계 수준으로 분류할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">탐구 1~2</span>구역을 나누어 생물 관찰하기 <span class="pg">62쪽</span></div>
+    <div class="steps-box"><b>준비물</b> 학교와 주변 지역의 지도, 스마트 기기, 생물 채집 도구, 광학 현미경, 붙임 딱지(5 가지 색깔)<ol>
+      <li><b>협력적 소통</b> 모둠별로 학교와 주변 지역에서 생물을 관찰할 구역을 나누어 지도를 준비한다.</li>
+      <li><b>관찰</b> 맡은 구역의 생물을 관찰하고, 지도에 표시한다. (교실 밖에서는 선생님의 지시를 잘 따르며 안전에 유의한다.)</li>
+    </ol></div>
+    <figure class="fig"><img src="img/p62-field.jpg" alt="생물 관찰 방법"><figcaption><span class="tb">62쪽</span>생물의 모습을 촬영해서 검색하면 이름을 알 수 있어! · 이끼를 헹군 물이나 연못의 물을 현미경으로 관찰하면 원생생물이나 원핵생물을 찾을 수 있어.</figcaption></figure>
+    <div class="tip-box"><b>활동 도우미</b> 생태 지도는 인쇄하거나 스마트 기기 앱으로 만들 수 있다. 원핵생물은 직접 찾기 어려우므로 학교와 주변 지역에 살 것으로 예상되는 원핵생물을 조사하여 표시할 수도 있다.</div>
+  </section>
+
+  <section class="card" data-part="sim lab">
+    <div class="card-title"><span class="badge sim">가상 생태 지도</span>탐구 3~5 생태 지도 완성하고 5계로 분류하기 <span class="pg">63쪽</span></div>
+    <div class="card-hint">아래 학교 지도의 구역을 누르면 그곳에서 찾을 수 있는 생물이 나타나요. 생물을 누르고 알맞은 <b>계</b>를 고르면 그 계의 색깔 붙임 딱지가 지도에 붙어요. 연못은 [🔬 현미경]으로 물방울 속 작은 생물까지 찾아보자.</div>
+    <div class="sim-stage"><canvas id="mp-cv" style="cursor:pointer"></canvas><span class="tag" id="mp-tag">구역을 눌러 보세요</span></div>
+    <div class="tip-box" id="mp-zone" style="background:#f2f7ff">구역을 고르면 생물 목록이 나와요.</div>
+    <div class="btn-row" id="mp-orgs"></div>
+    <div class="btn-row" id="mp-k" style="display:none"></div>
+    <div class="tip-box" id="mp-msg"></div>
+    <div class="scroll-x"><table class="data-t" id="mp-tb"></table></div>
+    <div class="q" data-why="모든 생물을 알맞은 계로 분류했는지 확인해요. 단서: 핵이 없으면 원핵생물계, 균사·분해는 균계, 광합성·뿌리줄기잎은 식물계, 동·식·균이 아니면 원생생물계, 먹이를 먹고 움직이면 동물계." data-hint="표의 붙임 딱지 수가 모든 계에 1개 이상 있도록 여러 구역을 탐색하세요.">
+      <div class="q-text"><span class="q-num">4</span><b>분류</b> 생태 지도의 생물을 5계로 분류한 결과 (위 표)</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span><b>정리해 볼까 · 자료 비교·분석·해석</b> 학교와 주변 지역의 생물다양성과 관련하여 새로 알게 된 점을 이야기해 보자.</div>
+      <textarea class="free" data-key="map_talk" rows="2" data-keywords="계,다양,구역/장소,현미경/작은" data-model="학교에는 동물과 식물뿐 아니라 버섯 같은 균계, 연못 물속의 원생생물과 원핵생물까지 5계의 생물이 모두 살고 있었다. 연못과 화단처럼 환경이 다양한 곳일수록 생물다양성이 컸다."></textarea><span class="fb"></span></div>
+    <div class="alt-box"><h4>더 해 보기 · 우리 지역 디지털 생태 지도 확인하기</h4><p style="margin:0;font-size:14px">생태 공간 정보를 제공하는 누리집을 활용하여 우리 지역의 디지털 생태 지도를 확인하고, 직접 작성한 생태 지도와 비교해 보자.</p></div>
+    <figure class="fig" style="max-width:520px"><img src="img/p63-students.jpg" alt="생태 지도 만들기"><figcaption><span class="tb">63쪽</span>생태 지도에 계마다 다른 색깔의 붙임 딱지를 붙여 분류 결과를 표현한다.</figcaption></figure>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>두 번째 블록 찾기 <span class="pg">64쪽</span></div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 · 힌트 조각 3 (63쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="핵이 있는 세포 여러 개로 이루어져 있고 촉수로 먹이를 잡아먹으므로 동물계예요.">
+        <div class="q-text" style="color:#3a1600">산호는 핵이 있는 세포 여러 개로 이루어져 있고, 촉수로 먹이를 잡아먹으므로 ( <span class="choice-group" data-key="blk3" data-answer="동물"><button type="button" class="choice-btn" data-value="동물">동물계</button><button type="button" class="choice-btn" data-value="식물">식물계</button><button type="button" class="choice-btn" data-value="원생">원생생물계</button></span> )에 속한다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 찾기 · 조각을 모아 답하기</b>
+      <div class="t">산호와 잘피를 각각 다른 생물 무리로 분류하는 것은 무엇 때문일까?</div>
+      <div style="font-size:13px;margin-bottom:6px">조각 1 (57쪽) 산호와 잘피 사이에서는 자손이 생기지 않으므로 다른 종으로 분류한다. · 조각 2 (60쪽) 잘피는 광합성으로 양분을 스스로 만들고, 뿌리를 내려 생활하므로 식물계에 속한다. · 조각 3 (63쪽) 산호는 핵이 있는 세포 여러 개로 이루어져 있고, 촉수로 먹이를 잡아먹으므로 동물계에 속한다.</div>
+      <div class="q" style="border-top:none;padding:0">
+        <textarea class="free" data-key="block2" data-keywords="자손,다른 종,광합성,식물계,먹이,동물계" data-model="산호와 잘피 사이에서는 자손이 생기지 않으므로 다른 종이다. 또 산호는 촉수로 먹이를 잡아먹으므로 동물계, 잘피는 광합성으로 양분을 스스로 만들고 뿌리를 내리므로 식물계에 속한다. 즉 양분을 얻는 방법 등 특징이 달라 서로 다른 계로 분류한다." placeholder="산호와 잘피는 …" style="background:#fff"></textarea>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">나의 학습 확인하기</span>2. 생물다양성과 분류 돌아보기 <span class="pg">64쪽</span></div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left"><b>지식·이해</b> 생물다양성과 변이의 관계 및 생물을 분류하는 체계를 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left"><b>과정·기능</b> 생태 지도를 만들고, 생물을 계 수준으로 분류할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left"><b>가치·태도</b> 다양한 생물에 흥미를 느끼고, 과학의 유용성을 깨달았는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>이번 활동에서 알게 된 점, 어려웠던 점, 더 알아보고 싶은 점을 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="알게 된 점 / 어려웠던 점 / 더 알아보고 싶은 점"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅱ. 생물의 구성과 다양성 · 2. 생물다양성과 분류 · 04 학교와 주변 지역의 생물 분류하기 · 비상교육 중학 과학 1 교과서(62~64쪽)·탐구 활동지 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅱ-2-04 학교와 주변 지역의 생물 분류하기";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2", "self3"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+const KG = { 동물: ["동물계", "#e4572e"], 식물: ["식물계", "#2fae5d"], 균: ["균계", "#8a5a2b"], 원생: ["원생생물계", "#2f7de1"], 원핵: ["원핵생물계", "#7a4fd6"] };
+// 구역: 이름, [x, y, w, h] (0~1), 색, 생물 [이름, 정답 계, 단서]
+const ZONES = [
+  ["화단", [0.05, 0.08, 0.28, 0.3], "#bfe3a6", [["🌸 철쭉", "식물", "광합성, 뿌리·줄기·잎"], ["🐜 개미", "동물", "먹이를 먹고 움직임"], ["🦋 나비", "동물", "꿀을 먹고 날아다님"], ["🌼 민들레", "식물", "광합성, 뿌리·줄기·잎"]]],
+  ["연못", [0.38, 0.08, 0.26, 0.3], "#9fd3ff", [["🐸 개구리", "동물", "곤충을 잡아먹음"], ["🌿 해캄 (🔬)", "원생", "핵 있는 세포가 실처럼 이어짐, 광합성, 뿌리·줄기·잎 없음"], ["🦠 짚신벌레 (🔬)", "원생", "핵 있는 세포 한 개, 섬모로 헤엄침"], ["🔵 염주말 (🔬)", "원핵", "핵 없는 세포가 염주처럼 이어짐, 광합성"]]],
+  ["뒤뜰 숲", [0.68, 0.08, 0.27, 0.42], "#7cbf6a", [["🌲 소나무", "식물", "광합성, 뿌리·줄기·잎"], ["🍄 버섯", "균", "균사, 죽은 나무를 분해"], ["🐿 다람쥐", "동물", "도토리를 먹고 움직임"], ["🌿 우산이끼", "식물", "광합성을 하는 다세포 생물, 육지 생활"]]],
+  ["운동장", [0.05, 0.45, 0.58, 0.45], "#e8d3a0", [["🌾 강아지풀", "식물", "광합성, 뿌리·줄기·잎"], ["🐦 참새", "동물", "씨앗과 벌레를 먹고 날아다님"], ["🪱 지렁이", "동물", "흙 속 유기물을 먹고 움직임"], ["🦠 흙 속 세균 (조사)", "원핵", "핵 없는 세포 한 개"]]],
+  ["급식실", [0.68, 0.55, 0.27, 0.35], "#f5e1e1", [["🟢 빵의 푸른곰팡이", "균", "균사, 빵을 분해"], ["🧫 요구르트 젖산균 (조사)", "원핵", "핵 없는 세포 한 개"], ["🍞 효모 (조사)", "균", "핵 있는 세포, 당을 분해해 양분을 얻음"]]]
+];
+const MP = { zone: -1, org: null, stick: [] };
+const cv = $("mp-cv");
+cv.addEventListener("click", e => { const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height; const i = ZONES.findIndex(z => x >= z[1][0] && x <= z[1][0] + z[1][2] && y >= z[1][1] && y <= z[1][1] + z[1][3]); if (i < 0) return; MP.zone = i; MP.org = null; showZone(); draw(); });
+function showZone() {
+  const z = ZONES[MP.zone]; $("mp-zone").innerHTML = `<b>📍 ${z[0]}</b> — 생물을 눌러 단서를 보고 계를 골라요.`;
+  $("mp-orgs").innerHTML = z[3].map((o, k) => { const done = MP.stick.find(s => s.z === MP.zone && s.k === k); return `<button type="button" class="btn small ${done ? "" : "ghost"}" data-o="${k}">${o[0]}${done ? " ✔" : ""}</button>`; }).join("");
+  $("mp-k").style.display = "none"; $("mp-msg").textContent = "";
+}
+$("mp-orgs").addEventListener("click", e => { const b = e.target.closest("[data-o]"); if (!b) return; MP.org = +b.dataset.o; const o = ZONES[MP.zone][3][MP.org]; $("mp-msg").innerHTML = `🔎 <b>${o[0]}</b>: ${o[2]}`; $("mp-k").style.display = ""; $("mp-k").innerHTML = Object.keys(KG).map(k => `<button type="button" class="btn small" style="background:${KG[k][1]};color:#fff;border-color:${KG[k][1]}" data-k="${k}">${KG[k][0]}</button>`).join(""); });
+$("mp-k").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b || MP.org == null) return; const o = ZONES[MP.zone][3][MP.org]; if (b.dataset.k !== o[1]) { $("mp-msg").innerHTML = `❌ ${KG[b.dataset.k][0]}가 아니에요. 단서를 다시 보세요: ${o[2]}`; return; } if (!MP.stick.find(s => s.z === MP.zone && s.k === MP.org)) { const r = ZONES[MP.zone][1], n = MP.stick.filter(s => s.z === MP.zone).length; MP.stick.push({ z: MP.zone, k: MP.org, kg: o[1], name: o[0], x: r[0] + 0.04 + (n % 3) * r[2] / 3.2, y: r[1] + 0.1 + Math.floor(n / 3) * 0.12 }); } $("mp-msg").innerHTML = `⭕ <b>${o[0]}</b> → ${KG[o[1]][0]} 붙임 딱지를 붙였어요!`; MP.org = null; $("mp-k").style.display = "none"; showZone(); draw(); table(); });
+function draw() {
+  const g = LB.fit(cv, 300), c = g.c, W = g.w, H = 300;
+  c.fillStyle = "#d9e2d2"; c.fillRect(0, 0, W, H);
+  ZONES.forEach((z, i) => { const [x, y, w, h] = z[1]; c.fillStyle = z[2]; c.fillRect(x * W, y * H, w * W, h * H); c.strokeStyle = i === MP.zone ? "#e4572e" : "rgba(0,0,0,.25)"; c.lineWidth = i === MP.zone ? 3 : 1; c.strokeRect(x * W, y * H, w * W, h * H); c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(z[0], x * W + 5, y * H + 15); });
+  c.fillStyle = "#9aa3ad"; c.fillRect(W * 0.38, H * 0.45, W * 0.25, H * 0.08); c.fillStyle = "#fff"; c.font = "11px Pretendard, sans-serif"; c.fillText("본관", W * 0.46, H * 0.5);
+  MP.stick.forEach(s => { c.fillStyle = KG[s.kg][1]; c.beginPath(); c.arc(s.x * W, s.y * H, 8, 0, 7); c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2; c.stroke(); });
+  // 범례
+  Object.keys(KG).forEach((k, i) => { const x = 8 + i * (W - 16) / 5; c.fillStyle = KG[k][1]; c.beginPath(); c.arc(x + 6, H - 10, 5, 0, 7); c.fill(); c.fillStyle = "#26393b"; c.font = "10px Pretendard, sans-serif"; c.fillText(KG[k][0], x + 14, H - 6); });
+  $("mp-tag").textContent = `붙임 딱지 ${MP.stick.length}개`;
+}
+function table() { $("mp-tb").innerHTML = "<tr>" + Object.keys(KG).map(k => `<th style="color:${KG[k][1]}">${KG[k][0]}</th>`).join("") + "</tr><tr>" + Object.keys(KG).map(k => `<td style="font-size:12px">${MP.stick.filter(s => s.kg === k).map(s => s.name.replace(/ \(.+\)/, "")).join("<br>") || "-"}</td>`).join("") + "</tr>"; }
+draw(); table(); window.addEventListener("resize", draw);
+WS.custom("map", { el: $("mp-tb"), value: () => Object.keys(KG).map(k => k + ":" + MP.stick.filter(s => s.kg === k).length).join(" "), check: () => Object.keys(KG).every(k => MP.stick.some(s => s.kg === k)), answer: "5계 모두 1개 이상 분류" });
+</script>
+</body>
+</html>

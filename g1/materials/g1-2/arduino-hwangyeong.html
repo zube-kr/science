@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅱ 아두이노 실험 — 서식 환경과 생물다양성 조사하기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅱ. 생물의 구성과 다양성</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p53-fig2-4.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 · Ⅱ. 생물의 구성과 다양성 · 교과서 52~53쪽, 62~63쪽</span>
+      <h1>센서로 재는<br><span>서식 환경과 생물다양성</span></h1>
+      <p>환경이 다른 장소마다 사는 생물의 종이 다르다고 했지? 온습도 센서와 빛 센서로 만든 ‘서식 환경 측정기’를 들고 학교 곳곳을 다니며 온도·습도·밝기를 재고, 그곳에서 관찰한 생물의 종 수와 비교해 보자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>학교 장소별 서식 환경과 생물의 종 수</div><div><b>관련 단원</b>Ⅱ-2. 지구에 살고 있는 다양한 생물 · 학교와 주변 지역의 생물 분류하기</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + DHT11 온습도 센서 + 빛 센서(CDS)</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜·시각과 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 4월 10일 3교시 / 4모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 학교의 여러 장소에서 서식 환경(온도·습도·밝기)을 측정하고 관찰한 생물의 종 수와 비교하여, 환경과 생물다양성의 관계를 설명할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span>학교의 어느 장소에서 생물의 종 수가 가장 많을지, 그곳의 온도·습도·밝기는 어떨지 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" rows="2" data-keywords="습도/축축,그늘/밝기,종,많" data-model="화단이나 뒤뜰 숲처럼 흙과 식물이 있고 습도가 높으며 적당히 그늘진 곳에서 생물의 종 수가 가장 많을 것이다. 햇빛이 강하고 건조한 운동장은 종 수가 적을 것이다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, 브레드보드, DHT11 온습도 센서(37종 센서 키트), 빛 센서(CDS), 10 kΩ 저항, 점퍼선, USB 보조 배터리 또는 노트북, 스마트 기기(생물 촬영)</p></div>
+    <table class="data-t pin-t"><tr><th>부품</th><th>부품 핀</th><th>아두이노 핀</th></tr>
+      <tr><td rowspan="3"><b>DHT11</b><br>온습도 센서</td><td>VCC (+)</td><td>5V</td></tr><tr><td>DATA (S)</td><td>2번</td></tr><tr><td>GND (−)</td><td>GND</td></tr>
+      <tr><td rowspan="2"><b>빛 센서</b><br>CDS</td><td>한쪽 다리</td><td>5V</td></tr><tr><td>다른 쪽 다리</td><td>A0 (10 kΩ 저항으로 A0 ↔ GND)</td></tr></table>
+    <div class="tip-box"><b>💡 라이브러리</b> 아두이노 IDE의 [도구 → 라이브러리 관리]에서 “DHT sensor library”(Adafruit)를 설치한 뒤 업로드해요. 노트북을 들고 다니기 어렵다면 각 장소에서 시리얼 모니터 값을 보고 아래 칸에 직접 적어도 돼요.</div>
+    <div class="al-code"><div class="btn-row" style="margin:0 0 6px"><button type="button" class="btn small" id="en-copy">📋 코드 복사</button><a class="btn ghost small" href="arduino/env.ino" download>⬇️ env.ino 내려받기</a></div><pre id="en-src">코드를 불러오는 중…</pre></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="steps-box"><ol>
+      <li>학교에서 환경이 다른 장소를 4 곳 이상 정한다. (예: 화단, 뒤뜰 숲, 운동장, 연못가, 건물 그늘)</li>
+      <li>각 장소에서 측정기를 땅에서 30 cm 높이에 1 분 동안 두고 값이 안정되면 [이 장소 기록]을 누른다.</li>
+      <li>같은 장소에서 1 m × 1 m 안에 사는 생물을 5 분 동안 관찰하여 종 수를 센다. (같은 종은 한 번만!)</li>
+      <li>모든 장소를 같은 날, 비슷한 시각에 측정한다.</li>
+    </ol></div>
+    <div class="safe">⚠️ 측정기와 전선이 물에 닿지 않게 하고, 교실 밖에서는 선생님의 지시를 잘 따른다. 생물을 함부로 채집하거나 해치지 않는다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기</div>
+    <div class="al-conn"><button type="button" class="btn main small" id="en-connect">🔌 아두이노 연결하기</button><span class="al-dot" id="en-dot"></span><span id="en-ctext" style="font-size:13px;font-weight:700">연결 안 됨</span><span style="font-size:12px;color:var(--ink-soft)">크롬·엣지에서 연결돼요. 연결 없이도 값을 직접 넣을 수 있어요.</span></div>
+    <div class="al-live">
+      <div class="al-box" style="border-color:#e4572e"><small>🌡️ 온도 (℃)</small><input type="number" step="0.1" id="en-t"></div>
+      <div class="al-box" style="border-color:#2f7de1"><small>💧 습도 (%)</small><input type="number" step="1" id="en-h"></div>
+      <div class="al-box" style="border-color:#e4a11b"><small>💡 밝기 (0~1023)</small><input type="number" step="1" id="en-l"></div>
+    </div>
+    <div class="ctrl-grid"><div class="ctrl"><label>장소 이름</label><input id="en-place" style="width:100%" placeholder="예) 뒤뜰 숲"></div><div class="ctrl"><label>관찰한 생물의 종 수</label><input type="number" id="en-n" style="width:100%" min="0"></div></div>
+    <div class="btn-row"><button type="button" class="btn main small" id="en-rec">📍 이 장소 기록</button><button type="button" class="btn ghost small" id="en-sample">📎 예시 값으로 미리보기</button><button type="button" class="btn ghost small" id="en-clear">🧹 표 초기화</button></div>
+    <div class="scroll-x"><table class="data-t" id="en-tb"></table></div>
+    <div class="ctrl-grid"><div class="ctrl"><label>그래프 가로축</label><select id="en-x"><option value="1">온도</option><option value="2" selected>습도</option><option value="3">밝기</option></select></div></div>
+    <div class="light-stage"><canvas id="en-g"></canvas></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" data-why="기록표에서 종 수가 가장 많은 장소를 찾아요.">
+      <div class="q-text"><span class="q-num">1</span>우리 모둠의 결과에서 생물의 종 수가 가장 많은 장소는 <input class="blank w-s" id="best" style="width:120px"> 이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">2</span>그래프를 보고, 온도·습도·밝기 중 종 수와 가장 관계가 있어 보이는 환경 요인과 그 까닭을 써 보자.</div>
+      <textarea class="free" data-key="relate" rows="2" data-keywords="습도/밝기/온도,많/높,종" data-model="습도가 높은 장소일수록 종 수가 많았다. 습한 곳에는 이끼와 버섯, 지렁이처럼 물이 필요한 생물이 살 수 있고, 식물이 많아 먹이와 숨을 곳도 많기 때문이다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span><b>결론</b> 실험 결과를 바탕으로 서식 환경과 생물다양성의 관계를 설명해 보자.</div>
+      <textarea class="free" data-key="concl" rows="3" data-keywords="환경,장소,종,다르,생물다양성" data-model="장소마다 온도·습도·밝기 같은 환경이 달랐고, 사는 생물의 종과 종 수도 달랐다. 환경이 다양하고 생물이 살기에 알맞은 곳일수록 생물다양성이 크다. 따라서 다양한 서식 환경을 보전하면 생물다양성을 지킬 수 있다."></textarea><span class="fb"></span></div>
+    <div class="q"><div class="q-text"><span class="q-num">2</span><b>오차와 한계</b> 측정하는 시각이 다르거나 관찰 시간이 짧으면 결과가 어떻게 달라질 수 있을까?</div>
+      <textarea class="free" data-key="limit" rows="2" data-keywords="시각/시간,햇빛/온도,관찰,적게" data-model="시각이 다르면 햇빛과 온도가 달라 같은 장소라도 값이 달라지고, 관찰 시간이 짧으면 숨어 있거나 작은 생물을 놓쳐 종 수가 실제보다 적게 나올 수 있다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">같은 날 비슷한 시각, 같은 방법으로 여러 장소를 측정하고 관찰했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">측정 자료로 서식 환경과 생물다양성의 관계를 설명했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅱ. 생물의 구성과 다양성 · 아두이노 실험 보고서 · 교과서 52~53쪽 해 보기와 62~63쪽 탐구를 아두이노 온습도·빛 센서로 확장</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅱ 아두이노 서식 환경과 생물다양성";
+const $ = id => document.getElementById(id);
+fetch("arduino/env.ino").then(r => r.text()).then(t => $("en-src").textContent = t).catch(() => $("en-src").textContent = "코드를 불러오지 못했어요. 위의 내려받기 버튼을 눌러 주세요.");
+$("en-copy").addEventListener("click", () => { const t = $("en-src").textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { $("en-copy").textContent = "✅ 복사됨"; setTimeout(() => $("en-copy").textContent = "📋 코드 복사", 1500); }).catch(() => {}); });
+// 기록: [장소, 온도, 습도, 밝기, 종 수]
+let rows = [];
+const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? null : v; };
+$("en-rec").addEventListener("click", () => { const p = $("en-place").value.trim(), t = num("en-t"), h = num("en-h"), l = num("en-l"), n = num("en-n"); if (!p || t == null || h == null || l == null || n == null) { alert("장소 이름, 온도, 습도, 밝기, 종 수를 모두 넣어요."); return; } rows = rows.filter(r => r[0] !== p); rows.push([p, t, h, l, n]); draw(); $("en-place").value = ""; $("en-n").value = ""; });
+$("en-sample").addEventListener("click", () => { rows = [["운동장", 31.5, 48, 960, 3], ["화단", 28.2, 63, 720, 9], ["뒤뜰 숲", 26.1, 78, 310, 14], ["연못가", 26.8, 84, 540, 12], ["건물 그늘", 27.0, 58, 180, 4]]; draw(); });
+$("en-clear").addEventListener("click", () => { if (rows.length && !confirm("기록을 모두 지울까요?")) return; rows = []; draw(); });
+$("en-x").addEventListener("change", draw);
+function draw() {
+  $("en-tb").innerHTML = "<tr><th>장소</th><th>온도(℃)</th><th>습도(%)</th><th>밝기</th><th>종 수</th></tr>" + (rows.length ? rows.map(r => `<tr><td>${r[0]}</td><td>${r[1].toFixed(1)}</td><td>${r[2]}</td><td>${r[3]}</td><td><b>${r[4]}</b></td></tr>`).join("") : '<tr><td colspan="5" style="color:#8a9a9c">아직 기록이 없어요</td></tr>');
+  const k = +$("en-x").value, mx = { 1: 40, 2: 100, 3: 1024 }[k], step = { 1: 5, 2: 10, 3: 200 }[k], name = { 1: "온도(℃)", 2: "습도(%)", 3: "밝기" }[k];
+  const g = LB.graph($("en-g"), { h: 240, xMax: mx, yMin: 0, yMax: Math.max(15, ...rows.map(r => r[4] + 2)), xStep: step, yStep: 5, xLabel: name, yLabel: "종 수", series: [{ color: "#2fae5d", dots: true, width: 0.001, pts: rows.map(r => [r[k], r[4]]) }] });
+  const c = $("en-g").getContext("2d"); c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; rows.forEach(r => c.fillText(r[0], g.X(r[k]) + 5, g.Y(r[4]) - 5));
+}
+draw(); window.addEventListener("resize", draw);
+WS.custom("en_log", { el: $("en-tb"), value: () => rows.map(r => r.join(":")).join(" ") });
+const best = () => rows.length ? rows.reduce((a, b) => b[4] > a[4] ? b : a)[0] : null;
+const c = { el: $("best"), value: () => $("best").value, check: v => best() == null ? null : v.trim() === best() }; Object.defineProperty(c, "answer", { get: () => best() || "기록 필요" }); WS.custom("best", c);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+// ── Web Serial: "ms,온도,습도,밝기" ──
+let port = null, reader = null, reading = false;
+function setUI(on) { $("en-dot").classList.toggle("on", on); $("en-ctext").textContent = on ? "실시간 연결됨" : "연결 안 됨"; $("en-connect").textContent = on ? "🔌 연결 끊기" : "🔌 아두이노 연결하기"; }
+$("en-connect").addEventListener("click", async () => {
+  if (reading) { reading = false; try { if (reader) await reader.cancel(); } catch (e) {} try { if (port) await port.close(); } catch (e) {} port = reader = null; setUI(false); return; }
+  if (!("serial" in navigator)) { alert("이 브라우저는 아두이노 직접 연결(Web Serial)을 지원하지 않아요. 크롬이나 엣지를 사용해 주세요."); return; }
+  try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 9600 }); reading = true; setUI(true); readLoop(); }
+  catch (e) { if (e && e.name !== "NotFoundError") alert("아두이노 연결에 실패했어요. USB와 시리얼 모니터를 확인해 주세요."); }
+});
+async function readLoop() {
+  const dec = new TextDecoderStream(); port.readable.pipeTo(dec.writable).catch(() => {});
+  reader = dec.readable.getReader(); let buf = "";
+  try { while (reading) { const r = await reader.read(); if (r.done) break; buf += r.value || ""; let i; while ((i = buf.indexOf("\n")) >= 0) { const p = buf.slice(0, i).trim().split(","); buf = buf.slice(i + 1); const t = parseFloat(p[1]), h = parseFloat(p[2]), l = parseFloat(p[3]); if (!isNaN(t)) $("en-t").value = t.toFixed(1); if (!isNaN(h)) $("en-h").value = Math.round(h); if (!isNaN(l)) $("en-l").value = Math.round(l); } } }
+  catch (e) { console.error(e); } finally { try { reader.releaseLock(); } catch (e) {} }
+}
+</script>
+</body>
+</html>

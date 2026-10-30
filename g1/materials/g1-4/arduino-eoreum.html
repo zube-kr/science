@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅳ 아두이노 실험 ② — 얼음이 녹을 때의 온도 변화</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅳ. 물질의 상태 변화</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p141-alt.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 ② · Ⅳ. 물질의 상태 변화 · 교과서 141~142쪽</span>
+      <h1>얼음이 녹는 동안<br><span>열은 어디서 올까?</span></h1>
+      <p>교과서 ‘다르게 해 보기’처럼 물을 얼린 약병을 미지근한 물에 넣고, 센서 2개로 <b>약병 속 얼음</b>과 <b>바깥 물</b>의 온도를 동시에 기록하자. 얼음이 녹는 동안 온도가 일정한 까닭과, 그 열이 어디에서 오는지 알아내자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>얼음이 녹을 때의 온도 변화와 열에너지 흡수</div><div><b>관련 단원</b>Ⅳ-3. 물질을 가열할 때의 온도 변화</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + 온도 센서 2개</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 11월 2일 / 3모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 얼음이 녹을 때의 온도 변화를 측정하여 가열 곡선을 그리고, 융해하는 동안 주변에서 열에너지를 흡수함을 설명할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span>얼음이 든 약병을 미지근한 물에 넣으면 <b>약병 속</b> 온도와 <b>바깥 물</b>의 온도는 각각 어떻게 변할지 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" data-keywords="0,일정,바깥/물,낮아" data-model="약병 속 온도는 0 ℃까지 올라간 뒤 얼음이 다 녹을 때까지 0 ℃로 일정하다가 다시 올라갈 것이다. 바깥 물은 얼음에 열을 빼앗겨 온도가 계속 낮아질 것이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, USB 케이블, LM35 온도 센서, 써미스터(10 kΩ)와 10 kΩ 저항(또는 아날로그 온도 센서 모듈), 브레드보드, 점퍼선, 열수축 튜브(또는 랩·글루건), 작은 약병, 물, 냉동실, 비커(300 mL), 미지근한 물(약 35 ℃), 노트북(크롬)</p></div>
+    <div class="tip-box"><b>❗ 센서 2를 얼음 쪽에!</b> LM35는 기본 연결로는 <b>0 ℃ 근처와 그 아래를 잴 수 없어요</b>(약 2 ℃ 아래는 0으로 나옴). 그래서 0 ℃를 지나는 <b>약병 속에는 센서 2(써미스터)</b>를, 미지근한 바깥 물에는 센서 1(LM35)을 넣어요.</div>
+    <div id="al-circuit"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="fig-row" style="grid-template-columns:minmax(150px,240px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p141-alt.jpg" alt="물을 얼린 약병과 온도계"><figcaption><span class="tb">141쪽</span>온도계 대신 <b>센서 2</b>를 약병에 꽂아 얼린다.</figcaption></figure>
+      <div class="steps-box" style="margin:0"><ol>
+        <li>(전날) 써미스터의 다리를 열수축 튜브로 감싸 방수한 뒤, 물을 담은 약병에 꽂아 냉동실에서 얼린다. 전선은 약병 밖으로 빼 둔다.</li>
+        <li>비커에 미지근한 물 200 mL를 담고 센서 1(LM35, 방수)을 넣는다.</li>
+        <li>[아두이노 연결하기] 후 약병을 비커 물에 넣는 순간 [▶ 자동 기록 시작]을 누른다.</li>
+        <li>20분 동안 15초마다 기록한다. 가끔 비커 물을 살살 저어 준다.</li>
+      </ol></div>
+    </div>
+    <div class="safe">⚠️ 냉동실에서 꺼낸 약병은 맨손으로 오래 잡지 않는다. 물이 아두이노·브레드보드에 튀지 않게 한다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기 — 실시간 기록</div>
+    <div id="al-lab"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" id="q-res" data-why="처음 값은 기록표 첫 줄, 나중 값은 마지막 줄에서 읽어요. 약병 속 온도가 평평한 부분이 얼음이 녹는(융해) 구간이에요.">
+      <table class="data-t" style="max-width:560px">
+        <tr><th></th><th>처음 온도(℃)</th><th>나중 온도(℃)</th></tr>
+        <tr><td>🔴 바깥 물 (센서 1)</td><td><input class="blank w-s" id="r-a0" style="width:70px"></td><td><input class="blank w-s" id="r-a1" style="width:70px"></td></tr>
+        <tr><td>🔵 약병 속 (센서 2)</td><td><input class="blank w-s" id="r-b0" style="width:70px"></td><td><input class="blank w-s" id="r-b1" style="width:70px"></td></tr>
+      </table>
+      <div class="q-text" style="margin-top:6px">약병 속 온도가 거의 일정했던 온도: 약 <input class="blank w-s" id="r-mp" style="width:60px"> ℃ <span style="font-size:12px;color:var(--ink-soft)">(자동 분석: <span id="r-auto">기록 없음</span>)</span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="약병 속 온도가 0 ℃에서 일정한 동안에도 바깥 물의 온도는 계속 낮아져요. 바깥 물이 잃은 열에너지를 얼음이 흡수해 융해에 사용하기 때문이에요.">
+      <div class="q-text"><span class="q-num">1</span>약병 속 온도가 일정한 동안 바깥 물의 온도는 <span class="choice-group" data-key="out_T" data-answer="낮"><button type="button" class="choice-btn" data-value="높">높아졌다</button><button type="button" class="choice-btn" data-value="같">변하지 않았다</button><button type="button" class="choice-btn" data-value="낮">계속 낮아졌다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span><b>결론</b> 얼음이 녹는 동안 온도가 일정한 까닭과, 이때 필요한 열에너지가 어디에서 왔는지 두 그래프를 근거로 설명해 보자.</div>
+      <textarea class="free" data-key="concl" data-keywords="융해,흡수,바깥 물,낮아,일정" data-model="얼음이 융해하는 동안 바깥 물에서 열에너지를 흡수하여 상태 변화에 사용하므로 약병 속 온도는 0 ℃로 일정하다. 그 증거로 같은 시간 동안 바깥 물의 온도는 계속 낮아졌다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="얼음이 녹을 때 주변의 열에너지를 흡수하므로 음료가 시원해져요. 같은 원리로 아이스박스에 얼음을 넣어요.">
+      <div class="q-text"><span class="q-num">2</span><b>생활과 연결</b> 음료에 얼음을 넣으면 시원해지는 까닭은 얼음이 <span class="choice-group" data-key="drink" data-answer="흡수"><button type="button" class="choice-btn" data-value="흡수">융해하면서 음료의 열에너지를 흡수</button><button type="button" class="choice-btn" data-value="방출">융해하면서 열에너지를 방출</button></span>하기 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>더 탐구하기</b> 얼음 대신 소금물을 얼려 같은 실험을 하면 결과가 어떻게 다를지 예상하고 확인 계획을 세워 보자.</div>
+      <textarea class="free" data-key="next" data-keywords="0 ℃/0도,낮,소금물" data-model="소금물은 0 ℃보다 낮은 온도에서 녹기 시작하므로 일정한 구간의 온도가 0 ℃보다 낮게 나타날 것이다. 소금물 얼음과 맹물 얼음을 같은 조건에서 동시에 측정해 비교한다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">센서의 측정 범위를 생각해 알맞은 자리에 설치했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">두 그래프를 비교해 열에너지 이동을 설명했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">모둠원과 역할을 나누어 협력했다.</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록(시간·온도)도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅳ. 물질의 상태 변화 · 아두이노 실험 보고서 ② 얼음의 융해 · 교과서 141쪽 다르게 해 보기를 아두이노 온도 센서로 재구성</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../g1-3/arduino-lab.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅳ 아두이노② 얼음의 융해";
+const $ = id => document.getElementById(id);
+// 예시 값: 35 ℃ 물 200 g에 −12 ℃ 얼음 약병(약 20 g)을 넣음
+const SAMPLE = []; { let A = 35, B = -12, f = 0; for (let s = 0; s <= 1200; s += 15) { SAMPLE.push([s, +(A + (Math.random() - .5) * 0.2).toFixed(1), +(B + (Math.random() - .5) * 0.2).toFixed(1)]); for (let k = 0; k < 15; k++) { const q = 0.004 * (A - B); A -= q * 0.1; if (B < 0 && f <= 0) B = Math.min(0, B + q * 2.1); else if (f < 1) { B = 0; f = Math.min(1, f + q / 85); } else B += q * 1; A -= 0.0004 * (A - 30); } } }
+AL.base = "../g1-3/";
+AL.circuit("al-circuit");
+AL.setup({ root: "al-lab", key: "melt_log", ch: ["바깥 물", "약병 속"], every: 15, duration: 1200, yMin: -15, yMax: 40, yStep: 5, sample: SAMPLE });
+
+const R = () => AL.rows().filter(r => r[1] != null && r[2] != null);
+const near = (v, x, tol) => !isNaN(v) && Math.abs(v - x) <= tol;
+const f1 = x => (Math.round(x * 10) / 10 + 0).toFixed(1); // -0.0 대신 0.0
+function plateau() { const r = R(); if (r.length < 6) return null; let best = null;
+  for (let i = 0; i < r.length; i++) { let j = i; while (j + 1 < r.length && Math.abs(r[j + 1][2] - r[i][2]) <= 0.5) j++; const d = r[j][0] - r[i][0]; if (!best || d > best.d) best = { d, T: r.slice(i, j + 1).reduce((s, x) => s + x[2], 0) / (j - i + 1) }; }
+  return best && best.d >= 60 ? best : null; }
+function dyn(key, el, ans, check) { const c = { el, value: () => el.value, check }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+const cells = { "r-a0": r => r[0][1], "r-a1": r => r[r.length - 1][1], "r-b0": r => r[0][2], "r-b1": r => r[r.length - 1][2] };
+Object.entries(cells).forEach(([id, f]) => dyn(id.replace("-", "_"), $(id), () => R().length ? f(R()).toFixed(1) : "기록 없음", v => R().length ? near(WS.toNumber(v), f(R()), 0.25) : null));
+dyn("r_mp", $("r-mp"), () => plateau() ? "약 " + f1(plateau().T) : "평평한 구간 없음", v => plateau() ? near(WS.toNumber(v), plateau().T, 1) : null);
+AL.onChange(() => { const p = plateau(); $("r-auto").textContent = p ? `약 ${f1(p.T)} ℃에서 ${(p.d / 60).toFixed(1)}분` : R().length ? "아직 평평한 구간이 없어요" : "기록 없음"; });
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2", "self3"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+</script>
+</body>
+</html>

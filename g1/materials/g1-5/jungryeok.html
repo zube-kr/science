@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅴ-2-01 — 지구가 당기는 힘</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅴ. 힘의 작용</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p164-photo.jpg" alt="힘껏 뛰어올라도 다시 바닥으로 떨어지는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅴ. 힘의 작용 · 2. 여러 가지 힘 · 01 <span class="pg" style="margin:0">163~165쪽</span></span>
+      <h1>지구가<br><span>당기는 힘</span></h1>
+      <p>“바닥에 닿기 전에 찍어야 해.” 힘껏 뛰어올라도 다시 바닥으로 떨어지는 까닭은 무엇일까? 3D 지구 위 여러 곳에서 공을 떨어뜨려 중력의 방향을 확인하고, 지구와 달에서 무게와 질량을 비교해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 중력의 뜻을 알고 중력의 크기와 방향을 설명하며, 무게와 질량을 구별할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">중단원 열기</span>두 번째 블록 질문 <span class="pg">163쪽</span></div>
+    <div class="fig-row" style="grid-template-columns:minmax(140px,240px) 1fr;align-items:center">
+      <figure class="fig" style="margin:0"><img src="img/u2-hero.jpg" alt="바닷속에 멈춰 있는 스쿠버 다이버"></figure>
+      <div>
+        <div class="book"><p>스쿠버 다이버가 잠시 멈춰 바닷속 생물을 관찰하고 있어. 가만히 있는 스쿠버 다이버에게도 힘이 작용하고 있대.</p></div>
+        <div class="block-q" style="margin-top:4px"><b>두 번째 블록</b><div class="t">물속에서 가만히 있는 스쿠버 다이버에게 힘이 어떻게 작용할까?</div><div style="font-size:13px">‘지구가 당기는 힘’(164쪽), ‘원래대로 돌아가려는 힘’(166쪽), ‘미끄러짐을 방해하는 힘’(170쪽), ‘떠오르게 하는 힘’(172쪽)의 블록을 모아요. 🧩</div></div>
+      </div>
+    </div>
+    <div class="q" data-why="저울로 물체의 무게를 비교할 수 있고, 힘은 화살표로 나타내며, 두 힘의 합력이 0이면 평형을 이뤄요." style="margin-top:8px">
+      <div class="q-text"><span class="q-num">✓</span>이미 알고 있는 것 — 물체에 작용하는 두 힘의 합력이 <input class="blank w-s" data-key="pre1" data-num="0" data-abs="0" style="width:50px"> 일 때 두 힘이 평형을 이룬다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>중력의 방향 찾기 <span class="pg">164쪽</span></div>
+    <p class="lead-q">중력은 무엇일까?</p>
+    <div class="book"><p>들고 있던 공을 가만히 놓으면 공이 아래로 떨어진다. 또 공을 위로 던져도 공이 위로 올라가다가 다시 아래로 떨어진다. 이러한 현상은 지구가 물체를 당기기 때문에 나타난다. 지구, 달 등과 같은 천체가 물체를 당기는 힘을 <span class="key">중력</span>이라고 한다.</p></div>
+    <figure class="fig mid"><img src="img/p164-climb.jpg" alt="운동하는 사람 그림을 돌려서 공유하기"><figcaption><span class="tb">164쪽</span>운동하는 사람의 그림을 검색해 방향을 임의로 돌린 다음 공유한다.</figcaption></figure>
+    <div class="card-title" style="margin-top:8px"><span class="badge sim">게임</span>돌아간 사진에서 중력의 방향 찾기</div>
+    <div class="card-hint">사진이 돌아가 있어요! 사진 가운데의 <b>빨간 점</b>에서 드래그하여 이 사람에게 작용하는 <b>중력의 방향</b>을 화살표로 그리고 [확인]을 눌러 보자. 3문제를 맞혀 보자.</div>
+    <div class="btn-row"><button type="button" class="btn main small" id="gm-check">✔ 확인</button><button type="button" class="btn small" id="gm-next">🔄 다음 사진</button><span id="gm-score" style="align-self:center;font-weight:800;color:#0e7c80">맞힌 문제 0 / 3</span></div>
+    <div class="q" style="border-top:none" data-why="사진을 돌려도 중력은 사진 속 땅(지구 중심) 쪽을 향해요." data-hint="사진 속 사람의 발과 땅이 있는 쪽을 찾아 화살표를 그리세요.">
+      <div class="light-stage" style="touch-action:none;max-width:460px"><canvas id="gm-cv" style="cursor:crosshair"></canvas></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="중력은 항상 지구 중심 방향, 즉 사진 속 장면의 ‘땅’ 쪽(아래)으로 작용해요. 사진을 돌려도 사람의 몸, 벽, 땅을 보고 실제 아래쪽을 찾아야 해요.">
+      <div class="q-text"><span class="q-num">1</span>친구들이 공유한 그림에서 중력의 방향을 찾을 때 무엇을 보고 판단했는지 이야기해 보자.</div>
+      <textarea class="free" data-key="gm_why" data-keywords="땅/바닥/지면,아래,지구 중심" data-model="사진 속 땅(바닥)과 건물, 나무가 서 있는 방향을 보고 실제 아래쪽을 찾았다. 중력은 항상 지구 중심, 즉 땅 쪽으로 작용하기 때문이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>중력의 방향과 무게 <span class="pg">165쪽</span></div>
+    <div class="book">
+      <figure class="fig float-r" style="max-width:200px"><img src="img/p165-fig5-4.jpg" alt="중력의 방향"><figcaption><span class="tb">그림 5-4</span>중력의 방향</figcaption></figure>
+      <p>위로 던진 공이 다시 아래로 내려오는 것처럼 지표면에 있는 물체는 아래 방향으로 중력을 받는다. 물체가 지구상의 어느 위치에 있든지 중력은 아래 방향으로 작용한다. 이는 <b>그림 5-4</b>와 같이 중력이 <span class="key">지구 중심 방향</span>으로 작용하기 때문이다.</p>
+      <p>우리가 물체를 들었을 때 무겁거나 가볍게 느끼는 까닭은 물체마다 작용하는 중력의 크기가 다르기 때문이다. 물체에 작용하는 중력의 크기를 <span class="key">무게</span>라고 한다.</p>
+      <div class="clear"></div>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">3D 움직이는 그림 5-4</span>지구 어디서든 공을 떨어뜨리면?</div>
+    <div class="card-hint">버튼으로 지구 곳곳(한국, 프놈펜, 남극, 지구 반대편 등)에 사람을 세우고 [공 떨어뜨리기]를 눌러 보자. 지구를 드래그해서 돌려 보면, 모든 공이 어디를 향해 떨어지는지 알 수 있어요.</div>
+    <div class="btn-row"><button type="button" class="btn small" id="eg-add">🧍 사람 한 명 더 세우기</button><button type="button" class="btn main small" id="eg-drop">⚽ 공 떨어뜨리기</button><label style="font-size:13px;align-self:center"><input type="checkbox" id="eg-arrow" checked> 중력 화살표</label><label style="font-size:13px;align-self:center"><input type="checkbox" id="eg-line"> 지구 중심까지 선</label></div>
+    <div class="sim-stage" id="eg-stage" style="height:360px"><span class="tag">3D 지구 · 드래그하여 돌리기</span><span class="tag2" id="eg-n">사람 4명</span></div>
+    <div class="q" data-why="지구 위 어느 곳에서 떨어뜨려도 공은 그 자리의 ‘아래’, 즉 지구 중심 방향으로 떨어져요. 그래서 지구 반대편 사람도 땅에 서 있을 수 있어요." data-hint="‘지구 중심까지 선’을 켜고 공이 떨어지는 방향과 비교해 보세요.">
+      <div class="q-text"><span class="q-num">1</span>지구 반대편에 서 있는 사람이 공을 떨어뜨리면 공은 <span class="choice-group" data-key="eg_dir" data-answer="중심"><button type="button" class="choice-btn" data-value="우주">우주 쪽(우리 기준 아래)으로</button><button type="button" class="choice-btn" data-value="중심">지구 중심 쪽으로</button></span> 떨어진다. 따라서 중력은 항상 <input class="blank" data-key="eg_center" data-answer="지구 중심|지구중심|지구 중심 방향|지구중심방향"> 방향으로 작용한다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>무게와 질량은 어떻게 다를까? <span class="pg">165쪽</span></div>
+    <div class="book">
+      <p>중력은 지구뿐만 아니라 다른 천체에서도 작용하고, 천체마다 물체에 작용하는 중력의 크기가 다르다. 달의 중력은 지구 중력의 약 1/6이므로 달에서 측정한 물체의 무게는 지구에서 측정한 무게의 약 1/6이다. 이와 같이 같은 물체라도 측정하는 장소에 따라 무게가 다르게 나타난다.</p>
+      <p>한편 <span class="key">질량</span>은 물질의 고유한 양이기 때문에 무게와 달리 측정하는 장소가 달라져도 변하지 않는다. 질량의 단위는 kg(킬로그램)을 사용하며, 지구 표면에서 질량 1 kg인 물체에 작용하는 중력의 크기는 약 9.8 N이다.</p>
+    </div>
+    <figure class="fig"><img src="img/p165-fig5-5.jpg" alt="지구와 달에서의 무게와 질량"><figcaption><span class="tb">그림 5-5</span>지구와 달에서의 무게와 질량 — 지구 6 kg·58.8 N / 달 6 kg·9.8 N</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>우주 측정소 — 용수철저울과 양팔저울</div>
+    <div class="card-hint">천체와 추의 질량을 바꿔 보자. <b>용수철저울</b>은 중력의 크기(무게)를, <b>양팔저울</b>은 기준 추와 비교하여 질량을 재요.</div>
+    <div class="btn-row" id="pl-row"><button type="button" class="btn small main" data-p="0">🌏 지구</button><button type="button" class="btn small ghost" data-p="1">🌕 달</button><button type="button" class="btn small ghost" data-p="2">🔴 화성</button><button type="button" class="btn small ghost" data-p="3">🪐 목성</button></div>
+    <div class="ctrl-grid"><div class="ctrl"><label>추의 질량 <output id="ms-o"></output></label><input type="range" id="ms" min="1" max="10" value="6"></div></div>
+    <div class="light-stage"><canvas id="pl-cv"></canvas></div>
+    <div class="q" data-why="달에서 6 kg 추의 질량은 그대로 6 kg이고, 무게는 지구(58.8 N)의 약 1/6인 9.8 N이에요." data-hint="달을 고르고 6 kg 추를 재 보세요.">
+      <div class="q-text"><span class="q-num">1</span>질량 6 kg인 추를 달에서 재면 용수철저울은 약 <input class="blank w-s" data-key="moon_w" data-num="9.8" data-abs="0.2" style="width:60px"> N, 양팔저울로 잰 질량은 <input class="blank w-s" data-key="moon_m" data-num="6" data-abs="0" style="width:50px"> kg이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">💭</span><b>사고력</b> 지구에서 무게 1 N인 물체와 달에서 무게 1 N인 물체의 질량을 비교해서 설명해 보자.</div>
+      <textarea class="free" data-key="think" data-keywords="달,질량,6배/크" data-model="달의 중력은 지구의 약 1/6이므로, 달에서 무게가 1 N이 되려면 지구에서 1 N인 물체보다 질량이 약 6배 커야 한다. 따라서 달에서 무게 1 N인 물체의 질량이 더 크다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>164쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">165쪽</span></div>
+    <div class="q" data-why="지구, 달 등과 같은 천체가 물체를 당기는 힘은 중력이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 지구, 달 등과 같은 천체가 물체를 당기는 힘을 ( <input class="blank w-s" data-key="sc1" data-answer="중력"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 · 힌트 조각 1 (165쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="중력은 지구 중심 방향으로 작용해요.">
+        <div class="q-text" style="color:#3a1600">스쿠버 다이버에게 지구가 당기는 힘인 중력이 ( <input class="blank" data-key="blk2a" data-answer="지구 중심|지구중심|아래" style="background:#fff;width:90px"> ) 방향으로 작용한다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>지구가 당기는 힘</div>
+    <div class="q" data-why="중력의 크기는 질량에 비례하고, 달의 중력은 지구의 약 1/6이에요. 질량 3 kg의 지구에서 무게는 3 × 9.8 = 29.4 N이에요.">
+      <div class="q-text"><span class="q-num">1</span>중력의 크기는 물체의 질량에 <span class="choice-group" data-key="t2" data-answer="비례"><button type="button" class="choice-btn" data-value="비례">비례</button><button type="button" class="choice-btn" data-value="반비례">반비례</button></span>한다. 달에서의 중력은 지구 중력의 약 <span class="choice-group" data-key="t3" data-answer="1/6"><button type="button" class="choice-btn" data-value="6">6배</button><button type="button" class="choice-btn" data-value="1/6">1/6배</button><button type="button" class="choice-btn" data-value="1">1배</button></span>이다. 측정 장소가 달라져도 변하지 않는 것은 <span class="choice-group" data-key="t9" data-answer="질량"><button type="button" class="choice-btn" data-value="무게">무게</button><button type="button" class="choice-btn" data-value="질량">질량</button></span>이다. 질량이 3 kg인 물체의 지구에서 무게는 약 <input class="blank w-s" data-key="t10" data-num="29.4" data-abs="0.3" style="width:60px"> N이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="번지점프와 폭포는 중력 때문에 아래로 떨어지는 현상(O)이고, 울퉁불퉁한 등산화는 마찰력을 크게 하려는 것(X)이에요.">
+      <div class="q-text"><span class="q-num">2</span>중력에 의한 현상이면 O, 아니면 X를 골라 보자.<br>⑥ 번지점프를 하면 아래로 떨어진다. <span class="choice-group" data-key="t6" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span> ⑦ 폭포의 물이 위에서 아래로 떨어진다. <span class="choice-group" data-key="t7" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span> ⑧ 산에 오를 때 바닥이 울퉁불퉁한 등산화를 신는다. <span class="choice-group" data-key="t8" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>중력 <span class="pg">176쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">1</span>중력</h4>
+      <div class="q" style="border-top:none" data-why="중력은 천체가 물체를 당기는 힘으로 지구 중심 방향으로 작용하고, 그 크기가 무게예요. 질량은 장소가 달라져도 변하지 않는 고유한 양이에요.">
+        <div class="q-text">(1) <input class="blank w-s" data-key="s1" data-answer="중력"> : 지구와 같은 천체가 물체를 당기는 힘<br>(2) 중력의 방향: 지구 중심 방향<br>(3) 중력의 크기: 물체의 <input class="blank w-s" data-key="s2" data-answer="무게"> (단위: N)<br>(4) <input class="blank w-s" data-key="s3" data-answer="질량"> : 측정하는 장소가 달라져도 변하지 않는 물질의 고유한 양(단위: kg)</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅴ. 힘의 작용 · 2. 여러 가지 힘 · 01 지구가 당기는 힘 · 비상교육 중학 과학 1 교과서(163~165쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅴ-2-01 지구가 당기는 힘";
+const $ = id => document.getElementById(id);
+function arrow(c, x0, y0, x1, y1, col, w) { const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0); if (L < 2) return; c.strokeStyle = c.fillStyle = col; c.lineWidth = w || 4; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - Math.cos(a) * 10, y1 - Math.sin(a) * 10); c.stroke(); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 14 * Math.cos(a - 0.4), y1 - 14 * Math.sin(a - 0.4)); c.lineTo(x1 - 14 * Math.cos(a + 0.4), y1 - 14 * Math.sin(a + 0.4)); c.closePath(); c.fill(); c.lineWidth = 1; }
+
+/* ── 중력 방향 게임 ── */
+const IMG = new Image(); IMG.src = "img/p164-climb.jpg";
+const ANG = [Math.PI / 2, Math.PI, -Math.PI / 2, Math.PI * 0.75, -Math.PI * 0.3, Math.PI * 0.4];
+const GM = { k: 0, rot: ANG[0], arr: null, drag: false, ok: 0, done: [] , msg: "" };
+function gmPos(e) { const r = $("gm-cv").getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+const GC = () => [$("gm-cv").clientWidth / 2, 160];
+$("gm-cv").addEventListener("pointerdown", e => { const [x, y] = gmPos(e), [cx, cy] = GC(); if (Math.hypot(x - cx, y - cy) < 30) { GM.drag = true; try { $("gm-cv").setPointerCapture(e.pointerId); } catch (_) {} } });
+$("gm-cv").addEventListener("pointermove", e => { if (!GM.drag) return; const [x, y] = gmPos(e), [cx, cy] = GC(); GM.arr = [x - cx, y - cy]; gmDraw(); });
+$("gm-cv").addEventListener("pointerup", () => GM.drag = false);
+$("gm-check").addEventListener("click", () => {
+  if (!GM.arr || Math.hypot(...GM.arr) < 20) { GM.msg = "먼저 빨간 점에서 화살표를 그려 주세요."; gmDraw(); return; }
+  const want = GM.rot + Math.PI / 2, got = Math.atan2(GM.arr[1], GM.arr[0]); let d = Math.abs(((got - want) % (2 * Math.PI) + 3 * Math.PI) % (2 * Math.PI) - Math.PI);
+  if (d < 0.35) { if (!GM.done.includes(GM.k)) { GM.done.push(GM.k); GM.ok++; } GM.msg = "정답! 중력은 사진 속 땅(지구 중심) 쪽으로 작용해요. 🎉"; } else GM.msg = "다시 생각해 보세요. 사진 속 사람의 발, 벽, 땅을 보고 실제 ‘아래’를 찾아요.";
+  $("gm-score").textContent = "맞힌 문제 " + Math.min(3, GM.ok) + " / 3"; gmDraw();
+});
+$("gm-next").addEventListener("click", () => { GM.k = (GM.k + 1) % ANG.length; GM.rot = ANG[GM.k]; GM.arr = null; GM.msg = ""; gmDraw(); });
+function gmDraw() {
+  const g = LB.fit($("gm-cv"), 320), c = g.c, W = g.w, [cx, cy] = GC(); c.fillStyle = "#fff"; c.fillRect(0, 0, W, 320);
+  if (IMG.complete && IMG.naturalWidth) { const s = IMG.naturalWidth / 520; c.save(); c.translate(cx, cy); c.rotate(GM.rot); c.drawImage(IMG, 18 * s, 18 * s, 245 * s, 195 * s, -122, -97, 245, 195); c.restore(); }
+  if (GM.arr) arrow(c, cx, cy, cx + GM.arr[0], cy + GM.arr[1], "#e01e5a", 5);
+  c.fillStyle = "#e01e5a"; c.beginPath(); c.arc(cx, cy, 7, 0, 7); c.fill();
+  c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(GM.msg, W / 2, 308); c.textAlign = "left";
+}
+IMG.onload = gmDraw; gmDraw(); window.addEventListener("resize", gmDraw);
+WS.custom("gm_score", { el: $("gm-cv"), value: () => String(Math.min(3, GM.ok)), check: () => GM.ok >= 3, answer: "돌아간 사진 3장에서 중력 방향(사진 속 땅 쪽) 맞히기" });
+
+/* ── 3D 지구 ── */
+(function () {
+  const st = $("eg-stage"), T3 = LB.three(st, 360);
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:60px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 그림 5-4로 확인해 보세요.</div>'; return; }
+  const { r, scene, cam } = T3; LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0, 0), { R: 12, th: 0.5, ph: 1.2, min: 7, max: 22 });
+  const R = 3;
+  // 땅과 바다를 칠한 지구 (꼭짓점 색)
+  const geo = new THREE.SphereGeometry(R, 64, 40), col = [], p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i); const n = Math.sin(x * 1.3 + 1) * Math.cos(z * 1.1) + Math.sin(y * 1.7 + x * 0.6) * 0.8 + Math.cos(z * 2.1 - y) * 0.4; const ice = Math.abs(y) > R * 0.86; const c = ice ? [0.95, 0.97, 1] : n > 0.55 ? [0.33, 0.62, 0.28] : [0.15, 0.42, 0.78]; col.push(...c); }
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  const earthMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, transparent: true }); scene.add(new THREE.Mesh(geo, earthMat));
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff3300 })); scene.add(core);
+  const people = [], balls = [], arrows = [], lines = [];
+  const SPOTS = [[37, 127, "한국"], [11.5, 105, "프놈펜"], [-80, 0, "남극"], [-37, -53, "지구 반대편"], [60, -100, ""], [-10, 30, ""], [20, -160, ""], [-50, 150, ""]];
+  function v(lat, lon, h) { const a = lat * Math.PI / 180, b = lon * Math.PI / 180; return new THREE.Vector3(Math.cos(a) * Math.sin(b), Math.sin(a), Math.cos(a) * Math.cos(b)).multiplyScalar(R + h); }
+  function addPerson() {
+    const i = people.length; if (i >= SPOTS.length) return; const [la, lo] = SPOTS[i], up = v(la, lo, 0).normalize();
+    const g = new THREE.Group(); const body = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.45, 10), new THREE.MeshStandardMaterial({ color: [0xe4572e, 0x2f7de1, 0xffd23f, 0x7a4fd6, 0x2fae5d, 0xff7fb5, 0x8a6a3a, 0x00a3a3][i] })); body.position.y = 0.22; g.add(body);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), new THREE.MeshStandardMaterial({ color: 0xf1c7a3 })); head.position.y = 0.53; g.add(head);
+    g.position.copy(v(la, lo, 0)); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up); scene.add(g); people.push(g);
+    const ar = new THREE.ArrowHelper(up.clone().negate(), v(la, lo, 1.6), 0.9, 0xff3355, 0.25, 0.15); scene.add(ar); arrows.push(ar);
+    const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints([v(la, lo, 0), new THREE.Vector3()]), new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.15, gapSize: 0.1 })); ln.computeLineDistances(); scene.add(ln); lines.push(ln);
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffffff })); ball.visible = false; scene.add(ball); balls.push({ m: ball, h: 0, v: 0, la, lo });
+    $("eg-n").textContent = "사람 " + people.length + "명";
+  }
+  for (let k = 0; k < 4; k++) addPerson();
+  $("eg-add").addEventListener("click", addPerson);
+  $("eg-drop").addEventListener("click", () => balls.forEach(b => { b.h = 1.4; b.v = 0; b.m.visible = true; }));
+  LB.loop(st, dt => {
+    const sa = $("eg-arrow").checked, sl = $("eg-line").checked;
+    arrows.forEach(a => a.visible = sa); lines.forEach(l => l.visible = sl); earthMat.opacity = sl ? 0.45 : 1; earthMat.depthWrite = !sl;
+    balls.forEach(b => { if (!b.m.visible) return; if (b.h > 0.12) { b.v += 3 * dt; b.h = Math.max(0.12, b.h - b.v * dt); } b.m.position.copy(v(b.la, b.lo, b.h)); });
+    r.render(scene, cam);
+  });
+})();
+
+/* ── 무게와 질량 ── */
+const PL = [["지구", 9.8, "#2f7de1"], ["달", 9.8 / 6, "#9aa4ad"], ["화성", 3.7, "#c8553d"], ["목성", 24.8, "#d9a066"]]; let PI_ = 0;
+document.querySelectorAll("#pl-row button").forEach(b => b.addEventListener("click", () => { PI_ = +b.dataset.p; document.querySelectorAll("#pl-row button").forEach(x => { x.classList.toggle("main", x === b); x.classList.toggle("ghost", x !== b); }); plDraw(); }));
+$("ms").addEventListener("input", plDraw);
+function plDraw() {
+  const m = +$("ms").value, P = PL[PI_], Wt = m * P[1]; $("ms-o").textContent = m + " kg";
+  const g = LB.fit($("pl-cv"), 260), c = g.c, W = g.w; c.fillStyle = "#0e1b2c"; c.fillRect(0, 0, W, 260);
+  c.fillStyle = P[2]; c.beginPath(); c.arc(W / 2, 520, 300, 0, 7); c.fill();
+  // 용수철저울
+  const sx = W * 0.27, ext = Math.min(120, Wt * 0.45); c.fillStyle = "#ddd"; c.fillRect(sx - 4, 20, 8, 14);
+  c.strokeStyle = "#e6e6e6"; c.lineWidth = 2; c.beginPath(); for (let i = 0; i <= 24; i++) { const y = 34 + i * (30 + ext) / 24; c.lineTo(sx + (i % 2 ? 9 : -9), y); } c.stroke(); c.lineWidth = 1;
+  c.fillStyle = "#c9a227"; c.fillRect(sx - 18, 70 + ext, 36, 30);
+  c.fillStyle = "#fff"; c.font = "bold 14px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("용수철저울: " + Wt.toFixed(1) + " N", sx, 130 + ext > 200 ? 200 : 130 + ext); c.fillText("(무게)", sx, 218);
+  // 양팔저울
+  const bx = W * 0.72; c.fillStyle = "#bbb"; c.fillRect(bx - 3, 70, 6, 90); c.fillRect(bx - 70, 70, 140, 5);
+  c.fillStyle = "#c9a227"; c.fillRect(bx - 82, 48, 30, 22); c.fillStyle = "#8a8f98"; c.fillRect(bx + 52, 48, 30, 22);
+  c.fillStyle = "#fff"; c.fillText("양팔저울: " + m + " kg", bx, 190); c.fillText("(질량 · 기준 추 " + m + " kg과 수평)", bx, 210); c.textAlign = "left";
+  c.font = "bold 16px Pretendard, sans-serif"; c.fillText(P[0] + "에서 측정", 12, 24);
+}
+plDraw(); window.addEventListener("resize", plDraw);
+</script>
+</body>
+</html>

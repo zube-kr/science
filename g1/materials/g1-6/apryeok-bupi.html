@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅵ-2-01 — 기체의 압력과 부피 관계</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅵ. 기체의 성질</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p206-snack.jpg" alt="하늘 높이 떠 있는 비행기 안의 과자 봉지는 왜 부풀었을까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅵ. 기체의 성질 · 2. 기체의 압력 및 온도와 부피 관계 · 01 <span class="pg" style="margin:0">205~209쪽</span></span>
+      <h1>기체의 압력과<br><span>부피 관계</span></h1>
+      <p>“어, 너 몸이 부풀었어.” “몰라. 과자 양은 변함없는데 몸만 커졌어.” 하늘 높이 떠 있는 비행기 안의 과자 봉지는 왜 부풀었을까? 가상 주사기와 압력 센서로 압력과 부피를 측정하고, 입자 모형으로 그 까닭을 설명해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 기체의 압력과 부피 관계를 실험으로 알아내고, 입자 운동으로 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">단원 열기</span>2. 기체의 압력 및 온도와 부피 관계 <span class="pg">205쪽</span></div>
+    <div class="book"><p>물 뿜는 인형에서 물이 뿜어져 나오려면 먼저 물을 넣어야 해. 그런데 인형에 물을 넣기가 어려워 보여.</p></div>
+    <div class="block-q" style="margin-top:4px"><b>두 번째 블록</b><div class="t">물 뿜는 인형에서 물은 어떻게 들어갔다가 나오는 걸까?</div><div style="font-size:13px">‘기체의 압력과 부피 관계’(206쪽), ‘기체의 온도와 부피 관계’(210쪽), ‘기체의 부피 변화 예 조사하기’(214쪽)의 블록을 모으면 답할 수 있어요. 🧩</div></div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구</span>기체의 압력과 부피 관계를 실험으로 알아보기 <span class="pg">206~207쪽</span></div>
+    <p class="lead-q">기체의 압력과 부피는 어떤 관계일까?</p>
+    <div class="book"><p>비행기가 하늘 높이 올라가면 비행기 안에 있던 과자 봉지가 팽팽하게 부푼 것을 볼 수 있다. 이것은 비행기의 높이에 따른 압력 변화가 과자 봉지 속 기체의 부피에 영향을 미치기 때문이다.</p></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p206-mbl.jpg" alt="주사기와 압력 센서, 스마트 기기"><figcaption><span class="tb">206쪽</span>주사기 · 압력 센서 · 스마트 기기</figcaption></figure>
+      <div class="steps-box" style="margin:0"><b>준비물</b> 60 mL 주사기, 압력 센서, 스마트 기기, 실험복<ol>
+        <li>주사기 속 공기의 부피가 40 mL가 되도록 피스톤의 눈금을 맞춘 다음, 주사기와 압력 센서를 연결한다.</li>
+        <li><b>디지털 탐구 도구 활용</b> 기체 압력 측정 앱을 실행하고 압력 센서와 스마트 기기를 연결한다.</li>
+        <li><b>측정</b> 피스톤을 서서히 누르면서 주사기 속 공기의 부피와 압력을 측정하고 5 개의 값을 표에 기록한다.</li>
+        <li><b>자료 수집 · 변환</b> 가로축은 공기의 압력, 세로축은 공기의 부피로 하여 그래프로 나타낸다.</li>
+      </ol></div>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>가상 주사기와 압력 센서</div>
+    <div class="card-hint">슬라이더로 피스톤을 누르거나 당겨 보자. 주사기 입구는 압력 센서에 막혀 있어서 <b>공기 입자 수는 그대로</b>예요. 원하는 부피에서 [측정값 기록]을 눌러 5 개 이상 기록하면 그래프가 그려져요. (●기압: 기체의 압력을 나타내는 단위)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>주사기 속 공기의 부피 <output id="sy-v-o"></output></label><input type="range" id="sy-v" min="20" max="60" step="2" value="40"></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="sy-rec">📍 측정값 기록</button><button type="button" class="btn ghost small" id="sy-clear">🧹 표 초기화</button></div>
+    <div class="sim-stage"><canvas id="sy-cv"></canvas><span class="tag">압력 센서 앱</span></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start;margin-top:8px">
+      <div class="scroll-x"><table class="data-t" id="sy-tb"></table></div>
+      <div class="light-stage"><canvas id="sy-g"></canvas></div>
+    </div>
+    <div class="q" data-why="피스톤을 누르면 주사기 속 공기의 부피는 줄어들고 압력은 커져요." data-hint="슬라이더를 40 mL에서 20 mL 쪽으로 옮기며 압력 센서 값을 보세요.">
+      <div class="q-text"><span class="q-num">1</span><b>정리해 볼까</b> 피스톤을 누르면 주사기 속 공기의 부피는 <span class="choice-group" data-key="sy_v" data-answer="줄어"><button type="button" class="choice-btn" data-value="늘어">늘어나고</button><button type="button" class="choice-btn" data-value="줄어">줄어들고</button></span>, 공기의 압력은 <span class="choice-group" data-key="sy_p" data-answer="커"><button type="button" class="choice-btn" data-value="커">커진다</button><button type="button" class="choice-btn" data-value="작아">작아진다</button><button type="button" class="choice-btn" data-value="같">변하지 않는다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="40 mL에서 1.0 기압이면, 부피를 절반(20 mL)으로 줄이면 압력은 2배인 2.0 기압이 돼요. 압력 × 부피 = 40으로 거의 일정해요." data-hint="기록표의 ‘압력 × 부피’ 칸을 보세요.">
+      <div class="q-text"><span class="q-num">2</span>부피가 40 mL일 때 1.0 기압이었다면, 피스톤을 눌러 20 mL로 만들었을 때 압력은 약 <input class="blank w-s" data-key="sy_20" data-num="2" data-abs="0.1" style="width:60px"> 기압이다. 기록표에서 (압력 × 부피)의 값은 <span class="choice-group" data-key="sy_pv" data-answer="일정"><button type="button" class="choice-btn" data-value="커">점점 커진다</button><button type="button" class="choice-btn" data-value="일정">거의 일정하다</button><button type="button" class="choice-btn" data-value="작아">점점 작아진다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>결과 해석 및 결론 도출</b> 실험 결과를 바탕으로 기체의 압력과 부피 관계를 이야기해 보자.</div>
+      <textarea class="free" data-key="sy_concl" data-keywords="압력,부피,줄어/감소,늘어/증가" data-model="온도가 일정할 때 기체에 작용하는 압력을 높이면 기체의 부피가 줄어들고, 압력을 낮추면 부피가 늘어난다. 압력이 2배가 되면 부피는 절반이 된다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 압력계를 이용해 주사기 속 공기의 압력과 부피 측정하기</h4>
+      <figure class="fig float-r" style="max-width:180px"><img src="img/p207-alt.jpg" alt="주사기와 압력계"><figcaption>주사기와 압력계</figcaption></figure>
+      <p style="margin:0;font-size:14px">① 압력계에 주사기를 연결한다. ② 피스톤을 누르면서 주사기 속 공기의 부피와 압력을 측정한다. ③ 측정한 값을 이용하여 압력–부피 그래프를 그린다.<br><b>정리</b> 기체의 압력과 부피 관계를 이야기해 보자.</p>
+      <div style="clear:both"></div>
+    </div>
+    <figure class="fig" style="max-width:560px"><img src="img/p207-team.jpg" alt="스프레드시트로 모둠 결과 공유하기"><figcaption><span class="tb">207쪽</span>스프레드시트를 공유하여 각 모둠의 측정 결과를 하나의 표에 입력한다.</figcaption></figure>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>피스톤을 누르거나 당기면 <span class="pg">207~208쪽</span></div>
+    <div class="book"><p>기체가 들어 있는 주사기의 피스톤을 누르거나 당기면 주사기 속 기체의 압력과 부피가 달라진다. 일정한 온도에서 피스톤을 눌러 일정한 양의 기체에 작용하는 압력을 높이면 기체의 부피가 <b>줄어들고</b> 기체의 압력이 <b>커진다</b>. 반대로 피스톤을 당겨 기체에 작용하는 압력을 낮추면 기체의 부피가 <b>늘어나고</b> 기체의 압력이 <b>작아진다</b>.</p>
+    <p>기체의 압력과 부피 관계는 <b>그림 6-5</b>와 같이 바닥에 공기 주머니가 있는 운동화에서도 볼 수 있다. 운동화를 신고 걸으면 바닥에 발이 닿는 순간 몸무게 때문에 공기 주머니에 작용하는 압력이 커져 공기 주머니의 부피가 줄어들고 주머니 속 공기의 압력이 커진다.</p></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p208-shoe.jpg" alt="공기 주머니가 있는 운동화"><figcaption><span class="tb">그림 6-5</span>공기 주머니가 있는 운동화</figcaption></figure>
+      <div class="tip-box" style="margin:0"><b>더 알아보기 · 기체의 압력과 부피 관계를 알아낸 보일</b><br>보일(Boyle, R., 1627~1691)은 실험과 관찰의 중요성을 강조하고 화학의 기틀을 마련한 과학자이다. 공기 펌프를 개발해 다양한 실험을 하였고, 1662 년에는 J자 관을 이용해 기체의 압력과 부피 관계를 연구하여 그 결과를 발표했다.</div>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>기체의 압력과 부피 관계를 입자 모형으로 알아보기 <span class="pg">208쪽</span></div>
+    <div class="fig-row" style="grid-template-columns:minmax(150px,240px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p208-syringe.jpg" alt="주사기 속 공기의 입자 모형"><figcaption>일정한 온도에서 주사기 속 공기의 입자 모형</figcaption></figure>
+      <div class="card-hint" style="margin:0">고려할 점 — 입자의 개수는 어떻게 될까? 입자 사이의 거리는 어떻게 될까? 입자가 주사기 벽에 충돌하는 횟수는 어떻게 될까? <br>아래 두 주사기에서 (가) 피스톤을 당기고, (나) 피스톤을 눌러 보며 입자 모형을 관찰하자.</div>
+    </div>
+    <figure class="fig"><img src="img/p208-model.jpg" alt="(가) 피스톤을 당길 때 (나) 피스톤을 누를 때"><figcaption><span class="tb">208쪽</span>(가) 피스톤을 당길 때 · (나) 피스톤을 누를 때 — 입자 모형을 그려 넣는 활동</figcaption></figure>
+    <div class="btn-row"><button type="button" class="btn small" id="md-pull">(가) ⬅ 피스톤 당기기</button><button type="button" class="btn small" id="md-push">(나) ➡ 피스톤 누르기</button><button type="button" class="btn ghost small" id="md-reset">↺ 처음 위치</button></div>
+    <div class="sim-stage"><canvas id="md-cv"></canvas></div>
+    <table class="data-t" style="margin-top:8px">
+      <tr><th></th><th>(가) 피스톤을 당길 때</th><th>(나) 피스톤을 누를 때</th></tr>
+      <tr><td>입자의 개수</td><td><span class="choice-group" data-key="m_n_a" data-answer="같"><button type="button" class="choice-btn" data-value="늘">늘어남</button><button type="button" class="choice-btn" data-value="같">변하지 않음</button><button type="button" class="choice-btn" data-value="줄">줄어듦</button></span></td><td><span class="choice-group" data-key="m_n_b" data-answer="같"><button type="button" class="choice-btn" data-value="늘">늘어남</button><button type="button" class="choice-btn" data-value="같">변하지 않음</button><button type="button" class="choice-btn" data-value="줄">줄어듦</button></span></td></tr>
+      <tr><td>입자 사이의 거리</td><td><span class="choice-group" data-key="m_d_a" data-answer="멀"><button type="button" class="choice-btn" data-value="멀">멀어짐</button><button type="button" class="choice-btn" data-value="가까">가까워짐</button></span></td><td><span class="choice-group" data-key="m_d_b" data-answer="가까"><button type="button" class="choice-btn" data-value="멀">멀어짐</button><button type="button" class="choice-btn" data-value="가까">가까워짐</button></span></td></tr>
+      <tr><td>벽에 충돌하는 횟수</td><td><span class="choice-group" data-key="m_h_a" data-answer="감소"><button type="button" class="choice-btn" data-value="증가">증가</button><button type="button" class="choice-btn" data-value="감소">감소</button></span></td><td><span class="choice-group" data-key="m_h_b" data-answer="증가"><button type="button" class="choice-btn" data-value="증가">증가</button><button type="button" class="choice-btn" data-value="감소">감소</button></span></td></tr>
+    </table>
+    <div class="q" data-why="입자 수는 그대로예요. 피스톤을 당기면 거리가 멀어져 충돌이 줄고, 누르면 거리가 가까워져 충돌이 늘어요.">
+      <div class="q-text"><span class="q-num">✔</span>표를 다 채웠으면 [확인하기]로 확인해 보자. 그리고 기체의 압력과 부피 관계를 입자 모형으로 이야기해 보자.</div>
+      <textarea class="free" data-key="m_talk" data-keywords="입자 수,거리,충돌,압력" data-model="피스톤을 누르면 입자 수는 변하지 않지만 부피가 줄어 입자 사이의 거리가 가까워지고, 입자가 벽에 더 많이 충돌하므로 압력이 커진다. 당기면 그 반대이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>압력과 부피 관계를 입자 운동으로 설명하기 <span class="pg">209쪽</span></div>
+    <div class="book"><p>기체의 압력과 부피 관계는 입자 운동으로 설명할 수 있다. 일정한 온도에서 용기에 들어 있는 일정한 양의 기체에 작용하는 압력을 낮추면 <b>그림 6-6</b>과 같이 입자 수는 변하지 않지만 용기 속 기체의 부피는 늘어난다. 따라서 입자 사이의 거리가 멀어지고 입자들이 용기 벽에 더 적게 충돌하므로 용기 속 기체의 압력이 작아진다. 반대로 기체에 작용하는 압력을 높이면 입자 수는 변하지 않지만 용기 속 기체의 부피는 줄어든다. 따라서 입자 사이의 거리가 가까워지고 입자들이 용기 벽에 더 많이 충돌하므로 용기 속 기체의 압력이 커진다. 이와 같이 온도가 일정할 때 기체에 작용하는 압력이 변하면 기체의 부피는 기체에 작용하는 압력과 용기 속 기체의 압력이 <span class="key">같아질 때까지</span> 늘어나거나 줄어든다.</p></div>
+    <figure class="fig"><img src="img/p209-fig6-6.jpg" alt="기체의 압력과 부피 변화에 따른 입자 운동"><figcaption><span class="tb">그림 6-6</span>기체의 압력과 부피 변화에 따른 입자 운동</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>움직이는 그림 6-6 — 피스톤 위에 추 올리기</div>
+    <div class="card-hint">추를 올리거나 내려 보자. 피스톤은 <b>기체에 작용하는 압력(추 + 바깥 공기)</b>과 <b>용기 속 기체의 압력(입자의 충돌)</b>이 같아지는 곳에서 멈춰요.</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>피스톤 위의 추 <output id="wt-n-o"></output></label><input type="range" id="wt-n" min="0" max="4" value="1"></div></div>
+    <div class="sim-stage"><canvas id="wt-cv"></canvas></div>
+    <div class="tip-box"><b>오개념 바로잡기 · 기체에 작용하는 압력이 변하면 입자의 운동성이 변할까?</b><br>일정한 양의 기체에 작용하는 압력이 변하면 입자의 충돌 횟수는 변하지만, 입자의 운동성은 변하지 않는다. 기체 입자의 운동성은 온도에 따라 달라지는 것이므로, 기체의 온도가 변해야 입자의 운동성이 변한다.</div>
+    <div class="q" data-why="압력을 높여도(추를 올려도) 온도가 같으면 입자의 빠르기(운동성)는 그대로이고, 충돌 횟수만 늘어요.">
+      <div class="q-text"><span class="q-num">1</span>추를 더 올리면 입자의 빠르기(운동성)는 <span class="choice-group" data-key="wt_speed" data-answer="같"><button type="button" class="choice-btn" data-value="빨라">빨라진다</button><button type="button" class="choice-btn" data-value="같">변하지 않는다</button><button type="button" class="choice-btn" data-value="느려">느려진다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>206쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">209쪽</span></div>
+    <div class="q" data-why="압력을 낮추면 부피가 늘어나고, 입자 사이 거리가 멀어져 충돌이 줄어 기체의 압력이 작아져요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 일정한 온도에서 일정한 양의 기체에 작용하는 압력을 낮추면 기체의 부피가 늘어나고 기체의 압력이 ( <span class="choice-group" data-key="sc1" data-answer="작아"><button type="button" class="choice-btn" data-value="작아">작아진다</button><button type="button" class="choice-btn" data-value="커">커진다</button></span> ).</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <figure class="fig float-r" style="max-width:150px"><img src="img/p209-jtube.jpg" alt="J자 관"><figcaption>J자 관</figcaption></figure>
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 보일은 한쪽이 막힌 J자 관에 수은을 넣을수록 관 속 공기의 부피가 줄어드는 것을 확인했다. 관 속 공기의 압력과 부피 관계를 입자 운동으로 설명해 보자.</div>
+      <textarea class="free" data-key="sc_j" data-keywords="수은,압력,부피,거리,충돌" data-model="수은을 넣을수록 관 속 공기에 작용하는 압력이 커져 공기의 부피가 줄어든다. 입자 수는 같지만 입자 사이의 거리가 가까워져 벽에 더 많이 충돌하므로 관 속 공기의 압력이 커진다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz sim">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>기체의 압력과 부피 관계</div>
+    <div class="q" data-why="피스톤을 누르면 부피가 줄고, 당기면 입자 사이 거리가 멀어지며, 거리가 가까워지면 충돌 횟수가 증가해요.">
+      <div class="q-text"><span class="q-num">1</span>압력계가 연결된 주사기에서 피스톤을 눌러 기체에 작용하는 압력을 높이면 부피가 <input class="blank w-s" data-key="t1" data-answer="줄어든다|감소한다|작아진다"> . 피스톤을 당겨 부피가 늘어나면 입자 사이의 거리가 <input class="blank w-s" data-key="t2" data-answer="멀어진다|멀어짐|멀어"> . 피스톤을 눌러 입자 사이의 거리가 가까워지면 기체 입자가 용기 벽에 충돌하는 횟수가 <input class="blank w-s" data-key="t3" data-answer="증가한다|증가|늘어난다|많아진다"> .</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="추를 빼도 입자 수는 그대로예요(⑤ X). 추를 올리면 공간이 좁아져 압력이 커져요(⑦ X).">
+      <div class="q-text"><span class="q-num">2</span>피스톤 위에 추를 올리거나 빼는 실험(그림 6-6)에 대해 옳으면 O, 옳지 않으면 X를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">④ 일정한 온도에서 일정한 양의 기체에 작용하는 압력을 낮추면 기체의 부피가 늘어난다.</td><td><span class="choice-group" data-key="t4" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑤ 피스톤에 올려놓은 추를 빼면 기체 입자 수는 감소한다.</td><td><span class="choice-group" data-key="t5" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 피스톤에 추를 올려놓으면 기체 입자 사이의 거리가 가까워져 충돌 횟수가 증가한다.</td><td><span class="choice-group" data-key="t6" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 피스톤에 추를 올려놓으면 기체 입자가 움직일 수 있는 공간이 넓어져 기체의 압력이 작아진다.</td><td><span class="choice-group" data-key="t7" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>감압 용기 속 과자 봉지</div>
+    <div class="card-hint">감압 용기의 펌프로 공기를 빼 보자. 용기 속 공기의 압력이 낮아지면 과자 봉지는 어떻게 될까?</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>펌프질 횟수 <output id="vc-n-o"></output></label><input type="range" id="vc-n" min="0" max="10" value="0"></div></div>
+    <div class="sim-stage"><canvas id="vc-cv"></canvas></div>
+    <div class="q" data-why="공기를 빼면 감압 용기 속 압력이 작아지고, 봉지 속 기체가 부풀어 입자 사이가 멀어지므로 충돌 횟수가 감소해요. 높은 산에서도 바깥 공기의 압력이 작아져 봉지 속 기체의 압력이 작아져요.">
+      <div class="q-text"><span class="q-num">3</span>감압 용기의 공기를 빼면 감압 용기 속 압력이 <input class="blank w-s" data-key="t8" data-answer="작아진다|낮아진다|감소한다|작아짐"> . 이때 과자 봉지 속에 들어 있는 기체 입자의 충돌 횟수가 <input class="blank w-s" data-key="t9" data-answer="감소한다|줄어든다|감소|적어진다"> . 과자 봉지를 들고 높은 산에 올라가면 과자 봉지 속 기체의 압력이 <input class="blank w-s" data-key="t10" data-answer="작아진다|낮아진다|감소한다"> .</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>온도가 일정할 때 기체의 압력과 부피 관계 <span class="pg">216쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">1</span>온도가 일정할 때 기체의 압력과 부피 관계</h4>
+      <div class="q" style="border-top:none" data-why="압력을 낮추면 부피 증가·압력 감소, 압력을 높이면 부피 감소·압력 증가예요.">
+        <div class="q-text">(1) 기체에 작용하는 압력을 낮추면 기체의 부피가 <input class="blank w-s" data-key="s1" data-answer="늘어난다|증가한다|커진다"> , 기체의 압력이 <input class="blank w-s" data-key="s2" data-answer="작아진다|감소한다|낮아진다"> .<br>(2) 기체에 작용하는 압력을 높이면 기체의 부피가 <input class="blank w-s" data-key="s3" data-answer="줄어든다|감소한다|작아진다"> , 기체의 압력이 <input class="blank w-s" data-key="s4" data-answer="커진다|증가한다|높아진다"> .</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅵ. 기체의 성질 · 2. 기체의 압력 및 온도와 부피 관계 · 01 기체의 압력과 부피 관계 · 비상교육 중학 과학 1 교과서(205~209쪽)·탐구·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script src="gas.js"></script>
+<script>
+WS.worksheet = "중1 Ⅵ-2-01 기체의 압력과 부피 관계";
+const $ = id => document.getElementById(id);
+
+/* ── 가상 주사기 + 압력 센서 ── */
+// 40 mL에서 1.00 기압 → 압력 = 40 ÷ 부피 (온도 일정)
+const SY = { gas: GAS.box(24, 1), rows: [], V: 40 };
+function syP(V) { return 40 / V; }
+$("sy-v").addEventListener("input", () => { $("sy-v-o").textContent = $("sy-v").value + " mL"; }); $("sy-v-o").textContent = "40 mL";
+$("sy-rec").addEventListener("click", () => { const V = +$("sy-v").value, P = +(syP(V) + (Math.random() - 0.5) * 0.02).toFixed(2); SY.rows = SY.rows.filter(r => r[0] !== V); SY.rows.push([V, P]); SY.rows.sort((a, b) => b[0] - a[0]); syTable(); });
+$("sy-clear").addEventListener("click", () => { SY.rows = []; syTable(); });
+function syTable() {
+  $("sy-tb").innerHTML = "<tr><th>공기의 부피(mL)</th><th>공기의 압력(기압)</th><th>압력 × 부피</th></tr>" + (SY.rows.length ? SY.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1].toFixed(2)}</td><td>${(r[0] * r[1]).toFixed(1)}</td></tr>`).join("") : '<tr><td colspan="3" style="color:#8a9a9c">아직 기록이 없어요</td></tr>');
+  LB.graph($("sy-g"), { h: 240, xMax: 2.2, yMin: 0, yMax: 60, xStep: 0.4, yStep: 10, xLabel: "공기의 압력(기압)", yLabel: "공기의 부피(mL)", series: [{ color: "#2f7de1", dots: true, pts: SY.rows.slice().sort((a, b) => a[1] - b[1]).map(r => [r[1], r[0]]) }] });
+}
+syTable();
+WS.custom("sy_log", { el: $("sy-tb"), value: () => SY.rows.map(r => r[0] + ":" + r[1]).join(" ") });
+function syDraw(dt) {
+  SY.V += (+$("sy-v").value - SY.V) * Math.min(1, dt * 8);
+  const g = LB.fit($("sy-cv"), 220), c = g.c, W = g.w;
+  c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 220);
+  const x0 = 60, len = Math.min(W - 200, 420), y0 = 70, h = 70, scale = len / 60;
+  const gx = x0, gw = SY.V * scale;
+  const hits = GAS.drawSyringe(c, { x: x0, y: y0, w: gw, h, full: 60 * scale, gas: SY.gas, dt, plunger: true });
+  // 센서와 앱 화면
+  c.fillStyle = "#e8edf2"; c.fillRect(8, y0 + 18, 50, 34); c.fillStyle = "#3a8de0"; c.fillRect(14, y0 + 24, 38, 22); c.fillStyle = "#fff"; c.font = "bold 10px Pretendard, sans-serif"; c.fillText("센서", 22, y0 + 39);
+  const P = syP(SY.V); const ax = Math.max(x0 + 60 * scale + 70, W - 130);
+  c.fillStyle = "#16242b"; c.fillRect(W - 128, 18, 118, 58); c.strokeStyle = "#5bd"; c.strokeRect(W - 128, 18, 118, 58);
+  c.fillStyle = "#7dffb2"; c.font = "bold 22px 'Courier New', monospace"; c.textAlign = "right"; c.fillText(P.toFixed(2), W - 40, 56); c.font = "11px Pretendard, sans-serif"; c.fillText("기압", W - 14, 56); c.fillStyle = "#cfe"; c.fillText("압력 센서", W - 16, 32); c.textAlign = "left";
+  c.fillStyle = "#cfe"; c.font = "12px Pretendard, sans-serif"; c.fillText(`부피 ${SY.V.toFixed(0)} mL · 입자 ${SY.gas.ps.length}개 (그대로) · 벽 충돌 ${hits}번/초`, 12, 200);
+}
+LB.loop($("sy-cv"), syDraw); syDraw(0.016);
+
+/* ── 해 보기: (가) 당기기 (나) 누르기 ── */
+const MD = { gas: GAS.box(14, 1), V: 1, T: 1 };
+$("md-pull").addEventListener("click", () => MD.T = 1.5); $("md-push").addEventListener("click", () => MD.T = 0.55); $("md-reset").addEventListener("click", () => MD.T = 1);
+function mdDraw(dt) {
+  MD.V += (MD.T - MD.V) * Math.min(1, dt * 4);
+  const g = LB.fit($("md-cv"), 190), c = g.c, W = g.w; c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 190);
+  const full = Math.min(W - 90, 380), base = full / 1.6;
+  const hits = GAS.drawSyringe(c, { x: 50, y: 50, w: base * MD.V, h: 80, full, gas: MD.gas, dt, plunger: true, cap: true });
+  c.fillStyle = "#cfe"; c.font = "bold 12px Pretendard, sans-serif";
+  c.fillText(MD.T > 1.05 ? "(가) 피스톤을 당길 때" : MD.T < 0.95 ? "(나) 피스톤을 누를 때" : "처음 상태", 12, 22);
+  c.font = "12px Pretendard, sans-serif"; c.fillText(`입자 ${MD.gas.ps.length}개 · 벽 충돌 ${hits}번/초`, 12, 178);
+}
+LB.loop($("md-cv"), mdDraw); mdDraw(0.016);
+
+/* ── 그림 6-6: 추 올리기 ── */
+const WT = { gas: GAS.box(22, 1), H: 1 };
+$("wt-n").addEventListener("input", () => $("wt-n-o").textContent = $("wt-n").value + "개"); $("wt-n-o").textContent = "1개";
+function wtDraw(dt) {
+  const n = +$("wt-n").value, target = 2 / (n + 1); // 바깥 공기 1 + 추 n → 부피 ∝ 1/(1+n), 추 1개일 때 1
+  WT.H += (target - WT.H) * Math.min(1, dt * 3);
+  const g = LB.fit($("wt-cv"), 270), c = g.c, W = g.w; c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 270);
+  const hits = GAS.drawCylinder(c, { cx: W / 2, bottom: 250, w: 150, maxH: 200, hFrac: Math.min(1, WT.H * 0.5), gas: WT.gas, dt, weights: n });
+  c.fillStyle = "#cfe"; c.font = "12px Pretendard, sans-serif"; c.fillText(`추 ${n}개 · 입자 ${WT.gas.ps.length}개 · 벽 충돌 ${hits}번/초`, 10, 20);
+  c.fillText("입자의 빠르기: 그대로", 10, 38);
+}
+LB.loop($("wt-cv"), wtDraw); wtDraw(0.016);
+
+/* ── 감압 용기 속 과자 봉지 ── */
+$("vc-n").addEventListener("input", () => $("vc-n-o").textContent = $("vc-n").value + "번"); $("vc-n-o").textContent = "0번";
+const VC = { s: 1 };
+function vcDraw(dt) {
+  const n = +$("vc-n").value, P = Math.pow(0.85, n), target = Math.min(1.9, 1 / P); VC.s += (target - VC.s) * Math.min(1, dt * 3);
+  const g = LB.fit($("vc-cv"), 240), c = g.c, W = g.w, cx = W / 2; c.fillStyle = "#0d1b26"; c.fillRect(0, 0, W, 240);
+  // 용기
+  c.strokeStyle = "rgba(190,225,255,.7)"; c.lineWidth = 3; c.strokeRect(cx - 120, 50, 240, 170); c.fillStyle = `rgba(150,200,255,${0.05 + 0.18 * P})`; c.fillRect(cx - 118, 52, 236, 166);
+  c.fillStyle = "#4b6a86"; c.fillRect(cx - 130, 36, 260, 16); c.fillRect(cx + 70, 14, 22, 24); c.fillStyle = "#cfe"; c.font = "11px Pretendard, sans-serif"; c.fillText("펌프", cx + 96, 30);
+  // 바깥 공기 입자(용기 속) 점
+  const dots = Math.round(40 * P); c.fillStyle = "#7dd3fc"; for (let i = 0; i < dots; i++) { const x = cx - 110 + ((i * 53) % 220), y = 60 + ((i * 37) % 150); c.beginPath(); c.arc(x, y, 2.2, 0, 7); c.fill(); }
+  // 과자 봉지
+  const bw = 70 * Math.sqrt(VC.s), bh = 46 * VC.s; c.fillStyle = "#e85d75"; c.beginPath(); c.ellipse(cx, 160, bw, bh * 0.6, 0, 0, 7); c.fill(); c.fillStyle = "#ffd166"; c.fillRect(cx - bw, 155, 10, 10); c.fillRect(cx + bw - 10, 155, 10, 10);
+  c.fillStyle = "#fff"; c.font = "bold 13px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("과자", cx, 165); c.textAlign = "left";
+  c.fillStyle = "#cfe"; c.font = "12px Pretendard, sans-serif"; c.fillText(`용기 속 공기의 압력 약 ${P.toFixed(2)} 기압 · 봉지 부피 ×${VC.s.toFixed(2)}`, 10, 236);
+}
+LB.loop($("vc-cv"), vcDraw); vcDraw(0.016);
+</script>
+</body>
+</html>

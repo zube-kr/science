@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅶ-2-01 — 지구의 운동으로 나타나는 현상</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅶ. 태양계</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p238-cartoon.jpg" alt="회전목마는 왜 휴지통이 움직이는 것처럼 느꼈을까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 태양계 · 2. 지구와 달 · 01 <span class="pg" style="margin:0">237~241쪽</span></span>
+      <h1>지구의 운동으로<br><span>나타나는 현상</span></h1>
+      <p>“어디로 가는 거야?” “네가 움직이는 거야.” 회전목마는 왜 휴지통이 움직이는 것처럼 느꼈을까? 가상 밤하늘에서 별의 일주 운동을 관찰하고, 3D 공전 모형으로 계절에 따라 별자리가 바뀌는 까닭을 알아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 지구의 자전으로 나타나는 천체의 겉보기 운동과, 지구의 공전으로 나타나는 별자리 변화를 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">단원 열기</span>2. 지구와 달 <span class="pg">237쪽</span></div>
+    <figure class="fig float-r"><img src="img/u2-hero.jpg" alt="태블릿으로 촬영한 부분일식"><figcaption>태양이 조금씩 가려졌어.</figcaption></figure>
+    <div class="book"><p>어제는 하늘에 신기한 현상이 나타나서 하늘을 촬영했어. 처음에는 태양이 둥글었는데 시간이 지나면서 태양이 조금씩 가려졌어.</p></div>
+    <div class="block-q" style="clear:both"><b>두 번째 블록</b><div class="t">태양이 가려지는 현상은 왜 일어날까?</div><div style="font-size:13px">‘지구의 운동으로 나타나는 현상’(238쪽), ‘모양이 달라지는 달’(242쪽), ‘가려지는 태양과 달’(246쪽)의 블록을 모으면 답할 수 있어요. 🧩</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">✔</span>이 단원과 관련해 이미 알고 있는 것을 모두 골라 보자.</div>
+      <div class="multi-group" id="pre"><button type="button" class="multi-btn" data-value="자전">지구는 자전축을 중심으로 서쪽에서 동쪽으로 자전한다.</button><button type="button" class="multi-btn" data-value="별자리">밤하늘에 보이는 별자리는 계절에 따라 달라진다.</button><button type="button" class="multi-btn" data-value="달">지구에서 관찰한 달의 모양은 주기적으로 달라진다.</button></div>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>지구의 자전으로 나타나는 별의 운동 알아보기 <span class="pg">238쪽</span></div>
+    <p class="lead-q">지구의 자전으로 나타나는 현상은 무엇일까?</p>
+    <div class="book"><p>움직이는 회전목마에서 주위를 보면 정지해 있는 물체가 회전목마의 운동 방향과 반대로 움직이는 것처럼 보인다. 이처럼 지구가 서쪽에서 동쪽으로 자전함에 따라 태양과 달은 동쪽에서 떠서 서쪽으로 지는 것처럼 보인다.</p></div>
+    <figure class="fig" style="max-width:420px"><img src="img/p238-app.jpg" alt="천체 관측 앱에서 북극성 주변 별 관찰"><figcaption><span class="tb">238쪽</span>천체 관측 앱 — ① 북극성 위치 확인 ② 일몰~일출까지 시간이 흐르도록 설정 ③ 북극성 주변 별들의 운동 관찰</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 천체 관측 앱</span>우리나라(북위 37.5°)의 밤하늘</div>
+    <div class="card-hint">바라보는 방향을 고르고 [▶ 시간 흐르게]를 누르자. [별의 자취 남기기]를 켜면 카메라를 오래 열어 둔 사진처럼 별이 지나간 길이 남아요. 네 방향의 별의 자취를 모두 관찰해 보자.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>바라보는 방향</label><select id="sk-dir"><option value="0">북쪽 하늘</option><option value="90">동쪽 하늘</option><option value="180">남쪽 하늘</option><option value="270">서쪽 하늘</option></select></div>
+      <div class="ctrl"><label>시간의 빠르기 <output id="sk-sp-o"></output></label><input type="range" id="sk-sp" min="0.5" max="4" step="0.5" value="2"></div>
+      <div class="ctrl"><label><input type="checkbox" id="sk-trail" checked> 별의 자취 남기기</label></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="sk-go">▶ 시간 흐르게</button><button type="button" class="btn ghost small" id="sk-clr">🧹 자취 지우기</button></div>
+    <div class="sim-stage"><canvas id="sk-cv"></canvas><span class="tag" id="sk-tag">북쪽 하늘 · 0시간 경과</span></div>
+    <div class="scroll-x" style="margin-top:8px"><table class="data-t" id="sk-tb"></table></div>
+    <div class="q" data-why="북쪽 하늘의 별들은 북극성을 중심으로 시계 반대 방향으로 원을 그리며 돌아요. 이는 지구가 자전축을 중심으로 서쪽에서 동쪽으로 자전하기 때문이에요." data-hint="북쪽 하늘에서 별의 자취가 도는 방향을 보세요.">
+      <div class="q-text"><span class="q-num">1</span>북극성 주변 별들은 <span class="choice-group" data-key="sk_center" data-answer="북극성"><button type="button" class="choice-btn" data-value="북극성">북극성</button><button type="button" class="choice-btn" data-value="달">달</button><button type="button" class="choice-btn" data-value="천정">머리 꼭대기</button></span>을 중심으로 <span class="choice-group" data-key="sk_rot" data-answer="반시계"><button type="button" class="choice-btn" data-value="시계">시계 방향</button><button type="button" class="choice-btn" data-value="반시계">시계 반대 방향</button></span>으로 돈다. 이것은 지구가 <span class="choice-group" data-key="sk_cause" data-answer="자전"><button type="button" class="choice-btn" data-value="자전">자전</button><button type="button" class="choice-btn" data-value="공전">공전</button></span>하기 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="동쪽에서는 별이 오른쪽 위로 비스듬히 떠오르고, 남쪽에서는 왼쪽(동)에서 오른쪽(서)으로 이동하며, 서쪽에서는 오른쪽 아래로 비스듬히 져요. 북쪽은 북극성을 중심으로 원을 그려요." data-hint="방향마다 별의 자취를 남겨 비교하세요. 그림 7-6과 같아요.">
+      <div class="q-text"><span class="q-num">2</span>각 방향의 하늘에서 별이 움직이는 모습을 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td>동쪽 하늘</td><td><span class="choice-group" data-key="sk_e" data-answer="오위"><button type="button" class="choice-btn" data-value="오위">오른쪽 위로 비스듬히 떠오름</button><button type="button" class="choice-btn" data-value="좌우">왼쪽에서 오른쪽으로 이동</button><button type="button" class="choice-btn" data-value="오아">오른쪽 아래로 비스듬히 짐</button><button type="button" class="choice-btn" data-value="원">한 점을 중심으로 원</button></span></td></tr>
+        <tr><td>남쪽 하늘</td><td><span class="choice-group" data-key="sk_s" data-answer="좌우"><button type="button" class="choice-btn" data-value="오위">오른쪽 위로 비스듬히 떠오름</button><button type="button" class="choice-btn" data-value="좌우">왼쪽에서 오른쪽으로 이동</button><button type="button" class="choice-btn" data-value="오아">오른쪽 아래로 비스듬히 짐</button><button type="button" class="choice-btn" data-value="원">한 점을 중심으로 원</button></span></td></tr>
+        <tr><td>서쪽 하늘</td><td><span class="choice-group" data-key="sk_w" data-answer="오아"><button type="button" class="choice-btn" data-value="오위">오른쪽 위로 비스듬히 떠오름</button><button type="button" class="choice-btn" data-value="좌우">왼쪽에서 오른쪽으로 이동</button><button type="button" class="choice-btn" data-value="오아">오른쪽 아래로 비스듬히 짐</button><button type="button" class="choice-btn" data-value="원">한 점을 중심으로 원</button></span></td></tr>
+        <tr><td>북쪽 하늘</td><td><span class="choice-group" data-key="sk_n" data-answer="원"><button type="button" class="choice-btn" data-value="오위">오른쪽 위로 비스듬히 떠오름</button><button type="button" class="choice-btn" data-value="좌우">왼쪽에서 오른쪽으로 이동</button><button type="button" class="choice-btn" data-value="오아">오른쪽 아래로 비스듬히 짐</button><button type="button" class="choice-btn" data-value="원">한 점을 중심으로 원</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>천구와 천체의 일주 운동 <span class="pg">239쪽</span></div>
+    <figure class="fig float-r"><img src="img/p239-fig7-5.jpg" alt="지구의 자전과 천체의 일주 운동"><figcaption><span class="tb">그림 7-5</span>지구의 자전과 천체의 일주 운동</figcaption></figure>
+    <div class="book"><p>지구에서 밤하늘을 보면 별들은 거대한 구의 안쪽에 붙어 있는 것처럼 보인다. 이러한 가상의 구를 <span class="key">천구</span>라고 하고, 천구의 중심에는 지구가 있다. 지구는 자전축을 중심으로 서쪽에서 동쪽으로 자전한다. 따라서 지구에 있는 관측자에게 천체는 <b>그림 7-5</b>와 같이 ●북극성을 중심으로 하루에 한 바퀴씩 동쪽에서 서쪽으로 원을 그리며 도는 것처럼 보인다. 이와 같이 지구의 자전으로 하루 동안 나타나는 천체의 겉보기 운동을 천체의 <span class="key">일주 운동</span>이라고 한다. 우리나라에서는 <b>그림 7-6</b>과 같이 북쪽 하늘을 보면 천체가 북극성을 중심으로 시계 반대 방향으로 도는 것처럼 보이고, 남쪽 하늘을 보면 천체가 동쪽에서 서쪽으로 이동하는 것처럼 보인다.</p></div>
+    <div class="tip-box" style="clear:both"><b>●북극성의 위치</b> 북극성은 천구의 북극 가까이에 있지만, 정확히 천구의 북극에 있지는 않다.</div>
+    <figure class="fig"><img src="img/p239-fig7-6.jpg" alt="우리나라에서 관측한 천체의 일주 운동"><figcaption><span class="tb">그림 7-6</span>우리나라에서 관측한 천체의 일주 운동 — 동쪽·남쪽·서쪽·북쪽 하늘</figcaption></figure>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>지구의 공전으로 나타나는 별자리 변화 알아보기 <span class="pg">240쪽</span></div>
+    <p class="lead-q">지구의 공전으로 나타나는 현상은 무엇일까?</p>
+    <div class="book"><p>지구는 태양을 중심으로 일 년에 한 바퀴씩 서쪽에서 동쪽으로 공전한다.</p></div>
+    <figure class="fig"><img src="img/p240-setup.jpg" alt="전등, 스타이로폼 공, 별자리 그림, 원형 돌림판, 소형 카메라"><figcaption><span class="tb">240쪽</span>원형 돌림판 가운데에 전등, 밖에 별자리 그림 4 개(물고기·쌍둥이·처녀·궁수자리), 소형 카메라를 붙인 스타이로폼 공</figcaption></figure>
+    <figure class="fig" style="max-width:360px"><img src="img/p240-phone.jpg" alt="(가)에서 관찰한 모습 — 물고기자리"><figcaption><span class="tb">240쪽</span>원형 돌림판을 시계 반대 방향으로 돌리며 소형 카메라에 찍힌 별자리를 관찰한다. ▲ (가)에서 관찰한 모습</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">3D 가상 실험</span>3D 공전 모형과 한밤중의 하늘</div>
+    <div class="card-hint">달(月)을 바꾸거나 [▶ 공전]을 눌러 지구를 시계 반대 방향(서→동)으로 돌려 보자. 오른쪽 아래 작은 화면은 지구의 밤쪽(태양 반대쪽)에서 본 <b>한밤중 남쪽 하늘</b>이에요. 노란 테두리는 태양이 겹쳐 보이는 별자리예요.</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>지구의 위치 <output id="or-m-o"></output></label><input type="range" id="or-m" min="1" max="12" step="1" value="4"></div></div>
+    <div class="btn-row"><button type="button" class="btn main small" id="or-go">▶ 공전</button></div>
+    <div class="sim-stage" id="or-stage" style="height:400px"><span class="tag">3D 공전 모형 · 드래그하여 돌리기</span><span class="tag2" id="or-tag">-</span></div>
+    <div class="q" data-why="전등은 태양, 스타이로폼 공(소형 카메라)은 지구를 나타내요.">
+      <div class="q-text"><span class="q-num">1</span>전등은 <span class="choice-group" data-key="or_lamp" data-answer="태양"><button type="button" class="choice-btn" data-value="태양">태양</button><button type="button" class="choice-btn" data-value="지구">지구</button><button type="button" class="choice-btn" data-value="달">달</button></span>, 스타이로폼 공은 <span class="choice-group" data-key="or_ball" data-answer="지구"><button type="button" class="choice-btn" data-value="태양">태양</button><button type="button" class="choice-btn" data-value="지구">지구</button><button type="button" class="choice-btn" data-value="달">달</button></span>을 나타낸다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="한밤중 남쪽 하늘에는 태양 반대쪽의 별자리가 보여요. 봄 처녀자리 → 여름 궁수자리 → 가을 물고기자리 → 겨울 쌍둥이자리 순서로 바뀌어요." data-hint="지구의 위치를 4월, 7월, 10월, 1월로 바꾸며 작은 화면을 보세요.">
+      <div class="q-text"><span class="q-num">2</span>지구가 (가) 4월 → (나) 7월 → (다) 10월 → (라) 1월 위치로 공전할 때, 한밤중 남쪽 하늘에 보이는 별자리를 순서대로 늘어놓아 보자.</div>
+      <ol class="order-list" data-key="or_order" data-answer="vir,sgr,psc,gem"><li data-id="psc">물고기자리</li><li data-id="gem">쌍둥이자리</li><li data-id="vir">처녀자리</li><li data-id="sgr">궁수자리</li></ol>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>지구의 공전과 별자리 변화 <span class="pg">241쪽</span></div>
+    <div class="book"><p>한밤중 남쪽 하늘에서는 태양의 반대쪽에 있는 별자리를 볼 수 있다. 지구는 태양을 중심으로 공전하기 때문에 지구에서 볼 수 있는 별자리는 <b>그림 7-7</b>과 같이 계절에 따라 달라진다. 한편 태양은 지구가 공전함에 따라 별자리를 배경으로 서쪽에서 동쪽으로 이동하여 일 년 뒤에는 처음 위치로 되돌아오는 것처럼 보인다. 이와 같이 지구의 공전으로 일 년 동안 나타나는 태양의 겉보기 운동을 태양의 <span class="key">연주 운동</span>이라고 한다.</p></div>
+    <figure class="fig"><img src="img/p241-fig7-7.jpg" alt="지구의 공전과 별자리 변화"><figcaption><span class="tb">그림 7-7</span>지구의 공전과 별자리 변화 — 봄철 한밤중 남쪽 하늘에서는 처녀자리, 봄철 태양은 물고기자리에 있는 것처럼 보인다.</figcaption></figure>
+    <div class="tip-box"><b>더 알아보기 · 황도</b> 태양이 연주 운동하면서 별자리를 배경으로 지나가는 길을 황도라고 한다. 태양은 황도를 따라 지구의 공전 방향과 같은 방향으로 이동하는 것처럼 보인다.</div>
+    <div class="q" data-why="여름철 한밤중 남쪽 하늘에는 태양 반대쪽인 궁수자리가 보여요.">
+      <div class="q-text"><span class="q-num">1</span>여름철 한밤중 남쪽 하늘에서 볼 수 있는 별자리는 <span class="choice-group" data-key="summer" data-answer="궁수"><button type="button" class="choice-btn" data-value="처녀">처녀자리</button><button type="button" class="choice-btn" data-value="궁수">궁수자리</button><button type="button" class="choice-btn" data-value="쌍둥이">쌍둥이자리</button><button type="button" class="choice-btn" data-value="물고기">물고기자리</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>238쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">241쪽</span></div>
+    <div class="q" data-why="지구는 태양을 중심으로 서쪽에서 동쪽으로 공전하므로 한밤중 남쪽 하늘의 별자리가 계절에 따라 달라져요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 지구가 태양을 중심으로 ( <span class="choice-group" data-key="sc1a" data-answer="서"><button type="button" class="choice-btn" data-value="동">동</button><button type="button" class="choice-btn" data-value="서">서</button></span> )쪽에서 ( <span class="choice-group" data-key="sc1b" data-answer="동"><button type="button" class="choice-btn" data-value="동">동</button><button type="button" class="choice-btn" data-value="서">서</button></span> )쪽으로 ( <input class="blank w-s" data-key="sc1c" data-answer="공전"> )하기 때문에 한밤중 남쪽 하늘에서 볼 수 있는 별자리는 계절에 따라 달라진다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <figure class="fig float-r" style="max-width:160px"><img src="img/p241-sundial.jpg" alt="앙부일구"><figcaption>앙부일구</figcaption></figure>
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 앙부일구는 태양의 움직임을 이용하여 시간을 측정하는 해시계이다. 태양의 일주 운동과 관련지어 해시계의 원리를 설명해 보자.</div>
+      <textarea class="free" data-key="sc_sundial" data-keywords="일주 운동,동,서,그림자" data-model="지구가 자전하므로 태양은 하루 동안 동쪽에서 떠서 서쪽으로 지는 일주 운동을 한다. 태양의 위치가 시간에 따라 일정하게 변하므로 바늘(영침)의 그림자 위치도 일정하게 움직여 그림자가 가리키는 눈금으로 시간을 알 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>지구의 운동으로 나타나는 현상</div>
+    <div class="q" data-why="지구는 서쪽에서 동쪽으로 자전하고, 이 때문에 천체가 동쪽에서 서쪽으로 도는 일주 운동이 나타나요. 두 방향은 서로 반대예요.">
+      <div class="q-text"><span class="q-num">1</span>지구는 자전축을 중심으로 <input class="blank w-s" data-key="t1a" data-answer="서쪽|서"> 에서 <input class="blank w-s" data-key="t1b" data-answer="동쪽|동"> 으로 하루에 한 바퀴씩 자전한다. 지구의 자전으로 천체가 북극성을 중심으로 동쪽에서 서쪽으로 하루에 한 바퀴씩 도는 것처럼 보이는 겉보기 운동을 천체의 <input class="blank w-s" data-key="t2" data-answer="일주 운동|일주운동"> 이라고 한다. 천체의 일주 운동 방향과 지구의 자전 방향은 서로 ( <span class="choice-group" data-key="t3" data-answer="반대"><button type="button" class="choice-btn" data-value="같">같다</button><button type="button" class="choice-btn" data-value="반대">반대이다</button></span> ).</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="지구는 서쪽에서 동쪽으로 공전하고, 이 때문에 태양이 별자리를 배경으로 서→동으로 도는 연주 운동이 나타나며, 계절마다 한밤중 별자리가 달라져요.">
+      <div class="q-text"><span class="q-num">2</span>지구는 태양을 중심으로 일 년에 한 바퀴씩 <input class="blank w-s" data-key="t5a" data-answer="서쪽|서"> 에서 <input class="blank w-s" data-key="t5b" data-answer="동쪽|동"> 으로 공전한다. 지구의 공전으로 태양이 별자리를 배경으로 서쪽에서 동쪽으로 일 년에 한 바퀴씩 도는 겉보기 운동을 태양의 <input class="blank w-s" data-key="t6" data-answer="연주 운동|연주운동"> 이라고 한다. 지구가 공전하기 때문에 계절에 따라 한밤중에 보이는 별자리가 <input class="blank w-s" data-key="t7" data-answer="달라|달라진다|다르"> 진다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="태양 쪽 별자리와 한밤중 남쪽 하늘의 별자리는 서로 정반대(6칸 떨어진) 별자리예요. 물병자리의 반대쪽은 사자자리예요." data-hint="3D 공전 모형에서 확인해 보세요.">
+      <div class="q-text"><span class="q-num">3</span>㉠ 한밤중 남쪽 하늘에 물병자리가 보이는 위치에 지구가 있을 때, 태양 쪽에 있는 별자리는? <input class="blank w-s" data-key="t8" data-answer="사자자리|사자"><br>㉡ 태양이 물병자리에 있는 것처럼 보이는 위치에 지구가 있을 때, 한밤중에 남쪽 하늘에서 보이는 별자리는? <input class="blank w-s" data-key="t9" data-answer="사자자리|사자"></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="달이 뜨고 지는 것과 북극성 주위의 원 운동은 하루 동안 일어나는 자전의 결과, 태양이 별자리 사이를 일 년에 한 바퀴 도는 것은 공전의 결과예요.">
+      <div class="q-text"><span class="q-num">4</span>지구 자전으로 나타나는 현상은 ‘자’, 지구 공전으로 나타나는 현상은 ‘공’을 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑴ 달이 동쪽에서 떠서 서쪽으로 지는 것처럼 보인다.</td><td><span class="choice-group" data-key="t10a" data-answer="자"><button type="button" class="choice-btn" data-value="자">자</button><button type="button" class="choice-btn" data-value="공">공</button></span></td></tr>
+        <tr><td style="text-align:left">⑵ 우리나라 북쪽 하늘에서 천체가 북극성을 중심으로 하루에 한 바퀴씩 도는 것처럼 보인다.</td><td><span class="choice-group" data-key="t10b" data-answer="자"><button type="button" class="choice-btn" data-value="자">자</button><button type="button" class="choice-btn" data-value="공">공</button></span></td></tr>
+        <tr><td style="text-align:left">⑶ 태양이 별자리를 배경으로 일 년 동안 한 바퀴를 도는 것처럼 보인다.</td><td><span class="choice-group" data-key="t10c" data-answer="공"><button type="button" class="choice-btn" data-value="자">자</button><button type="button" class="choice-btn" data-value="공">공</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>지구의 운동으로 나타나는 현상 <span class="pg">248쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">1</span>지구의 운동으로 나타나는 현상</h4>
+      <div class="q" style="border-top:none" data-why="천체의 일주 운동은 지구의 자전 때문이고 북쪽 하늘에서는 시계 반대 방향으로 돌아요. 태양의 연주 운동은 지구의 공전 때문이에요.">
+        <div class="q-text">(1) 천체의 <input class="blank w-s" data-key="s1" data-answer="일주 운동|일주운동"> : 천체가 하루에 한 바퀴씩 동쪽에서 서쪽으로 도는 겉보기 운동<br>· 원인: 지구의 <input class="blank w-s" data-key="s2" data-answer="자전"><br>· 보이는 현상: 우리나라에서 북쪽 하늘을 보면 천체는 북극성을 중심으로 <input class="blank w-s" data-key="s3" data-answer="시계 반대|시계반대|반시계"> 방향으로 도는 것처럼 보인다.<br>(2) 태양의 <input class="blank w-s" data-key="s4" data-answer="연주 운동|연주운동"> : 태양이 별자리를 배경으로 일 년에 한 바퀴씩 서쪽에서 동쪽으로 도는 겉보기 운동<br>· 원인: 지구의 <input class="blank w-s" data-key="s5" data-answer="공전"><br>· 보이는 현상: 한밤중에 남쪽 하늘에서 보이는 별자리는 계절에 따라 다르다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅶ. 태양계 · 2. 지구와 달 · 01 지구의 운동으로 나타나는 현상 · 비상교육 중학 과학 1 교과서(237~241쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅶ-2-01 지구의 운동으로 나타나는 현상";
+const $ = id => document.getElementById(id);
+WS.custom("pre", { el: $("pre"), value: () => [...$("pre").querySelectorAll(".picked")].map(b => b.dataset.value).join(",") });
+const D2R = Math.PI / 180;
+
+/* ── 가상 밤하늘 ── */
+const LAT = 37.5 * D2R;
+// [적경°, 적위°, 밝기, 이름]
+const NAMED = [[37.95, 89.26, 3, "북극성"], [165.9, 61.75, 2.4], [165.5, 56.4, 2.2], [178.5, 53.7, 2], [183.9, 57.0, 1.8], [193.5, 55.96, 2.3], [201.0, 54.9, 2.2], [206.9, 49.3, 2.3], [2.3, 59.1, 2], [10.1, 56.5, 2.2], [14.2, 60.7, 2], [21.5, 60.2, 1.8], [28.6, 63.7, 1.8], [88.8, 7.4, 2.8], [78.6, -8.2, 2.8], [81.3, 6.3, 2], [83.0, -0.3, 2], [84.0, -1.2, 2], [85.2, -1.9, 2], [86.9, -9.7, 1.8]];
+const LINES = [[1, 2], [2, 3], [3, 4], [4, 1], [4, 5], [5, 6], [6, 7], [8, 9], [9, 10], [10, 11], [11, 12], [13, 15], [13, 18], [15, 16], [16, 17], [17, 18], [14, 16], [18, 19]];
+const STARS = NAMED.concat(Array.from({ length: 420 }, (_, i) => { const u = Math.sin(i * 12.9898) * 0.5 + 0.5, v = Math.sin(i * 78.233) * 0.5 + 0.5; return [u * 360, Math.asin(2 * v - 1) / D2R, 0.6 + (Math.sin(i * 3.1) * 0.5 + 0.5) * 1.2]; }));
+const SK = { on: false, th: 200 * D2R, h: 0, seen: {}, trail: document.createElement("canvas") };
+$("sk-sp").addEventListener("input", () => $("sk-sp-o").textContent = "1초에 " + $("sk-sp").value + "시간"); $("sk-sp-o").textContent = "1초에 2시간";
+$("sk-go").addEventListener("click", () => { SK.on = !SK.on; $("sk-go").textContent = SK.on ? "⏸ 멈추기" : "▶ 시간 흐르게"; });
+const clearTrail = () => { const t = SK.trail.getContext("2d"); t.setTransform(1, 0, 0, 1, 0, 0); t.clearRect(0, 0, SK.trail.width, SK.trail.height); SK.h = 0; };
+$("sk-clr").addEventListener("click", clearTrail); $("sk-dir").addEventListener("change", clearTrail); $("sk-trail").addEventListener("change", clearTrail);
+function altaz(ra, dec, th) { const H = th - ra * D2R, d = dec * D2R; const sa = Math.sin(LAT) * Math.sin(d) + Math.cos(LAT) * Math.cos(d) * Math.cos(H); const a = Math.asin(sa); const A = Math.atan2(-Math.cos(d) * Math.sin(H), Math.sin(d) * Math.cos(LAT) - Math.cos(d) * Math.cos(H) * Math.sin(LAT)); return [a, A]; }
+function proj(a, A, A0, e0, F, cx, cy) {
+  const v = [Math.cos(a) * Math.sin(A), Math.cos(a) * Math.cos(A), Math.sin(a)];
+  const f = [Math.sin(A0) * Math.cos(e0), Math.cos(A0) * Math.cos(e0), Math.sin(e0)], r = [Math.cos(A0), -Math.sin(A0), 0];
+  const u = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
+  const vf = v[0] * f[0] + v[1] * f[1] + v[2] * f[2]; if (vf < 0.15) return null;
+  return [cx + (v[0] * r[0] + v[1] * r[1]) / vf * F, cy - (v[0] * u[0] + v[1] * u[1] + v[2] * u[2]) / vf * F];
+}
+function skDraw(dt) {
+  const A0 = +$("sk-dir").value * D2R, e0 = (+$("sk-dir").value === 0 ? 32 : 28) * D2R;
+  if (SK.on) { const dh = dt * +$("sk-sp").value; SK.th += dh * 15 * D2R; SK.h += dh; SK.seen[$("sk-dir").value] = Math.max(SK.seen[$("sk-dir").value] || 0, SK.h); }
+  const g = LB.fit($("sk-cv"), 340), c = g.c, W = g.w, H = 340, cx = W / 2, cy = H * 0.62, F = W / 2 / Math.tan(48 * D2R);
+  const tr = SK.trail; const dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (tr.width !== Math.round(W * dpr) || tr.height !== Math.round(H * dpr)) { tr.width = Math.round(W * dpr); tr.height = Math.round(H * dpr); }
+  const tc = tr.getContext("2d"); tc.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const sky = c.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, "#020617"); sky.addColorStop(1, "#14254a"); c.fillStyle = sky; c.fillRect(0, 0, W, H);
+  const pts = STARS.map(s => { const [a, A] = altaz(s[0], s[1], SK.th); return a > 0 ? proj(a, A, A0, e0, F, cx, cy) : null; });
+  if ($("sk-trail").checked && SK.on) { tc.fillStyle = "rgba(200,225,255,.55)"; pts.forEach((p, i) => { if (p) { tc.beginPath(); tc.arc(p[0], p[1], Math.min(1.6, STARS[i][2] * 0.55), 0, 7); tc.fill(); } }); }
+  c.drawImage(tr, 0, 0, W, H);
+  // 별자리 선
+  c.strokeStyle = "rgba(140,190,255,.35)"; c.lineWidth = 1; LINES.forEach(([a, b]) => { if (pts[a] && pts[b]) { c.beginPath(); c.moveTo(...pts[a]); c.lineTo(...pts[b]); c.stroke(); } });
+  pts.forEach((p, i) => { if (!p) return; c.fillStyle = i === 0 ? "#ffe066" : "#fff"; c.beginPath(); c.arc(p[0], p[1], STARS[i][2] * (i === 0 ? 1.2 : 0.8), 0, 7); c.fill(); });
+  if (pts[0]) { c.fillStyle = "#ffe066"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText("북극성", pts[0][0] + 6, pts[0][1] - 6); }
+  // 땅과 방위
+  c.fillStyle = "#0b1a12"; c.beginPath(); c.moveTo(0, H); for (let k = -70; k <= 70; k += 5) { const p = proj(0, A0 + k * D2R, A0, e0, F, cx, cy); if (p) c.lineTo(p[0], p[1]); } c.lineTo(W, H); c.closePath(); c.fill();
+  const DN = { 0: "북", 90: "동", 180: "남", 270: "서" }; c.font = "bold 14px Pretendard, sans-serif"; c.fillStyle = "#ffd166"; c.textAlign = "center";
+  [0, 90, 180, 270].forEach(az => { let dA = ((az - +$("sk-dir").value + 540) % 360) - 180; if (Math.abs(dA) > 60) return; const p = proj(0, az * D2R, A0, e0, F, cx, cy); if (p) c.fillText(DN[az], p[0], p[1] + 18); });
+  c.textAlign = "left";
+  $("sk-tag").textContent = { 0: "북쪽", 90: "동쪽", 180: "남쪽", 270: "서쪽" }[$("sk-dir").value] + " 하늘 · " + SK.h.toFixed(1) + "시간 경과";
+}
+LB.loop($("sk-cv"), skDraw); skDraw(0.016);
+function skTable() { $("sk-tb").innerHTML = "<tr><th>관찰한 하늘</th><th>북쪽</th><th>동쪽</th><th>남쪽</th><th>서쪽</th></tr><tr><td>관찰 시간</td>" + ["0", "90", "180", "270"].map(k => `<td>${SK.seen[k] ? SK.seen[k].toFixed(0) + "시간 ✅" : "-"}</td>`).join("") + "</tr>"; }
+setInterval(skTable, 1000); skTable();
+WS.custom("sk_seen", { el: $("sk-tb"), value: () => Object.keys(SK.seen).map(k => k + ":" + SK.seen[k].toFixed(0)).join(" ") });
+
+/* ── 3D 공전 모형 ── */
+const ZOD = [["양자리", "ari"], ["황소자리", "tau"], ["쌍둥이자리", "gem"], ["게자리", "cnc"], ["사자자리", "leo"], ["처녀자리", "vir"], ["천칭자리", "lib"], ["전갈자리", "sco"], ["궁수자리", "sgr"], ["염소자리", "cap"], ["물병자리", "aqr"], ["물고기자리", "psc"]];
+const SEASON = m => m >= 3 && m <= 5 ? "봄" : m >= 6 && m <= 8 ? "여름" : m >= 9 && m <= 11 ? "가을" : "겨울";
+// m월에 한밤중 남쪽 하늘에 보이는 별자리 번호: 4월 처녀(5)
+const nightSign = m => ((5 + (m - 4)) % 12 + 12) % 12;
+const OR = { m: 4, ang: 0, go: false };
+$("or-m").addEventListener("input", () => { OR.m = +$("or-m").value; OR.go = false; $("or-go").textContent = "▶ 공전"; });
+$("or-go").addEventListener("click", () => { OR.go = !OR.go; $("or-go").textContent = OR.go ? "⏸ 멈추기" : "▶ 공전"; });
+(function () {
+  const st = $("or-stage"), T3 = LB.three(st, 400);
+  const tag = () => { const k = nightSign(OR.m); $("or-m-o").textContent = OR.m + "월 (" + SEASON(OR.m) + ")"; $("or-tag").textContent = `${OR.m}월 · 한밤중 남쪽 하늘: ${ZOD[k][0]} · 태양 쪽: ${ZOD[(k + 6) % 12][0]}`; };
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:80px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 그림 7-7로 확인해 보세요.</div>'; setInterval(tag, 300); return; }
+  const { r, scene, cam } = T3; scene.background = new THREE.Color(0x050a14);
+  scene.children.filter(o => o.isDirectionalLight).forEach(o => scene.remove(o));
+  scene.add(new THREE.PointLight(0xfff1c0, 1.5, 0, 0));
+  LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0, 0), { R: 62, th: 0.2, ph: 0.75, min: 30, max: 100 });
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 24), new THREE.MeshBasicMaterial({ color: 0xffc23a })); scene.add(sun);
+  const RE = 14, RZ = 34;
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 129 }, (_, k) => new THREE.Vector3(Math.cos(k / 128 * 6.283) * RE, 0, -Math.sin(k / 128 * 6.283) * RE))), new THREE.LineBasicMaterial({ color: 0x5577aa })));
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(1.3, 28, 20), new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.7 })); scene.add(earth);
+  // 별자리 카드
+  const cards = ZOD.map((z, i) => {
+    const cv = document.createElement("canvas"); cv.width = 256; cv.height = 192; const x = cv.getContext("2d");
+    x.fillStyle = "#0c1830"; x.fillRect(0, 0, 256, 192); x.fillStyle = "#fff"; for (let k = 0; k < 7; k++) { const px = 30 + (Math.sin(i * 7 + k * 3.3) * 0.5 + 0.5) * 196, py = 50 + (Math.sin(i * 5 + k * 2.1) * 0.5 + 0.5) * 110; x.beginPath(); x.arc(px, py, 4, 0, 7); x.fill(); if (k) { x.strokeStyle = "rgba(255,255,255,.5)"; x.lineWidth = 2; x.beginPath(); x.moveTo(px, py); x.lineTo(30 + (Math.sin(i * 7 + (k - 1) * 3.3) * 0.5 + 0.5) * 196, 50 + (Math.sin(i * 5 + (k - 1) * 2.1) * 0.5 + 0.5) * 110); x.stroke(); } }
+    x.fillStyle = "#ffd166"; x.font = "bold 34px sans-serif"; x.textAlign = "center"; x.fillText(z[0], 128, 36);
+    const mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv), side: THREE.DoubleSide });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(9, 6.75), mat); const a = i / 12 * 6.283; m.position.set(Math.cos(a) * RZ, 2, -Math.sin(a) * RZ); m.lookAt(0, 2, 0); scene.add(m);
+    const frame = new THREE.Mesh(new THREE.PlaneGeometry(10, 7.75), new THREE.MeshBasicMaterial({ color: 0xffd166, side: THREE.DoubleSide, transparent: true, opacity: 0 })); frame.position.copy(m.position).multiplyScalar(1.004); frame.lookAt(0, 2, 0); scene.add(frame);
+    return { m, frame, a };
+  });
+  const nightCam = new THREE.PerspectiveCamera(38, 1.3, 0.5, 200);
+  const arrowN = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 5, 0x7dffb2, 1.2, 0.7); scene.add(arrowN);
+  LB.loop(st, dt => {
+    if (OR.go) { OR.ang += dt * 0.5; const m = Math.floor(((OR.ang / 6.283) * 12) % 12); OR.m = ((4 + m - 1) % 12) + 1; $("or-m").value = OR.m; }
+    // 지구 위치: 밤쪽(태양 반대 방향)이 nightSign 별자리를 향하도록
+    const k = nightSign(OR.m), aE = k / 12 * 6.283; const tgt = new THREE.Vector3(Math.cos(aE) * RE, 0, -Math.sin(aE) * RE);
+    earth.position.lerp(tgt, Math.min(1, dt * 4)); earth.rotation.y += dt * 2;
+    const out = earth.position.clone().normalize();
+    arrowN.position.copy(earth.position.clone().add(out.clone().multiplyScalar(1.4))); arrowN.setDirection(out);
+    cards.forEach((cd, i) => { cd.frame.material.opacity = i === (k + 6) % 12 ? 0.9 : i === k ? 0.45 : 0; cd.frame.material.color.setHex(i === k ? 0x7dffb2 : 0xffd166); });
+    tag();
+    const W = r.domElement.clientWidth, H = r.domElement.clientHeight;
+    r.setScissorTest(false); r.setViewport(0, 0, W, H); r.render(scene, cam);
+    // 작은 화면: 지구의 밤쪽에서 바깥을 본 한밤중 하늘
+    const iw = Math.round(Math.min(220, W * 0.42)), ih = Math.round(iw * 0.72);
+    nightCam.aspect = iw / ih; nightCam.updateProjectionMatrix(); nightCam.position.copy(earth.position.clone().add(out.clone().multiplyScalar(1.6))); nightCam.lookAt(earth.position.clone().add(out.clone().multiplyScalar(40)).setY(2));
+    r.setScissorTest(true); r.setScissor(W - iw - 8, 8, iw, ih); r.setViewport(W - iw - 8, 8, iw, ih); r.setClearColor(0x000000, 1); r.clear(); arrowN.visible = false; earth.visible = false; r.render(scene, nightCam); arrowN.visible = true; earth.visible = true; r.setScissorTest(false); r.setClearColor(0x000000, 0);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅴ 아두이노 실험 ① — 초음파 센서로 용수철 저울 만들기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅴ. 힘의 작용</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p169-alt.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 ① · Ⅴ. 힘의 작용 · 교과서 168~169쪽</span>
+      <h1>초음파 센서로 재는<br><span>용수철이 늘어난 길이</span></h1>
+      <p>교과서 ‘다르게 해 보기’처럼 용수철에 추를 하나씩 매달고, 자 대신 <b>초음파 센서</b>로 용수철이 늘어난 길이를 0.1 cm까지 재 보자. 추의 무게와 늘어난 길이의 관계를 찾고, 우리 모둠만의 용수철저울 눈금을 만들어 보자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>추의 무게와 용수철이 늘어난 길이의 관계</div><div><b>관련 단원</b>Ⅴ-2. 원래대로 돌아가려는 힘</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + 초음파 센서(HC-SR04)</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 11월 9일 / 3모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 용수철에 매단 추의 무게에 따라 용수철이 늘어난 길이를 측정하여, 탄성력의 크기가 늘어난 길이에 비례함을 설명할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span>매단 추의 개수를 1개, 2개, 3개로 늘리면 용수철이 늘어난 길이는 어떻게 될지 까닭과 함께 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" data-keywords="2배/3배/비례,탄성력,무게" data-model="추의 개수가 2배, 3배가 되면 늘어난 길이도 2배, 3배가 될 것이다. 용수철이 정지해 있으면 탄성력과 추의 무게가 평형을 이루고, 탄성력은 늘어난 길이에 비례하기 때문이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, USB 케이블, 초음파 센서(HC-SR04), 점퍼선, 용수철, 추걸이, 같은 추 5개(1개 50 g, 무게 약 0.49 N), 스탠드 2개, 두꺼운 종이 카드(약 6 cm × 6 cm), 셀로판테이프, 자, 노트북(크롬)</p></div>
+    <div id="ul-circuit"></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="steps-box"><ol>
+      <li>스탠드에 용수철을 매달고, 용수철 아래 추걸이 위쪽에 <b>종이 카드</b>를 수평으로 붙인다.</li>
+      <li>다른 스탠드에 초음파 센서를 <b>카드 바로 위 약 20 cm</b>에서 아래를 향하도록 고정한다. (센서가 용수철을 겨누지 않고 카드만 겨누게 한다.)</li>
+      <li>추걸이만 매단 상태에서 [0️⃣ 지금 거리를 기준(d₀)으로]를 누른다.</li>
+      <li>추를 1개씩 걸고, 흔들림이 멈추면 [📍 늘어난 길이 기록]을 누른다. (늘어난 길이 = 지금 거리 − d₀)</li>
+      <li>5개까지 기록한 뒤 그래프를 확인하고, 자로도 한 번 재어 비교한다.</li>
+    </ol></div>
+    <div class="safe">⚠️ 추가 떨어지지 않도록 추걸이를 단단히 걸고, 용수철을 너무 많이 늘이지 않는다(탄성 한계를 넘으면 원래대로 돌아가지 않는다).</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기</div>
+    <div id="ul-lab"></div>
+    <div class="meter"><div class="m"><small>추 1개(0.49 N)당 늘어난 길이</small><b id="k-out">-</b></div><div class="m"><small>1 N당 늘어난 길이</small><b id="kn-out">-</b></div></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" id="q-res" data-why="그래프가 원점을 지나는 직선에 가까우면 늘어난 길이는 추의 무게에 비례해요. 기울기(1 N당 늘어난 길이)를 알면 처음 보는 물체의 무게도 잴 수 있어요.">
+      <div class="q-text"><span class="q-num">1</span>추 3개를 매달았을 때 늘어난 길이: <input class="blank w-s" id="r3" style="width:60px"> cm (내 기록)</div>
+      <div class="q-text"><span class="q-num">2</span>내 용수철은 1 N마다 약 <input class="blank w-s" id="rk" style="width:60px"> cm씩 늘어난다. (기록 전체로 계산한 값)</div>
+      <div class="q-text"><span class="q-num">3</span><b>예측</b> 추 6개(약 2.94 N)를 매달면 약 <input class="blank w-s" id="r6" style="width:60px"> cm 늘어날 것이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="늘어난 길이가 추의 무게에 비례하므로 추의 개수가 2배가 되면 늘어난 길이도 약 2배가 돼요.">
+      <div class="q-text"><span class="q-num">4</span>그래프로 볼 때 용수철이 늘어난 길이는 추의 무게에 <span class="choice-group" data-key="rel" data-answer="비례"><button type="button" class="choice-btn" data-value="비례">비례한다</button><button type="button" class="choice-btn" data-value="반비례">반비례한다</button><button type="button" class="choice-btn" data-value="무관">관계없다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span><b>결론</b> 추가 매달려 정지해 있을 때 용수철의 탄성력과 추의 무게는 어떤 관계인지, 그리고 탄성력과 늘어난 길이의 관계를 정리해 보자.</div>
+      <textarea class="free" data-key="concl" data-keywords="평형/같,탄성력,무게,비례" data-model="추가 정지해 있으면 위로 작용하는 용수철의 탄성력과 아래로 작용하는 추의 무게(중력)가 크기가 같아 평형을 이룬다. 추의 무게가 커질수록 늘어난 길이가 비례해서 커졌으므로, 탄성력의 크기는 용수철이 늘어난 길이에 비례한다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>활용</b> 이 장치로 무게를 모르는 지우개의 무게를 재려면 어떻게 하면 될지 설명해 보자.</div>
+      <textarea class="free" data-key="use" data-keywords="늘어난 길이,나누/계산,1 N" data-model="추 대신 지우개를 매달아 늘어난 길이를 잰 뒤, 1 N당 늘어난 길이로 나누면 지우개의 무게를 구할 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="초음파 센서는 0.1 cm까지 읽을 수 있고 눈의 위치에 따른 오차가 없지만, 카드가 기울거나 흔들리면 값이 튈 수 있어요.">
+      <div class="q-text"><span class="q-num">3</span>자로 잴 때와 비교하여 초음파 센서로 잴 때의 좋은 점과 주의할 점을 써 보자.</div>
+      <textarea class="free" data-key="cmp" data-keywords="정확/0.1,흔들/기울" data-model="좋은 점: 0.1 cm까지 바로 읽을 수 있고 눈금을 읽는 위치에 따른 오차가 없다. 주의할 점: 카드가 기울거나 흔들리면 초음파가 다른 곳에 반사되어 값이 튈 수 있으므로 흔들림이 멈춘 뒤 기록한다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">센서를 카드에 정확히 겨누고 흔들림이 멈춘 뒤 기록했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">그래프로 추의 무게와 늘어난 길이의 관계를 해석했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅴ. 힘의 작용 · 아두이노 실험 보고서 ① 용수철 · 교과서 169쪽 다르게 해 보기를 아두이노 초음파 센서로 재구성</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="ultra-lab.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅴ 아두이노① 용수철";
+const $ = id => document.getElementById(id);
+const W1 = 0.49; // 추 1개의 무게(N)
+UL.circuit("ul-circuit");
+UL.points({ root: "ul-lab", key: "spring_log", xName: "매단 추", options: [1, 2, 3, 4, 5, 6].map(n => [n, "추 " + n + "개 (" + (n * W1).toFixed(2) + " N)"]),
+  sample: [[1, 2.1], [2, 4.0], [3, 6.2], [4, 8.1], [5, 9.9]],
+  graph: (cv, rows) => { const k = fit(); LB.graph(cv, { h: 220, xMax: 3, yMin: 0, yMax: 15, xStep: 0.5, yStep: 3, xLabel: "추의 무게(N)", yLabel: "늘어난 길이(cm)", series: [{ color: "#2f7de1", dots: true, pts: [[0, 0]].concat(rows.map(r => [r[0] * W1, r[1]])), width: 0.01 }].concat(k ? [{ color: "#e4572e", pts: [[0, 0], [3, 3 * k]], label: "기울기 " + k.toFixed(1) + " cm/N", width: 1.5 }] : []) }); } });
+function fit() { const r = UL.rows(); if (r.length < 2) return null; return r.reduce((s, x) => s + x[0] * W1 * x[1], 0) / r.reduce((s, x) => s + (x[0] * W1) ** 2, 0); } // 원점을 지나는 직선 (cm/N)
+UL.onChange(() => { const k = fit(); $("k-out").textContent = k ? (k * W1).toFixed(2) + " cm" : "-"; $("kn-out").textContent = k ? k.toFixed(2) + " cm" : "-"; });
+function dyn(key, el, ans, check) { const c = { el, value: () => el.value, check }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+const row = n => UL.rows().find(r => r[0] === n);
+dyn("r3", $("r3"), () => row(3) ? row(3)[1].toFixed(1) : "추 3개 기록 필요", v => row(3) ? Math.abs(WS.toNumber(v) - row(3)[1]) <= 0.15 : null);
+dyn("rk", $("rk"), () => fit() ? "약 " + fit().toFixed(1) : "기록 2개 이상 필요", v => fit() ? Math.abs(WS.toNumber(v) - fit()) <= 0.3 : null);
+dyn("r6", $("r6"), () => fit() ? "약 " + (fit() * 6 * W1).toFixed(1) : "기록 2개 이상 필요", v => fit() ? Math.abs(WS.toNumber(v) - fit() * 6 * W1) <= 0.6 : null);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+["self1", "self2"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+</script>
+</body>
+</html>

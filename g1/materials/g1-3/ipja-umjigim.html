@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅲ-1-01 — 온도에 따른 입자의 움직임과 배치</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅲ. 열</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p84-bottle.jpg" alt="보온병이 몸을 흔들면서 뜨거운 물을 표현한 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅲ. 열 · 1. 열의 이동 · 01 <span class="pg" style="margin:0">84~85쪽</span></span>
+      <h1>온도에 따른<br><span>입자의 움직임과 배치</span></h1>
+      <p>보온병이 몸을 흔들면서 "안에 뜨거운 물이 들어 있어"라고 표현한 까닭은 무엇일까? 교과서 그림과 함께 찬물과 뜨거운 물 속 입자를 직접 움직여 보며 그 답을 찾아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 물질의 온도 차이를 입자의 움직임과 배치로 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <!-- 1. 교과서 본문 -->
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>온도에 따라 입자의 움직임이나 배치는 어떻게 다를까? <span class="pg">84쪽</span></div>
+    <div class="book">
+      <figure class="fig float-r small"><img src="img/p84-fig3-1.jpg" alt="모형으로 나타낸 입자의 모습"><figcaption><span class="tb">그림 3-1</span>모형으로 나타낸 입자의 모습</figcaption></figure>
+      <p>우리 주변의 물질은 매우 작은 입자로 구성되어 있으며 입자는 끊임없이 움직인다. 물질을 구성하는 입자는 직접 관찰하기 어려우므로 <b>그림 3-1</b>과 같이 간단한 <span class="key">모형</span>으로 나타낸다. 다음 활동으로 온도에 따라 입자의 움직임이 어떻게 달라지는지 생각해 보자.</p>
+      <div class="tip-box">🔗 <b>연결</b> 입자의 움직임으로 나타나는 현상은 116쪽(Ⅳ. 물질의 상태 변화)에서 더 알아볼 수 있다.</div>
+      <div class="clear"></div>
+    </div>
+    <div class="q" data-why="물질을 구성하는 입자는 매우 작아 직접 관찰하기 어려우므로 공 모양의 간단한 모형으로 나타내요. 모형의 물결 표시는 입자의 움직임을 뜻해요.">
+      <div class="q-text"><span class="q-num">1</span>입자는 크기가 매우 작아서 직접 관찰하기 어려우므로 간단한 <input class="blank w-s" data-key="c_model" data-answer="모형"> 을 사용하여 입자를 표현한다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 2. 해 보기: 잉크 -->
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>온도에 따른 입자의 움직임 차이 알아보기 <span class="pg">84쪽</span></div>
+    <div class="fig-row">
+      <figure class="fig"><img src="img/p84-ink.jpg" alt="찬물과 뜨거운 물에 잉크를 넣은 모습"><figcaption><span class="tb">교과서 사진</span>찬물(왼쪽)과 뜨거운 물(오른쪽)에 잉크를 동시에 넣었을 때</figcaption></figure>
+    </div>
+    <p class="lead-q">찬물과 뜨거운 물 중 잉크는 어디에서 더 빨리 퍼지는가?</p>
+    <div class="card-hint">아래 실험대에서 두 비커의 물 온도를 정하고 [잉크 떨어뜨리기]를 눌러 보자. 잉크 입자(보라색)가 주변 물 입자와 부딪히며 퍼지는 모습을 비교할 수 있다. <b>퍼진 정도</b>는 잉크가 처음 위치에서 평균적으로 얼마나 멀리 퍼졌는지를 나타낸다.</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>왼쪽 비커 물 온도 <output id="ink-tL-o"></output></label><input type="range" id="ink-tL" min="2" max="95" value="10"></div>
+      <div class="ctrl"><label>오른쪽 비커 물 온도 <output id="ink-tR-o"></output></label><input type="range" id="ink-tR" min="2" max="95" value="80"></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="ink-go">💧 잉크 떨어뜨리기</button><button type="button" class="btn ghost small" id="ink-reset">↺ 처음으로</button><label class="small" style="font-size:13px;display:flex;gap:4px;align-items:center"><input type="checkbox" id="ink-water"> 물 입자도 보기</label></div>
+    <div class="light-stage"><canvas id="ink-cv"></canvas></div>
+    <div class="meter"><div class="m"><small>경과 시간</small><b id="ink-time">0.0 s</b></div><div class="m"><small>왼쪽 퍼진 정도</small><b id="ink-sL">0</b></div><div class="m"><small>오른쪽 퍼진 정도</small><b id="ink-sR">0</b></div></div>
+    <div class="q" data-why="찬물보다 뜨거운 물에서 물 입자가 더 활발하게 움직이므로, 잉크 입자와 더 자주 세게 부딪혀 잉크가 더 빨리 퍼져요." data-hint="왼쪽 10 ℃, 오른쪽 80 ℃로 실험한 뒤 퍼진 정도를 비교해 보세요.">
+      <div class="q-text"><span class="q-num">1</span>잉크는 <span class="choice-group" data-key="ink_fast" data-answer="뜨거운 물"><button type="button" class="choice-btn" data-value="찬물">찬물</button><button type="button" class="choice-btn" data-value="뜨거운 물">뜨거운 물</button></span>에서 더 빨리 퍼진다. 그 까닭은 뜨거운 물에서 물 입자의 움직임이 더 <span class="choice-group" data-key="ink_why" data-answer="활발"><button type="button" class="choice-btn" data-value="활발">활발하기</button><button type="button" class="choice-btn" data-value="둔">둔하기</button></span> 때문이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>잉크가 퍼지는 모습으로 보아 찬물과 뜨거운 물에서 물 입자의 움직임이 각각 어떻게 다를지 이야기해 보자.</div>
+      <textarea class="free" data-key="ink_talk" data-keywords="찬물,뜨거운 물,활발/빠르,둔/느리" data-model="찬물에서는 물 입자가 느리고 둔하게 움직여 잉크 입자와 덜 부딪히므로 잉크가 천천히 퍼진다. 뜨거운 물에서는 물 입자가 빠르고 활발하게 움직여 잉크 입자를 자주 세게 밀어내므로 잉크가 빨리 퍼진다." placeholder="찬물과 뜨거운 물 속 물 입자의 움직임 비교"></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 3. 3D 입자 상자 -->
+  <section class="card" data-part="sim">
+    <div class="card-title"><span class="badge sim">3D 시뮬레이션</span>입자 상자 속으로 들어가 보기</div>
+    <div class="card-hint">물질을 구성하는 입자를 3D 모형으로 나타냈다. 두 상자의 온도를 바꾸고 화면을 드래그해 여러 방향에서 관찰해 보자. 입자 뒤에 남는 꼬리는 입자가 움직인 길(자취)이다. 오른쪽 계기판에서 입자의 <b>평균 속력</b>과 <b>입자 사이의 평균 거리</b>를 비교하자. (입자 사이 거리의 변화는 눈에 잘 보이도록 과장했다.)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>🔵 왼쪽 상자 온도 <output id="p3-tA-o"></output></label><input type="range" id="p3-tA" min="0" max="100" value="10"></div>
+      <div class="ctrl"><label>🔴 오른쪽 상자 온도 <output id="p3-tB-o"></output></label><input type="range" id="p3-tB" min="0" max="100" value="80"></div>
+      <div class="ctrl" style="display:flex;flex-direction:column;gap:4px;justify-content:center"><label style="justify-content:flex-start;gap:6px"><input type="checkbox" id="p3-trail" checked> 자취 보기</label><label style="justify-content:flex-start;gap:6px"><input type="checkbox" id="p3-spin"> 천천히 돌리기</label></div>
+    </div>
+    <div class="sim-stage" id="p3-stage" style="height:360px"><span class="tag">입자 모형 3D · 드래그하여 돌리기</span><span class="tag" style="left:22%;top:auto;bottom:10px;background:#1d4ed8" id="p3-lA"></span><span class="tag" style="left:66%;top:auto;bottom:10px;background:#b91c1c" id="p3-lB"></span><span class="tag2" id="p3-fallback"></span></div>
+    <div class="meter">
+      <div class="m"><small>🔵 평균 속력(상대값)</small><b id="p3-vA">-</b></div><div class="m"><small>🔵 입자 사이 평균 거리</small><b id="p3-dA">-</b></div>
+      <div class="m"><small>🔴 평균 속력(상대값)</small><b id="p3-vB">-</b></div><div class="m"><small>🔴 입자 사이 평균 거리</small><b id="p3-dB">-</b></div>
+    </div>
+    <div class="q" data-why="온도가 높을수록 입자의 움직임이 활발하고, 입자 사이의 거리가 대체로 멀어져요. 따라서 온도는 입자의 움직임이 활발한 정도를 나타내요.">
+      <div class="q-text"><span class="q-num">1</span>온도가 높은 상자일수록 입자의 평균 속력이 <span class="choice-group" data-key="p3_v" data-answer="크다"><button type="button" class="choice-btn" data-value="크다">크다</button><button type="button" class="choice-btn" data-value="작다">작다</button></span>, 입자 사이의 거리가 대체로 <span class="choice-group" data-key="p3_d" data-answer="멀다"><button type="button" class="choice-btn" data-value="멀다">멀다</button><button type="button" class="choice-btn" data-value="가깝다">가깝다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="세 상자는 같은 물질이에요. 입자의 움직임이 가장 활발하고 입자 사이 거리가 가장 먼 (다)의 온도가 가장 높고, 움직임이 가장 둔한 (나)의 온도가 가장 낮아요." data-hint="아래 세 그림에서 입자의 꼬리(움직임 표시)와 입자 사이 간격을 비교해 보세요.">
+      <div class="q-text"><span class="q-num">2</span>그림은 같은 물질을 이루는 입자의 배치와 움직임이다. 온도가 가장 높은 것은 <span class="choice-group" data-key="abc_hot" data-answer="다"><button type="button" class="choice-btn" data-value="가">(가)</button><button type="button" class="choice-btn" data-value="나">(나)</button><button type="button" class="choice-btn" data-value="다">(다)</button></span>, 입자의 움직임이 가장 둔한 것은 <span class="choice-group" data-key="abc_slow" data-answer="나"><button type="button" class="choice-btn" data-value="가">(가)</button><button type="button" class="choice-btn" data-value="나">(나)</button><button type="button" class="choice-btn" data-value="다">(다)</button></span>이다.</div>
+      <div class="light-stage" style="margin-top:8px"><canvas id="abc-cv"></canvas></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 4. 교과서 그림 3-2 -->
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>온도는 입자의 움직임이 활발한 정도를 나타낸다 <span class="pg">85쪽</span></div>
+    <div class="book">
+      <p>물질을 구성하는 입자는 <span class="key">온도가 높을수록 움직임이 활발</span>하다. 찬물보다 뜨거운 물에서 물 입자가 더 활발하게 움직이므로 찬물보다 뜨거운 물에서 잉크가 더 빨리 퍼진다. 따라서 <b>온도</b>는 물질의 차갑고 따뜻한 정도를 나타낼 뿐만 아니라 물질을 구성하는 입자의 움직임이 활발한 정도를 나타낸다. 온도의 단위는 ℃(섭씨도)나 K(켈빈) 등을 사용한다.</p>
+      <p>물질을 구성하는 입자의 움직임이 활발할수록 입자 사이의 거리가 대체로 멀어지면서 입자의 배치가 달라진다. <b>그림 3-2</b>와 같이 찬물보다 뜨거운 물에서 물 입자의 움직임이 더 활발하므로 물 입자 사이의 거리도 대체로 더 멀다.</p>
+    </div>
+    <figure class="fig"><img src="img/p85-fig3-2.jpg" alt="온도에 따른 물 입자의 움직임과 배치"><figcaption><span class="tb">그림 3-2</span>온도에 따른 물 입자의 움직임과 배치 · 그림을 누르면 크게 볼 수 있어요</figcaption></figure>
+    <div class="q" data-why="그림에서 입자 옆의 물결 모양 선이 입자의 움직임이 활발한 정도를 나타내요. 뜨거운 물의 입자에 더 많은 물결 선이 그려져 있어요.">
+      <div class="q-text"><span class="q-num">1</span>그림 3-2에서 물 입자의 움직임이 활발한 정도를 표현한 부분은 <span class="choice-group" data-key="f32_mark" data-answer="물결"><button type="button" class="choice-btn" data-value="물결">입자 옆의 물결 모양 선</button><button type="button" class="choice-btn" data-value="색">입자의 색깔</button><button type="button" class="choice-btn" data-value="크기">입자의 크기</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="온도의 단위는 ℃(섭씨도)나 K(켈빈) 등을 사용해요. 온도는 물질의 차갑고 따뜻한 정도이면서, 입자의 움직임이 활발한 정도예요.">
+      <div class="q-text"><span class="q-num">2</span>온도의 단위에는 ℃(섭씨도)와 <span class="choice-group" data-key="unit_k" data-answer="K"><button type="button" class="choice-btn" data-value="K">K(켈빈)</button><button type="button" class="choice-btn" data-value="kg">kg</button><button type="button" class="choice-btn" data-value="J">J</button></span> 등이 있다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 5. 스스로 확인하기 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>84쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">85쪽</span></div>
+    <div class="q" data-why="물질을 구성하는 입자는 온도가 높을수록 움직임이 활발해요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 물질을 구성하는 입자는 온도가 ( <span class="choice-group" data-key="sc1" data-answer="높을수록"><button type="button" class="choice-btn" data-value="낮을수록">낮을수록</button><button type="button" class="choice-btn" data-value="높을수록">높을수록</button></span> ) 움직임이 활발하다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="(1) 온도는 물질의 차갑고 따뜻한 정도를 나타내요(○). (2) 온도가 높은 물체는 입자의 움직임이 더 활발해요(×). (3) 더운 날에는 공기 입자의 움직임이 활발해 냄새 입자가 더 잘 퍼져요(○).">
+      <div class="q-text"><span class="q-num">2</span>옳으면 ○, 옳지 않으면 ×를 고르시오.</div>
+      <table class="t" id="ox-table" style="margin-top:6px"></table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="온도가 높을수록 입자의 움직임이 활발해 설탕 입자가 물 입자 사이로 더 빨리 퍼지므로 설탕은 뜨거운 물에서 더 잘 녹아요.">
+      <div class="q-text"><span class="q-num">3</span>설탕은 <span class="choice-group" data-key="sugar" data-answer="뜨거운"><button type="button" class="choice-btn" data-value="차가운">차가운 물</button><button type="button" class="choice-btn" data-value="뜨거운">뜨거운 물</button></span>에서 더 잘 녹는다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">4</span><b>사고력</b> 미지근한 물은 뜨거운 물, 찬물과 비교하여 입자의 움직임과 배치가 어떻게 다른지 설명해 보자. (3D 상자에서 온도를 50 ℃ 정도로 맞추어 관찰해 봐요.)</div>
+      <textarea class="free" data-key="warm" data-keywords="미지근,뜨거운 물,찬물,움직임/활발,거리" data-model="미지근한 물은 뜨거운 물보다 입자의 움직임이 둔하고 입자 사이의 거리가 가깝지만, 찬물보다는 입자의 움직임이 활발하고 입자 사이의 거리가 멀다. 즉 입자의 움직임과 입자 사이의 거리가 찬물과 뜨거운 물의 중간 정도이다." placeholder="미지근한 물의 입자 움직임과 배치"></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <!-- 6. 스스로 정리하기 -->
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>온도와 입자 <span class="pg">94쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">1</span>온도와 입자</h4>
+      <div class="q" style="border-top:none" data-why="온도는 물질의 차갑고 따뜻한 정도를 나타내며, 물질을 구성하는 입자의 움직임이 활발한 정도를 나타내요.">
+        <div class="q-text">(1) <input class="blank w-s" data-key="s1" data-answer="온도"> 은/는 물질의 차갑고 따뜻한 정도를 나타내며, 물질을 구성하는 입자의 움직임이 활발한 정도를 나타낸다.</div>
+        <span class="fb"></span>
+      </div>
+      <div class="q" data-why="온도가 높은 물질은 입자의 움직임이 활발하고 입자 사이 거리가 대체로 멀며, 온도가 낮은 물질은 입자의 움직임이 둔하고 입자 사이 거리가 대체로 가까워요.">
+        <div class="q-text">(2) 온도에 따른 입자의 움직임과 배치</div>
+        <table>
+          <tr><th>온도가 <input class="blank w-s" data-key="s2" data-answer="높은|높다" style="width:70px"> 물질</th><th>온도가 <input class="blank w-s" data-key="s3" data-answer="낮은|낮다" style="width:70px"> 물질</th></tr>
+          <tr><td>입자의 움직임: 활발하다.<br>입자 사이의 거리: 대체로 멀다.</td><td>입자의 움직임: 둔하다.<br>입자 사이의 거리: 대체로 가깝다.</td></tr>
+        </table>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 제출 -->
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅲ. 열 · 1. 열의 이동 · 01 온도에 따른 입자의 움직임과 배치 · 비상교육 중학 과학 1 교과서(84~85쪽)·활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅲ-1-01 온도에 따른 입자의 움직임과 배치";
+const $ = id => document.getElementById(id);
+const choiceRows = (rows, opts, head) => `<tr><th>${head[0]}</th><th>${head[1]}</th></tr>` + rows.map(([k, n, a]) => `<tr><td class="l">${n}</td><td><span class="choice-group" data-key="${k}" data-label="${n.replace(/^\S+\s/, "").slice(0, 10)}" data-answer="${a}">${opts.map(([v, t]) => `<button type="button" class="choice-btn" data-value="${v}">${t}</button>`).join("")}</span></td></tr>`).join("");
+$("ox-table").innerHTML = choiceRows([
+  ["ox1", "(1) 온도는 물질의 차갑고 따뜻한 정도를 나타낸 것이다.", "O"],
+  ["ox2", "(2) 온도가 높은 물체는 온도가 낮은 물체보다 입자의 움직임이 둔하다.", "X"],
+  ["ox3", "(3) 음식 냄새는 추운 날보다 더운 날에 더 잘 퍼진다.", "O"]
+], [["O", "○"], ["X", "×"]], ["설명", "○ / ×"]);
+
+/* ===== 잉크 확산 ===== */
+const INK = { t: 0, run: false, L: [], R: [], W: [], tried: new Set() };
+const inkTL = $("ink-tL"), inkTR = $("ink-tR");
+const spd = T => 0.35 + 2.6 * Math.sqrt((T + 273) / 373) * ((T + 15) / 110);
+function inkInit() {
+  INK.t = 0; INK.L = []; INK.R = []; INK.W = [];
+  for (let i = 0; i < 260; i++) { INK.L.push([0, 0]); INK.R.push([0, 0]); }
+  for (let i = 0; i < 90; i++) INK.W.push([Math.random(), Math.random(), Math.random() * 6.28]);
+}
+function spread(arr) { let s = 0; arr.forEach(p => s += p[0] * p[0] + p[1] * p[1]); return Math.sqrt(s / arr.length); }
+function drawInk(dt) {
+  const g = LB.fit($("ink-cv"), 300), c = g.c, W = g.w, H = 300;
+  const bw = Math.min(200, W * 0.38), bh = 230, by = 40;
+  const beakers = [[W * 0.27, INK.L, Number(inkTL.value)], [W * 0.73, INK.R, Number(inkTR.value)]];
+  beakers.forEach(([cx, arr, T]) => {
+    const x0 = cx - bw / 2;
+    const warm = (T - 2) / 93;
+    c.fillStyle = `rgba(${200 + 55 * warm},${225 - 40 * warm},${255 - 90 * warm},0.55)`; c.fillRect(x0, by + 20, bw, bh - 20);
+    c.strokeStyle = "#8aa"; c.lineWidth = 3; c.beginPath(); c.moveTo(x0, by); c.lineTo(x0, by + bh); c.lineTo(x0 + bw, by + bh); c.lineTo(x0 + bw, by); c.stroke();
+    if (T > 60) for (let i = 0; i < 5; i++) { c.strokeStyle = "rgba(160,160,170,.35)"; c.beginPath(); const sx = x0 + 20 + i * (bw - 40) / 4; c.moveTo(sx, by + 10); c.quadraticCurveTo(sx + 8, by - 6, sx, by - 22); c.stroke(); }
+    if ($("ink-water").checked) { c.fillStyle = "rgba(40,120,200,.55)"; INK.W.forEach(p => { const jit = spd(T) * 2; c.beginPath(); c.arc(x0 + 6 + p[0] * (bw - 12) + Math.cos(p[2] + INK.t * 9 * spd(T)) * jit, by + 26 + p[1] * (bh - 32) + Math.sin(p[2] * 1.3 + INK.t * 8 * spd(T)) * jit, 2.4, 0, 7); c.fill(); }); }
+    const ox = cx, oy = by + 70;
+    if (INK.run || INK.t > 0) {
+      if (INK.run) arr.forEach(p => { const s = spd(T) * 26 * dt * 6; p[0] += (Math.random() - 0.5) * s; p[1] += (Math.random() - 0.5) * s + 0.25 * dt * 6; p[0] = Math.max(-bw / 2 + 4, Math.min(bw / 2 - 4, p[0])); p[1] = Math.max(-45, Math.min(bh - 80, p[1])); });
+      arr.forEach(p => { c.fillStyle = "rgba(70,30,140,.55)"; c.beginPath(); c.arc(ox + p[0], oy + p[1], 2.6, 0, 7); c.fill(); });
+    }
+    c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif"; c.textAlign = "center";
+    c.fillText(`${T} ℃ 물`, cx, by + bh + 22); c.textAlign = "left";
+    c.fillStyle = "#d8493b"; c.fillRect(x0 + bw - 10, by + 30, 5, bh - 50); c.beginPath(); c.arc(x0 + bw - 7.5, by + bh - 16, 6, 0, 7); c.fill();
+  });
+  $("ink-time").textContent = INK.t.toFixed(1) + " s";
+  $("ink-sL").textContent = spread(INK.L).toFixed(0); $("ink-sR").textContent = spread(INK.R).toFixed(0);
+}
+[inkTL, inkTR].forEach(x => x.addEventListener("input", () => { $("ink-tL-o").textContent = inkTL.value + " ℃"; $("ink-tR-o").textContent = inkTR.value + " ℃"; if (!INK.run) drawInk(0); }));
+$("ink-tL-o").textContent = inkTL.value + " ℃"; $("ink-tR-o").textContent = inkTR.value + " ℃";
+$("ink-go").addEventListener("click", () => { inkInit(); INK.run = true; INK.tried.add(inkTL.value + "/" + inkTR.value); });
+$("ink-reset").addEventListener("click", () => { INK.run = false; inkInit(); drawInk(0); });
+$("ink-water").addEventListener("change", () => drawInk(0));
+inkInit();
+LB.loop($("ink-cv"), dt => { if (INK.run) { INK.t += dt; if (INK.t > 12) INK.run = false; } drawInk(INK.run ? dt : 0); if (!INK.run && INK.t === 0 && INK.W.length) {} });
+drawInk(0);
+WS.custom("ink_runs", { el: $("ink-time"), value: () => [...INK.tried].join(",") });
+
+/* ===== 3D 입자 상자 ===== */
+const p3A = $("p3-tA"), p3B = $("p3-tB");
+function p3Out() { $("p3-tA-o").textContent = p3A.value + " ℃"; $("p3-tB-o").textContent = p3B.value + " ℃"; $("p3-lA").textContent = "🔵 " + p3A.value + " ℃"; $("p3-lB").textContent = "🔴 " + p3B.value + " ℃"; }
+p3A.addEventListener("input", p3Out); p3B.addEventListener("input", p3Out); p3Out();
+const N3 = 34;
+const vRel = T => Math.sqrt((T + 273) / 273) * (0.4 + T / 60);
+const half = T => 1.05 + T / 100 * 0.45;
+const P3 = { boxes: [] };
+(function setup3D() {
+  const st = $("p3-stage"), T3 = LB.three(st, 360);
+  if (!T3) { $("p3-fallback").textContent = "이 기기에서는 3D를 표시할 수 없어요. 아래 계기판과 그림으로 비교해요."; return; }
+  const { r, scene, cam } = T3;
+  const orbit = LB.orbit(cam, r.domElement, new THREE.Vector3(0, 0, 0), { R: 9.5, th: 0.35, ph: 1.15, min: 5, max: 16 });
+  [[-2.2, 0x3b82f6, p3A], [2.2, 0xef4444, p3B]].forEach(([x, col, inp]) => {
+    const grp = new THREE.Group(); grp.position.x = x; scene.add(grp);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2, 2, 2)), new THREE.LineBasicMaterial({ color: col }));
+    grp.add(edges);
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.06 }));
+    grp.add(glass);
+    const geo = new THREE.SphereGeometry(0.085, 16, 12), mat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 0.4 });
+    const ps = [];
+    for (let i = 0; i < N3; i++) {
+      const m = new THREE.Mesh(geo, mat); grp.add(m);
+      const p = { m, x: new THREE.Vector3((Math.random() - .5) * 1.6, (Math.random() - .5) * 1.6, (Math.random() - .5) * 1.6), v: new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize(), trail: [] };
+      const tg = new THREE.BufferGeometry(); tg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(12 * 3), 3));
+      p.line = new THREE.Line(tg, new THREE.LineBasicMaterial({ color: 0x9be7a4, transparent: true, opacity: 0.6 })); grp.add(p.line);
+      ps.push(p);
+    }
+    P3.boxes.push({ grp, edges, glass, ps, inp });
+  });
+  let tick = 0;
+  LB.loop(st, dt => {
+    tick++;
+    P3.boxes.forEach(b => {
+      const T = Number(b.inp.value), h = half(T), sp = vRel(T) * 1.4;
+      b.edges.scale.setScalar(h); b.glass.scale.setScalar(h);
+      b.ps.forEach(p => {
+        p.v.x += (Math.random() - .5) * 0.25; p.v.y += (Math.random() - .5) * 0.25; p.v.z += (Math.random() - .5) * 0.25; p.v.normalize();
+        p.x.addScaledVector(p.v, sp * dt);
+        ["x", "y", "z"].forEach(a => { const lim = h - 0.1; if (p.x[a] > lim) { p.x[a] = lim; p.v[a] *= -1; } if (p.x[a] < -lim) { p.x[a] = -lim; p.v[a] *= -1; } });
+        p.m.position.copy(p.x);
+        if (tick % 2 === 0) { p.trail.push(p.x.clone()); if (p.trail.length > 12) p.trail.shift(); }
+        const arr = p.line.geometry.attributes.position.array;
+        for (let k = 0; k < 12; k++) { const q = p.trail[Math.max(0, p.trail.length - 12 + k)] || p.x; arr[k * 3] = q.x; arr[k * 3 + 1] = q.y; arr[k * 3 + 2] = q.z; }
+        p.line.geometry.attributes.position.needsUpdate = true; p.line.visible = $("p3-trail").checked;
+      });
+    });
+    if ($("p3-spin").checked) { orbit.st.th += dt * 0.25; orbit.update(); }
+    r.render(scene, cam);
+  });
+})();
+function p3Meter() {
+  [["A", p3A], ["B", p3B]].forEach(([k, inp]) => { const T = Number(inp.value); $("p3-v" + k).textContent = vRel(T).toFixed(2); $("p3-d" + k).textContent = (half(T) * 2 / Math.cbrt(N3) * 10).toFixed(1); });
+}
+[p3A, p3B].forEach(x => x.addEventListener("input", p3Meter)); p3Meter();
+WS.custom("p3_setting", { el: $("p3-vA"), value: () => p3A.value + "℃/" + p3B.value + "℃" });
+
+/* ===== (가)(나)(다) ===== */
+const ABC = [["(가)", 0.55, 0.85], ["(나)", 0.22, 0.5], ["(다)", 1.0, 1.25]];
+const abcP = ABC.map(() => Array.from({ length: 14 }, () => [Math.random(), Math.random(), Math.random() * 6.28]));
+LB.loop($("abc-cv"), (dt, t) => {
+  const g = LB.fit($("abc-cv"), 170), c = g.c, W = g.w;
+  const bw = Math.min(150, W / 3 - 20);
+  ABC.forEach(([n, sp, sc], i) => {
+    const cx = W / 6 + i * W / 3, s = bw * 0.55 * sc;
+    c.strokeStyle = "#9ab"; c.lineWidth = 2; c.strokeRect(cx - bw / 2, 15, bw, 120);
+    abcP[i].forEach((p, j) => {
+      const bx = cx + (p[0] - .5) * s * 1.4, byy = 75 + (p[1] - .5) * 90 * sc * 0.75;
+      const jx = Math.cos(t / 1000 * 9 * sp + p[2]) * 6 * sp, jy = Math.sin(t / 1000 * 11 * sp + p[2]) * 6 * sp;
+      c.fillStyle = "#4caf50"; c.beginPath(); c.arc(Math.max(cx - bw / 2 + 6, Math.min(cx + bw / 2 - 6, bx + jx)), Math.max(22, Math.min(128, byy + jy)), 5, 0, 7); c.fill();
+    });
+    c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(n, cx, 158); c.textAlign = "left";
+  });
+});
+</script>
+</body>
+</html>

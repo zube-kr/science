@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅵ 아두이노 실험 — 온도 센서와 초음파 센서로 기체의 온도와 부피 관계 알아보기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅵ. 기체의 성질</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/p211-beakers.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 · Ⅵ. 기체의 성질 · 교과서 210~211쪽</span>
+      <h1>센서로 재는<br><span>기체의 온도와 부피</span></h1>
+      <p>교과서 ‘다르게 해 보기’의 구리 통과 실린더처럼, 물에 담근 병 속 공기를 데우면 주사기 피스톤이 밀려 올라간다. LM35 온도 센서로 물의 온도를, 초음파 센서로 피스톤이 올라간 높이를 재서 온도와 부피의 관계를 그래프로 나타내 보자.</p>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>압력이 일정할 때 기체의 온도와 부피 관계</div><div><b>관련 단원</b>Ⅵ-2. 기체의 온도와 부피 관계</div><div><b>실험 형태</b>모둠 실험 (4명)</div><div><b>측정 도구</b>아두이노 UNO + LM35 온도 센서 + 초음파 센서(HC-SR04)</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 모둠원 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 11월 16일 / 2모둠 김OO, 이OO, 박OO, 최OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 물의 온도를 바꾸며 병과 주사기 속 공기의 부피를 측정하고, 압력이 일정할 때 기체의 온도와 부피 관계를 그래프로 설명할 수 있다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span>병을 담근 물의 온도를 20 ℃에서 60 ℃까지 높이면 주사기의 피스톤은 어떻게 될지, 그 까닭과 함께 예상해 보자.</div>
+      <textarea class="free" data-key="hypo" data-keywords="올라/밀려,부피,늘어,입자/운동" data-model="병 속 공기의 온도가 높아지면 입자가 활발하게 운동하여 부피가 늘어나므로 피스톤이 위로 밀려 올라갈 것이다. 온도를 많이 높일수록 더 많이 올라갈 것이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 장치 꾸미기</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, 브레드보드, LM35 온도 센서, 초음파 센서(HC-SR04), 점퍼선, 작은 유리병이나 페트병(250 mL 정도) + 구멍 뚫린 고무마개, 실리콘 관(20 cm), 60 mL 플라스틱 주사기, 종이 카드, 큰 그릇(수조), 찬물·뜨거운 물, 비닐 랩, 스탠드, 노트북(크롬)</p></div>
+    <div class="steps-box"><ol>
+      <li>병에 고무마개를 막고 실리콘 관으로 주사기 입구와 연결한다. 주사기는 <b>입구가 아래</b>, 피스톤이 위로 가게 스탠드에 세운다. 피스톤에 물을 한 방울 묻혀 잘 미끄러지게 한다.</li>
+      <li>피스톤을 10 mL 눈금 정도에 두고, 피스톤 머리에 종이 카드(5 cm × 5 cm)를 붙인다.</li>
+      <li>초음파 센서를 카드 위 10~15 cm 높이에서 <b>아래를 내려다보게</b> 고정한다.</li>
+      <li>LM35는 다리에 비닐 랩을 꼼꼼히 감아 물이 닿지 않게 한 뒤, 끝부분만 병 옆의 물속에 넣는다.</li>
+      <li>병을 수조의 찬물에 담그고, 5분쯤 기다려 병 속 공기의 온도가 물과 같아지게 한다.</li>
+    </ol></div>
+    <div class="safe">⚠️ 아두이노·브레드보드·노트북은 수조에서 멀리 둔다. 뜨거운 물(60 ℃ 이하)은 선생님이 부어 주고, 내열 장갑과 보안경을 쓴다.</div>
+    <table class="data-t pin-t"><tr><th>부품</th><th>부품 핀</th><th>아두이노 핀</th></tr>
+      <tr><td rowspan="3"><b>LM35 온도 센서</b><br>(평평한 면이 앞)</td><td>왼쪽 다리 (VCC)</td><td>5V</td></tr><tr><td>가운데 다리 (OUT)</td><td>A0</td></tr><tr><td>오른쪽 다리 (GND)</td><td>GND</td></tr>
+      <tr><td rowspan="4"><b>초음파 센서</b><br>HC-SR04</td><td>VCC</td><td>5V</td></tr><tr><td>TRIG</td><td>9번</td></tr><tr><td>ECHO</td><td>10번</td></tr><tr><td>GND</td><td>GND</td></tr></table>
+    <div class="al-code"><div class="btn-row" style="margin:0 0 6px"><button type="button" class="btn small" id="cl-copy">📋 코드 복사</button><a class="btn ghost small" href="arduino/charles.ino" download>⬇️ charles.ino 내려받기</a></div><pre id="cl-src">코드를 불러오는 중…</pre></div>
+    <div class="card-hint">아두이노 IDE에 붙여 넣고 업로드한 뒤 <b>시리얼 모니터는 닫고</b> 아래 [아두이노 연결하기]를 눌러요.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="steps-box"><ol>
+      <li>찬물에서 온도가 안정되면 [지금 높이를 기준으로]를 눌러 기준 거리(d₀)와 그때의 주사기 눈금을 정한다.</li>
+      <li>[지금 값 기록]을 눌러 첫 번째 값을 기록한다.</li>
+      <li>뜨거운 물을 조금씩 부어 물의 온도를 약 5 ℃씩 높이고, 피스톤이 멈추면 기록한다. (또는 [자동 기록]으로 20초마다 기록)</li>
+      <li>물의 온도가 60 ℃ 가까이 될 때까지 6 개 이상 기록한다.</li>
+    </ol></div>
+    <div class="tip-box"><b>💡 왜 병을 연결할까?</b> 피스톤이 올라가는 높이는 공기의 처음 부피에 비례해요. 주사기만 데우면 1 cm도 안 움직여 초음파 센서로 재기 어렵지만, 250 mL 병을 연결하면 같은 온도 변화에 5 cm 넘게 올라가요.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>병의 부피 (mL)</label><input type="number" id="cl-vb" value="250" step="10" style="width:100%"></div>
+      <div class="ctrl"><label>주사기 0~60 mL 눈금 사이 길이 (cm)</label><input type="number" id="cl-len" value="9.0" step="0.1" style="width:100%"></div>
+      <div class="ctrl"><label>처음 주사기 눈금 (mL)</label><input type="number" id="cl-vs" value="10" step="1" style="width:100%"></div>
+    </div>
+    <div class="al-conn"><button type="button" class="btn main small" id="cl-connect">🔌 아두이노 연결하기</button><span class="al-dot" id="cl-dot"></span><span id="cl-ctext" style="font-size:13px;font-weight:700">연결 안 됨</span><span style="font-size:12px;color:var(--ink-soft)">크롬·엣지에서 연결돼요. 연결이 어려우면 아래 칸에 직접 잰 값을 넣어도 돼요.</span></div>
+    <div class="al-live">
+      <div class="al-box" style="border-color:#e4572e"><small>🌡️ 물의 온도 (℃)</small><input type="number" step="0.1" id="cl-t" placeholder="℃"></div>
+      <div class="al-box" style="border-color:#2f7de1"><small>📏 센서 ~ 카드 거리 (cm)</small><input type="number" step="0.01" id="cl-d" placeholder="cm"></div>
+      <div class="al-box" style="border-color:#2fae5d"><small>기준 거리 d₀ (cm)</small><input type="number" step="0.01" id="cl-d0" placeholder="먼저 정하기" readonly></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn small" id="cl-zero">0️⃣ 지금 높이를 기준으로</button><button type="button" class="btn main small" id="cl-rec">📍 지금 값 기록</button><button type="button" class="btn small" id="cl-auto">⏱ 자동 기록 (20초마다)</button><button type="button" class="btn ghost small" id="cl-sample">📎 예시 값으로 미리보기</button><button type="button" class="btn ghost small" id="cl-clear">🧹 표 초기화</button></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="scroll-x"><table class="data-t" id="cl-tb"></table></div>
+      <div class="light-stage"><canvas id="cl-g"></canvas></div>
+    </div>
+    <table class="data-t" id="cl-calc" style="margin-top:8px"></table>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" data-why="온도가 높아질수록 피스톤이 올라가 공기의 부피가 늘어나요. 그래프는 오른쪽 위로 올라가는 직선에 가까워요.">
+      <div class="q-text"><span class="q-num">1</span>물의 온도가 높아질수록 병과 주사기 속 공기의 부피는 <span class="choice-group" id="trend"><button type="button" class="choice-btn" data-value="늘어">늘어났다</button><button type="button" class="choice-btn" data-value="줄어">줄어들었다</button><button type="button" class="choice-btn" data-value="같">거의 변하지 않았다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="그래프의 기울기(직선이 1 ℃마다 올라가는 양)에 10을 곱하면 10 ℃마다 늘어난 부피예요. 260 mL 정도의 공기라면 10 ℃마다 약 9 mL 늘어나요.">
+      <div class="q-text"><span class="q-num">2</span>우리 모둠의 결과에서 온도가 10 ℃ 높아질 때마다 공기의 부피는 약 <input class="blank w-s" id="r10" style="width:60px"> mL 늘어났다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">1</span><b>결론</b> 실험 결과를 입자의 운동으로 설명해 보자. (피스톤이 자유롭게 움직이므로 공기의 압력은 바깥 공기의 압력과 같게 유지된다.)</div>
+      <textarea class="free" data-key="concl" data-keywords="온도,입자,활발,충돌,부피,늘어" data-model="물의 온도가 높아지면 병 속 공기 입자가 활발하게 운동하여 벽과 피스톤에 강하게 충돌하므로 피스톤이 밀려 올라가 부피가 늘어난다. 압력이 일정할 때 기체의 온도가 높아지면 부피가 늘어난다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>오차 생각하기</b> 측정값이 직선에서 벗어난 까닭을 두 가지 생각해 보자.</div>
+      <textarea class="free" data-key="error" data-keywords="마찰/걸려,새/샘,온도,기다" data-model="피스톤과 주사기 사이의 마찰 때문에 피스톤이 조금씩 걸려서 움직였다. 물의 온도가 바뀐 뒤 병 속 공기의 온도가 같아질 때까지 충분히 기다리지 않았다. 고무마개나 관 사이로 공기가 조금 샜을 수 있다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3</span><b>더 탐구하기</b> 그래프의 직선을 왼쪽으로 계속 늘이면 부피가 0이 되는 온도(계산표의 값)는 몇 ℃쯤일까? 샤를의 발견(212쪽)과 관련지어 써 보자.</div>
+      <textarea class="free" data-key="zero" data-keywords="-273/영하,직선" data-model="직선을 늘이면 약 -270 ℃ 근처에서 부피가 0이 된다. 샤를이 알아낸 것처럼 기체는 종류와 상관없이 같은 비율로 부피가 변하므로, 모든 기체의 직선이 약 -273 ℃에서 만난다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t">
+      <tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr>
+      <tr><td style="text-align:left">전기 부품을 물에서 멀리 두고, 뜨거운 물을 안전하게 다루었다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+      <tr><td style="text-align:left">측정값으로 온도–부피 그래프를 그리고, 기체의 온도와 부피 관계를 설명했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록도 함께 선생님 스프레드시트(중1 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅵ. 기체의 성질 · 아두이노 실험 보고서 · 교과서 210~211쪽 탐구와 ‘다르게 해 보기’를 LM35 온도 센서와 초음파 센서로 재구성</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅵ 아두이노 기체의 온도와 부피";
+const $ = id => document.getElementById(id);
+fetch("arduino/charles.ino").then(r => r.text()).then(t => $("cl-src").textContent = t).catch(() => $("cl-src").textContent = "코드를 불러오지 못했어요. 위의 내려받기 버튼을 눌러 주세요.");
+$("cl-copy").addEventListener("click", () => { const t = $("cl-src").textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { $("cl-copy").textContent = "✅ 복사됨"; setTimeout(() => $("cl-copy").textContent = "📋 코드 복사", 1500); }).catch(() => {}); });
+
+// 기록: [온도, 거리, 늘어난 부피, 전체 부피]
+let rows = [], d0 = null, auto = null;
+const area = () => 60 / (+$("cl-len").value || 9);          // cm² (= mL/cm)
+const V0 = () => (+$("cl-vb").value || 250) + (+$("cl-vs").value || 0);
+const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? NaN : v; };
+function record() {
+  const t = num("cl-t"), d = num("cl-d");
+  if (d0 == null) { alert("먼저 [지금 높이를 기준으로]를 눌러 기준 거리를 정해요."); return; }
+  if (isNaN(t) || isNaN(d)) { alert("온도와 거리 값이 아직 없어요."); return; }
+  const dv = (d0 - d) * area(); rows.push([+t.toFixed(1), +d.toFixed(2), +dv.toFixed(1), +(V0() + dv).toFixed(1)]); draw();
+}
+$("cl-zero").addEventListener("click", () => { const d = num("cl-d"); if (isNaN(d)) { alert("거리 값이 아직 없어요."); return; } d0 = d; $("cl-d0").value = d.toFixed(2); });
+$("cl-rec").addEventListener("click", record);
+$("cl-auto").addEventListener("click", () => { if (auto) { clearInterval(auto); auto = null; $("cl-auto").textContent = "⏱ 자동 기록 (20초마다)"; return; } record(); auto = setInterval(record, 20000); $("cl-auto").textContent = "⏹ 자동 기록 멈추기"; });
+$("cl-sample").addEventListener("click", () => { d0 = 14.0; $("cl-d0").value = "14.00"; const a = area(); rows = [[18.5, 14.0], [25.2, 13.04], [31.8, 12.13], [38.6, 11.08], [45.1, 10.2], [52.3, 9.06], [58.9, 8.21]].map(([t, d]) => { const dv = (d0 - d) * a; return [t, d, +dv.toFixed(1), +(V0() + dv).toFixed(1)]; }); draw(); });
+$("cl-clear").addEventListener("click", () => { if (rows.length && !confirm("기록을 모두 지울까요?")) return; rows = []; draw(); });
+["cl-vb", "cl-len", "cl-vs"].forEach(id => $(id).addEventListener("input", () => { const a = area(); rows = rows.map(r => { const dv = d0 != null ? (d0 - r[1]) * a : r[2]; return [r[0], r[1], +dv.toFixed(1), +(V0() + dv).toFixed(1)]; }); draw(); }));
+// 최소제곱 직선: 부피 = a × 온도 + b
+function fit() { if (rows.length < 3) return null; const n = rows.length, sx = rows.reduce((s, r) => s + r[0], 0), sy = rows.reduce((s, r) => s + r[3], 0), sxx = rows.reduce((s, r) => s + r[0] * r[0], 0), sxy = rows.reduce((s, r) => s + r[0] * r[3], 0); const den = n * sxx - sx * sx; if (!den) return null; const a = (n * sxy - sx * sy) / den; return { a, b: (sy - a * sx) / n }; }
+function draw() {
+  $("cl-tb").innerHTML = "<tr><th>물의 온도(℃)</th><th>거리(cm)</th><th>늘어난 부피(mL)</th><th>공기의 부피(mL)</th></tr>" + (rows.length ? rows.map(r => `<tr><td>${r[0].toFixed(1)}</td><td>${r[1].toFixed(2)}</td><td>${r[2].toFixed(1)}</td><td>${r[3].toFixed(1)}</td></tr>`).join("") : '<tr><td colspan="4" style="color:#8a9a9c">아직 기록이 없어요</td></tr>');
+  const f = fit(), v0 = V0(), lo = Math.floor((v0 - 10) / 10) * 10, hi = lo + 60;
+  const series = [{ color: "#e4572e", dots: true, pts: rows.map(r => [r[0], r[3]]) }];
+  if (f) series.push({ color: "#9aa3ad", width: 1.5, pts: [[0, f.b], [70, f.a * 70 + f.b]], label: "어림 직선" });
+  LB.graph($("cl-g"), { h: 240, xMax: 70, yMin: lo, yMax: hi, xStep: 10, yStep: 10, xLabel: "물의 온도(℃)", yLabel: "공기의 부피(mL)", series });
+  $("cl-calc").innerHTML = `<tr><th>계산</th><th>값</th></tr><tr><td>주사기 단면적 (60 mL ÷ 눈금 길이)</td><td>${area().toFixed(2)} cm²</td></tr><tr><td>처음 공기의 부피 (병 + 주사기)</td><td>${v0} mL</td></tr><tr><td>1 ℃마다 늘어난 부피 (직선의 기울기)</td><td>${f ? f.a.toFixed(2) + " mL/℃" : "-"}</td></tr><tr><td>직선을 늘였을 때 부피가 0이 되는 온도</td><td>${f && f.a > 0 ? (-f.b / f.a).toFixed(0) + " ℃" : "-"}</td></tr>`;
+}
+draw();
+WS.custom("cl_log", { el: $("cl-tb"), value: () => rows.map(r => r[0] + ":" + r[3]).join(" ") });
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+function dyn(key, el, ans, check, value) { const c = { el, value: value || (() => el.value), check }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+const trend = () => { const f = fit(); if (!f) return null; return f.a * 40 > 2 ? "늘어" : f.a * 40 < -2 ? "줄어" : "같"; };
+dyn("trend", $("trend"), () => ({ 늘어: "늘어났다", 줄어: "줄어들었다", 같: "거의 변하지 않았다" })[trend()] || "기록 3개 이상 필요", v => trend() == null ? null : v === trend(), picked("trend"));
+dyn("r10", $("r10"), () => fit() ? "약 " + (fit().a * 10).toFixed(1) : "기록 3개 이상 필요", v => { const f = fit(); if (!f) return null; const x = WS.toNumber(v); return Math.abs(x - f.a * 10) <= Math.max(0.5, Math.abs(f.a * 10) * 0.2); });
+["self1", "self2"].forEach(id => WS.custom(id, { el: $(id), value: picked(id) }));
+
+// ── Web Serial: "ms,온도,거리" ──
+let port = null, reader = null, reading = false, recentD = [];
+function setUI(on) { $("cl-dot").classList.toggle("on", on); $("cl-ctext").textContent = on ? "실시간 연결됨" : "연결 안 됨"; $("cl-connect").textContent = on ? "🔌 연결 끊기" : "🔌 아두이노 연결하기"; $("cl-t").readOnly = $("cl-d").readOnly = on; }
+$("cl-connect").addEventListener("click", async () => {
+  if (reading) { reading = false; try { if (reader) await reader.cancel(); } catch (e) {} try { if (port) await port.close(); } catch (e) {} port = reader = null; setUI(false); return; }
+  if (!("serial" in navigator)) { alert("이 브라우저는 아두이노 직접 연결(Web Serial)을 지원하지 않아요. 크롬이나 엣지를 사용해 주세요."); return; }
+  try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 9600 }); reading = true; setUI(true); readLoop(); }
+  catch (e) { if (e && e.name !== "NotFoundError") alert("아두이노 연결에 실패했어요. USB와 시리얼 모니터를 확인해 주세요."); }
+});
+async function readLoop() {
+  const dec = new TextDecoderStream(); port.readable.pipeTo(dec.writable).catch(() => {});
+  reader = dec.readable.getReader(); let buf = "";
+  try { while (reading) { const r = await reader.read(); if (r.done) break; buf += r.value || ""; let i; while ((i = buf.indexOf("\n")) >= 0) { const p = buf.slice(0, i).trim().split(","); buf = buf.slice(i + 1); const t = parseFloat(p[1]), d = parseFloat(p[2]); if (!isNaN(t) && t > -20 && t < 110) $("cl-t").value = t.toFixed(1); if (!isNaN(d) && d > 1 && d < 200) { recentD.push(d); if (recentD.length > 5) recentD.shift(); const s = recentD.slice().sort((a, b) => a - b); $("cl-d").value = s[Math.floor(s.length / 2)].toFixed(2); } } } }
+  catch (e) { console.error(e); } finally { try { reader.releaseLock(); } catch (e) {} }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅶ-1-02 — 태양계를 구성하는 천체</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+<style>
+.ss-label{ position:absolute; color:#fff; font-size:11px; font-weight:800; text-shadow:0 1px 3px #000; pointer-events:none; transform:translate(-50%,-150%); white-space:nowrap; }
+.ss-info{ position:absolute; left:10px; bottom:10px; max-width:270px; background:rgba(13,27,38,.88); color:#e8f4ff; border:1px solid rgba(160,200,255,.35); border-radius:12px; padding:8px 10px; font-size:12px; line-height:1.5; pointer-events:none; }
+.ss-info b{ color:#ffd166; font-size:13px; }
+.flow{ display:grid; gap:6px; margin:8px 0; }
+.flow .node{ background:#fff8e6; border:2px solid #f2c26b; border-radius:12px; padding:8px 10px; font-size:14px; }
+.flow .node.on{ border-color:#e4572e; box-shadow:0 0 0 3px rgba(228,87,46,.15); }
+.flow .node.done{ opacity:.6; }
+.flow .res{ background:#eaf7ef; border:2px solid #2fae5d; border-radius:12px; padding:8px 10px; font-weight:800; }
+</style>
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅶ. 태양계</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u1-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p228-cartoon.jpg" alt="혜성과 소행성은 어떤 특징이 있을까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 태양계 · 1. 태양계의 구성 · 02 <span class="pg" style="margin:0">228~231쪽</span></span>
+      <h1>태양계를 구성하는<br><span>천체</span></h1>
+      <p>“오랜만이야!” “어서 와!” 태양계 천체 모임에 혜성과 소행성이 찾아왔다. 혜성과 소행성은 어떤 특징이 있을까? 3D 태양계를 날아다니며 천체를 조사하고, 순서도로 천체를 구분해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 태양계를 구성하는 천체의 특징을 알고, 태양계 행성을 지구형 행성과 목성형 행성으로 구분할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="sim">
+    <div class="card-title"><span class="badge sim">3D 가상 탐사</span>태양계 천체 자료 수집하기 <span class="pg">228쪽</span></div>
+    <p class="lead-q">태양계에는 어떤 천체가 있을까?</p>
+    <div class="book"><p>태양계는 태양, 행성, 왜소 행성, 소행성, 위성, 혜성과 같이 다양한 천체로 구성되어 있다.</p></div>
+    <div class="card-hint">3D 태양계에서 천체를 <b>눌러</b> 자료 카드를 열어 보자. 드래그로 돌리고, 휠이나 두 손가락으로 확대할 수 있어요. 혜성이 태양에 가까워질 때 꼬리가 어떻게 되는지도 지켜보자. (크기와 거리는 실제 비율과 다르게 줄였어요.)</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>시간의 빠르기 <output id="ss-sp-o"></output></label><input type="range" id="ss-sp" min="0" max="4" step="0.5" value="1"></div>
+      <div class="ctrl"><label>보기</label><select id="ss-view"><option value="all">태양계 전체</option><option value="inner">태양 가까이 (수성~화성)</option></select></div>
+    </div>
+    <div class="sim-stage" id="ss-stage" style="height:420px"><span class="tag">3D 태양계 · 천체를 눌러 보세요</span><div class="ss-info" id="ss-info"><b>태양계 탐사</b><br>천체를 누르면 자료 카드가 열려요.</div></div>
+    <div class="scroll-x" style="margin-top:8px"><table class="data-t" id="ss-tb"></table></div>
+    <div class="q" data-why="혜성은 얼음과 먼지로 이루어져 있고, 태양과 가까워지면 얼음이 녹아 증발하며 태양 반대쪽으로 꼬리가 생겨요." data-hint="혜성을 눌러 자료 카드를 읽고, 태양에 가까워질 때 꼬리의 길이를 보세요.">
+      <div class="q-text"><span class="q-num">1</span>혜성의 꼬리는 혜성이 태양에 <span class="choice-group" data-key="cm_near" data-answer="가까워"><button type="button" class="choice-btn" data-value="가까워">가까워질</button><button type="button" class="choice-btn" data-value="멀어">멀어질</button></span> 때 길어지고, 꼬리는 늘 <span class="choice-group" data-key="cm_dir" data-answer="반대"><button type="button" class="choice-btn" data-value="태양">태양 쪽</button><button type="button" class="choice-btn" data-value="반대">태양 반대쪽</button><button type="button" class="choice-btn" data-value="진행">혜성이 가는 쪽</button></span>을 향한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="소행성은 주로 화성과 목성 사이에 띠를 이루어 분포해요(소행성대).">
+      <div class="q-text"><span class="q-num">2</span>수많은 소행성이 띠를 이루어 분포하는 곳은 <span class="choice-group" data-key="ast_where" data-answer="화목"><button type="button" class="choice-btn" data-value="지화">지구와 화성 사이</button><button type="button" class="choice-btn" data-value="화목">화성과 목성 사이</button><button type="button" class="choice-btn" data-value="토천">토성과 천왕성 사이</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">탐구</span>순서도로 천체 구분하기 <span class="pg">229쪽</span></div>
+    <figure class="fig"><img src="img/p229-flow.jpg" alt="행성, 왜소 행성, 소행성, 위성을 구분하는 순서도"><figcaption><span class="tb">229쪽</span>컴퓨팅 사고력 활용 — 순서도를 따라 행성, 왜소 행성, 소행성, 위성을 구분한다.</figcaption></figure>
+    <div class="tip-box"><b>낱말 풀이</b> ●궤도: 중력의 영향을 받아 다른 천체의 둘레를 돌면서 그리는 곡선의 길 · ●지배적인 역할: 궤도 주변의 작은 천체들을 깨끗이 치우는 것</div>
+    <div class="card-hint">구분할 천체를 고르고 자료를 읽은 뒤, 순서도의 질문에 [예]/[아니요]로 답해 보자. 끝까지 가면 기록표에 결과가 적혀요. 여섯 천체를 모두 구분해 보자.</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>구분 대상 선택</label><select id="fl-obj"></select></div></div>
+    <div class="tip-box" id="fl-fact" style="background:#f2f7ff"></div>
+    <div class="flow" id="fl-box"></div>
+    <div class="scroll-x"><table class="data-t" id="fl-tb"></table></div>
+    <div class="q" data-why="태양을 중심으로 공전하지 않고 행성을 중심으로 공전하면 위성, 태양을 공전하지만 모양이 불규칙하면 소행성, 둥글지만 궤도 주변에서 지배적인 역할을 못 하면 왜소 행성, 모두 ‘예’이면 행성이에요." data-hint="기록표의 결과가 모두 맞는지 확인해 보세요. 틀린 천체는 다시 골라 순서도를 따라가면 돼요.">
+      <div class="q-text"><span class="q-num">1</span>여섯 천체의 구분 결과 (기록표)</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>혜성의 특징을 행성, 위성, 소행성, 왜소 행성과 비교하여 이야기해 보자.</div>
+      <textarea class="free" data-key="fl_comet" data-keywords="얼음,먼지,꼬리,태양" data-model="혜성도 행성·소행성·왜소 행성처럼 태양을 중심으로 공전하지만, 얼음과 먼지로 이루어져 있고 태양과 가까워질 때 꼬리가 생긴다는 점이 다르다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>더 해 보기 · 134340 명왕성 조사하기</h4><p style="margin:0;font-size:14px">예전에는 134340 명왕성을 행성으로 구분했지만, 현재는 왜소 행성으로 구분하는 까닭을 조사한다. (검색어: 명왕성, 134340 명왕성)</p>
+      <div class="q" style="border-top:none" data-why="명왕성은 태양을 공전하고 둥글지만, 궤도 주변의 다른 천체들을 치우지 못해(지배적인 역할을 못 해) 2006년부터 왜소 행성으로 구분해요.">
+        <div class="q-text">명왕성이 행성에서 빠진 까닭은 순서도의 <span class="choice-group" data-key="pluto" data-answer="3"><button type="button" class="choice-btn" data-value="1">첫 번째 질문(공전)</button><button type="button" class="choice-btn" data-value="2">두 번째 질문(모양)</button><button type="button" class="choice-btn" data-value="3">세 번째 질문(지배적인 역할)</button></span>에 ‘아니요’이기 때문이다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>태양계를 구성하는 천체의 특징 <span class="pg">230~231쪽</span></div>
+    <div class="book"><p>태양계의 중심에는 <b>그림 7-1</b>과 같이 스스로 빛을 내는 천체인 <span class="key">태양</span>이 있다. 또한 태양을 중심으로 공전하는 <span class="key">행성</span>인 수성, 금성, 지구, 화성, 목성, 토성, 천왕성, 해왕성이 있다. 그리고 지구 주위를 도는 달처럼 행성을 중심으로 공전하는 <span class="key">위성</span>이 있다. 그 외에도 태양계에는 왜소 행성, 소행성, 혜성과 같은 다양한 천체가 있다.</p></div>
+    <figure class="fig"><img src="img/p231-fig7-1.jpg" alt="태양계를 구성하는 천체의 특징"><figcaption><span class="tb">그림 7-1</span>태양계를 구성하는 천체의 특징 (크기 및 거리 비례를 고려하지 않음)</figcaption></figure>
+    <div class="scroll-x"><table class="data-t">
+      <tr><th>천체</th><th>특징</th></tr>
+      <tr><td>태양</td><td style="text-align:left">태양계의 중심에 있고 스스로 빛을 낸다.</td></tr>
+      <tr><td>행성</td><td style="text-align:left">태양을 중심으로 공전하고 모양이 둥글다.</td></tr>
+      <tr><td>위성</td><td style="text-align:left">행성을 중심으로 공전한다. 달은 지구의 위성이다.</td></tr>
+      <tr><td>왜소 행성</td><td style="text-align:left">태양을 중심으로 공전하고, 모양이 둥글다. 궤도 주변의 다른 천체들에게 지배적인 역할을 하지 못하고, 다른 행성의 위성이 아니다.</td></tr>
+      <tr><td>소행성</td><td style="text-align:left">태양을 중심으로 공전하고, 모양이 불규칙하며, 주로 화성과 목성 사이에 수많은 소행성이 띠를 이루어 분포한다.</td></tr>
+      <tr><td>혜성</td><td style="text-align:left">얼음과 먼지로 이루어져 있고, 태양과 가까워질 때는 꼬리가 생긴다.</td></tr>
+    </table></div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>태양계 행성 구분하기 <span class="pg">230쪽</span></div>
+    <p class="lead-q">태양계 행성은 어떻게 구분할까?</p>
+    <figure class="fig"><img src="img/p230-table.jpg" alt="태양계 행성의 질량, 반지름, 위성 수, 고리 자료"><figcaption><span class="tb">230쪽</span>행성의 질량과 반지름은 지구를 1로 했을 때의 상대적인 값 (출처: 미국항공우주국, 2023)</figcaption></figure>
+    <div class="card-hint">3D 태양계의 자료 카드를 보고 빈칸을 채워 자료를 완성해 보자.</div>
+    <div class="q" data-why="금성의 반지름은 0.95, 목성은 11.21이에요. 수성은 위성이 없고(0개), 화성은 고리가 없으며, 토성은 고리가 있어요.">
+      <div class="scroll-x"><table class="data-t">
+        <tr><th>행성</th><th>수성</th><th>금성</th><th>지구</th><th>화성</th><th>목성</th><th>토성</th><th>천왕성</th><th>해왕성</th></tr>
+        <tr><td>질량</td><td>0.06</td><td>0.82</td><td>1.00</td><td>0.11</td><td>317.92</td><td>95.14</td><td>14.54</td><td>17.09</td></tr>
+        <tr><td>반지름</td><td>0.38</td><td><input class="blank w-s" data-key="pl_rv" data-num="0.95" data-abs="0.02" style="width:52px"></td><td>1.00</td><td>0.53</td><td><input class="blank w-s" data-key="pl_rj" data-num="11.21" data-abs="0.05" style="width:58px"></td><td>9.45</td><td>4.01</td><td>3.88</td></tr>
+        <tr><td>위성 수(개)</td><td><input class="blank w-s" data-key="pl_mm" data-num="0" data-abs="0" style="width:40px"></td><td>0</td><td>1</td><td>2</td><td>92</td><td>83</td><td>27</td><td>14</td></tr>
+        <tr><td>고리</td><td>없음</td><td>없음</td><td>없음</td><td><span class="choice-group" data-key="pl_ma" data-answer="없음"><button type="button" class="choice-btn" data-value="있음">있음</button><button type="button" class="choice-btn" data-value="없음">없음</button></span></td><td>있음</td><td><span class="choice-group" data-key="pl_sa" data-answer="있음"><button type="button" class="choice-btn" data-value="있음">있음</button><button type="button" class="choice-btn" data-value="없음">없음</button></span></td><td>있음</td><td>있음</td></tr>
+      </table></div>
+      <span class="fb"></span>
+    </div>
+    <div class="ctrl-grid"><div class="ctrl"><label>막대그래프로 비교하기</label><select id="bar-k"><option value="m">질량 (지구 = 1)</option><option value="r">반지름 (지구 = 1)</option><option value="n">위성 수 (개)</option></select></div></div>
+    <div class="light-stage"><canvas id="bar-cv"></canvas></div>
+    <div class="q" data-why="질량과 반지름이 작은 수성·금성·지구·화성(지구형 행성)과, 크고 고리가 있으며 위성이 많은 목성·토성·천왕성·해왕성(목성형 행성)으로 나뉘어요." data-hint="막대그래프에서 크게 차이 나는 곳을 찾아보세요.">
+      <div class="q-text"><span class="q-num">1</span>완성한 자료를 바탕으로 기준을 정해 행성을 두 집단으로 나누어 보자.</div>
+      <div class="scroll-x"><table class="data-t" id="grp-tb"></table></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>내가 정한 기준과, 각 집단에 속한 행성들의 공통적인 특징을 써 보자.</div>
+      <textarea class="free" data-key="grp_why" data-keywords="질량,반지름,고리,위성" data-model="기준: 질량과 반지름. 수성·금성·지구·화성은 질량과 반지름이 작고 고리가 없으며 위성 수가 적다. 목성·토성·천왕성·해왕성은 질량과 반지름이 크고 고리가 있으며 위성 수가 많다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>지구형 행성과 목성형 행성 <span class="pg">230쪽</span></div>
+    <div class="book"><p>태양계 행성은 질량, 반지름과 같은 특징에 따라 지구형 행성과 목성형 행성으로 구분할 수 있다. <span class="key">지구형 행성</span>은 질량과 반지름이 비교적 작다. 또한 지구형 행성은 암석으로 이루어져 표면이 단단하고, 고리가 없으며, 위성 수가 적다. 수성, 금성, 지구, 화성은 지구형 행성에 속한다. <span class="key">목성형 행성</span>은 질량과 반지름이 비교적 크다. 또한 목성형 행성은 기체로 이루어져 단단한 표면이 없고, 고리가 있으며, 위성 수가 많다. 목성, 토성, 천왕성, 해왕성은 목성형 행성에 속한다.</p></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>228쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">231쪽</span></div>
+    <div class="q" data-why="지구형 행성은 목성형 행성보다 질량과 반지름이 모두 작아요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 지구형 행성은 목성형 행성보다 질량이 ( <span class="choice-group" data-key="sc1" data-answer="작고"><button type="button" class="choice-btn" data-value="작고">작고</button><button type="button" class="choice-btn" data-value="크고">크고</button></span> ), 반지름이 ( <span class="choice-group" data-key="sc2" data-answer="작다"><button type="button" class="choice-btn" data-value="작다">작다</button><button type="button" class="choice-btn" data-value="크다">크다</button></span> ).</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 가니메데는 목성을 중심으로 공전하고 모양이 둥근 천체이다. 또 반지름은 수성보다 크며, 표면이 단단하다. 가니메데는 태양계를 구성하는 천체의 종류 중 무엇에 해당하는지 설명해 보자.</div>
+      <textarea class="free" data-key="sc_gany" data-keywords="위성,목성,공전" data-model="가니메데는 태양이 아니라 행성인 목성을 중심으로 공전하므로, 크기가 수성보다 크더라도 위성에 해당한다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 · 힌트 조각 1 (231쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="태양은 스스로 빛을 내는 천체예요. 행성과 위성은 햇빛을 반사해서 밝게 보여요.">
+        <div class="q-text" style="color:#3a1600">태양은 스스로 ( <input class="blank w-s" data-key="blk1" data-answer="빛" style="background:#fff"> )을/를 내는 천체이다. → 다음 조각은 ‘활동하는 태양’에서!</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>태양계를 구성하는 천체</div>
+    <div class="q" data-why="태양은 태양계의 중심에서 스스로 빛을 내고, 태양을 공전하는 수성·금성·지구 등은 행성이에요. 혜성은 태양에 가까워지면 꼬리가 생겨요.">
+      <div class="q-text"><span class="q-num">1</span><input class="blank w-s" data-key="t1" data-answer="태양"> 은 태양계의 중심에 있으며 스스로 빛을 내는 천체이다. 태양을 공전하고 있는 수성, 금성, 지구 등의 천체를 <input class="blank w-s" data-key="t2" data-answer="행성"> 이라고 한다. 혜성이 태양과 가까워질 때는 <input class="blank w-s" data-key="t6" data-answer="꼬리"> 가 생긴다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="행성과 왜소 행성은 모두 태양을 공전하고 둥글지만, 궤도 주변에서 지배적인 역할을 하는 것은 행성뿐이에요.">
+      <div class="q-text"><span class="q-num">2</span>행성과 왜소 행성에 대한 설명으로 옳으면 O, 옳지 않으면 X를 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">③ 행성과 왜소 행성은 모두 태양을 중심으로 공전한다.</td><td><span class="choice-group" data-key="t3" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">④ 행성과 왜소 행성은 모두 모양이 둥글다.</td><td><span class="choice-group" data-key="t4" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+        <tr><td style="text-align:left">⑤ 행성과 왜소 행성은 모두 궤도 주변의 다른 천체들에게 지배적인 역할을 한다.</td><td><span class="choice-group" data-key="t5" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="B 집단(질량·반지름이 작고 표면이 단단함)이 지구형, A 집단(질량·반지름이 크고 고리가 있음)이 목성형 행성이에요.">
+      <div class="q-text"><span class="q-num">3</span>행성을 두 집단으로 구분했다. <b>A</b>: 질량과 반지름이 크고 고리가 있다. <b>B</b>: 질량과 반지름이 작고 단단한 표면이 있다.<br>지구형 행성 → <span class="choice-group" data-key="t7a" data-answer="B"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button></span>, 목성형 행성 → <span class="choice-group" data-key="t7b" data-answer="A"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button></span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="목성형 행성은 지구형보다 위성이 많고 고리가 있어요. 지구형 행성은 암석으로 이루어져 단단한 표면이 있어요.">
+      <div class="q-text"><span class="q-num">4</span>( <span class="choice-group" data-key="t8a" data-answer="목성형"><button type="button" class="choice-btn" data-value="지구형">지구형</button><button type="button" class="choice-btn" data-value="목성형">목성형</button></span> ) 행성은 ( <span class="choice-group" data-key="t8b" data-answer="지구형"><button type="button" class="choice-btn" data-value="지구형">지구형</button><button type="button" class="choice-btn" data-value="목성형">목성형</button></span> ) 행성보다 위성 수가 많다.<br>( <span class="choice-group" data-key="t9" data-answer="목성형"><button type="button" class="choice-btn" data-value="지구형">지구형</button><button type="button" class="choice-btn" data-value="목성형">목성형</button></span> ) 행성은 고리가 있다. ( <span class="choice-group" data-key="t10" data-answer="지구형"><button type="button" class="choice-btn" data-value="지구형">지구형</button><button type="button" class="choice-btn" data-value="목성형">목성형</button></span> ) 행성은 암석으로 이루어져 단단한 표면이 있다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>태양계 <span class="pg">236쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">1</span>태양계</h4>
+      <div class="q" style="border-top:none" data-why="스스로 빛을 내는 천체는 태양, 모양이 불규칙하고 화성과 목성 사이에 띠를 이루는 것은 소행성, 혜성은 태양에 가까워지면 꼬리가 생겨요. 행성은 지구형과 목성형으로 구분해요.">
+        <div class="q-text">(1) 태양계를 구성하는 천체<br>· <input class="blank w-s" data-key="s1" data-answer="태양"> : 태양계의 중심에 있으며 스스로 빛을 낸다.<br>· 행성: 태양을 중심으로 공전하고 모양이 둥글다. · 위성: 행성을 중심으로 공전한다.<br>· 왜소 행성: 태양을 중심으로 공전하고 모양이 둥글지만, 궤도 주변의 다른 천체들에게 지배적인 역할을 하지 못하고, 다른 행성의 위성이 아니다.<br>· <input class="blank w-s" data-key="s2" data-answer="소행성"> : 태양을 중심으로 공전하고, 모양이 불규칙하며, 주로 화성과 목성 사이에 띠를 이루어 분포한다.<br>· 혜성: 얼음과 먼지로 이루어져 있고, 태양과 가까워질 때는 <input class="blank w-s" data-key="s3" data-answer="꼬리"> 이/가 생긴다.<br>(2) 태양계 행성의 구분: 질량, 반지름과 같은 특징에 따라 <input class="blank w-s" data-key="s4" data-answer="지구형"> 행성과 목성형 행성으로 구분할 수 있다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅶ. 태양계 · 1. 태양계의 구성 · 02 태양계를 구성하는 천체 · 비상교육 중학 과학 1 교과서(228~231쪽)·탐구·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../js/vendor/three.min.js"></script>
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅶ-1-02 태양계를 구성하는 천체";
+const $ = id => document.getElementById(id);
+// 행성 자료: 이름, 공전 반지름(AU), 공전 주기(년), 질량, 반지름, 위성 수, 고리, 종류, 색
+const PL = [
+  ["수성", 0.39, 0.24, 0.06, 0.38, 0, "없음", "지구형", 0xa8a29e],
+  ["금성", 0.72, 0.62, 0.82, 0.95, 0, "없음", "지구형", 0xf2d6a2],
+  ["지구", 1.0, 1.0, 1.0, 1.0, 1, "없음", "지구형", 0x3b82f6],
+  ["화성", 1.52, 1.88, 0.11, 0.53, 2, "없음", "지구형", 0xd9603b],
+  ["목성", 5.2, 11.86, 317.92, 11.21, 92, "있음", "목성형", 0xd9b38c],
+  ["토성", 9.54, 29.46, 95.14, 9.45, 83, "있음", "목성형", 0xe8d29a],
+  ["천왕성", 19.2, 84.0, 14.54, 4.01, 27, "있음", "목성형", 0x9be3e8],
+  ["해왕성", 30.1, 164.8, 17.09, 3.88, 14, "있음", "목성형", 0x4f6fe8]
+];
+const OTHER = {
+  sun: "<b>태양</b> · 태양계의 중심<br>스스로 빛을 내는 천체. 태양계 전체 질량의 대부분(약 99.8 %)을 차지한다.",
+  moon: "<b>달</b> · 위성<br>지구(행성)를 중심으로 공전한다. 스스로 빛을 내지 못하고 햇빛을 반사한다.",
+  ast: "<b>소행성</b><br>태양을 중심으로 공전하고 모양이 불규칙하다. 주로 화성과 목성 사이에 수많은 소행성이 띠를 이루어 분포한다.",
+  comet: "<b>혜성</b><br>얼음과 먼지로 이루어져 있다. 태양과 가까워질 때 얼음이 증발하며 태양 반대쪽으로 꼬리가 생긴다.",
+  pluto: "<b>134340 명왕성</b> · 왜소 행성<br>태양을 중심으로 공전하고 모양이 둥글지만, 궤도 주변의 다른 천체들을 치우지 못한다(지배적인 역할 ✕)."
+};
+const SS = { seen: {} };
+function ssTable() { const order = ["태양", ...PL.map(p => p[0]), "달", "소행성", "혜성", "왜소 행성"]; $("ss-tb").innerHTML = "<tr><th>자료 카드를 연 천체</th></tr><tr><td style='text-align:left'>" + (Object.keys(SS.seen).length ? order.filter(n => SS.seen[n]).map(n => "✅ " + n).join(" · ") : "아직 없어요") + "</td></tr>"; }
+ssTable();
+WS.custom("ss_seen", { el: $("ss-tb"), value: () => Object.keys(SS.seen).join(",") });
+$("ss-sp").addEventListener("input", () => $("ss-sp-o").textContent = $("ss-sp").value === "0" ? "멈춤" : "×" + $("ss-sp").value); $("ss-sp-o").textContent = "×1";
+const orbitR = a => 7 + 9.5 * Math.sqrt(a);
+const sizeR = r => 0.32 + 0.33 * Math.sqrt(r);
+(function () {
+  const st = $("ss-stage"), T3 = LB.three(st, 420);
+  if (!T3) { st.innerHTML += '<div style="color:#cfe;padding:80px 20px;text-align:center">3D를 표시할 수 없는 기기예요. 그림 7-1로 확인해 보세요.</div>'; return; }
+  const { r, scene, cam } = T3; cam.far = 600; cam.updateProjectionMatrix();
+  scene.background = new THREE.Color(0x02050c);
+  scene.children.filter(o => o.isDirectionalLight).forEach(o => scene.remove(o));
+  scene.children.filter(o => o.isAmbientLight).forEach(o => o.intensity = 0.25);
+  const sunLight = new THREE.PointLight(0xffffff, 1.6, 0, 0); scene.add(sunLight);
+  const target = new THREE.Vector3(0, 0, 0), orb = LB.orbit(cam, r.domElement, target, { R: 95, th: 0.4, ph: 1.05, min: 12, max: 160 });
+  // 별 배경
+  const sg = new THREE.BufferGeometry(), sp = []; for (let i = 0; i < 1500; i++) { const v = new THREE.Vector3().randomDirection ? new THREE.Vector3().randomDirection() : new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize(); v.multiplyScalar(300 + Math.random() * 100); sp.push(v.x, v.y, v.z); }
+  sg.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3)); scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: 0.9, sizeAttenuation: false })));
+  const pick = [];
+  // 태양
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(3.6, 40, 30), new THREE.MeshBasicMaterial({ color: 0xffb020 })); sun.userData = { key: "sun", name: "태양" }; scene.add(sun); pick.push(sun);
+  const glowC = document.createElement("canvas"); glowC.width = glowC.height = 128; const gc = glowC.getContext("2d"), gg = gc.createRadialGradient(64, 64, 10, 64, 64, 64); gg.addColorStop(0, "rgba(255,210,90,.9)"); gg.addColorStop(1, "rgba(255,140,20,0)"); gc.fillStyle = gg; gc.fillRect(0, 0, 128, 128);
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(glowC), depthWrite: false, blending: THREE.AdditiveBlending })); glow.scale.set(16, 16, 1); scene.add(glow);
+  // 띠무늬 행성 텍스처
+  function bandTex(base, bands) { const c = document.createElement("canvas"); c.width = 64; c.height = 64; const x = c.getContext("2d"); x.fillStyle = base; x.fillRect(0, 0, 64, 64); bands.forEach(b => { x.fillStyle = b[2]; x.fillRect(0, b[0], 64, b[1]); }); return new THREE.CanvasTexture(c); }
+  const tex = { 목성: bandTex("#e3c79e", [[12, 6, "#b9875a"], [24, 5, "#c99d70"], [36, 7, "#a46d45"], [50, 4, "#c99d70"]]), 토성: bandTex("#ead49e", [[20, 5, "#c9ad74"], [38, 6, "#d8bf86"]]) };
+  const planets = PL.map((p, i) => {
+    const R = orbitR(p[1]), s = sizeR(p[4]);
+    const mat = tex[p[0]] ? new THREE.MeshStandardMaterial({ map: tex[p[0]], roughness: 0.9 }) : new THREE.MeshStandardMaterial({ color: p[8], roughness: 0.8 });
+    const m = new THREE.Mesh(new THREE.SphereGeometry(s, 28, 20), mat); m.userData = { key: "pl" + i, name: p[0] }; scene.add(m); pick.push(m);
+    const og = new THREE.BufferGeometry().setFromPoints(Array.from({ length: 129 }, (_, k) => new THREE.Vector3(Math.cos(k / 128 * 6.283) * R, 0, Math.sin(k / 128 * 6.283) * R)));
+    scene.add(new THREE.Line(og, new THREE.LineBasicMaterial({ color: 0x3a5a7a, transparent: true, opacity: 0.6 })));
+    if (p[6] === "있음") { const ring = new THREE.Mesh(new THREE.RingGeometry(s * 1.35, s * (p[0] === "토성" ? 2.3 : 1.6), 48), new THREE.MeshBasicMaterial({ color: p[0] === "토성" ? 0xe8d6a8 : 0x8fb3c4, side: THREE.DoubleSide, transparent: true, opacity: p[0] === "토성" ? 0.85 : 0.35 })); ring.rotation.x = Math.PI / 2 - 0.35; m.add(ring); }
+    return { m, R, T: p[2], ph: i * 0.9 };
+  });
+  // 달
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshStandardMaterial({ color: 0xcfcfcf })); moon.userData = { key: "moon", name: "달" }; scene.add(moon); pick.push(moon);
+  // 소행성대 (화성과 목성 사이)
+  const NA = 380, astM = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(0.12, 0), new THREE.MeshStandardMaterial({ color: 0x8b7d6b, roughness: 1 }), NA);
+  const AST = Array.from({ length: NA }, () => ({ a: 2.2 + Math.random() * 1.1, ph: Math.random() * 6.283, y: (Math.random() - 0.5) * 0.9, s: 0.5 + Math.random() * 1.4 }));
+  astM.userData = { key: "ast", name: "소행성" }; scene.add(astM); pick.push(astM);
+  // 명왕성 (기울어진 타원 궤도)
+  const pluto = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), new THREE.MeshStandardMaterial({ color: 0xd8c3a5 })); pluto.userData = { key: "pluto", name: "왜소 행성" }; scene.add(pluto); pick.push(pluto);
+  const PA = 39.5, PE = 0.25, PI = 0.3;
+  const pPos = th => { const rr = PA * (1 - PE * PE) / (1 + PE * Math.cos(th)), R = orbitR(rr); return new THREE.Vector3(Math.cos(th) * R, Math.sin(th) * Math.sin(PI) * R * 0.3, Math.sin(th) * R * Math.cos(PI)); };
+  const pLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 129 }, (_, k) => pPos(k / 128 * 6.283))), new THREE.LineDashedMaterial({ color: 0x8a7a64, dashSize: 1, gapSize: 1 })); pLine.computeLineDistances(); scene.add(pLine);
+  // 혜성 (아주 길쭉한 궤도) + 꼬리
+  const comet = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 10), new THREE.MeshBasicMaterial({ color: 0xdff6ff })); comet.userData = { key: "comet", name: "혜성" }; scene.add(comet); pick.push(comet);
+  const CA = 14, CE = 0.88; // 그림에서 쓰는 거리 단위
+  const cPos = th => { const rr = CA * (1 - CE * CE) / (1 + CE * Math.cos(th)); return new THREE.Vector3(Math.cos(th + 2.2) * rr * 3.2, Math.sin(th) * rr * 0.25, Math.sin(th + 2.2) * rr * 3.2); };
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 257 }, (_, k) => cPos(k / 256 * 6.283))), new THREE.LineBasicMaterial({ color: 0x5a7f99, transparent: true, opacity: 0.35 })));
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(tail);
+  // 이름표
+  const labels = pick.filter(o => o !== astM).map(o => { const d = document.createElement("div"); d.className = "ss-label"; d.textContent = o.userData.name === "왜소 행성" ? "명왕성" : o.userData.name; st.appendChild(d); return [o, d]; });
+  const astLabel = document.createElement("div"); astLabel.className = "ss-label"; astLabel.textContent = "소행성대"; st.appendChild(astLabel);
+  // 누르기
+  const ray = new THREE.Raycaster(), mv = new THREE.Vector2(); let down = null;
+  r.domElement.addEventListener("pointerdown", e => down = [e.clientX, e.clientY]);
+  r.domElement.addEventListener("pointerup", e => {
+    if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return; const b = r.domElement.getBoundingClientRect();
+    mv.set((e.clientX - b.left) / b.width * 2 - 1, -(e.clientY - b.top) / b.height * 2 + 1); ray.setFromCamera(mv, cam);
+    // 작은 천체도 누르기 쉽게: 화면에서 가장 가까운 천체
+    let best = null, bd = 40; pick.forEach(o => { if (o === astM) return; const p = o.getWorldPosition(new THREE.Vector3()).project(cam); const dx = (p.x - mv.x) * b.width / 2, dy = (p.y - mv.y) * b.height / 2, dd = Math.hypot(dx, dy); if (p.z < 1 && dd < bd) { bd = dd; best = o; } });
+    if (!best) { const hit = ray.intersectObject(astM); if (hit.length) best = astM; }
+    if (!best) return; const k = best.userData.key; let html;
+    if (k.startsWith("pl")) { const p = PL[+k.slice(2)]; html = `<b>${p[0]}</b> · 행성 (${p[7]} 행성)<br>질량 ${p[3]} · 반지름 ${p[4]} (지구 = 1)<br>위성 수 ${p[5]}개 · 고리 ${p[6]}<br>${p[7] === "지구형" ? "암석으로 이루어져 표면이 단단하다." : "기체로 이루어져 단단한 표면이 없다."}`; SS.seen[p[0]] = 1; }
+    else { html = OTHER[k]; SS.seen[best.userData.name] = 1; }
+    $("ss-info").innerHTML = html; ssTable();
+  });
+  $("ss-view").addEventListener("change", () => { orb.st.R = $("ss-view").value === "inner" ? 34 : 95; orb.update(); });
+  const dummy = new THREE.Object3D(); let time = 0;
+  LB.loop(st, dt => {
+    time += dt * +$("ss-sp").value * 0.08; // 1 → 지구 한 바퀴 약 12초
+    planets.forEach(p => { const a = p.ph + time * 6.283 / p.T; p.m.position.set(Math.cos(a) * p.R, 0, -Math.sin(a) * p.R); p.m.rotation.y += dt * 0.5; });
+    const e = planets[2].m.position; const ma = time * 6.283 * 12; moon.position.set(e.x + Math.cos(ma) * 1.3, 0, e.z - Math.sin(ma) * 1.3);
+    AST.forEach((a, i) => { const R = orbitR(a.a), w = a.ph + time * 6.283 / Math.pow(a.a, 1.5); dummy.position.set(Math.cos(w) * R, a.y, -Math.sin(w) * R); dummy.scale.setScalar(a.s); dummy.rotation.set(w * 3, w * 2, 0); dummy.updateMatrix(); astM.setMatrixAt(i, dummy.matrix); }); astM.instanceMatrix.needsUpdate = true;
+    pluto.position.copy(pPos(-time * 6.283 / 248 + 1.0));
+    // 혜성: 케플러 운동처럼 태양 가까이에서 빠르게
+    const cm = cPos(SS.cth = (SS.cth || 2.5) + dt * +$("ss-sp").value * 0.25 * Math.pow(1 + CE * Math.cos(SS.cth || 2.5), 2) / 3);
+    comet.position.copy(cm);
+    const dist = cm.length(), L = Math.max(0.2, Math.min(16, 260 / (dist * dist))), dir = cm.clone().normalize();
+    tail.scale.set(Math.min(2.2, 0.3 + L * 0.12), L, Math.min(2.2, 0.3 + L * 0.12)); tail.position.copy(cm).add(dir.clone().multiplyScalar(L / 2)); tail.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir); tail.material.opacity = Math.min(0.5, 0.08 + L * 0.03);
+    r.render(scene, cam);
+    const b = { w: r.domElement.clientWidth, h: r.domElement.clientHeight };
+    labels.forEach(([o, d]) => { const p = o.getWorldPosition(new THREE.Vector3()).project(cam); d.style.display = p.z < 1 ? "" : "none"; d.style.left = ((p.x + 1) / 2 * b.w) + "px"; d.style.top = ((1 - p.y) / 2 * b.h) + "px"; });
+    const ap = new THREE.Vector3(orbitR(2.75), 0, 0).project(cam); astLabel.style.left = ((ap.x + 1) / 2 * b.w) + "px"; astLabel.style.top = ((1 - ap.y) / 2 * b.h) + "px";
+  });
+})();
+
+/* ── 순서도로 구분하기 ── */
+// 이름, 자료, [태양 공전?, 둥근가?, 지배적?], 정답
+const FL = [
+  ["화성", "태양을 중심으로 공전한다. 모양이 둥글다. 궤도 주변의 작은 천체들을 깨끗이 치웠다.", [1, 1, 1], "행성"],
+  ["달", "지구를 중심으로 공전한다. 모양이 둥글다.", [0], "위성"],
+  ["134340 명왕성", "태양을 중심으로 공전한다. 모양이 둥글다. 궤도 주변에 비슷한 작은 천체가 많이 남아 있다.", [1, 1, 0], "왜소 행성"],
+  ["베스타", "태양을 중심으로 공전한다. 화성과 목성 사이에 있으며 모양이 감자처럼 울퉁불퉁하다.", [1, 0], "소행성"],
+  ["가니메데", "목성을 중심으로 공전한다. 모양이 둥글고 수성보다 크다.", [0], "위성"],
+  ["에리스", "태양을 중심으로 공전한다. 모양이 둥글다. 해왕성 바깥의 작은 천체들 사이에 섞여 있다.", [1, 1, 0], "왜소 행성"]
+];
+const Q = ["태양을 중심으로 공전하는가?", "모양이 둥근가?", "궤도 주변의 다른 천체들에게 지배적인 역할을 하는가?"];
+const RES = [["위성", "소행성", "왜소 행성"], "행성"]; // 각 질문에서 '아니요'일 때의 결과, 모두 '예'이면 행성
+const FS = { i: 0, ans: [], out: {} };
+$("fl-obj").innerHTML = FL.map((f, i) => `<option value="${i}">${f[0]}</option>`).join("");
+$("fl-obj").addEventListener("change", () => { FS.i = +$("fl-obj").value; FS.ans = []; flDraw(); });
+function flDraw() {
+  const f = FL[FS.i]; $("fl-fact").innerHTML = `<b>📋 ${f[0]}의 자료</b> ${f[1]}`;
+  let html = '<div class="node done">시작 → 구분 대상: ' + f[0] + "</div>", result = null;
+  for (let k = 0; k < 3; k++) {
+    if (k > FS.ans.length) break;
+    const a = FS.ans[k];
+    if (a == null) { html += `<div class="node on">${k + 1}. ${Q[k]} <span class="btn-row" style="display:inline-flex;margin:0 0 0 6px"><button type="button" class="btn small" data-yn="1">예</button><button type="button" class="btn small ghost" data-yn="0">아니요</button></span></div>`; break; }
+    html += `<div class="node done">${k + 1}. ${Q[k]} → <b>${a ? "예" : "아니요"}</b></div>`;
+    if (!a) { result = RES[0][k]; break; }
+    if (k === 2) result = RES[1];
+  }
+  if (result) { html += `<div class="res">결과: ${f[0]} → ${result}</div>`; FS.out[f[0]] = result; flTable(); }
+  $("fl-box").innerHTML = html;
+}
+$("fl-box").addEventListener("click", e => { const b = e.target.closest("[data-yn]"); if (!b) return; FS.ans.push(+b.dataset.yn); flDraw(); });
+function flTable() { $("fl-tb").innerHTML = "<tr><th>천체</th><th>순서도 결과</th></tr>" + FL.map(f => `<tr><td>${f[0]}</td><td>${FS.out[f[0]] || "-"}</td></tr>`).join(""); }
+flDraw(); flTable();
+FL.forEach((f, i) => WS.custom("fl" + i, { el: $("fl-tb"), value: () => FS.out[f[0]] || "", check: v => v === f[3], answer: f[0] + " → " + f[3] }));
+
+/* ── 막대그래프 ── */
+function barDraw() {
+  const k = $("bar-k").value, idx = { m: 3, r: 4, n: 5 }[k], max = { m: 340, r: 12, n: 100 }[k];
+  const g = LB.fit($("bar-cv"), 230), c = g.c, W = g.w; c.fillStyle = "#fff"; c.fillRect(0, 0, W, 230);
+  const L = 40, B = 200, bw = (W - L - 10) / 8;
+  c.strokeStyle = "#9aabb0"; c.beginPath(); c.moveTo(L, 10); c.lineTo(L, B); c.lineTo(W - 6, B); c.stroke();
+  PL.forEach((p, i) => { const v = p[idx], h = v / max * (B - 20), x = L + i * bw + 6; c.fillStyle = i < 4 ? "#2f7de1" : "#e4572e"; c.fillRect(x, B - h, bw - 12, h); c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(p[0], x + (bw - 12) / 2, B + 14); c.fillText(String(v), x + (bw - 12) / 2, B - h - 4); c.textAlign = "left"; });
+  c.fillStyle = "#26393b"; c.font = "bold 11px Pretendard, sans-serif"; c.fillText($("bar-k").selectedOptions[0].textContent, L + 4, 14);
+}
+$("bar-k").addEventListener("change", barDraw); barDraw(); window.addEventListener("resize", barDraw);
+// 두 집단 나누기
+$("grp-tb").innerHTML = "<tr><th>행성</th><th>집단</th></tr>" + PL.map((p, i) => `<tr><td>${p[0]}</td><td><span class="choice-group" data-key="grp${i}" data-answer="${p[7]}"><button type="button" class="choice-btn" data-value="지구형">질량·반지름이 작은 집단 (지구형)</button><button type="button" class="choice-btn" data-value="목성형">질량·반지름이 큰 집단 (목성형)</button></span></td></tr>`).join("");
+</script>
+</body>
+</html>

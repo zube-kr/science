@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅴ-2-03 — 미끄러짐을 방해하는 힘</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅴ. 힘의 작용</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p170-snail.jpg" alt="계단에 붙인 미끄럼 방지 띠는 왜 표면이 거칠까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅴ. 힘의 작용 · 2. 여러 가지 힘 · 03 <span class="pg" style="margin:0">170~171쪽</span></span>
+      <h1>미끄러짐을<br><span>방해하는 힘</span></h1>
+      <p>“까끌까끌한 걸 붙여 놓았네?” 계단에 붙인 미끄럼 방지 띠는 왜 표면이 거칠까? 가상 힘 센서로 나무 도막을 끌어당기며 접촉면과 무게에 따라 마찰력이 어떻게 달라지는지 측정해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 마찰력의 뜻을 알고, 마찰력의 크기와 방향을 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>마찰력의 크기 비교하기 <span class="pg">170쪽</span></div>
+    <p class="lead-q">마찰력은 무엇일까?</p>
+    <div class="book"><p>계단 끝에 붙인 미끄럼 방지 띠는 계단에서 미끄러져 넘어지는 것을 막아 준다. 이는 미끄럼 방지 띠와 신발 사이에 미끄러짐을 방해하는 힘이 작용하기 때문이다. 이와 같이 두 물체의 접촉면에서 미끄러짐을 방해하는 힘을 <span class="key">마찰력</span>이라고 한다. 마찰력은 물체가 미끄러지는 방향과 <b>반대 방향</b>으로 작용한다.</p></div>
+    <div class="fig-row" style="grid-template-columns:minmax(150px,280px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p170-girl.jpg" alt="나무 도막을 힘 센서로 끌어당기는 학생"><figcaption><span class="tb">170쪽</span>나무 도막에 붙인 사포와 힘 센서</figcaption></figure>
+      <div class="steps-box" style="margin:0"><ol>
+        <li>나무 도막의 한쪽 면에 사포를 붙인 뒤, 사포 면이 위를 향하게 책상 위에 놓는다.</li>
+        <li>나무 도막을 힘 센서로 천천히 끌어당겨 움직이기 시작할 때 힘의 크기를 확인한다.</li>
+        <li>나무 도막의 사포 면이 바닥을 향하게 놓은 뒤, 과정 2를 반복한다.</li>
+      </ol></div>
+    </div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>가상 힘 센서로 끌어당기기</div>
+    <div class="card-hint">바닥에 닿는 면과 올려놓는 추의 개수를 정하고 [천천히 끌기]를 누르면 힘 센서가 당기는 힘을 조금씩 키워요. 나무 도막이 <b>움직이기 시작할 때</b>의 힘이 기록표에 자동으로 적혀요. 그래프의 뾰족한 꼭짓점을 찾아보자!</div>
+    <div class="ctrl-grid">
+      <div class="ctrl"><label>바닥에 닿는 면 <output></output></label><select id="fr-s"><option value="wood">나무 면 (책상 위)</option><option value="paper">사포 면 (책상 위)</option><option value="glass">나무 면 (유리판 위)</option><option value="rubber">고무판 면 (책상 위)</option></select></div>
+      <div class="ctrl"><label>올려놓은 추 (1개 1 N) <output id="fr-n-o"></output></label><input type="range" id="fr-n" min="0" max="3" value="0"></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn main small" id="fr-go">▶ 천천히 끌기</button><button type="button" class="btn ghost small" id="fr-reset">↺ 제자리</button></div>
+    <div class="light-stage"><canvas id="fr-cv"></canvas></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="scroll-x"><table class="data-t" id="fr-tb"></table></div>
+      <div class="light-stage"><canvas id="fr-g"></canvas></div>
+    </div>
+    <div class="q" data-why="사포 면이 바닥에 닿았을 때 움직이기 시작하는 힘이 더 커요. 접촉면이 거칠수록 마찰력이 커요. 또 추를 올려 무거울수록 마찰력이 커요." data-hint="추 0개로 나무 면과 사포 면을 각각 끌어 비교하세요.">
+      <div class="q-text"><span class="q-num">1</span>움직이기 시작할 때의 힘은 나무 면보다 사포 면이 바닥에 닿을 때 더 <span class="choice-group" data-key="fr_rough" data-answer="크"><button type="button" class="choice-btn" data-value="크">크다</button><button type="button" class="choice-btn" data-value="작">작다</button></span>. 같은 면에 추를 더 올리면 마찰력은 <span class="choice-group" data-key="fr_heavy" data-answer="커"><button type="button" class="choice-btn" data-value="커">커진다</button><button type="button" class="choice-btn" data-value="작아">작아진다</button><button type="button" class="choice-btn" data-value="같">같다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="나무 도막이 오른쪽으로 끌려가면 마찰력은 반대인 왼쪽으로 작용해요." data-hint="그래프 위 화살표의 방향을 보세요.">
+      <div class="q-text"><span class="q-num">2</span>나무 도막을 오른쪽으로 끌 때 마찰력은 <span class="choice-group" data-key="fr_dir" data-answer="왼"><button type="button" class="choice-btn" data-value="오른">오른쪽</button><button type="button" class="choice-btn" data-value="왼">왼쪽</button><button type="button" class="choice-btn" data-value="아래">아래쪽</button></span>으로 작용한다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>마찰력의 크기와 이용 <span class="pg">171쪽</span></div>
+    <div class="book"><p>나무 도막을 끌어당겨 움직이기 시작할 때 마찰력은 책상 면에 나무 면이 접촉했을 때보다 사포 면이 접촉했을 때 더 크다. 이는 접촉면이 거칠수록 물체에 작용하는 마찰력이 크기 때문이다. 또한 <b>그림 5-9</b>와 같이 가벼운 상자를 밀 때보다 무거운 상자를 밀 때 더 큰 힘으로 밀어야 상자가 움직이기 시작한다. 이는 물체가 무거울수록 물체에 작용하는 마찰력이 크기 때문이다. 즉 물체에 작용하는 마찰력의 크기는 <span class="key">접촉면이 거칠수록, 물체가 무거울수록</span> 크다.</p></div>
+    <figure class="fig"><img src="img/p171-fig5-9.jpg" alt="물체의 무게와 마찰력의 크기"><figcaption><span class="tb">그림 5-9</span>물체의 무게와 마찰력의 크기</figcaption></figure>
+    <div class="book"><p>우리는 마찰력을 <b>그림 5-10</b>과 같이 생활에서 다양하게 이용하고 있다. 필요에 따라 마찰력을 크게 하여 미끄러지는 것을 방지하기도 하고, 마찰력을 작게 하여 잘 미끄러지게 하기도 한다.</p></div>
+    <figure class="fig"><img src="img/p171-fig5-10.jpg" alt="마찰력을 이용하는 예"><figcaption><span class="tb">그림 5-10</span>마찰력을 이용하는 예 — 고무장갑, 눈길 바퀴의 쇠줄, 미끄럼틀의 물</figcaption></figure>
+    <div class="tip-box"><b>더 알아보기 · 걸을 때 작용하는 마찰력</b><br>걸을 때에는 신발이 바닥을 미는 방향과 반대로 마찰력이 작용하여 몸이 앞으로 나아가게 한다. 표면이 매끄러운 바닥에서 걷기 힘든 까닭도 표면이 매끄러울수록 마찰력이 작아지기 때문이다.</div>
+    <div class="q" data-why="빗면에서 물체는 아래로 미끄러지려 하므로, 마찰력은 그 반대인 빗면 위쪽(B)으로 작용해요.">
+      <div class="q-text"><span class="q-num">1</span>빗면 위에 놓인 물체가 빗면 아래로 미끄러져 내려가려고 한다. 이때 마찰력의 방향은?</div>
+      <div class="light-stage" style="max-width:420px;margin:6px 0"><canvas id="sl-cv"></canvas></div>
+      <div class="q-text"><span class="choice-group" data-key="slope" data-answer="B"><button type="button" class="choice-btn" data-value="A">A</button><button type="button" class="choice-btn" data-value="B">B</button><button type="button" class="choice-btn" data-value="C">C</button></span></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>170쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">171쪽</span></div>
+    <div class="q" data-why="두 물체의 접촉면에서 미끄러짐을 방해하는 힘은 마찰력이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 두 물체의 접촉면에서 미끄러짐을 방해하는 힘을 ( <input class="blank w-s" data-key="sc1" data-answer="마찰력"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 경사진 도로에는 자동차가 미끄러지지 않도록 표면에 미끄럼 방지 페인트를 칠하기도 한다. 이 페인트를 칠하면 어떤 점이 달라지는지 마찰력과 관련지어 설명해 보자.</div>
+      <textarea class="free" data-key="paint" data-keywords="거칠,마찰력,커,미끄러지지" data-model="미끄럼 방지 페인트를 칠하면 도로 표면이 거칠어져 타이어와 도로 사이의 마찰력이 커지므로, 자동차가 경사진 도로에서 미끄러지지 않는다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>미끄러짐을 방해하는 힘</div>
+    <div class="q" data-why="마찰력은 접촉면에서 작용하고, 운동하거나 운동하려는 방향과 반대 방향으로 작용하며, 물체가 무거울수록·접촉면이 거칠수록 커요.">
+      <div class="q-text"><span class="q-num">1</span>두 물체의 <input class="blank w-s" data-key="t1" data-answer="접촉면"> 에서 물체의 운동을 방해하는 힘을 마찰력이라고 한다. 마찰력은 물체가 운동하려는 방향과 <input class="blank w-s" data-key="t2" data-answer="반대"> 방향으로 작용한다. 마찰력은 물체가 ( <span class="choice-group" data-key="t4a" data-answer="무거울수록"><button type="button" class="choice-btn" data-value="가벼울수록">가벼울수록</button><button type="button" class="choice-btn" data-value="무거울수록">무거울수록</button></span> ), 접촉면이 ( <span class="choice-group" data-key="t4b" data-answer="거칠수록"><button type="button" class="choice-btn" data-value="미끄러울수록">미끄러울수록</button><button type="button" class="choice-btn" data-value="거칠수록">거칠수록</button></span> ) 크다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="등산화·미끄럼 방지 패드·송진은 마찰력이 커야 편리하고, 윤활유·미끄럼틀의 물은 마찰력이 작아야 편리해요.">
+      <div class="q-text"><span class="q-num">2</span>마찰력이 커야 편리하면 ‘커’, 작아야 편리하면 ‘작’을 골라 보자.</div>
+      <table class="data-t" style="margin-top:6px">
+        <tr><td style="text-align:left">⑤ 등산화의 바닥을 울퉁불퉁하게 만든다.</td><td><span class="choice-group" data-key="t5" data-answer="커"><button type="button" class="choice-btn" data-value="커">커</button><button type="button" class="choice-btn" data-value="작">작</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 계단 끝에 미끄럼 방지 패드를 붙인다.</td><td><span class="choice-group" data-key="t6" data-answer="커"><button type="button" class="choice-btn" data-value="커">커</button><button type="button" class="choice-btn" data-value="작">작</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 기계나 자전거의 체인에 윤활유를 사용한다.</td><td><span class="choice-group" data-key="t7" data-answer="작"><button type="button" class="choice-btn" data-value="커">커</button><button type="button" class="choice-btn" data-value="작">작</button></span></td></tr>
+        <tr><td style="text-align:left">⑧ 현악기를 연주할 때 활에 송진을 바른다.</td><td><span class="choice-group" data-key="t8" data-answer="커"><button type="button" class="choice-btn" data-value="커">커</button><button type="button" class="choice-btn" data-value="작">작</button></span></td></tr>
+        <tr><td style="text-align:left">⑨ 수영장의 미끄럼틀에 물을 뿌린다.</td><td><span class="choice-group" data-key="t9" data-answer="작"><button type="button" class="choice-btn" data-value="커">커</button><button type="button" class="choice-btn" data-value="작">작</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>마찰력 <span class="pg">176쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">3</span>마찰력</h4>
+      <div class="q" style="border-top:none" data-why="마찰력은 접촉면에서 미끄러짐을 방해하는 힘이고, 미끄러지는 방향과 반대로 작용해요.">
+        <div class="q-text">(1) <input class="blank w-s" data-key="s6" data-answer="마찰력"> : 두 물체의 접촉면에서 미끄러짐을 방해하는 힘<br>(2) 마찰력의 방향: 물체가 미끄러지는 방향과 <input class="blank w-s" data-key="s7" data-answer="반대"> 방향<br>(3) 마찰력의 크기: 접촉면이 거칠수록, 물체가 무거울수록 크다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅴ. 힘의 작용 · 2. 여러 가지 힘 · 03 미끄러짐을 방해하는 힘 · 비상교육 중학 과학 1 교과서(170~171쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅴ-2-03 미끄러짐을 방해하는 힘";
+const $ = id => document.getElementById(id);
+function arrow(c, x0, y0, x1, y1, col, w) { const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0); if (L < 2) return; c.strokeStyle = c.fillStyle = col; c.lineWidth = w || 4; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - Math.cos(a) * 10, y1 - Math.sin(a) * 10); c.stroke(); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 13 * Math.cos(a - 0.4), y1 - 13 * Math.sin(a - 0.4)); c.lineTo(x1 - 13 * Math.cos(a + 0.4), y1 - 13 * Math.sin(a + 0.4)); c.closePath(); c.fill(); c.lineWidth = 1; }
+// 접촉면: 이름, 정지 마찰 계수, 운동 마찰 계수, 바닥 색, 도막 아랫면 색
+const SURF = { wood: ["나무 면·책상", 0.35, 0.28, "#d9c39a", "#c99a5b"], paper: ["사포 면·책상", 0.75, 0.62, "#d9c39a", "#3b3b3b"], glass: ["나무 면·유리판", 0.22, 0.17, "#cfe6f5", "#c99a5b"], rubber: ["고무판 면·책상", 0.95, 0.8, "#d9c39a", "#c33"] };
+const BLOCK = 2; // 나무 도막 무게 2 N
+const FR = { run: false, t: 0, F: 0, x: 0, moving: false, hist: [], peak: 0, rows: [] };
+$("fr-n").addEventListener("input", () => { $("fr-n-o").textContent = $("fr-n").value + "개"; if (!FR.run) frReset(); }); $("fr-n-o").textContent = "0개";
+$("fr-s").addEventListener("change", () => { if (!FR.run) frReset(); });
+function frReset() { Object.assign(FR, { run: false, t: 0, F: 0, x: 0, moving: false, hist: [], peak: 0 }); frDraw(0); }
+$("fr-go").addEventListener("click", () => { frReset(); FR.run = true; });
+$("fr-reset").addEventListener("click", frReset);
+function frDraw(dt) {
+  const S = SURF[$("fr-s").value], n = +$("fr-n").value, Wt = BLOCK + n, fs = S[1] * Wt, fk = S[2] * Wt;
+  if (FR.run) {
+    FR.t += dt;
+    if (!FR.moving) { FR.F += dt * 1.1; if (FR.F >= fs) { FR.moving = true; FR.peak = FR.F; FR.rows = FR.rows.filter(r => !(r[0] === S[0] && r[1] === n)); FR.rows.push([S[0], n, +FR.peak.toFixed(2)]); frTable(); } }
+    else { FR.F += (fk + 0.02 * Math.sin(FR.t * 30) - FR.F) * Math.min(1, dt * 12); FR.x += dt * 50; if (FR.x > 220) FR.run = false; }
+    FR.hist.push([FR.t, FR.F]); if (FR.t > 10) FR.run = false;
+  }
+  const g = LB.fit($("fr-cv"), 170), c = g.c, W = g.w, bx = 80 + FR.x;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 170); c.fillStyle = S[3]; c.fillRect(0, 120, W, 40);
+  c.fillStyle = "#c99a5b"; c.fillRect(bx, 76, 90, 44); c.fillStyle = S[4]; c.fillRect(bx, 116, 90, 4);
+  for (let k = 0; k < n; k++) { c.fillStyle = "#8a8f98"; c.fillRect(bx + 10 + k * 26, 58, 22, 18); }
+  c.fillStyle = "#ffa21f"; c.fillRect(bx + 120, 84, 60, 28); c.fillStyle = "#16242b"; c.fillRect(bx + 126, 90, 48, 16); c.fillStyle = "#7dffb2"; c.font = "bold 12px 'Courier New', monospace"; c.textAlign = "right"; c.fillText(FR.F.toFixed(2), bx + 172, 102); c.textAlign = "left";
+  c.strokeStyle = "#555"; c.beginPath(); c.moveTo(bx + 90, 98); c.lineTo(bx + 120, 98); c.stroke();
+  if (FR.F > 0.05) { arrow(c, bx + 90, 140, bx + 90 + FR.F * 22, 140, "#e4572e"); arrow(c, bx, 148, bx - Math.min(FR.F, FR.moving ? fk : FR.F) * 22, 148, "#2f7de1"); c.font = "bold 11px Pretendard, sans-serif"; c.fillStyle = "#e4572e"; c.fillText("당기는 힘", bx + 96, 136); c.fillStyle = "#2f7de1"; c.fillText("마찰력", Math.max(4, bx - 60), 165); }
+  c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(`${S[0]} · 도막+추 ${Wt} N · ${FR.moving ? "움직이는 중 ▶ 움직이기 시작할 때 " + FR.peak.toFixed(2) + " N" : FR.run ? "아직 정지 — 당기는 힘 = 마찰력" : "정지"}`, 10, 20);
+  LB.graph($("fr-g"), { h: 200, xMax: 10, yMin: 0, yMax: 5, xStep: 2, yStep: 1, xLabel: "시간(초)", yLabel: "힘 센서(N)", series: [{ color: "#e4572e", pts: FR.hist }] });
+}
+function frTable() { $("fr-tb").innerHTML = "<tr><th>바닥에 닿는 면</th><th>추</th><th>움직이기 시작할 때의 힘(N)</th></tr>" + (FR.rows.length ? FR.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}개</td><td>${r[2].toFixed(2)}</td></tr>`).join("") : '<tr><td colspan="3" style="color:#8a9a9c">기록이 없어요</td></tr>'); }
+frTable(); LB.loop($("fr-cv"), frDraw); frDraw(0);
+WS.custom("fr_log", { el: $("fr-tb"), value: () => FR.rows.map(r => r.join(":")).join(" ") });
+
+/* ── 빗면 그림 ── */
+(function () { const g = LB.fit($("sl-cv"), 200), c = g.c, W = g.w; c.fillStyle = "#fff"; c.fillRect(0, 0, W, 200);
+  const a = Math.atan2(110, 300), x0 = 40, y0 = 180; c.fillStyle = "#e5dccb"; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 + 300, y0); c.lineTo(x0, y0 - 110); c.closePath(); c.fill();
+  const bx = x0 + 130, by = y0 - 110 + 130 * Math.tan(a); c.save(); c.translate(bx, by); c.rotate(a); c.fillStyle = "#c99a5b"; c.fillRect(-25, -36, 50, 36); c.restore();
+  const ux = Math.cos(a), uy = Math.sin(a); const cx = bx + 18 * Math.sin(a) * 0, cy = by - 18;
+  arrow(c, cx, cy, cx + ux * 60, cy + uy * 60, "#7a4fd6"); arrow(c, cx, cy, cx - ux * 60, cy - uy * 60, "#7a4fd6"); arrow(c, cx, cy, cx, cy + 60, "#7a4fd6");
+  c.fillStyle = "#26393b"; c.font = "bold 14px Pretendard, sans-serif"; c.fillText("A", cx + ux * 64 + 4, cy + uy * 64 + 4); c.fillText("B", cx - ux * 64 - 16, cy - uy * 64); c.fillText("C", cx + 6, cy + 74);
+  c.font = "11px Pretendard, sans-serif"; c.fillText("빗면 아래로 미끄러지려는 물체", 10, 16); })();
+</script>
+</body>
+</html>

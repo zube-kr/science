@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅳ-2-02 — 물질의 상태 변화</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅳ. 물질의 상태 변화</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p126-icebar.jpg" alt="아이스바가 녹을 때 어떤 상태 변화가 일어날까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅳ. 물질의 상태 변화 · 2. 물질의 상태와 상태 변화 · 02 <span class="pg" style="margin:0">126~129쪽</span></span>
+      <h1>물질의<br><span>상태 변화</span></h1>
+      <p>“으아, 녹는다 녹아!” 아이스바를 먹다 보면 고체였던 아이스바가 액체가 되어 녹아 흐른다. 이처럼 물질이 한 가지 상태에서 다른 상태로 변하는 것을 <b>상태 변화</b>라고 한다. 가상 실험으로 여러 가지 물질의 상태 변화를 관찰해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 여러 가지 물질의 상태 변화를 관찰하고 구분할 수 있으며, 물질의 상태가 변해도 물질의 성질은 변하지 않음을 알 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구 1</span>얼음과 드라이아이스의 상태 변화 관찰하기 <span class="pg">126쪽</span></div>
+    <p class="lead-q">물질의 상태 변화에는 어떤 것이 있을까?</p>
+    <div class="fig-row" style="grid-template-columns:minmax(150px,300px) 1fr;align-items:start">
+      <figure class="fig" style="margin:0"><img src="img/p126-bags.jpg" alt="얼음과 드라이아이스를 넣은 비닐 주머니"><figcaption><span class="tb">126쪽</span>얼음과 ●드라이아이스(고체 이산화 탄소)를 넣은 비닐 주머니</figcaption></figure>
+      <div class="steps-box" style="margin:0"><ol>
+        <li>두 개의 비닐 주머니에 핀셋으로 얼음 조각과 드라이아이스 조각을 각각 넣는다. (드라이아이스를 넣은 주머니가 너무 부풀지 않도록 작은 조각을 넣는다.)</li>
+        <li>비닐 주머니에서 공기를 최대한 빼고 입구를 막는다.</li>
+        <li><b>관찰</b> 비닐 주머니 안의 얼음과 드라이아이스 조각이 각각 어떻게 변하는지 관찰한다.</li>
+      </ol></div>
+    </div>
+    <div class="safe">⚠️ 드라이아이스를 다룰 때는 반드시 면장갑을 낀다. 실험하는 동안 창문을 열어 환기가 되도록 한다.</div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>두 비닐 주머니 관찰하기</div>
+    <div class="card-hint">시간 막대를 움직이거나 [재생]을 눌러 두 주머니 속 물질이 어떻게 변하는지 관찰하자. 아래 입자 확대 창에서 입자의 모습도 비교해 보자.</div>
+    <div class="ctrl-grid"><div class="ctrl"><label>지난 시간 <output id="bg-o"></output></label><input type="range" id="bg-t" min="0" max="100" value="0"></div></div>
+    <div class="btn-row"><button type="button" class="btn main small" id="bg-go">▶ 재생</button></div>
+    <div class="light-stage"><canvas id="bg-cv"></canvas></div>
+    <div class="q" data-why="얼음은 녹아서 액체인 물이 되고, 드라이아이스는 액체를 거치지 않고 곧바로 기체(이산화 탄소)가 되어 주머니가 부풀어요." data-hint="시간 막대를 끝까지 움직여 두 주머니를 비교하세요.">
+      <div class="q-text"><span class="q-num">1</span>얼음은 <span class="choice-group" data-key="bg_ice" data-answer="액체"><button type="button" class="choice-btn" data-value="액체">액체(물)로</button><button type="button" class="choice-btn" data-value="기체">곧바로 기체로</button></span> 변하고, 드라이아이스는 <span class="choice-group" data-key="bg_dry" data-answer="기체"><button type="button" class="choice-btn" data-value="액체">액체로</button><button type="button" class="choice-btn" data-value="기체">액체를 거치지 않고 곧바로 기체로</button></span> 변한다. 그래서 <span class="choice-group" data-key="bg_puff" data-answer="dry"><button type="button" class="choice-btn" data-value="ice">얼음</button><button type="button" class="choice-btn" data-value="dry">드라이아이스</button></span>을 넣은 주머니가 부풀어 오른다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구 2</span>물의 상태 변화 관찰하기 <span class="pg">127쪽</span></div>
+    <figure class="fig mid"><img src="img/p127-watch.jpg" alt="뜨거운 물이 든 비커 위 얼음을 올린 시계 접시와 염화 코발트 종이"><figcaption><span class="tb">127쪽</span>●염화 코발트 종이: 물을 흡수하면 푸른색에서 붉은색으로 변한다.</figcaption></figure>
+    <div class="steps-box"><ol>
+      <li>뜨거운 물이 들어 있는 비커 위에 얼음이 담긴 시계 접시를 올려놓는다.</li>
+      <li><b>관찰</b> 비커 안쪽과 시계 접시 아랫면의 변화를 관찰한다.</li>
+      <li><b>관찰</b> 시계 접시의 아랫면에 맺힌 액체에 푸른색 염화 코발트 종이를 대어 보고 색 변화를 관찰한다.</li>
+    </ol></div>
+    <div class="safe">⚠️ 뜨거운 물을 사용할 때 화상을 입지 않도록 주의한다. 유리 기구를 다룰 때 깨지지 않게 조심한다.</div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>비커와 시계 접시</div>
+    <div class="card-hint">[시계 접시 올리기]를 누르고 잠시 기다린 뒤, [염화 코발트 종이 대기]를 눌러 보자. 확대 창에서 물 입자(파란 점)가 어디서 어디로 가는지 따라가 보자.</div>
+    <div class="btn-row"><button type="button" class="btn main small" id="wg-go">🧊 시계 접시 올리기</button><button type="button" class="btn small" id="wg-paper">🟦 염화 코발트 종이 대기</button><button type="button" class="btn ghost small" id="wg-reset">↺ 처음으로</button></div>
+    <div class="light-stage"><canvas id="wg-cv"></canvas></div>
+    <div class="q" data-why="비커 속 물이 수증기(기체)로 변하는 것은 기화, 수증기가 차가운 시계 접시의 아랫면에서 다시 물(액체)로 변하는 것은 액화예요. 염화 코발트 종이가 붉은색으로 변하므로 맺힌 액체가 물이라는 것을 알 수 있어요." data-hint="종이를 대기 전에 시계 접시 아랫면에 물방울이 맺힐 때까지 기다리세요.">
+      <div class="q-text"><span class="q-num">1</span>푸른색 염화 코발트 종이는 <span class="choice-group" data-key="wg_col" data-answer="붉은"><button type="button" class="choice-btn" data-value="붉은">붉은색</button><button type="button" class="choice-btn" data-value="푸른">푸른색 그대로</button></span>으로 변하므로, 시계 접시의 아랫면에 맺힌 액체는 <input class="blank w-s" data-key="wg_what" data-answer="물"> 이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">정리해 볼까</span>탐구 결과 정리 <span class="pg">127쪽</span></div>
+    <div class="q" data-why="탐구 1: 얼음은 고체 → 액체, 드라이아이스는 고체 → 기체. 탐구 2: 물은 액체 → 기체(수증기) → 액체(물방울).">
+      <div class="q-text"><span class="q-num">1</span>탐구 1과 탐구 2에서 물질의 상태는 각각 어떻게 변하는가?<br>• 얼음: 고체 → <span class="choice-group" data-key="r_ice" data-answer="액체"><button type="button" class="choice-btn" data-value="액체">액체</button><button type="button" class="choice-btn" data-value="기체">기체</button></span> &nbsp; • 드라이아이스: 고체 → <span class="choice-group" data-key="r_dry" data-answer="기체"><button type="button" class="choice-btn" data-value="액체">액체</button><button type="button" class="choice-btn" data-value="기체">기체</button></span><br>• 물: 액체 → <span class="choice-group" data-key="r_w1" data-answer="기체"><button type="button" class="choice-btn" data-value="고체">고체</button><button type="button" class="choice-btn" data-value="기체">기체</button></span> → <span class="choice-group" data-key="r_w2" data-answer="액체"><button type="button" class="choice-btn" data-value="액체">액체</button><button type="button" class="choice-btn" data-value="고체">고체</button></span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>결론 도출</b> 탐구 2의 결과를 바탕으로, 물질의 상태가 변할 때 물질의 성질은 어떻게 되는지 이야기해 보자.</div>
+      <textarea class="free" data-key="prop" data-keywords="성질,변하지 않,물,염화 코발트" data-model="수증기가 다시 물로 변한 액체에 염화 코발트 종이가 붉게 변했으므로 처음과 같은 물이다. 물질의 상태가 변해도 물질의 성질은 변하지 않는다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 초콜릿의 상태 변화 관찰하기</h4>
+      <div class="fig-row" style="grid-template-columns:130px 1fr;align-items:center"><figure class="fig" style="margin:0"><img src="img/p127-choco.jpg" alt="녹인 초콜릿을 틀에 붓는 모습"></figure>
+      <div style="font-size:13.5px;line-height:1.8">① 초콜릿을 잘게 부숴 맛을 본 다음, 비닐 주머니에 넣는다. ② 비닐 주머니를 뜨거운 물에 담가 초콜릿을 완전히 녹인 뒤 나무젓가락으로 찍어 맛을 본다. ③ 비닐 주머니의 한쪽 끝을 조금 잘라 초콜릿을 틀에 붓고 서서히 굳힌다.</div></div>
+      <div class="q" style="border-top:none" data-why="초콜릿을 녹이기 전과 녹인 뒤의 맛이 같아요. 상태가 변해도 물질의 성질은 변하지 않아요.">
+        <div class="q-text"><b>정리</b> 녹이기 전과 녹인 뒤 초콜릿의 맛은 <span class="choice-group" data-key="choco" data-answer="같다"><button type="button" class="choice-btn" data-value="같다">같다</button><button type="button" class="choice-btn" data-value="다르다">다르다</button></span>.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>융해 · 응고 · 기화 · 액화 · 승화 <span class="pg">128~129쪽</span></div>
+    <div class="book">
+      <p>고체인 얼음이 녹으면 액체인 물로 변한다. 이처럼 물질의 상태가 고체에서 액체로 변하는 것을 <span class="key">융해</span>라고 하고, 반대로 액체에서 고체로 변하는 것을 <span class="key">응고</span>라고 한다. 한편 고체 이산화 탄소인 드라이아이스는 액체를 거치지 않고 기체로 변한다. 이처럼 물질의 상태가 고체에서 곧바로 기체로 변하는 것을 <span class="key">승화</span>라고 한다. 이와 반대로 기체가 곧바로 고체로 변하는 것도 승화라고 한다.</p>
+      <p>탐구에서 비커 속 물은 기체인 수증기로 변했다가, 시계 접시의 아랫면에서 다시 액체인 물로 변한다. 이처럼 물질의 상태가 액체에서 기체로 변하는 것을 <span class="key">기화</span>, 기체에서 액체로 변하는 것을 <span class="key">액화</span>라고 한다.</p>
+      <p>푸른색 염화 코발트 종이를 시계 접시의 아랫면에 맺힌 액체에 갖다 대면 붉은색으로 변해 물이라는 것을 확인할 수 있다. 이와 같이 물질의 상태가 변해도 물질의 성질은 변하지 않는다.</p>
+    </div>
+    <figure class="fig"><img src="img/p129-fig4-6.jpg" alt="우리 주변에서 볼 수 있는 상태 변화의 예"><figcaption><span class="tb">그림 4-6</span>우리 주변에서 볼 수 있는 상태 변화의 예</figcaption></figure>
+
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">움직이는 그림 4-6</span>상태 변화 탐색기</div>
+    <div class="card-hint">화살표 버튼을 눌러 보자. 입자 상자에서 상태가 바뀌는 모습과 그 상태 변화의 이름, 생활 속 예가 나타나요.</div>
+    <div class="btn-row" id="ch-row">
+      <button type="button" class="btn small" data-k="0">고체 → 액체</button><button type="button" class="btn small" data-k="1">액체 → 고체</button>
+      <button type="button" class="btn small" data-k="2">액체 → 기체</button><button type="button" class="btn small" data-k="3">기체 → 액체</button>
+      <button type="button" class="btn small" data-k="4">고체 → 기체</button><button type="button" class="btn small" data-k="5">기체 → 고체</button>
+    </div>
+    <div class="sim-wrap">
+      <div class="light-stage"><canvas id="ch-cv"></canvas></div>
+      <div class="panel"><div class="tip-box" style="margin:0" id="ch-say">화살표 버튼을 눌러 보세요.</div></div>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">해 보기</span>물질의 상태 변화 구분하기 <span class="pg">128쪽</span></div>
+    <figure class="fig small"><img src="img/p126-icebar.jpg" alt="녹는 아이스바"></figure>
+    <div class="card-hint">모둠별로 상태 변화의 예를 조사하여 공유하고, 각각 어떤 상태 변화인지 구분해 보자. 먼저 아래 예부터 구분해 볼까?</div>
+    <div class="q" data-why="아이스바·용광로 쇳물은 융해, 고드름·초콜릿 굳히기는 응고, 젖은 빨래 마르기·물 끓기는 기화, 이슬·안경 김 서림은 액화, 냉동실 얼음이 작아짐·나프탈렌이 작아짐은 고체→기체 승화, 성에·서리는 기체→고체 승화예요.">
+      <table class="data-t">
+        <tr><th style="text-align:left">상태 변화의 예</th><th>상태 변화</th></tr>
+        <tr><td style="text-align:left">① 아이스바가 녹아 흐른다.</td><td><span class="choice-group" data-key="e1" data-answer="융해"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">② 겨울철 처마 끝에 고드름이 생긴다.</td><td><span class="choice-group" data-key="e2" data-answer="응고"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">③ 젖은 빨래가 마른다.</td><td><span class="choice-group" data-key="e3" data-answer="기화"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">④ 차가운 음료수 컵 바깥에 물방울이 맺힌다.</td><td><span class="choice-group" data-key="e4" data-answer="액화"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">⑤ 옷장 속 나프탈렌이 점점 작아진다.</td><td><span class="choice-group" data-key="e5" data-answer="승화"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">⑥ 추운 아침 풀잎에 서리가 내린다.</td><td><span class="choice-group" data-key="e6" data-answer="승화"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">⑦ 녹인 초콜릿을 틀에 부어 굳힌다.</td><td><span class="choice-group" data-key="e7" data-answer="응고"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+        <tr><td style="text-align:left">⑧ 겨울에 따뜻한 실내로 들어오면 안경에 김이 서린다.</td><td><span class="choice-group" data-key="e8" data-answer="액화"><button type="button" class="choice-btn" data-value="융해">융해</button><button type="button" class="choice-btn" data-value="응고">응고</button><button type="button" class="choice-btn" data-value="기화">기화</button><button type="button" class="choice-btn" data-value="액화">액화</button><button type="button" class="choice-btn" data-value="승화">승화</button></span></td></tr>
+      </table>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span>🧑‍🤝‍🧑 우리 모둠이 조사한 상태 변화의 예 3가지와 그 종류를 쓰고, 활동하면서 새롭게 알게 된 예를 이야기해 보자.</div>
+      <textarea class="free" data-key="our3" data-keywords="융해/응고/기화/액화/승화" data-model="① 촛농이 굳는다(응고) ② 손 소독제가 금방 마른다(기화) ③ 동결 건조 커피를 만든다(승화). 새로 알게 된 점: 냉동실 얼음이 작아지는 것도 승화이다."></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>126쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">129쪽</span></div>
+    <div class="q" data-why="고체 → 액체는 융해, 고체 → 기체(곧바로)는 승화예요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 물질의 상태가 고체에서 액체로 변하는 것을 ( <input class="blank w-s" data-key="sc1" data-answer="융해"> )(이)라고 하고, 고체에서 곧바로 기체로 변하는 것을 ( <input class="blank w-s" data-key="sc2" data-answer="승화"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 추운 겨울날 그늘진 곳에 만들어 두었던 눈사람의 크기가 작아진 까닭을 물질의 상태 변화로 설명해 보자.</div>
+      <textarea class="free" data-key="snowman" data-keywords="승화,고체,기체,녹지 않" data-model="기온이 낮은 그늘에서는 눈이 녹지 않지만, 고체인 눈(얼음)이 액체를 거치지 않고 곧바로 기체인 수증기로 변하는 승화가 일어나 눈사람이 점점 작아졌다."></textarea>
+      <span class="fb"></span>
+    </div>
+    <div class="block-q">
+      <b>🧩 두 번째 블록 · 힌트 조각 2 (129쪽)</b>
+      <div class="q" style="border-top:none;padding:0" data-why="젖은 흙이 마를 때 액체인 물은 기체인 수증기가 돼요(기화).">
+        <div class="q-text" style="color:#3a1600">젖은 흙이 마를 때 액체인 물은 ( <span class="choice-group" data-key="blk2b" data-answer="기체"><button type="button" class="choice-btn" data-value="고체">고체</button><button type="button" class="choice-btn" data-value="기체">기체</button></span> )인 수증기가 된다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>물질의 상태 변화</div>
+    <div class="q" data-why="물질이 한 가지 상태에서 다른 상태로 변하는 것은 상태 변화예요. 비커 속 물 → 수증기는 기화, 수증기 → 시계 접시 아래 물은 액화예요.">
+      <div class="q-text"><span class="q-num">1</span>물질이 다른 상태로 변하는 것을 <input class="blank" data-key="t1" data-answer="상태 변화|상태변화"> 라고 한다. 비커 속 물이 수증기로 변하는 현상은 <input class="blank w-s" data-key="t2a" data-answer="기화"> 이고, 수증기가 시계 접시의 아랫면에서 다시 물로 변하는 현상은 <input class="blank w-s" data-key="t2b" data-answer="액화"> 이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="물질의 상태가 변해도 물질의 성질은 변하지 않아요. 융해는 고체 → 액체, 응고는 액체 → 고체예요.">
+      <div class="q-text"><span class="q-num">2</span>물질의 상태가 변해도 물질의 <input class="blank w-s" data-key="t4" data-answer="성질"> 은 변하지 않는다. 융해는 <span class="choice-group" data-key="t5" data-answer="고액"><button type="button" class="choice-btn" data-value="고액">고체 → 액체</button><button type="button" class="choice-btn" data-value="액고">액체 → 고체</button></span>, 응고는 <span class="choice-group" data-key="t6" data-answer="액고"><button type="button" class="choice-btn" data-value="고액">고체 → 액체</button><button type="button" class="choice-btn" data-value="액고">액체 → 고체</button></span>로 변하는 것이다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="용광로에서 철이 녹아 쇳물이 되는 것(㉢)은 융해, 고드름(㉠)은 응고, 냉동실 얼음이 작아지는 것(㉡)은 승화예요. 성에는 기체 → 고체의 승화예요.">
+      <div class="q-text"><span class="q-num">3</span>㉠ 겨울철 처마 끝에 고드름이 생긴다. ㉡ 냉동실에 넣어 둔 얼음이 조금씩 작아진다. ㉢ 용광로에서 철이 녹아 쇳물이 된다.<br>융해 → <span class="choice-group" data-key="t7" data-answer="ㄷ"><button type="button" class="choice-btn" data-value="ㄱ">㉠</button><button type="button" class="choice-btn" data-value="ㄴ">㉡</button><button type="button" class="choice-btn" data-value="ㄷ">㉢</button></span> 응고 → <span class="choice-group" data-key="t8" data-answer="ㄱ"><button type="button" class="choice-btn" data-value="ㄱ">㉠</button><button type="button" class="choice-btn" data-value="ㄴ">㉡</button><button type="button" class="choice-btn" data-value="ㄷ">㉢</button></span> 승화 → <span class="choice-group" data-key="t9" data-answer="ㄴ"><button type="button" class="choice-btn" data-value="ㄱ">㉠</button><button type="button" class="choice-btn" data-value="ㄴ">㉡</button><button type="button" class="choice-btn" data-value="ㄷ">㉢</button></span><br>추운 겨울 유리창에 성에가 생기는 현상은 <span class="choice-group" data-key="t10" data-answer="기고"><button type="button" class="choice-btn" data-value="고기">고체 → 기체</button><button type="button" class="choice-btn" data-value="기고">기체 → 고체</button></span>로 변하는 승화의 예이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>물질의 상태 변화 <span class="pg">134쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>물질의 상태 변화</h4>
+      <div class="q" style="border-top:none" data-why="상태 변화에는 융해, 응고, 기화, 액화, 승화가 있어요.">
+        <div class="q-text">(1) 상태 변화: 물질이 한 가지 상태에서 다른 상태로 변하는 것<br>(2) 물질의 상태 변화에는 융해, 응고, 기화, 액화, <input class="blank w-s" data-key="s3" data-answer="승화"> 이/가 있다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅳ. 물질의 상태 변화 · 2. 물질의 상태와 상태 변화 · 02 물질의 상태 변화 · 비상교육 중학 과학 1 교과서(126~129쪽)·탐구 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="matter.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅳ-2-02 물질의 상태 변화";
+const $ = id => document.getElementById(id);
+
+/* ── 비닐 주머니 ── */
+const BI = new MT.Particles2D(25), BD = new MT.Particles2D(25); let bgPlay = false, bgV = 0;
+$("bg-go").addEventListener("click", () => { if (bgV >= 100) bgV = 0; bgPlay = true; });
+$("bg-t").addEventListener("input", () => { bgPlay = false; bgV = +$("bg-t").value; });
+function bgDraw(dt) {
+  if (bgPlay) { bgV = Math.min(100, bgV + dt * 12); $("bg-t").value = bgV; if (bgV >= 100) bgPlay = false; }
+  const k = bgV / 100; $("bg-o").textContent = Math.round(k * 30) + "분";
+  const g = LB.fit($("bg-cv"), 270), c = g.c, W = g.w, half = W / 2;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 270);
+  [[0, "얼음", "#bfe6ff", BI], [1, "드라이아이스", "#eef2f7", BD]].forEach(([i, n, col, P]) => {
+    const cx = half * i + half / 2, bw = Math.min(half - 30, 220), puff = i ? 10 + 70 * k : 6, top = 150 - puff;
+    // 주머니
+    c.fillStyle = "rgba(230,240,248,.6)"; c.strokeStyle = "#9ab"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(cx - bw / 2, 150); c.quadraticCurveTo(cx - bw / 2 - puff * .3, top + 10, cx - bw / 2 + 10, top); c.lineTo(cx + bw / 2 - 10, top); c.quadraticCurveTo(cx + bw / 2 + puff * .3, top + 10, cx + bw / 2, 150); c.lineTo(cx + bw / 2, 190); c.lineTo(cx - bw / 2, 190); c.closePath(); c.fill(); c.stroke(); c.lineWidth = 1;
+    c.fillStyle = "#c33"; c.fillRect(cx - bw / 2, top - 6, bw, 5);
+    if (i === 0) { const s = 34 * (1 - k * 0.85); c.fillStyle = col; c.fillRect(cx - s / 2, 188 - s, s, s); c.strokeStyle = "#8cc"; c.strokeRect(cx - s / 2, 188 - s, s, s); c.fillStyle = "rgba(90,170,230,.5)"; c.beginPath(); c.ellipse(cx, 186, 14 + 50 * k, 4 + 2 * k, 0, 0, 7); c.fill(); }
+    else { const s = 34 * (1 - k * 0.9); c.fillStyle = col; c.fillRect(cx - s / 2, 188 - s, s, s); c.strokeStyle = "#bbb"; c.strokeRect(cx - s / 2, 188 - s, s, s); for (let j = 0; j < 14 * k; j++) { c.fillStyle = "rgba(160,170,190,.6)"; c.beginPath(); c.arc(cx + Math.sin(j * 7.1 + k * 9) * bw * .4, top + 20 + ((j * 23 + k * 300) % (150 - top)), 3, 0, 7); c.fill(); } }
+    c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(n, cx, 210); c.textAlign = "left";
+    // 확대 창
+    const zx = cx - 60, zy = 222; c.strokeStyle = "#cdd"; c.strokeRect(zx, zy, 120, 44);
+    P.draw(c, zx + 1, zy + 1, 118, 42, i ? 2 * Math.min(1, k * 1.3) : Math.min(1, k * 1.25), dt, i ? "#8a8fa8" : "#3d8bd9", { r: 2.6, direct: !!i });
+  });
+}
+LB.loop($("bg-cv"), bgDraw); bgDraw(0);
+
+/* ── 비커와 시계 접시 ── */
+const WG = { on: false, t: 0, drops: [], paper: 0, vap: [] };
+$("wg-go").addEventListener("click", () => { WG.on = true; WG.t = 0; WG.drops = []; WG.paper = 0; WG.vap = []; });
+$("wg-paper").addEventListener("click", () => { if (!WG.on) { alert("먼저 시계 접시를 올려 주세요."); return; } WG.paper = 1; });
+$("wg-reset").addEventListener("click", () => { WG.on = false; WG.t = 0; WG.drops = []; WG.paper = 0; WG.vap = []; });
+function wgDraw(dt) {
+  const g = LB.fit($("wg-cv"), 280), c = g.c, W = g.w, cx = Math.min(W / 2, 200);
+  if (WG.on) { WG.t += dt; if (Math.random() < dt * 14) WG.vap.push({ x: cx + (Math.random() - .5) * 110, y: 200, vy: -30 - Math.random() * 30 }); }
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 280);
+  c.fillStyle = "rgba(170,210,240,.35)"; c.fillRect(cx - 70, 150, 140, 100); c.strokeStyle = "#89a"; c.lineWidth = 2; c.beginPath(); c.moveTo(cx - 72, 80); c.lineTo(cx - 72, 252); c.lineTo(cx + 72, 252); c.lineTo(cx + 72, 80); c.stroke(); c.lineWidth = 1;
+  c.fillStyle = "#c2410c"; c.font = "11px Pretendard, sans-serif"; c.fillText("뜨거운 물 (액체)", cx - 66, 245);
+  if (WG.on) {
+    c.fillStyle = "rgba(200,225,240,.8)"; c.beginPath(); c.ellipse(cx, 78, 92, 10, 0, 0, Math.PI); c.fill(); c.strokeStyle = "#9bb"; c.stroke();
+    const ice = Math.max(10, 40 - WG.t * 1.2); c.fillStyle = "#d9f1ff"; for (let i = 0; i < 3; i++) { c.fillRect(cx - 45 + i * 30, 76 - ice, 26, ice); c.strokeStyle = "#9cc"; c.strokeRect(cx - 45 + i * 30, 76 - ice, 26, ice); }
+    for (let i = WG.vap.length - 1; i >= 0; i--) { const v = WG.vap[i]; v.y += v.vy * dt; v.x += (Math.random() - .5) * 20 * dt; c.fillStyle = "rgba(61,139,217,.75)"; c.beginPath(); c.arc(v.x, v.y, 2.6, 0, 7); c.fill(); if (v.y < 92) { WG.vap.splice(i, 1); if (WG.drops.length < 60) WG.drops.push([v.x, 0]); else WG.drops[Math.floor(Math.random() * 60)][1] += 0.3; } }
+    WG.drops.forEach(d => { d[1] = Math.min(4, d[1] + dt * 0.4); c.fillStyle = "rgba(61,139,217,.6)"; c.beginPath(); c.ellipse(d[0], 90 + d[1], 2.5 + d[1] * .5, 2 + d[1], 0, 0, 7); c.fill(); });
+  }
+  // 염화 코발트 종이
+  const px = cx + 110, ready = WG.drops.length > 25;
+  c.fillStyle = WG.paper && ready ? "#e0567a" : "#3d6fd9"; c.fillRect(px, 60, 60, 22); c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif";
+  c.fillText(WG.paper ? (ready ? "붉은색으로 변함!" : "아직 물방울이 적어요") : "푸른색 염화 코발트 종이", px - 10, 100);
+  c.fillText(WG.on ? "기화 ↑  (물 → 수증기)" : "", cx + 80, 190); c.fillText(WG.on && WG.drops.length > 10 ? "액화 (수증기 → 물방울)" : "", cx + 80, 130);
+}
+LB.loop($("wg-cv"), wgDraw); wgDraw(0);
+WS.custom("wg_paper", { el: $("wg-cv"), value: () => WG.paper ? (WG.drops.length > 25 ? "붉은색" : "물방울 적음") : "" });
+
+/* ── 상태 변화 탐색기 ── */
+const CH = [
+  ["융해", 0, 1, "용광로에서 철이 녹아 쇳물이 된다. 아이스바가 녹는다.", "#e07fae"], ["응고", 1, 0, "겨울철 처마 끝에 고드름이 생긴다. 초콜릿을 틀에 굳힌다.", "#4fb3d9"],
+  ["기화", 1, 2, "물이 끓어 수증기가 된다. 젖은 빨래가 마른다.", "#e07fae"], ["액화", 2, 1, "풀잎에 이슬이 맺힌다. 차가운 컵 바깥에 물방울이 맺힌다.", "#4fb3d9"],
+  ["승화(고체 → 기체)", 0, 2, "냉동실에 넣어 둔 얼음이 조금씩 작아진다. 드라이아이스가 작아진다.", "#e07fae"], ["승화(기체 → 고체)", 2, 0, "추운 겨울 유리창에 성에가 생긴다. 서리가 내린다.", "#4fb3d9"]];
+const CP = new MT.Particles2D(36); let chK = -1, chT = 0;
+document.querySelectorAll("#ch-row button").forEach(b => b.addEventListener("click", () => { chK = +b.dataset.k; chT = 0; document.querySelectorAll("#ch-row button").forEach(x => x.classList.toggle("main", x === b)); const e = CH[chK]; $("ch-say").innerHTML = `<b style="font-size:16px;color:${e[4]}">${e[0]}</b><br>${["고체", "액체", "기체"][e[1]]} → ${["고체", "액체", "기체"][e[2]]}<br>예: ${e[3]}`; }));
+function chDraw(dt) {
+  const g = LB.fit($("ch-cv"), 240), c = g.c, W = g.w; c.fillStyle = "#fff"; c.fillRect(0, 0, W, 240);
+  let ph = 0, direct = false;
+  if (chK >= 0) { chT = Math.min(1, chT + dt * 0.35); const e = CH[chK], s = (1 - Math.cos(chT * Math.PI)) / 2; ph = e[1] + (e[2] - e[1]) * s; direct = Math.abs(e[2] - e[1]) === 2; }
+  const bw = Math.min(W - 40, 320); c.strokeStyle = "#cdd"; c.strokeRect((W - bw) / 2, 14, bw, 190);
+  CP.draw(c, (W - bw) / 2 + 2, 16, bw - 4, 186, ph, dt, chK >= 0 ? CH[chK][4] : "#3d8bd9", { r: 6, direct });
+  c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(direct ? (ph > 1 ? "기체" : "고체") + (chT > .05 && chT < .95 ? " (상태가 변하는 중)" : "") : MT.stateName(ph), W / 2, 228); c.textAlign = "left";
+}
+LB.loop($("ch-cv"), chDraw); chDraw(0);
+</script>
+</body>
+</html>

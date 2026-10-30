@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중1 Ⅴ-2-02 — 원래대로 돌아가려는 힘</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 1학년 Ⅴ. 힘의 작용</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/u2-hero.jpg" alt="">
+    <img class="lb-qmark" src="img/p166-tiger.jpg" alt="고무 밴드를 늘일수록 힘이 더 드는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅴ. 힘의 작용 · 2. 여러 가지 힘 · 02 <span class="pg" style="margin:0">166~169쪽</span></span>
+      <h1>원래대로<br><span>돌아가려는 힘</span></h1>
+      <p>“고무 밴드를 더 늘여 보세요.” “더는 못 늘이겠어요.” 고무 밴드를 늘일수록 힘이 더 드는 까닭은 무엇일까? 가상 힘 센서로 용수철을 잡아당겨 늘어난 길이와 탄성력의 관계를 찾아보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 탄성력의 뜻을 알고 탄성력의 크기와 방향을 설명하며, 용수철의 탄성력 크기를 측정할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기</span>탄성력의 특징 알아보기 <span class="pg">166쪽</span></div>
+    <p class="lead-q">탄성력은 무엇일까?</p>
+    <div class="book"><p>고무 밴드를 잡아당겼다 놓으면 늘어났던 고무 밴드의 모양이 원래 모양으로 돌아간다. 물체가 ●변형되었을 때 원래 모양으로 돌아가려는 성질을 <span class="key">탄성</span>이라고 하고, 변형된 물체가 원래 모양으로 돌아가려는 힘을 <span class="key">탄성력</span>이라고 한다.</p>
+    <p style="font-size:13px;color:#5e7375">●변형: 물체가 힘을 받아 모양이 변하는 것</p></div>
+    <figure class="fig mid"><img src="img/p166-ball.jpg" alt="고무공과 늘어난 고무공"><figcaption><span class="tb">166쪽</span>고무공을 손으로 잡고 다양한 세기로 당겨 보며 고무공이 손에 작용하는 힘을 관찰한다.</figcaption></figure>
+    <div class="card-title" style="margin-top:8px"><span class="badge sim">가상 실험</span>고무공 당기기</div>
+    <div class="card-hint">오른쪽 손을 드래그해서 고무공을 늘여 보자. 고무공이 손에 작용하는 <b>탄성력</b>의 화살표를 관찰하자. 손을 놓으면 어떻게 될까?</div>
+    <div class="light-stage" style="touch-action:none"><canvas id="rb-cv" style="cursor:grab"></canvas></div>
+    <div class="q" data-why="고무공을 많이 늘어나게 할수록 손에 작용하는 탄성력이 커지고, 탄성력은 손이 당기는 방향과 반대 방향(원래 모양으로 돌아가려는 방향)으로 작용해요." data-hint="손을 조금, 많이 당겨 화살표 길이를 비교하세요.">
+      <div class="q-text"><span class="q-num">1</span>고무공을 많이 늘어나게 할수록 손에 작용하는 힘의 크기는 <span class="choice-group" data-key="rb_size" data-answer="커"><button type="button" class="choice-btn" data-value="커">커진다</button><button type="button" class="choice-btn" data-value="작아">작아진다</button><button type="button" class="choice-btn" data-value="같">같다</button></span>. 이 힘은 손이 당기는 방향과 <span class="choice-group" data-key="rb_dir" data-answer="반대"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="반대">반대</button></span> 방향으로 작용한다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>탄성력의 방향과 이용 <span class="pg">167쪽</span></div>
+    <div class="book"><p>용수철을 <b>그림 5-6</b>과 같이 손으로 누르면 용수철이 손을 밀어내고, 용수철을 잡아당기면 용수철도 손을 당기는 것을 느낄 수 있다. 이것은 변형된 용수철이 원래 모양으로 돌아가려고 하기 때문이다. 고무공이나 용수철 등과 같이 탄성이 있는 물체를 <span class="key">탄성체</span>라고 하며, 탄성력은 변형된 탄성체가 원래 모양으로 돌아가려는 방향으로 작용한다.</p></div>
+    <figure class="fig"><img src="img/p167-fig5-6.jpg" alt="탄성력의 방향"><figcaption><span class="tb">그림 5-6</span>탄성력의 방향</figcaption></figure>
+    <div class="book"><p>용수철을 손으로 잡아당겨 늘어나게 할 때 용수철이 많이 늘어날수록 용수철이 손을 당기는 탄성력이 커진다. 이와 같이 탄성력의 크기는 탄성체가 많이 변형될수록 크다. 우리는 탄성력을 <b>그림 5-7</b>과 같이 생활에서 다양하게 이용하고 있다.</p></div>
+    <figure class="fig"><img src="img/p167-fig5-7.jpg" alt="탄성력을 이용하는 예"><figcaption><span class="tb">그림 5-7</span>탄성력을 이용하는 예 — 볼펜, 빨래집게, 장대높이뛰기</figcaption></figure>
+    <div class="q" data-why="볼펜의 탄성체는 용수철, 빨래집게는 철사, 장대높이뛰기는 장대예요.">
+      <div class="q-text"><span class="q-num">1</span>각각의 예에서 탄성체를 골라 보자.<br>• 볼펜 → <span class="choice-group" data-key="ex1" data-answer="용수철"><button type="button" class="choice-btn" data-value="용수철">용수철</button><button type="button" class="choice-btn" data-value="볼펜심">볼펜 심</button></span> • 빨래집게 → <span class="choice-group" data-key="ex2" data-answer="철사"><button type="button" class="choice-btn" data-value="철사">철사</button><button type="button" class="choice-btn" data-value="빨래">빨래</button></span> • 장대높이뛰기 → <span class="choice-group" data-key="ex3" data-answer="장대"><button type="button" class="choice-btn" data-value="장대">장대</button><button type="button" class="choice-btn" data-value="신발">신발</button></span></div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">탐구</span>용수철의 탄성력 측정하기 <span class="pg">168~169쪽</span></div>
+    <p class="lead-q">용수철이 늘어난 길이는 용수철의 탄성력과 어떤 관계가 있을까?</p>
+    <figure class="fig"><img src="img/p168-setup.jpg" alt="모눈종이 위 용수철과 힘 센서"><figcaption><span class="tb">168쪽</span>용수철의 한쪽 끝을 고리 나사못에 걸고, 다른 쪽 끝에 힘 센서를 연결한다.</figcaption></figure>
+    <div class="steps-box"><ol>
+      <li>나무판 위에 모눈종이를 붙이고, 한쪽에 고리 나사못을 꽂아 고정한다.</li>
+      <li><b>디지털 탐구 도구 활용</b> 용수철의 한쪽 끝을 고리 나사못에 걸고, 다른 쪽 끝에는 힘 센서를 연결한다. (실험 전 영점 조절 단추를 눌러 영점을 맞춘다.)</li>
+      <li>모눈종이에 용수철의 처음 위치를 표시한다.</li>
+      <li><b>자료 수집</b> 힘 센서로 용수철을 잡아당겨 늘어난 길이가 5 cm, 10 cm, 15 cm, 20 cm가 되었을 때 힘 센서에 표시된 탄성력의 크기를 스프레드시트에 기록한다.</li>
+      <li><b>자료 변환</b> 가로축은 늘어난 길이, 세로축은 탄성력의 크기로 하여 그래프로 나타낸다.</li>
+    </ol></div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>가상 모눈 나무판과 힘 센서</div>
+    <div class="card-hint">힘 센서를 오른쪽으로 드래그해서 용수철을 늘여 보자(왼쪽으로 밀면 압축). 늘어난 길이가 5, 10, 15, 20 cm일 때 [📍 기록]을 누르면 스프레드시트에 기록되고 그래프가 그려져요. 센서는 1 cm 눈금에 맞춰져요.</div>
+    <div class="btn-row"><button type="button" class="btn small main" id="sp-A">용수철 A</button><button type="button" class="btn small ghost" id="sp-B">용수철 B (더 단단함)</button><button type="button" class="btn small" id="sp-zero">0 영점 맞추기</button><button type="button" class="btn main small" id="sp-rec">📍 기록</button><button type="button" class="btn ghost small" id="sp-clear">🧹 표 지우기</button></div>
+    <div class="light-stage" style="touch-action:none"><canvas id="sp-cv" style="cursor:grab"></canvas></div>
+    <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start">
+      <div class="scroll-x"><table class="data-t" id="sp-tb"></table></div>
+      <div class="light-stage"><canvas id="sp-g"></canvas></div>
+    </div>
+    <h4 style="margin:12px 0 4px">정리해 볼까</h4>
+    <div class="q" id="q-sp" data-why="그래프가 원점을 지나는 직선이므로 탄성력의 크기는 늘어난 길이에 비례해요. 용수철 A는 5 cm마다 1 N씩 커지므로 25 cm일 때 5 N이에요." data-hint="용수철 A로 5·10·15·20 cm를 모두 기록해 보세요.">
+      <div class="q-text"><span class="q-num">1</span><b>자료 해석</b> 그래프는 원점을 지나는 직선이므로 용수철의 탄성력 크기는 늘어난 길이에 <span class="choice-group" data-key="sp_rel" data-answer="비례"><button type="button" class="choice-btn" data-value="비례">비례한다</button><button type="button" class="choice-btn" data-value="반비례">반비례한다</button><button type="button" class="choice-btn" data-value="무관">관계없다</button></span>.</div>
+      <div class="q-text"><span class="q-num">2</span><b>예측</b> 용수철 A가 25 cm 늘어나게 하려면 약 <input class="blank w-s" id="sp-pred" style="width:60px"> N의 힘으로 잡아당겨야 한다. (내 기록으로 확인)</div>
+      <span class="fb"></span>
+    </div>
+    <div class="alt-box"><h4>다르게 해 보기 · 용수철 실험 장치로 용수철의 탄성력 측정하기</h4>
+      <div class="fig-row" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:center"><figure class="fig" style="margin:0;max-width:220px"><img src="img/p169-alt.jpg" alt="자에 매단 용수철과 추"></figure>
+      <div><div style="font-size:13.5px;line-height:1.8">용수철 실험 장치에 무게가 같은 추를 1개씩 매달면서 용수철이 늘어난 길이를 측정하고, 그래프로 그린다. (추 1개 = 0.5 N) 실제 실험은 ‘아두이노 실험 ①’에서 초음파 센서로 할 수 있어요!</div>
+        <div class="ctrl-grid"><div class="ctrl"><label>매단 추 <output id="hw-o"></output></label><input type="range" id="hw" min="0" max="6" value="0"></div></div></div></div>
+      <div class="light-stage"><canvas id="hw-cv"></canvas></div>
+      <div class="q" style="border-top:none" data-why="추의 무게가 2배, 3배가 되면 용수철이 늘어난 길이도 2배, 3배가 돼요. 늘어난 길이는 추의 무게에 비례해요.">
+        <div class="q-text"><b>정리</b> 추의 무게와 용수철이 늘어난 길이는 <span class="choice-group" data-key="hw_rel" data-answer="비례"><button type="button" class="choice-btn" data-value="비례">비례한다</button><button type="button" class="choice-btn" data-value="무관">관계없다</button></span>. 이 원리를 이용한 저울이 <input class="blank" data-key="hw_tool" data-answer="용수철저울|용수철 저울"> 이다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>늘어난 길이와 탄성력 <span class="pg">169쪽</span></div>
+    <div class="book"><p>용수철을 잡아당겨 용수철이 늘어난 길이가 2배, 3배로 늘어나면 <b>그림 5-8</b>과 같이 탄성력의 크기도 2배, 3배로 커진다. 이와 같이 용수철이 늘어났을 때 용수철의 탄성력 크기는 용수철이 늘어난 길이에 <span class="key">비례</span>한다.</p></div>
+    <figure class="fig"><img src="img/p169-fig5-8.jpg" alt="용수철이 늘어난 길이와 탄성력과의 관계"><figcaption><span class="tb">그림 5-8</span>용수철이 늘어난 길이와 탄성력과의 관계</figcaption></figure>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>166쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">169쪽</span></div>
+    <div class="q" data-why="원래 모양으로 돌아가려는 성질은 탄성, 그 힘은 탄성력이에요.">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 물체가 변형되었을 때 원래 모양으로 돌아가려는 성질을 ( <input class="blank w-s" data-key="sc1" data-answer="탄성"> )(이)라고 하고, 변형된 물체가 원래 모양으로 돌아가려는 힘을 ( <input class="blank w-s" data-key="sc2" data-answer="탄성력"> )(이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="1 cm일 때 2 N이므로 탄성력은 늘어난 길이의 2배예요. 2.5 cm × 2 = 5 N이에요.">
+      <div class="q-text"><span class="q-num">2</span><b>사고력</b> 표는 용수철이 늘어난 길이에 따른 탄성력의 크기이다. 늘어난 길이가 2.5 cm일 때 탄성력의 크기는 <input class="blank w-s" data-key="sc3" data-num="5" data-abs="0.05" style="width:50px"> N이다.</div>
+      <figure class="fig" style="max-width:300px"><img src="img/p169-table.jpg" alt="늘어난 길이 1, 2, 3 cm일 때 탄성력 2, 4, 6 N"></figure>
+      <textarea class="free" data-key="sc3why" data-keywords="비례,2배/두 배" data-model="탄성력의 크기는 늘어난 길이에 비례하고, 1 cm 늘어날 때마다 2 N씩 커지므로 2.5 cm일 때는 5 N이다." placeholder="그렇게 생각한 까닭"></textarea>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>원래대로 돌아가려는 힘</div>
+    <div class="q" data-why="탄성체의 변형이 클수록 탄성력이 커져요. 늘어난 길이는 매다는 물체의 무게에 비례해요. 정지한 용수철에 10 N 물체를 매달면 탄성력도 10 N이에요. 다이빙대와 농구공은 탄성력을 이용해요.">
+      <div class="q-text"><span class="q-num">1</span>탄성체의 변형이 클수록 탄성력이 <span class="choice-group" data-key="t2" data-answer="커"><button type="button" class="choice-btn" data-value="커">커</button><button type="button" class="choice-btn" data-value="작아">작아</button></span>진다. 용수철의 늘어난 길이는 매다는 물체의 무게에 <span class="choice-group" data-key="t3" data-answer="비례"><button type="button" class="choice-btn" data-value="비례">비례</button><button type="button" class="choice-btn" data-value="반비례">반비례</button></span>한다. 용수철에 10 N짜리 물체를 매달았을 때 작용하는 탄성력은 <input class="blank w-s" data-key="t6" data-num="10" data-abs="0" style="width:50px"> N이다.</div>
+      <div class="q-text">탄성력을 이용한 경우를 모두 골라 보자.</div>
+      <div class="multi-group" data-key="t5" data-answer="다이빙대,농구공"><button type="button" class="multi-btn" data-value="다이빙대">다이빙대</button><button type="button" class="multi-btn" data-value="농구공">농구공</button><button type="button" class="multi-btn" data-value="화물선">화물선</button><button type="button" class="multi-btn" data-value="양팔저울">양팔저울</button><button type="button" class="multi-btn" data-value="구명조끼">구명조끼</button></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="추 1개(6 N)에 1 cm씩 늘어나는 용수철이에요. 36 N → 6 cm, 18 N → 3 cm 늘어나 5 + 3 = 8 cm, 달에서 추 6개의 무게는 36 N의 1/6인 6 N → 1 cm예요.">
+      <div class="q-text"><span class="q-num">2</span>추 1개(무게 6 N)를 매달 때마다 1 cm씩 늘어나는 용수철이 있다.<br>⑦ 36 N짜리 물체를 매달면 <input class="blank w-s" data-key="t7" data-num="6" data-abs="0" style="width:50px"> cm 늘어난다. ⑧ 처음 길이가 5 cm일 때 18 N으로 당기면 전체 길이는 <input class="blank w-s" data-key="t8" data-num="8" data-abs="0" style="width:50px"> cm이다. ⑨ 달에서 추 6개를 매달면 <input class="blank w-s" data-key="t9" data-num="1" data-abs="0" style="width:50px"> cm 늘어난다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>탄성력 <span class="pg">176쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>탄성력</h4>
+      <div class="q" style="border-top:none" data-why="탄성력은 변형된 탄성체가 원래 모양으로 돌아가려는 힘이고, 늘어난 용수철의 탄성력 크기는 늘어난 길이에 비례해요.">
+        <div class="q-text">(1) 탄성력: 변형된 탄성체가 <input class="blank w-s" data-key="s4" data-answer="원래"> 모양으로 돌아가려는 힘<br>(2) 탄성력의 방향: 변형된 탄성체가 원래 모양으로 돌아가려는 방향<br>(3) 탄성력의 크기: 탄성체가 많이 변형될수록 크다.<br>(4) 늘어난 용수철의 탄성력 크기: 용수철이 늘어난 길이에 <input class="blank w-s" data-key="s5" data-answer="비례한다|비례"> .</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중1 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="1">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 1 Ⅴ. 힘의 작용 · 2. 여러 가지 힘 · 02 원래대로 돌아가려는 힘 · 비상교육 중학 과학 1 교과서(166~169쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중1 Ⅴ-2-02 원래대로 돌아가려는 힘";
+const $ = id => document.getElementById(id);
+function arrow(c, x0, y0, x1, y1, col, w) { const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0); if (L < 2) return; c.strokeStyle = c.fillStyle = col; c.lineWidth = w || 4; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - Math.cos(a) * 10, y1 - Math.sin(a) * 10); c.stroke(); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 13 * Math.cos(a - 0.4), y1 - 13 * Math.sin(a - 0.4)); c.lineTo(x1 - 13 * Math.cos(a + 0.4), y1 - 13 * Math.sin(a + 0.4)); c.closePath(); c.fill(); c.lineWidth = 1; }
+const pos = (cv, e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+function spring(c, x0, x1, y, coils, amp, col) { c.strokeStyle = col || "#4a78c2"; c.lineWidth = 2.2; c.beginPath(); c.moveTo(x0, y); const n = coils * 2; for (let i = 1; i < n; i++) c.lineTo(x0 + (x1 - x0) * i / n, y + (i % 2 ? -amp : amp)); c.lineTo(x1, y); c.stroke(); c.lineWidth = 1; }
+
+/* ── 고무공 ── */
+const RB = { x: 0, drag: false };
+$("rb-cv").addEventListener("pointerdown", e => { RB.drag = true; try { $("rb-cv").setPointerCapture(e.pointerId); } catch (_) {} });
+$("rb-cv").addEventListener("pointermove", e => { if (!RB.drag) return; const [x] = pos($("rb-cv"), e), W = $("rb-cv").clientWidth; RB.x = Math.max(0, Math.min(W * 0.32, x - (W / 2 + 60))); });
+$("rb-cv").addEventListener("pointerup", () => RB.drag = false);
+function rbDraw(dt) {
+  if (!RB.drag) RB.x *= Math.max(0, 1 - dt * 8);
+  const g = LB.fit($("rb-cv"), 200), c = g.c, W = g.w, cx = W / 2, s = RB.x;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 200);
+  const rx = 60 + s / 2, ry = 60 * Math.sqrt(60 / rx); const gr = c.createLinearGradient(cx - rx, 0, cx + rx, 0); ["#ff4d6d", "#ffb703", "#8ac926", "#1982c4", "#6a4c93"].forEach((col, i) => gr.addColorStop(i / 4, col)); c.fillStyle = gr; c.beginPath(); c.ellipse(cx + s / 2, 100, rx, ry, 0, 0, 7); c.fill();
+  c.fillStyle = "#f1c7a3"; c.beginPath(); c.ellipse(cx - 60, 100, 18, 30, 0, 0, 7); c.fill(); c.beginPath(); c.ellipse(cx + 60 + s, 100, 18, 30, 0, 0, 7); c.fill();
+  if (s > 4) { arrow(c, cx + 60 + s + 22, 60, cx + 60 + s + 22 + s * 0.8, 60, "#e4572e"); arrow(c, cx + 60 + s, 150, cx + 60 + s - s * 0.8, 150, "#2f7de1"); c.font = "bold 11px Pretendard, sans-serif"; c.fillStyle = "#e4572e"; c.fillText("손이 당기는 힘", cx + 60 + s + 20, 48); c.fillStyle = "#2f7de1"; c.fillText("고무공의 탄성력 " + (s * 0.08).toFixed(1) + " N", cx + 60 + s - s * 0.8 - 10, 172); }
+  c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.fillText(RB.drag ? "늘어난 길이 " + (s / 10).toFixed(1) + " cm" : "오른쪽 손을 드래그해 보세요 →", 10, 190);
+}
+LB.loop($("rb-cv"), rbDraw); rbDraw(0);
+
+/* ── 용수철과 힘 센서 ── */
+const SP = { k: { A: 0.2, B: 0.5 }, sp: "A", x: 0, drag: false, zeroed: false, rows: [] }; let PX = 14; // 1 cm 칸 크기(화면 폭에 맞춤)
+["A", "B"].forEach(k => $("sp-" + k).addEventListener("click", () => { SP.sp = k; $("sp-A").className = "btn small " + (k === "A" ? "main" : "ghost"); $("sp-B").className = "btn small " + (k === "B" ? "main" : "ghost"); SP.zeroed = false; spDraw(); }));
+$("sp-zero").addEventListener("click", () => { if (SP.x !== 0) { alert("용수철을 늘이지 않은 상태(0 cm)에서 영점을 맞춰요."); return; } SP.zeroed = true; spDraw(); });
+const reading = () => (SP.zeroed ? 0 : 0.3) + SP.k[SP.sp] * SP.x;
+$("sp-rec").addEventListener("click", () => { if (SP.x <= 0) { alert("용수철을 오른쪽으로 늘인 뒤 기록해요."); return; } SP.rows = SP.rows.filter(r => !(r[0] === SP.sp && r[1] === SP.x)); SP.rows.push([SP.sp, SP.x, +reading().toFixed(2)]); SP.rows.sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]); spTable(); });
+$("sp-clear").addEventListener("click", () => { SP.rows = []; spTable(); });
+const x0 = () => 50 + 5 * PX;
+const fitPX = () => { PX = Math.max(6, Math.min(14, ($("sp-cv").clientWidth - 170) / 26)); };
+$("sp-cv").addEventListener("pointerdown", e => { const [x] = pos($("sp-cv"), e); if (Math.abs(x - (x0() + SP.x * PX)) < 40) { SP.drag = true; try { $("sp-cv").setPointerCapture(e.pointerId); } catch (_) {} } });
+$("sp-cv").addEventListener("pointermove", e => { if (!SP.drag) return; const [x] = pos($("sp-cv"), e), W = $("sp-cv").clientWidth; SP.x = Math.max(-5, Math.min(Math.floor((W - x0() - 90) / PX), Math.round((x - x0()) / PX))); spDraw(); });
+$("sp-cv").addEventListener("pointerup", () => { SP.drag = false; });
+function spDraw() {
+  fitPX(); const g = LB.fit($("sp-cv"), 180), c = g.c, W = g.w, X0 = x0(), xe = X0 + SP.x * PX;
+  c.fillStyle = "#f7f3ea"; c.fillRect(0, 0, W, 180); c.strokeStyle = "#cfe0f1"; for (let x = X0 % PX; x < W; x += PX) { c.beginPath(); c.moveTo(x, 20); c.lineTo(x, 160); c.stroke(); } for (let y = 20; y <= 160; y += PX) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+  c.strokeStyle = "#c33"; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(X0, 20); c.lineTo(X0, 160); c.stroke(); c.setLineDash([]); c.fillStyle = "#c33"; c.font = "11px Pretendard, sans-serif"; c.fillText("처음 위치", X0 + 4, 34);
+  for (let k = 5; k <= 25; k += 5) { const xx = X0 + k * PX; if (xx > W - 10) break; c.fillStyle = "#6b7b85"; c.fillText(k + "cm", xx - 12, 172); }
+  c.fillStyle = "#888"; c.beginPath(); c.arc(40, 90, 6, 0, 7); c.fill();
+  spring(c, 46, xe, 90, 12, SP.sp === "A" ? 9 : 7, SP.sp === "A" ? "#4a78c2" : "#2e7d32");
+  c.fillStyle = "#ffa21f"; c.fillRect(xe, 72, 70, 36); c.fillStyle = "#16242b"; c.fillRect(xe + 8, 80, 54, 20); c.fillStyle = "#7dffb2"; c.font = "bold 13px 'Courier New', monospace"; c.textAlign = "right"; c.fillText(reading().toFixed(2), xe + 58, 95); c.textAlign = "left";
+  if (SP.x) arrow(c, xe - 4, 125, xe - 4 - Math.sign(SP.x) * Math.min(80, Math.abs(reading()) * 14 + 10), 125, "#2f7de1");
+  c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText(`용수철 ${SP.sp} · ${SP.x >= 0 ? "늘어난" : "줄어든"} 길이 ${Math.abs(SP.x)} cm · 힘 센서 ${reading().toFixed(2)} N ${SP.zeroed ? "" : "(영점 안 맞춤!)"}`, 10, 16);
+}
+function spTable() {
+  $("sp-tb").innerHTML = "<tr><th>용수철</th><th>늘어난 길이(cm)</th><th>탄성력(N)</th></tr>" + (SP.rows.length ? SP.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2].toFixed(2)}</td></tr>`).join("") : '<tr><td colspan="3" style="color:#8a9a9c">기록이 없어요</td></tr>');
+  const ser = ["A", "B"].map(k => ({ color: k === "A" ? "#4a78c2" : "#2e7d32", dots: true, label: "용수철 " + k, pts: [[0, 0]].concat(SP.rows.filter(r => r[0] === k).map(r => [r[1], r[2]])) })).filter(s => s.pts.length > 1);
+  LB.graph($("sp-g"), { h: 220, xMax: 25, yMin: 0, yMax: 12, xStep: 5, yStep: 2, xLabel: "늘어난 길이(cm)", yLabel: "탄성력(N)", series: ser });
+}
+spDraw(); spTable(); window.addEventListener("resize", () => { spDraw(); spTable(); });
+function fitA() { const r = SP.rows.filter(x => x[0] === "A"); if (r.length < 2) return null; return r.reduce((s, x) => s + x[1] * x[2], 0) / r.reduce((s, x) => s + x[1] * x[1], 0); }
+{ const c = { el: $("sp-pred"), value: () => $("sp-pred").value, check: v => { const k = fitA(); return k == null ? null : Math.abs(WS.toNumber(v) - 25 * k) <= 0.4; } }; Object.defineProperty(c, "answer", { get: () => fitA() == null ? "용수철 A 기록 2개 이상 필요" : "약 " + (25 * fitA()).toFixed(1) }); WS.custom("sp_pred", c); }
+WS.custom("sp_log", { el: $("sp-tb"), value: () => SP.rows.map(r => r.join(":")).join(" ") });
+
+/* ── 추 매달기 ── */
+function hwDraw() {
+  const n = +$("hw").value; $("hw-o").textContent = n + "개 (" + (n * 0.5).toFixed(1) + " N)";
+  const g = LB.fit($("hw-cv"), 260), c = g.c, W = g.w, cx = Math.min(W / 2, 200), top = 30, L0 = 60, ext = n * 14;
+  c.fillStyle = "#fff"; c.fillRect(0, 0, W, 260); c.fillStyle = "#f4f1e6"; c.fillRect(cx + 30, 20, 50, 230);
+  for (let k = 0; k <= 15; k++) { const y = top + L0 + k * 14; c.strokeStyle = "#333"; c.beginPath(); c.moveTo(cx + 30, y); c.lineTo(cx + (k % 5 ? 42 : 50), y); c.stroke(); if (k % 5 === 0) { c.fillStyle = "#333"; c.font = "10px sans-serif"; c.fillText(k + "cm", cx + 52, y + 4); } }
+  c.strokeStyle = "#888"; c.lineWidth = 2; c.beginPath(); for (let i = 0; i <= 20; i++) c.lineTo(cx + (i % 2 ? 8 : -8), top + i * (L0 + ext) / 20); c.stroke(); c.lineWidth = 1;
+  for (let k = 0; k < n; k++) { c.fillStyle = "#c9a227"; c.fillRect(cx - 12, top + L0 + ext + 4 + k * 22, 24, 18); }
+  c.strokeStyle = "#e4572e"; c.beginPath(); c.moveTo(cx - 20, top + L0 + ext); c.lineTo(cx + 40, top + L0 + ext); c.stroke();
+  c.fillStyle = "#26393b"; c.font = "bold 12px Pretendard, sans-serif"; c.fillText("늘어난 길이 " + (ext / 14).toFixed(0) + " cm", 10, 20);
+}
+$("hw").addEventListener("input", hwDraw); hwDraw(); window.addEventListener("resize", hwDraw);
+</script>
+</body>
+</html>
