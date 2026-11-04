@@ -1031,6 +1031,10 @@ body.frame-mode .frameview-header{
   background:#fafbfc;
 }
 
+/* ▣ 방명록 임시 숨김 (2026-11): 사이드바·홈의 방명록 버튼을 가린다.
+   다시 보이게 하려면 아래 한 줄만 지우면 된다. (방명록 기능·글은 그대로 남아 있음) */
+.gb-entry{ display:none !important; }
+
 .guestbook-item{
   display:flex;
   align-items:baseline;
@@ -1260,7 +1264,7 @@ body.frame-mode .frameview-header{
     </ul>
   </details>
 
-  <div class="chat-entry" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</div>
+  <div class="chat-entry gb-entry" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</div>
 
 </div>
 
@@ -1298,7 +1302,7 @@ body.frame-mode .frameview-header{
           <div class="chip-row">
             <button type="button" class="chip" onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</button>
             <button type="button" class="chip" onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험</button>
-            <button type="button" class="chip" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</button>
+            <button type="button" class="chip gb-entry" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</button>
           </div>
         </div>
 
