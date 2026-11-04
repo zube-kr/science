@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>초 맞추기 게임 / 타이머</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:#fff;color:#000;font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+  header{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;padding:14px;background:#fff;border-bottom:2px solid #000;z-index:5}
+  header .sep{width:2px;height:30px;background:#000;margin:0 6px}
+  button{background:#fff;color:#000;border:2px solid #000;padding:10px 20px;font-size:16px;cursor:pointer;font-family:inherit;border-radius:3px}
+  button:hover,button:focus-visible{background:#000;color:#fff;outline:none}
+  button.active{background:#000;color:#fff}
+  .mini{font-size:15px;font-variant-numeric:tabular-nums;border:2px solid #000;padding:8px 12px;border-radius:3px}
+  main{min-height:100%;display:flex;align-items:center;justify-content:center;padding:110px 24px 24px}
+  .panel{width:min(560px,100%);border:2px solid #000;padding:36px 32px;text-align:center}
+  h1{font-size:30px}
+  .sub{margin-top:10px;line-height:1.7;font-size:16px}
+  .round{font-size:16px;margin-bottom:6px}
+  .target-label{font-size:16px;margin-top:18px}
+  .target{font-size:72px;font-weight:700}
+  .timer{font-size:56px;margin-top:14px;height:70px;font-variant-numeric:tabular-nums}
+  .hint{margin-top:18px;font-size:16px;min-height:24px}
+  .panel > button,.panel .row button{padding:12px 30px;font-size:17px}
+  .panel > button{margin-top:26px}
+  .dots{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+  .dots i{width:30px;height:4px;background:#ccc}
+  .dots i.on{background:#000}
+  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:17px}
+  th,td{border-bottom:1px solid #000;padding:10px 6px}
+  th{font-weight:700}
+  .hidden{display:none}
+  .names{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+  .names input{font-size:16px;border:2px solid #000;padding:8px;font-family:inherit;background:#fff;color:#000;min-width:0}
+  .vers button.active{background:#000;color:#fff}
+  .exit{margin-top:20px;padding:8px 20px;font-size:15px}
+  .vers{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+  .vers button,#rankTabs button{padding:8px 14px;font-size:15px}
+  .total{font-size:22px;font-weight:700;margin-top:18px}
+  .name-row{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+  .name-row input{flex:1;min-width:140px;max-width:240px;font-size:17px;border:2px solid #000;padding:10px;font-family:inherit;background:#fff;color:#000}
+  .name-row button{margin-top:0}
+  button:disabled{opacity:.4;cursor:default;background:#fff;color:#000}
+  h2{font-size:20px;margin-top:28px}
+  .rank td:first-child,.rank th:first-child{width:52px}
+  .rank tr.me td{font-weight:700;background:#eee}
+  .empty{margin-top:12px;font-size:15px}
+  .subtabs{display:flex;gap:8px;justify-content:center;margin-top:18px}
+  .inputs{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:20px;font-size:18px}
+  .inputs input{width:90px;font-size:28px;text-align:center;border:2px solid #000;padding:8px;font-family:inherit;background:#fff;color:#000}
+  .big{font-size:76px;font-weight:700;margin-top:24px;font-variant-numeric:tabular-nums}
+  .row{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+  .row button{margin-top:0}
+</style>
+</head>
+<body>
+<header>
+  <button id="modeGame" class="active">게임</button>
+  <button id="modeMulti">멀티게임</button>
+  <button id="modeTimer">타이머</button>
+  <span class="mini hidden" id="mini"></span>
+</header>
+
+<main>
+  <!-- ===== 게임 ===== -->
+  <div id="gameWrap" style="width:100%;display:flex;justify-content:center">
+    <section class="panel" id="start">
+      <h1>초 맞추기 게임</h1>
+      <p class="sub">목표 시간(3~13초)이 주어져요.<br>스페이스바로 시작하고, 목표 시간에 맞춰 다시 스페이스바로 멈추세요.<br>총 5번 도전해요.<br>버전을 고르세요. 숫자가 클수록 타이머가 일찍 가려져요.</p>
+      <div class="vers" id="verRow"></div>
+      <div class="hint" id="verDesc"></div>
+      <button id="startBtn">게임 시작 (스페이스바)</button>
+    </section>
+
+    <section class="panel hidden" id="play">
+      <div class="dots" id="dots"></div>
+      <div class="round" id="roundText"></div>
+      <div class="target-label">목표 시간</div>
+      <div class="target" id="target"></div>
+      <div class="timer" id="timer"></div>
+      <div class="hint" id="hint"></div>
+      <button id="exitBtn" class="exit">나가기</button>
+    </section>
+
+    <section class="panel hidden" id="result">
+      <h1>결과</h1>
+      <table>
+        <thead><tr><th>라운드</th><th>목표</th><th>내 기록</th><th>차이</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="total" id="totalDiff"></div>
+
+      <div class="name-row">
+        <input id="nameIn" type="text" maxlength="10" placeholder="이름 입력" aria-label="이름">
+        <button id="rankBtn">랭킹 올리기</button>
+      </div>
+
+      <div class="hint" id="modeNote"></div>
+
+      <h2>랭킹 (버전별)</h2>
+      <div class="row" id="rankTabs"></div>
+      <table class="rank">
+        <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+      <div class="empty">총 오차가 작을수록 높은 순위 (버전별 상위 3명)</div>
+
+      <div class="row">
+        <button id="retryBtn">다시 하기 (스페이스바)</button>
+        <button id="homeBtn">처음 화면으로</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== 멀티게임 ===== -->
+  <div id="multiWrap" style="width:100%;display:none;justify-content:center">
+    <section class="panel" id="mSetup">
+      <h1>멀티게임</h1>
+      <p class="sub">한 화면에서 돌아가며 하는 게임이에요.<br>한 사람이 끝나면 다음 사람에게 넘겨주세요.</p>
+      <h2>게임 방식</h2>
+      <div class="vers" id="mTypeRow"></div>
+      <div class="hint" id="mTypeDesc"></div>
+      <h2>인원</h2>
+      <div class="vers" id="mCountRow"></div>
+      <div class="names" id="mNames"></div>
+      <h2>타이머 가림 정도</h2>
+      <div class="vers" id="mVerRow"></div>
+      <div class="hint" id="mVerDesc"></div>
+      <button id="mStartBtn">게임 시작 (스페이스바)</button>
+    </section>
+
+    <section class="panel hidden" id="mPlay">
+      <div class="round" id="mInfo"></div>
+      <div class="target-label">목표 시간</div>
+      <div class="target" id="mTarget"></div>
+      <div class="timer" id="mTimer"></div>
+      <div class="hint" id="mHint"></div>
+      <button id="mExitBtn" class="exit">나가기</button>
+    </section>
+
+    <section class="panel hidden" id="mResult">
+      <h1 id="mWinner"></h1>
+      <table id="mTable"></table>
+      <div class="row">
+        <button id="mRetryBtn">다시 하기 (스페이스바)</button>
+        <button id="mSetupBtn">설정으로</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== 타이머 ===== -->
+  <div id="timerWrap" style="width:100%;display:none;justify-content:center">
+    <section class="panel">
+      <h1>타이머</h1>
+      <div class="subtabs">
+        <button id="tabSw" class="active">스톱워치 (0초부터)</button>
+        <button id="tabCd">카운트다운 (줄어듦)</button>
+      </div>
+
+      <!-- 스톱워치 -->
+      <div id="swBox">
+        <div class="big" id="swDisplay">00:00.00</div>
+        <div class="row">
+          <button id="swStart">시작</button>
+          <button id="swReset">초기화</button>
+        </div>
+        <div class="hint">0초에서 시작해서 올라가요. 게임 화면으로 가도 계속 작동해요.</div>
+      </div>
+
+      <!-- 카운트다운 -->
+      <div id="cdBox" class="hidden">
+        <div class="inputs">
+          <input id="inMin" type="number" min="0" max="999" value="0" aria-label="분"> 분
+          <input id="inSec" type="number" min="0" max="59" value="30" aria-label="초"> 초
+        </div>
+        <div class="big" id="cdDisplay">00:30.00</div>
+        <div class="row">
+          <button id="cdStart">시작</button>
+          <button id="cdReset">초기화</button>
+        </div>
+        <div class="row">
+          <button class="preset" data-s="60">1분</button>
+          <button class="preset" data-s="180">3분</button>
+          <button class="preset" data-s="300">5분</button>
+          <button class="preset" data-s="600">10분</button>
+        </div>
+        <div class="hint" id="cdHint">정한 시간에서 줄어들어요. 게임 화면으로 가도 계속 작동해요.</div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let mode = 'game';
+
+  /* ---------- 공통 형식 ---------- */
+  function fmt(sec){
+    const s = Math.max(0, sec);
+    const m = Math.floor(s / 60);
+    const r = s - m * 60;
+    return String(m).padStart(2, '0') + ':' + r.toFixed(2).padStart(5, '0');
+  }
+
+  /* ---------- 상단 버튼 ---------- */
+  function setMode(m){
+    if (m === 'multi' && mode !== 'multi') soloExit();
+    if (m === 'game' && mode !== 'game') multiExit();
+    mode = m;
+    $('modeGame').classList.toggle('active', m === 'game');
+    $('modeMulti').classList.toggle('active', m === 'multi');
+    $('modeTimer').classList.toggle('active', m === 'timer');
+    $('gameWrap').style.display = m === 'game' ? 'flex' : 'none';
+    $('multiWrap').style.display = m === 'multi' ? 'flex' : 'none';
+    $('timerWrap').style.display = m === 'timer' ? 'flex' : 'none';
+    updateMini();
+  }
+  $('modeGame').addEventListener('click', e => { e.currentTarget.blur(); setMode('game'); });
+  $('modeMulti').addEventListener('click', e => { e.currentTarget.blur(); setMode('multi'); });
+  $('modeTimer').addEventListener('click', e => { e.currentTarget.blur(); setMode('timer'); });
+  /* ---------- 게임 ---------- */
+  const ROUNDS = 5;
+  const MIN = 3, MAX = 13;
+  const screens = {start:$('start'), play:$('play'), result:$('result')};
+  let state = 'start';      // start | ready | running | between | result
+  let round = 0, target = 0, t0 = 0, raf = 0, records = [];
+  let lastTotal = 0, submitted = false;
+  // 버전: hideFrom = 목표 시간의 몇 배가 지났을 때 타이머가 가려지는지 (Infinity = 안 가림, 0 = 처음부터 가림)
+  const VERS = [
+    {label:'버전 1', desc:'원래 버전: 타이머가 끝까지 보여요',          hideFrom:Infinity, key:'secGameRanking'},
+    {label:'버전 2', desc:'목표 시간의 25%만큼 가려져요 (마지막 25% 구간)', hideFrom:0.75,     key:'secGameRankingV2'},
+    {label:'버전 3', desc:'목표 시간의 50%만큼 가려져요 (마지막 50% 구간)', hideFrom:0.5,      key:'secGameRankingV3'},
+    {label:'버전 4', desc:'목표 시간의 75%만큼 가려져요 (마지막 75% 구간)', hideFrom:0.25,     key:'secGameRankingV4'},
+    {label:'버전 5', desc:'타이머가 처음부터 100% 가려져요',            hideFrom:0,        key:'secGameRankingHard'}
+  ];
+  let gameVer = 0, rankView = 0, lastId = -1, gameToken = 0;
+  function loadRank(v){
+    try{ return JSON.parse(localStorage.getItem(VERS[v].key)) || []; }catch(e){ return []; }
+  }
+  function saveRank(v, list){
+    try{ localStorage.setItem(VERS[v].key, JSON.stringify(list)); }catch(e){}
+  }
+  function esc(t){ return t.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function renderRank(){
+    $('rankTabs').innerHTML = VERS.map((v, i) =>
+      `<button data-v="${i}" class="${i === rankView ? 'active' : ''}">${i + 1}</button>`).join('');
+    $('rankTabs').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
+      e.currentTarget.blur(); rankView = +b.dataset.v; renderRank();
+    }));
+    const list = loadRank(rankView).slice(0, 3);
+    $('rankBody').innerHTML = list.length ? list.map((r, i) =>
+      `<tr class="${r.id === lastId ? 'me' : ''}"><td>${i + 1}</td><td>${esc(r.name)}</td><td>${r.total.toFixed(2)}초</td></tr>`).join('')
+      : '<tr><td colspan="3">아직 기록이 없어요</td></tr>';
+  }
+  // 시작 화면 버전 선택
+  function renderVers(){
+    $('verRow').innerHTML = VERS.map((v, i) =>
+      `<button data-v="${i}" class="${i === gameVer ? 'active' : ''}">${v.label}</button>`).join('');
+    $('verRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
+      e.currentTarget.blur(); gameVer = +b.dataset.v; renderVers();
+    }));
+    $('verDesc').textContent = VERS[gameVer].desc;
+  }
+  function submitRank(){
+    if (submitted) return;
+    const name = $('nameIn').value.trim();
+    if (!name){ $('nameIn').focus(); return; }
+    const list = loadRank(gameVer);
+    const id = Date.now() + Math.random();
+    list.push({id, name, total: lastTotal});
+    list.sort((a, b) => a.total - b.total);
+    saveRank(gameVer, list.slice(0, 100));
+    submitted = true;
+    $('rankBtn').disabled = true;
+    $('rankBtn').textContent = '등록 완료';
+    lastId = id;
+    rankView = gameVer;
+    renderRank();
+  }
+
+  function show(name){
+    for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
+  }
+  function renderDots(){
+    $('dots').innerHTML = Array.from({length:ROUNDS}, (_, i) => `<i class="${i < round ? 'on' : ''}"></i>`).join('');
+  }
+  function newRound(){
+    target = MIN + Math.floor(Math.random() * (MAX - MIN + 1));
+    $('roundText').textContent = `${VERS[gameVer].label} · ${round + 1} / ${ROUNDS} 라운드`;
+    $('target').textContent = target + '초';
+    $('timer').textContent = VERS[gameVer].hideFrom === 0 ? '? ? ?' : '0.00';
+    $('hint').textContent = '스페이스바를 눌러 시작';
+    renderDots();
+    show('play');
+    state = 'ready';
+  }
+  function startGame(){ gameToken++; round = 0; records = []; newRound(); }
+  function soloExit(){
+    cancelAnimationFrame(raf); gameToken++;
+    state = 'start'; show('start'); renderVers();
+  }
+  function tick(){
+    const el = (performance.now() - t0) / 1000;
+    $('timer').textContent = el >= target * VERS[gameVer].hideFrom ? '? ? ?' : el.toFixed(2);
+    raf = requestAnimationFrame(tick);
+  }
+  function startTimer(){
+    t0 = performance.now();
+    state = 'running';
+    $('hint').textContent = '목표 시간에 스페이스바!';
+    raf = requestAnimationFrame(tick);
+  }
+  function stopTimer(){
+    cancelAnimationFrame(raf);
+    const sec = Math.round((performance.now() - t0) / 10) / 100;
+    records.push({target, sec, diff: Math.round(Math.abs(sec - target) * 100) / 100});
+    round++;
+    renderDots();
+    $('hint').textContent = '';
+    state = 'between';
+    const tk = gameToken;
+    setTimeout(() => { if (tk !== gameToken) return; round >= ROUNDS ? finish() : newRound(); }, 800);
+  }
+  function finish(){
+    $('rows').innerHTML = records.map((r, i) =>
+      `<tr><td>${i + 1}</td><td>${r.target}초</td><td>${r.sec.toFixed(2)}초</td><td>${r.diff.toFixed(2)}초</td></tr>`).join('');
+    lastTotal = Math.round(records.reduce((a, r) => a + r.diff, 0) * 100) / 100;
+    $('totalDiff').textContent = '총 오차: ' + lastTotal.toFixed(2) + '초';
+    submitted = false;
+    $('rankBtn').disabled = false;
+    $('rankBtn').textContent = '랭킹 올리기';
+    $('nameIn').value = '';
+    $('modeNote').textContent = '이번 판은 ' + VERS[gameVer].label + ' 랭킹에 올라가요.';
+    lastId = -1;
+    rankView = gameVer;
+    renderRank();
+    show('result');
+    state = 'result';
+  }
+  function gameAction(){
+    if (state === 'start') startGame();
+    else if (state === 'ready') startTimer();
+    else if (state === 'running') stopTimer();
+    else if (state === 'result') startGame();
+  }
+  $('play').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (state === 'ready' || state === 'running') gameAction(); });
+  $('exitBtn').addEventListener('click', e => { e.currentTarget.blur(); soloExit(); });
+  $('startBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'start') startGame(); });
+  $('rankBtn').addEventListener('click', e => { e.currentTarget.blur(); submitRank(); });
+  $('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') submitRank(); });
+  $('homeBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'result'){ state = 'start'; show('start'); renderVers(); } });
+  $('retryBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'result') startGame(); });
+
+  /* ---------- 스톱워치 (0초부터 올라감) ---------- */
+  let swRunning = false, swStartAt = 0, swElapsed = 0;
+  function swValue(){ return swRunning ? swElapsed + (performance.now() - swStartAt) / 1000 : swElapsed; }
+  function swToggle(){
+    if (swRunning){
+      swElapsed = swValue(); swRunning = false;
+      $('swStart').textContent = '계속';
+    } else {
+      swStartAt = performance.now(); swRunning = true;
+      $('swStart').textContent = '일시정지';
+    }
+    render();
+  }
+  function swReset(){
+    swRunning = false; swElapsed = 0;
+    $('swStart').textContent = '시작';
+    render();
+  }
+  $('swStart').addEventListener('click', e => { e.currentTarget.blur(); swToggle(); });
+  $('swReset').addEventListener('click', e => { e.currentTarget.blur(); swReset(); });
+
+  /* ---------- 카운트다운 (정한 시간에서 줄어듦) ---------- */
+  let cdRunning = false, cdEnd = 0, cdLeft = 30;
+  function readInputs(){
+    const m = Math.max(0, parseInt($('inMin').value) || 0);
+    const s = Math.min(59, Math.max(0, parseInt($('inSec').value) || 0));
+    cdLeft = m * 60 + s;
+    render();
+  }
+  function setInputs(total){
+    $('inMin').value = Math.floor(total / 60);
+    $('inSec').value = total % 60;
+    readInputs();
+  }
+  function beep(){
+    try{
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      [0, .35, .7].forEach(d => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+        g.gain.setValueAtTime(.25, ac.currentTime + d);
+        g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d + .25);
+        o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .3);
+      });
+    }catch(e){}
+  }
+  function cdValue(){ return cdRunning ? Math.max(0, (cdEnd - performance.now()) / 1000) : cdLeft; }
+  function lockInputs(v){ $('inMin').disabled = $('inSec').disabled = v; }
+  function cdToggle(){
+    if (cdRunning){
+      cdLeft = cdValue(); cdRunning = false;
+      $('cdStart').textContent = '계속';
+      $('cdHint').textContent = '일시정지';
+    } else {
+      if (cdLeft <= 0) readInputs();
+      if (cdLeft <= 0) return;
+      cdEnd = performance.now() + cdLeft * 1000;
+      cdRunning = true;
+      $('cdStart').textContent = '일시정지';
+      $('cdHint').textContent = '진행 중';
+      lockInputs(true);
+    }
+    render();
+  }
+  function cdReset(){
+    cdRunning = false;
+    lockInputs(false);
+    $('cdStart').textContent = '시작';
+    $('cdHint').textContent = '정한 시간에서 줄어들어요. 게임 화면으로 가도 계속 작동해요.';
+    readInputs();
+  }
+  $('inMin').addEventListener('input', readInputs);
+  $('inSec').addEventListener('input', readInputs);
+  $('cdStart').addEventListener('click', e => { e.currentTarget.blur(); cdToggle(); });
+  $('cdReset').addEventListener('click', e => { e.currentTarget.blur(); cdReset(); });
+  document.querySelectorAll('.preset').forEach(b => b.addEventListener('click', e => {
+    e.currentTarget.blur(); cdReset(); setInputs(+b.dataset.s);
+  }));
+
+  /* ---------- 스톱워치/카운트다운 전환 ---------- */
+  let sub = 'sw';
+  function setSub(s){
+    sub = s;
+    $('tabSw').classList.toggle('active', s === 'sw');
+    $('tabCd').classList.toggle('active', s === 'cd');
+    $('swBox').classList.toggle('hidden', s !== 'sw');
+    $('cdBox').classList.toggle('hidden', s !== 'cd');
+  }
+  $('tabSw').addEventListener('click', e => { e.currentTarget.blur(); setSub('sw'); });
+  $('tabCd').addEventListener('click', e => { e.currentTarget.blur(); setSub('cd'); });
+
+  /* ---------- 화면 갱신 (게임 화면에서도 계속 돌아감) ---------- */
+  function updateMini(){
+    const parts = [];
+    if (swRunning) parts.push('스톱워치 ' + fmt(swValue()));
+    if (cdRunning) parts.push('카운트다운 ' + fmt(cdValue()));
+    const mini = $('mini');
+    if (mode !== 'timer' && parts.length){
+      mini.textContent = parts.join(' / ');
+      mini.classList.remove('hidden');
+    } else {
+      mini.classList.add('hidden');
+    }
+  }
+  function render(){
+    $('swDisplay').textContent = fmt(swValue());
+    $('cdDisplay').textContent = fmt(cdValue());
+    updateMini();
+  }
+  setInterval(() => {
+    if (cdRunning && cdEnd - performance.now() <= 0){
+      cdRunning = false; cdLeft = 0;
+      lockInputs(false);
+      $('cdStart').textContent = '시작';
+      $('cdHint').textContent = '시간 종료!';
+      beep();
+    }
+    render();
+  }, 30);
+
+  /* ---------- 멀티게임 ---------- */
+  const MTYPES = [
+    {label:'가장 가깝게', rounds:3, desc:'3라운드 동안 돌아가며 목표 시간에 최대한 가깝게 맞춰요. 오차의 합이 가장 작은 사람이 승리!'},
+    {label:'넘으면 패배', rounds:1, desc:'돌아가며 한 번씩 멈춰요. 목표 시간을 넘거나 같으면 패배! 안 넘은 사람 중 가장 가까운 사람이 승리.'}
+  ];
+  let mType = 0, mVer = 4, mCount = 2, mNames = ['플레이어 1','플레이어 2','플레이어 3','플레이어 4','플레이어 5','플레이어 6'];
+  let mState = 'setup';   // setup | ready | running | between | result
+  let mPlayer = 0, mRound = 0, mTarget = 0, mT0 = 0, mRaf = 0, mTok = 0, mRec = [];
+
+  function mName(i){ return (mNames[i] || '').trim() || ('플레이어 ' + (i + 1)); }
+  function mShow(name){
+    for (const k of ['mSetup','mPlay','mResult']) $(k).classList.toggle('hidden', k !== name);
+  }
+  function renderMSetup(){
+    $('mTypeRow').innerHTML = MTYPES.map((t, i) => `<button data-i="${i}" class="${i === mType ? 'active' : ''}">${t.label}</button>`).join('');
+    $('mTypeRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => { e.currentTarget.blur(); mType = +b.dataset.i; renderMSetup(); }));
+    $('mTypeDesc').textContent = MTYPES[mType].desc;
+
+    $('mCountRow').innerHTML = [2,3,4,5,6].map(n => `<button data-n="${n}" class="${n === mCount ? 'active' : ''}">${n}명</button>`).join('');
+    $('mCountRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => { e.currentTarget.blur(); mCount = +b.dataset.n; renderMSetup(); }));
+    $('mNames').innerHTML = Array.from({length:mCount}, (_, i) =>
+      `<input data-i="${i}" maxlength="10" placeholder="플레이어 ${i + 1}" value="${esc(mNames[i].startsWith('플레이어 ') ? '' : mNames[i])}" aria-label="플레이어 ${i + 1} 이름">`).join('');
+    $('mNames').querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { mNames[+inp.dataset.i] = inp.value; }));
+
+    $('mVerRow').innerHTML = VERS.map((v, i) => `<button data-v="${i}" class="${i === mVer ? 'active' : ''}">${v.label}</button>`).join('');
+    $('mVerRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => { e.currentTarget.blur(); mVer = +b.dataset.v; renderMSetup(); }));
+    $('mVerDesc').textContent = VERS[mVer].desc;
+  }
+  function pickTarget(){ return MIN + Math.floor(Math.random() * (MAX - MIN + 1)); }
+  function multiStart(){
+    mTok++;
+    mRec = Array.from({length:mCount}, () => []);
+    mPlayer = 0; mRound = 0;
+    mTarget = pickTarget();
+    mTurn();
+  }
+  function mTurn(){
+    const rounds = MTYPES[mType].rounds;
+    $('mInfo').textContent = (rounds > 1 ? `${mRound + 1} / ${rounds} 라운드 · ` : '') + mName(mPlayer) + ' 차례';
+    $('mTarget').textContent = mTarget + '초';
+    $('mTimer').textContent = VERS[mVer].hideFrom === 0 ? '? ? ?' : '0.00';
+    $('mHint').textContent = '스페이스바를 눌러 시작';
+    mShow('mPlay');
+    mState = 'ready';
+  }
+  function mTick(){
+    const el = (performance.now() - mT0) / 1000;
+    $('mTimer').textContent = el >= mTarget * VERS[mVer].hideFrom ? '? ? ?' : el.toFixed(2);
+    mRaf = requestAnimationFrame(mTick);
+  }
+  function mStartTimer(){
+    mT0 = performance.now(); mState = 'running';
+    $('mHint').textContent = '목표 시간에 스페이스바!';
+    mRaf = requestAnimationFrame(mTick);
+  }
+  function mStopTimer(){
+    cancelAnimationFrame(mRaf);
+    const sec = Math.round((performance.now() - mT0) / 10) / 100;
+    let msg;
+    if (mType === 0){
+      const diff = Math.round(Math.abs(sec - mTarget) * 100) / 100;
+      mRec[mPlayer].push(diff);
+      msg = `${sec.toFixed(2)}초 (오차 ${diff.toFixed(2)}초)`;
+    } else {
+      const out = sec >= mTarget;
+      mRec[mPlayer] = {sec, out};
+      msg = `${sec.toFixed(2)}초 - ` + (out ? '넘었어요! 패배' : '통과!');
+    }
+    $('mTimer').textContent = sec.toFixed(2);
+    $('mHint').textContent = msg;
+    mState = 'between';
+    const tk = mTok;
+    setTimeout(() => { if (tk === mTok) mNext(); }, 1800);
+  }
+  function mNext(){
+    mPlayer++;
+    if (mPlayer >= mCount){
+      mPlayer = 0; mRound++;
+      if (mRound >= MTYPES[mType].rounds){ mFinish(); return; }
+      mTarget = pickTarget();
+    }
+    mTurn();
+  }
+  function mFinish(){
+    let html = '', title = '';
+    if (mType === 0){
+      const totals = mRec.map(a => Math.round(a.reduce((x, y) => x + y, 0) * 100) / 100);
+      const best = Math.min(...totals);
+      const winners = totals.map((t, i) => t === best ? mName(i) : null).filter(Boolean);
+      title = winners.length > 1 ? `무승부: ${esc(winners.join(', '))}` : `${esc(winners[0])} 승리!`;
+      const rounds = MTYPES[0].rounds;
+      html = '<thead><tr><th>이름</th>' + Array.from({length:rounds}, (_, r) => `<th>${r + 1}R</th>`).join('') + '<th>총 오차</th></tr></thead><tbody>' +
+        mRec.map((a, i) => `<tr class="${totals[i] === best ? 'me' : ''}"><td>${esc(mName(i))}</td>` + a.map(d => `<td>${d.toFixed(2)}</td>`).join('') + `<td>${totals[i].toFixed(2)}초</td></tr>`).join('') + '</tbody>';
+    } else {
+      const alive = mRec.map((r, i) => ({r, i})).filter(x => !x.r.out);
+      if (!alive.length) title = '모두 패배! 무승부';
+      else {
+        const best = Math.max(...alive.map(x => x.r.sec));
+        const winners = alive.filter(x => x.r.sec === best).map(x => mName(x.i));
+        title = winners.length > 1 ? `무승부: ${esc(winners.join(', '))}` : `${esc(winners[0])} 승리!`;
+      }
+      const bestSec = alive.length ? Math.max(...alive.map(x => x.r.sec)) : null;
+      html = `<thead><tr><th>이름</th><th>기록 (목표 ${mTarget}초)</th><th>결과</th></tr></thead><tbody>` +
+        mRec.map((r, i) => `<tr class="${!r.out && r.sec === bestSec ? 'me' : ''}"><td>${esc(mName(i))}</td><td>${r.sec.toFixed(2)}초</td><td>${r.out ? '패배(넘음)' : '통과'}</td></tr>`).join('') + '</tbody>';
+    }
+    $('mWinner').innerHTML = title;
+    $('mTable').innerHTML = html;
+    mShow('mResult');
+    mState = 'result';
+  }
+  function multiExit(){
+    cancelAnimationFrame(mRaf); mTok++;
+    mState = 'setup'; mShow('mSetup'); renderMSetup();
+  }
+  function multiAction(){
+    if (mState === 'setup') multiStart();
+    else if (mState === 'ready') mStartTimer();
+    else if (mState === 'running') mStopTimer();
+    else if (mState === 'result') multiStart();
+  }
+  $('mStartBtn').addEventListener('click', e => { e.currentTarget.blur(); if (mState === 'setup') multiStart(); });
+  $('mExitBtn').addEventListener('click', e => { e.currentTarget.blur(); multiExit(); });
+  $('mRetryBtn').addEventListener('click', e => { e.currentTarget.blur(); if (mState === 'result') multiStart(); });
+  $('mSetupBtn').addEventListener('click', e => { e.currentTarget.blur(); multiExit(); });
+  $('mPlay').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (mState === 'ready' || mState === 'running') multiAction(); });
+
+  /* ---------- 키보드 ---------- */
+  document.addEventListener('keydown', e => {
+    if (e.code !== 'Space' || e.repeat) return;
+    if (e.target.tagName === 'INPUT') return;
+    e.preventDefault();
+    if (mode === 'game') gameAction();
+    else if (mode === 'multi') multiAction();
+    else if (sub === 'sw') swToggle();
+    else cdToggle();
+  });
+
+  setMode('game');
+  renderVers();
+  renderMSetup();
+  readInputs();
+})();
+</script>
+</body>
+</html>
