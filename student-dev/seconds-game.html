@@ -146,7 +146,7 @@
       </div>
 
       <div id="chalBox" class="hidden">
-        <div class="hint">도전모드는 5라운드 · 난이도 보통으로 고정이에요.<br>랭킹은 도전모드 기록만 올라가요. (총 오차가 작을수록 높은 순위, 상위 3명)</div>
+        <div class="hint">도전모드는 5라운드 · 난이도 보통으로 고정이에요.<br>랭킹은 도전모드 기록만 올라가요. (총 오차가 작을수록 높은 순위, 상위 10명)</div>
         <h2>일반 도전 (목표 3~13초)</h2>
         <table class="rank">
           <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
@@ -195,7 +195,7 @@
           <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
           <tbody id="rankBody"></tbody>
         </table>
-        <div class="empty" id="rankNote">총 오차가 작을수록 높은 순위 (상위 3명)</div>
+        <div class="empty" id="rankNote">총 오차가 작을수록 높은 순위 (상위 10명)</div>
       </div>
 
       <div class="row">
@@ -423,6 +423,7 @@
   //   이 기기의 localStorage 기록은 인터넷이 안 될 때 보여 주는 백업으로만 써요.
   const RANK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
   const RANK_SHEET = { normal: '초맞추기_일반도전', speed: '초맞추기_스피드러너' };
+  const RANK_TOP = 10;                                   // 랭킹에 보여 줄 순위 개수
   const shared = { normal: null, speed: null };          // 불러온 반 전체 기록 (총 오차 오름차순)
   const sharedState = { normal: 'idle', speed: 'idle' }; // idle | loading | ok | fail
   const sharedAt = { normal: 0, speed: 0 };
@@ -466,7 +467,7 @@
     return loadRank(k, CHAL_VER, CHAL_ROUNDS);
   }
   function boardRows(k, hl){
-    const list = boardList(k).slice(0, 3);
+    const list = boardList(k).slice(0, RANK_TOP);
     return list.length ? list.map((r, i) =>
       `<tr class="${sameEntry(r, hl) ? 'me' : ''}"><td>${i + 1}</td><td>${esc(r.name)}</td><td>${fx(r.total)}초</td></tr>`).join('')
       : '<tr><td colspan="3">아직 기록이 없어요</td></tr>';
@@ -480,7 +481,7 @@
   function renderRank(){
     $('rankBody').innerHTML = boardRows(gameKind, lastEntry);
     $('rankTitle').textContent = '도전모드 랭킹 · ' + (kindId(gameKind) === 'speed' ? '스피드러너 도전' : '일반 도전');
-    $('rankNote').textContent = '총 오차가 작을수록 높은 순위 (상위 3명) · ' + sourceNote(gameKind);
+    $('rankNote').textContent = `총 오차가 작을수록 높은 순위 (상위 ${RANK_TOP}명) · ` + sourceNote(gameKind);
   }
   function renderChalBoards(){
     $('chalRankNormal').innerHTML = boardRows(0, null);
