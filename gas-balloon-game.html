@@ -301,6 +301,8 @@ let Tc = T_AMB_C, heating = false, cooling = false;
 let ball = { y: 0, vy: 0, V: 1, P: 1, invuln: 0, dead: 0, popped: false };
 let banner = null, activeQuiz = null, shake = 0, playTime = 0, warnT = 0;
 let lastReason = "";
+const QUIZ_PAUSE = 1.5;   // 퀴즈 관문이 나타나면 문제를 읽도록 잠시 멈추는 시간(초)
+let quizPause = 0;
 
 function addZone(){
   const prev = zones.length ? zones[zones.length - 1] : null;
@@ -456,6 +458,8 @@ function respawn(){
 }
 
 function update(dt){
+  // 퀴즈 관문이 나타나면 잠시 멈춤(풍선·장애물·온도 모두 그대로)
+  if (quizPause > 0){ quizPause = Math.max(0, quizPause - dt); return; }
   playTime += dt;
   const d = difficulty();
   const speed = lerp(240, 340, d);
@@ -515,7 +519,10 @@ function update(dt){
       if (ball.invuln <= 0 && Math.hypot(sx - bx, o.y - by) < 18 + hitR){ loseLife("새와 부딪혔어요!"); return; }
     } else if (o.type === "wall" || o.type === "quiz"){
       const gaps = o.type === "wall" ? [{ y: o.gy, h: o.gh }] : o.gaps;
-      if (o.type === "quiz" && sx > bx - 60 && sx < bx + 760) activeQuiz = o;
+      if (o.type === "quiz" && sx > bx - 60 && sx < bx + 760){
+        activeQuiz = o;
+        if (!o.paused){ o.paused = true; quizPause = QUIZ_PAUSE; burnerSound(false); SFX.zone(); }
+      }
       if (bx + hitR > sx && bx - hitR < sx + o.w){
         // 틈 안에 완전히 들어와 있는지 확인
         const inGap = gaps.findIndex(g => by - hitR > g.y - g.h / 2 && by + hitR < g.y + g.h / 2);
@@ -696,7 +703,7 @@ function drawBalloon(t, dt){
   ctx.strokeStyle = "#7A5128"; ctx.lineWidth = 2; ctx.strokeRect(-15, R + 30, 30, 22);
   ctx.beginPath(); ctx.moveTo(-15, R + 41); ctx.lineTo(15, R + 41); ctx.stroke();
   // 버너 불꽃
-  if (heating && phase === "play"){
+  if (heating && phase === "play" && quizPause <= 0){
     const fh = 18 + Math.random() * 10;
     const fg = ctx.createLinearGradient(0, R + 28, 0, R + 28 - fh);
     fg.addColorStop(0, "#FFE45C"); fg.addColorStop(1, "rgba(255,90,30,.2)");
@@ -791,6 +798,15 @@ function drawHUD(t){
     ctx.globalAlpha = 1;
   }
   ctx.textAlign = "left";
+  if (quizPause > 0 && phase === "play"){
+    // 멈춤 안내와 남은 시간 막대
+    ctx.fillStyle = "rgba(10,20,50,.78)"; roundRectPath(VW / 2 - 190, 104, 380, 62, 18); ctx.fill();
+    ctx.fillStyle = "#FFE27A"; ctx.font = "22px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(`⏸ 문제를 읽어 보세요!  ${quizPause.toFixed(1)}초`, VW / 2, 138);
+    ctx.fillStyle = "rgba(255,255,255,.2)"; roundRectPath(VW / 2 - 150, 150, 300, 8, 4); ctx.fill();
+    ctx.fillStyle = "#7DFFB2"; roundRectPath(VW / 2 - 150, 150, Math.max(8, 300 * quizPause / QUIZ_PAUSE), 8, 4); ctx.fill();
+    ctx.textAlign = "left";
+  }
   if (playTime < 6 && phase === "play"){
     ctx.globalAlpha = clamp(6 - playTime, 0, 1);
     ctx.fillStyle = "rgba(10,20,50,.75)"; roundRectPath(VW / 2 - 300, VH - 66, 600, 44, 22); ctx.fill();
@@ -948,7 +964,7 @@ function resetWorld(){
   worldX = 0; genX = 900; zoneEnd = 0; obstacleCount = 0; quizOrder = []; lastGapY = 355; quizDue = false;
   addZone(); generate();
   Tc = T_AMB_C; ball = { y: yOfV(1), vy: 0, V: 1, P: 1, invuln: 0, dead: 0, popped: false };
-  banner = null; activeQuiz = null;
+  banner = null; activeQuiz = null; quizPause = 0;
 }
 function startGame(){
   audio();
@@ -986,7 +1002,7 @@ requestAnimationFrame(frame);
 
 // 개발·검증용 훅
 window.__balloon = {
-  get state(){ return { phase, score: Math.floor(score), lives, Tc, V: ball.V, P: ball.P, y: ball.y, worldX, gatesPassed, starsGot, quizRight, quizTotal, dead: ball.dead, lastReason }; },
+  get state(){ return { phase, score: Math.floor(score), lives, Tc, V: ball.V, P: ball.P, y: ball.y, worldX, gatesPassed, starsGot, quizRight, quizTotal, dead: ball.dead, lastReason, quizPause }; },
   get obstacles(){ return obstacles; },
   setHeat, setCool, update, startGame, endGame,
   pressureAt, volumeOf, yOfV, vRange, radiusOfV
