@@ -6,16 +6,33 @@
 <title>초 맞추기 게임 / 타이머</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#ffffff;--fg:#000000;--dim:#cccccc;--soft:#eeeeee}
+  input[type=range]{accent-color:var(--fg)}
+  .cs{font-size:14px;min-height:20px;margin-top:6px;font-variant-numeric:tabular-nums;word-break:break-all}
+  .settings{position:fixed;top:76px;right:12px;width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 92px);overflow:auto;
+    background:var(--bg);color:var(--fg);border:2px solid var(--fg);padding:16px;z-index:10;text-align:left}
+  .settings .srow{margin-top:16px}
+  .settings .srow:first-child{margin-top:0}
+  .settings .note{font-size:13px;line-height:1.6;margin-top:6px}
+  .settings .vers{justify-content:flex-start;margin-top:8px}
+  .settings .row{justify-content:flex-start;margin-top:8px}
+  .settings button{padding:8px 14px;font-size:15px}
+  .chan{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:15px}
+  .chan input[type=range]{flex:1;min-width:0}
+  .chan input[type=number]{width:64px;font-size:15px;border:2px solid var(--fg);padding:4px;background:var(--bg);color:var(--fg);font-family:inherit}
+  .alarm-stop{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:30;padding:18px 36px;font-size:22px;font-weight:700;background:var(--fg);color:var(--bg);border:3px solid var(--bg);outline:3px solid var(--fg);cursor:pointer}
+  .swatch{display:inline-block;width:26px;height:26px;border:2px solid var(--fg);vertical-align:middle;margin-right:8px}
+  .settings code{font-size:14px}
   html,body{height:100%}
-  body{background:#fff;color:#000;font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
-  header{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;padding:14px;background:#fff;border-bottom:2px solid #000;z-index:5}
-  header .sep{width:2px;height:30px;background:#000;margin:0 6px}
-  button{background:#fff;color:#000;border:2px solid #000;padding:10px 20px;font-size:16px;cursor:pointer;font-family:inherit;border-radius:3px}
-  button:hover,button:focus-visible{background:#000;color:#fff;outline:none}
-  button.active{background:#000;color:#fff}
-  .mini{font-size:15px;font-variant-numeric:tabular-nums;border:2px solid #000;padding:8px 12px;border-radius:3px}
+  body{background:var(--bg);color:var(--fg);font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+  header{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;padding:14px;background:var(--bg);border-bottom:2px solid var(--fg);z-index:5}
+  header .sep{width:2px;height:30px;background:var(--fg);margin:0 6px}
+  button{background:var(--bg);color:var(--fg);border:2px solid var(--fg);padding:10px 20px;font-size:16px;cursor:pointer;font-family:inherit;border-radius:3px}
+  button:hover,button:focus-visible{background:var(--fg);color:var(--bg);outline:none}
+  button.active{background:var(--fg);color:var(--bg)}
+  .mini{font-size:15px;font-variant-numeric:tabular-nums;border:2px solid var(--fg);padding:8px 12px;border-radius:3px}
   main{min-height:100%;display:flex;align-items:center;justify-content:center;padding:110px 24px 24px}
-  .panel{width:min(560px,100%);border:2px solid #000;padding:36px 32px;text-align:center}
+  .panel{width:min(560px,100%);border:2px solid var(--fg);padding:36px 32px;text-align:center}
   h1{font-size:30px}
   .sub{margin-top:10px;line-height:1.7;font-size:16px}
   .round{font-size:16px;margin-bottom:6px}
@@ -26,30 +43,40 @@
   .panel > button,.panel .row button{padding:12px 30px;font-size:17px}
   .panel > button{margin-top:26px}
   .dots{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
-  .dots i{width:30px;height:4px;background:#ccc}
-  .dots i.on{background:#000}
+  .bigbtn{margin-top:14px;padding:12px 30px;font-size:17px}
+  .dots{flex-wrap:wrap}
+  .dots i{width:30px;height:4px;background:var(--dim)}
+  #customRow input{width:90px;font-size:16px;border:2px solid var(--fg);padding:8px;background:var(--bg);color:var(--fg);font-family:inherit;text-align:center}
+  .dots i.on{background:var(--fg)}
   table{width:100%;border-collapse:collapse;margin-top:20px;font-size:17px}
-  th,td{border-bottom:1px solid #000;padding:10px 6px}
+  th,td{border-bottom:1px solid var(--fg);padding:10px 6px}
   th{font-weight:700}
   .hidden{display:none}
+  .rbox{margin-top:22px;min-height:230px;border:2px solid var(--fg);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  .rbox .rmain{font-size:44px;font-weight:700}
+  .rbox .rsub{margin-top:12px;font-size:16px;line-height:1.6;white-space:pre-line}
+  .rbox.idle{background:var(--soft);color:var(--fg)}
+  .rbox.wait{background:var(--fg);color:var(--bg)}
+  .rbox.go{background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 10px var(--fg)}
   .names{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
-  .names input{font-size:16px;border:2px solid #000;padding:8px;font-family:inherit;background:#fff;color:#000;min-width:0}
-  .vers button.active{background:#000;color:#fff}
+  .names input{font-size:16px;border:2px solid var(--fg);padding:8px;font-family:inherit;background:var(--bg);color:var(--fg);min-width:0}
+  .vers button.active{background:var(--fg);color:var(--bg)}
   .exit{margin-top:20px;padding:8px 20px;font-size:15px}
   .vers{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-  .vers button,#rankTabs button{padding:8px 14px;font-size:15px}
+  .vers button{padding:8px 14px;font-size:15px}
   .total{font-size:22px;font-weight:700;margin-top:18px}
   .name-row{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
-  .name-row input{flex:1;min-width:140px;max-width:240px;font-size:17px;border:2px solid #000;padding:10px;font-family:inherit;background:#fff;color:#000}
+  .name-row input{flex:1;min-width:140px;max-width:240px;font-size:17px;border:2px solid var(--fg);padding:10px;font-family:inherit;background:var(--bg);color:var(--fg)}
   .name-row button{margin-top:0}
-  button:disabled{opacity:.4;cursor:default;background:#fff;color:#000}
+  button:disabled{opacity:.4;cursor:default;background:var(--bg);color:var(--fg)}
   h2{font-size:20px;margin-top:28px}
   .rank td:first-child,.rank th:first-child{width:52px}
-  .rank tr.me td{font-weight:700;background:#eee}
+  .rank tr.me td{font-weight:700;background:var(--soft)}
   .empty{margin-top:12px;font-size:15px}
   .subtabs{display:flex;gap:8px;justify-content:center;margin-top:18px}
   .inputs{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:20px;font-size:18px}
-  .inputs input{width:90px;font-size:28px;text-align:center;border:2px solid #000;padding:8px;font-family:inherit;background:#fff;color:#000}
+  .inputs input{width:90px;font-size:28px;text-align:center;border:2px solid var(--fg);padding:8px;font-family:inherit;background:var(--bg);color:var(--fg)}
   .big{font-size:76px;font-weight:700;margin-top:24px;font-variant-numeric:tabular-nums}
   .row{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
   .row button{margin-top:0}
@@ -60,18 +87,81 @@
   <button id="modeGame" class="active">게임</button>
   <button id="modeMulti">멀티게임</button>
   <button id="modeTimer">타이머</button>
+  <button id="modeReact">반응속도</button>
+  <button id="modeSet" aria-expanded="false">설정 (정밀도·색상)</button>
   <span class="mini hidden" id="mini"></span>
 </header>
+
+<aside class="settings hidden" id="settings" aria-label="설정">
+  <div class="srow">
+    <strong>정밀도 (소수점 자릿수)</strong>
+    <div class="vers" id="precRow"></div>
+    <div class="note">표시 자릿수예요. 기록은 항상 소수점 6자리(마이크로초)까지 계산하지만, 실제 측정은 브라우저와 기기 시계의 정밀도를 넘을 수 없어요.</div>
+  </div>
+  <div class="srow">
+    <strong>세슘-133 주기 표시</strong>
+    <div class="row"><button id="csBtn" aria-pressed="false">꺼짐</button></div>
+    <div class="note">1초 = 세슘-133(¹³³Cs) 원자의 바닥상태에 있는 두 초미세 준위 사이 전이에 해당하는 방사선의 9,192,631,770 주기의 지속 시간 (SI 초의 정의). 켜면 시간이 주기 수로도 표시돼요.</div>
+  </div>
+  <div class="srow">
+    <strong>알람 (카운트다운 종료)</strong>
+    <label class="chan">볼륨 <input type="range" id="volRange" min="0" max="200" value="100" aria-label="알람 볼륨"><span id="volVal">100%</span></label>
+    <div class="note">100%가 기본(최대 진폭)이에요. 100%를 넘기면 소리가 더 커지지만 깨질 수 있어요.</div>
+    <div class="row"><button id="vibBtn">진동: 켜짐</button><button id="alarmTestBtn">알람 미리듣기</button></div>
+    <div class="row"><button id="songBtn">노래 선택</button><button id="songDel">노래 제거</button></div>
+    <input type="file" id="songIn" accept="audio/*" class="hidden">
+    <div class="note" id="songName">기본 알람음 사용 중</div>
+    <div class="note">시간이 끝나면 노래(또는 기본 알람음)가 반복되고, 최대 60초 뒤에 자동으로 멈춰요. "알람 끄기" 버튼이나 스페이스바로 끌 수 있어요. 진동은 진동을 지원하는 기기(주로 휴대폰)에서만 작동해요.</div>
+  </div>
+  <div class="srow">
+    <strong>색상</strong>
+    <div class="row"><button id="invBtn">색상 반전</button><button id="colorResetBtn">색상 초기화</button></div>
+    <div class="note" id="contrastNote"></div>
+  </div>
+  <div class="srow" id="bgEditor"></div>
+  <div class="srow" id="fgEditor"></div>
+</aside>
+<button id="alarmStop" class="alarm-stop hidden">알람 끄기 (스페이스바)</button>
 
 <main>
   <!-- ===== 게임 ===== -->
   <div id="gameWrap" style="width:100%;display:flex;justify-content:center">
     <section class="panel" id="start">
       <h1>초 맞추기 게임</h1>
-      <p class="sub">목표 시간(3~13초)이 주어져요.<br>스페이스바로 시작하고, 목표 시간에 맞춰 다시 스페이스바로 멈추세요.<br>총 5번 도전해요.<br>버전을 고르세요. 숫자가 클수록 타이머가 일찍 가려져요.</p>
-      <div class="vers" id="verRow"></div>
-      <div class="hint" id="verDesc"></div>
-      <button id="startBtn">게임 시작 (스페이스바)</button>
+      <p class="sub">목표 시간이 주어지면 스페이스바로 시작하고, 목표 시간에 맞춰 다시 스페이스바로 멈추세요.<br>모드, 난이도, 라운드 수를 고르세요. 어려울수록 타이머가 일찍 가려져요.</p>
+      <div class="vers" id="playModeRow"></div>
+
+      <div id="freeBox">
+        <div class="vers" id="kindRow"></div>
+        <div class="hint" id="kindDesc"></div>
+        <div class="vers" id="verRow"></div>
+        <div class="vers" id="roundRow"></div>
+        <div class="vers" id="customRow">
+          <label>직접 입력 <input type="number" id="roundIn" min="1" max="99" step="1" placeholder="예: 7" aria-label="라운드 수 직접 입력"></label>
+          <button id="roundSet">적용</button>
+        </div>
+        <div class="hint" id="verDesc"></div>
+        <div class="hint">자유 모드는 설정을 마음대로 고를 수 있고, 랭킹에는 올라가지 않아요.</div>
+        <button id="startBtn">게임 시작 (스페이스바)</button>
+      </div>
+
+      <div id="chalBox" class="hidden">
+        <div class="hint">도전모드는 5라운드 · 난이도 보통으로 고정이에요.<br>랭킹은 도전모드 기록만 올라가요. (총 오차가 작을수록 높은 순위, 상위 3명)</div>
+        <h2>일반 도전 (목표 3~13초)</h2>
+        <table class="rank">
+          <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
+          <tbody id="chalRankNormal"></tbody>
+        </table>
+        <div class="empty" id="chalNoteNormal"></div>
+        <button id="chalNormalBtn" class="bigbtn">일반 도전 시작</button>
+        <h2>스피드러너 도전 (목표 0.1~1.0초)</h2>
+        <table class="rank">
+          <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
+          <tbody id="chalRankSpeed"></tbody>
+        </table>
+        <div class="empty" id="chalNoteSpeed"></div>
+        <button id="chalSpeedBtn" class="bigbtn">스피드러너 도전 시작</button>
+      </div>
     </section>
 
     <section class="panel hidden" id="play">
@@ -80,6 +170,7 @@
       <div class="target-label">목표 시간</div>
       <div class="target" id="target"></div>
       <div class="timer" id="timer"></div>
+      <div class="cs" id="cs"></div>
       <div class="hint" id="hint"></div>
       <button id="exitBtn" class="exit">나가기</button>
     </section>
@@ -92,20 +183,20 @@
       </table>
       <div class="total" id="totalDiff"></div>
 
-      <div class="name-row">
-        <input id="nameIn" type="text" maxlength="10" placeholder="이름 입력" aria-label="이름">
-        <button id="rankBtn">랭킹 올리기</button>
-      </div>
-
       <div class="hint" id="modeNote"></div>
 
-      <h2>랭킹 (버전별)</h2>
-      <div class="row" id="rankTabs"></div>
-      <table class="rank">
-        <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
-        <tbody id="rankBody"></tbody>
-      </table>
-      <div class="empty">총 오차가 작을수록 높은 순위 (버전별 상위 3명)</div>
+      <div id="rankBox">
+        <div class="name-row">
+          <input id="nameIn" type="text" maxlength="10" placeholder="이름 입력" aria-label="이름">
+          <button id="rankBtn">랭킹 올리기</button>
+        </div>
+        <h2 id="rankTitle">도전모드 랭킹</h2>
+        <table class="rank">
+          <thead><tr><th>순위</th><th>이름</th><th>총 오차</th></tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+        <div class="empty" id="rankNote">총 오차가 작을수록 높은 순위 (상위 3명)</div>
+      </div>
 
       <div class="row">
         <button id="retryBtn">다시 하기 (스페이스바)</button>
@@ -136,8 +227,19 @@
       <div class="target-label">목표 시간</div>
       <div class="target" id="mTarget"></div>
       <div class="timer" id="mTimer"></div>
+      <div class="cs" id="mCs"></div>
       <div class="hint" id="mHint"></div>
       <button id="mExitBtn" class="exit">나가기</button>
+    </section>
+
+    <section class="panel hidden" id="mSummary">
+      <h1 id="mSumTitle"></h1>
+      <table id="mSumTable"></table>
+      <div class="hint" id="mSumNote"></div>
+      <div class="row">
+        <button id="mNextBtn">다음 라운드 (스페이스바)</button>
+        <button id="mSumExitBtn">나가기</button>
+      </div>
     </section>
 
     <section class="panel hidden" id="mResult">
@@ -147,6 +249,22 @@
         <button id="mRetryBtn">다시 하기 (스페이스바)</button>
         <button id="mSetupBtn">설정으로</button>
       </div>
+    </section>
+  </div>
+
+  <!-- ===== 반응속도 ===== -->
+  <div id="reactWrap" style="width:100%;display:none;justify-content:center">
+    <section class="panel">
+      <h1>반응속도 테스트</h1>
+      <div class="rbox idle" id="rBox" role="button" tabindex="-1" aria-live="polite">
+        <div class="rmain" id="rMain"></div>
+        <div class="rsub" id="rSub"></div>
+      </div>
+      <table id="rTable" class="hidden">
+        <thead><tr><th>회차</th><th>반응속도</th></tr></thead>
+        <tbody id="rRows"></tbody>
+      </table>
+      <div class="hint" id="rBest"></div>
     </section>
   </div>
 
@@ -162,6 +280,7 @@
       <!-- 스톱워치 -->
       <div id="swBox">
         <div class="big" id="swDisplay">00:00.00</div>
+        <div class="cs" id="swCs"></div>
         <div class="row">
           <button id="swStart">시작</button>
           <button id="swReset">초기화</button>
@@ -173,9 +292,10 @@
       <div id="cdBox" class="hidden">
         <div class="inputs">
           <input id="inMin" type="number" min="0" max="999" value="0" aria-label="분"> 분
-          <input id="inSec" type="number" min="0" max="59" value="30" aria-label="초"> 초
+          <input id="inSec" type="number" min="0" max="59" step="any" value="30" aria-label="초"> 초
         </div>
         <div class="big" id="cdDisplay">00:30.00</div>
+        <div class="cs" id="cdCs"></div>
         <div class="row">
           <button id="cdStart">시작</button>
           <button id="cdReset">초기화</button>
@@ -197,32 +317,74 @@
   const $ = id => document.getElementById(id);
   let mode = 'game';
 
-  /* ---------- 공통 형식 ---------- */
-  function fmt(sec){
-    const s = Math.max(0, sec);
-    const m = Math.floor(s / 60);
-    const r = s - m * 60;
-    return String(m).padStart(2, '0') + ':' + r.toFixed(2).padStart(5, '0');
+  /* ---------- 정밀도 / 세슘 / 색상 설정 ---------- */
+  const CS_HZ = 9192631770;            // 1초 = 세슘-133 복사 9,192,631,770 주기
+  const SETTINGS_KEY = 'secSettings';
+  let PREC = 2, csOn = false, BG = [255,255,255], FG = [0,0,0];
+  let alarmVol = 100, vibOn = true;
+  const q6 = x => Math.round(x * 1e6) / 1e6;     // 내부 계산은 항상 소수점 6자리
+  const q3 = x => Math.round(x * 1e3) / 1e3;
+  // 시간 표시: 정수 마이크로초 기준으로 내림 (1초가 되기 전에 1.00으로 보이지 않음)
+  const fx = x => { const step = 10 ** (6 - PREC); return (Math.floor(Math.round(Math.max(0, x) * 1e6) / step) / 10 ** PREC).toFixed(PREC); };
+  const fmtMs = x => x.toFixed(Math.max(0, PREC - 3));
+  const cycles = sec => Math.round(sec * CS_HZ).toLocaleString('en-US');
+  function setCs(id, sec){
+    $(id).textContent = (csOn && sec !== null) ? '≈ ' + cycles(sec) + ' 주기 (¹³³Cs)' : '';
   }
+  // 입력 이벤트의 정확한 시각 사용 (핸들러 실행 지연 제거)
+  function nowOf(e){
+    const t = e && e.timeStamp, n = performance.now();
+    return (typeof t === 'number' && Math.abs(t - n) < 1000) ? t : n;
+  }
+
+  /* ---------- 공통 형식 ---------- */
+  function fmt(sec, up){      // up=true: 올림(카운트다운이 0보다 일찍 0으로 보이지 않게), 기본: 내림
+    const step = 10 ** (6 - PREC), per = 10 ** PREC;
+    const us = Math.round(Math.max(0, sec) * 1e6);        // 정수 마이크로초로 바꿔서 부동소수점 오차 제거
+    const u = up ? Math.ceil(us / step) : Math.floor(us / step);
+    const m = Math.floor(u / (60 * per));
+    const r = (u - m * 60 * per) / per;
+    return String(m).padStart(2, '0') + ':' + r.toFixed(PREC).padStart(3 + PREC, '0');
+  }
+
 
   /* ---------- 상단 버튼 ---------- */
   function setMode(m){
+    if (m === 'react' && mode !== 'react'){ soloExit(); multiExit(); }
+    if (mode === 'react' && m !== 'react') reactReset();
     if (m === 'multi' && mode !== 'multi') soloExit();
     if (m === 'game' && mode !== 'game') multiExit();
     mode = m;
     $('modeGame').classList.toggle('active', m === 'game');
     $('modeMulti').classList.toggle('active', m === 'multi');
     $('modeTimer').classList.toggle('active', m === 'timer');
+    $('modeReact').classList.toggle('active', m === 'react');
     $('gameWrap').style.display = m === 'game' ? 'flex' : 'none';
     $('multiWrap').style.display = m === 'multi' ? 'flex' : 'none';
     $('timerWrap').style.display = m === 'timer' ? 'flex' : 'none';
+    $('reactWrap').style.display = m === 'react' ? 'flex' : 'none';
     updateMini();
   }
   $('modeGame').addEventListener('click', e => { e.currentTarget.blur(); setMode('game'); });
   $('modeMulti').addEventListener('click', e => { e.currentTarget.blur(); setMode('multi'); });
+  $('modeReact').addEventListener('click', e => { e.currentTarget.blur(); setMode('react'); });
   $('modeTimer').addEventListener('click', e => { e.currentTarget.blur(); setMode('timer'); });
   /* ---------- 게임 ---------- */
-  const ROUNDS = 5;
+  const ROUND_OPTS = [3, 5, 10];
+  let customRounds = [];
+  try{ customRounds = (JSON.parse(localStorage.getItem('secCustomRounds')) || []).filter(n => Number.isInteger(n) && n >= 1 && n <= 99); }catch(e){}
+  const allRoundOpts = () => [...new Set([...ROUND_OPTS, ...customRounds])].sort((a, b) => a - b);
+  function setRounds(n){
+    n = Math.min(99, Math.max(1, Math.round(+n) || 0));
+    if (!n) return;
+    ROUNDS = n;
+    if (!ROUND_OPTS.includes(n) && !customRounds.includes(n)){
+      customRounds.push(n);
+      try{ localStorage.setItem('secCustomRounds', JSON.stringify(customRounds)); }catch(e){}
+    }
+    renderVers();
+  }
+  let ROUNDS = 5;
   const MIN = 3, MAX = 13;
   const screens = {start:$('start'), play:$('play'), result:$('result')};
   let state = 'start';      // start | ready | running | between | result
@@ -230,33 +392,136 @@
   let lastTotal = 0, submitted = false;
   // 버전: hideFrom = 목표 시간의 몇 배가 지났을 때 타이머가 가려지는지 (Infinity = 안 가림, 0 = 처음부터 가림)
   const VERS = [
-    {label:'버전 1', desc:'원래 버전: 타이머가 끝까지 보여요',          hideFrom:Infinity, key:'secGameRanking'},
-    {label:'버전 2', desc:'목표 시간의 25%만큼 가려져요 (마지막 25% 구간)', hideFrom:0.75,     key:'secGameRankingV2'},
-    {label:'버전 3', desc:'목표 시간의 50%만큼 가려져요 (마지막 50% 구간)', hideFrom:0.5,      key:'secGameRankingV3'},
-    {label:'버전 4', desc:'목표 시간의 75%만큼 가려져요 (마지막 75% 구간)', hideFrom:0.25,     key:'secGameRankingV4'},
-    {label:'버전 5', desc:'타이머가 처음부터 100% 가려져요',            hideFrom:0,        key:'secGameRankingHard'}
+    {label:'매우 쉬움', desc:'원래 버전: 타이머가 끝까지 보여요',          hideFrom:Infinity, key:'secGameRanking'},
+    {label:'쉬움', desc:'목표 시간의 25%만큼 가려져요 (마지막 25% 구간)', hideFrom:0.75,     key:'secGameRankingV2'},
+    {label:'보통', desc:'목표 시간의 50%만큼 가려져요 (마지막 50% 구간)', hideFrom:0.5,      key:'secGameRankingV3'},
+    {label:'어려움', desc:'목표 시간의 75%만큼 가려져요 (마지막 75% 구간)', hideFrom:0.25,     key:'secGameRankingV4'},
+    {label:'매우 어려움', desc:'타이머가 처음부터 100% 가려져요',            hideFrom:0,        key:'secGameRankingHard'}
   ];
-  let gameVer = 0, rankView = 0, lastId = -1, gameToken = 0;
-  function loadRank(v){
-    try{ return JSON.parse(localStorage.getItem(VERS[v].key)) || []; }catch(e){ return []; }
+  const KINDS = [
+    {id:'normal', label:'일반',       desc:'목표 시간이 3~13초 중에서 나와요.'},
+    {id:'speed',  label:'스피드러너', desc:'목표 시간이 1초부터 0.1초까지 0.1초 단위로 나와요. 반응 속도가 중요해요!'}
+  ];
+  let gameKind = 0;
+  const kindId = k => KINDS[k].id;
+  const fmtT = t => (kindId(gameKind) === 'speed' ? t.toFixed(1) : String(t));
+  let gameVer = 0, lastId = -1, gameToken = 0;
+  const rkey = (k, v, r) => VERS[v].key + (kindId(k) === 'speed' ? 'Speed' : '') + (r === 5 ? '' : 'R' + r);
+  function loadRank(k, v, r){
+    try{ return JSON.parse(localStorage.getItem(rkey(k, v, r))) || []; }catch(e){ return []; }
   }
-  function saveRank(v, list){
-    try{ localStorage.setItem(VERS[v].key, JSON.stringify(list)); }catch(e){}
+  function saveRank(k, v, r, list){
+    try{ localStorage.setItem(rkey(k, v, r), JSON.stringify(list)); }catch(e){}
   }
   function esc(t){ return t.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function renderRank(){
-    $('rankTabs').innerHTML = VERS.map((v, i) =>
-      `<button data-v="${i}" class="${i === rankView ? 'active' : ''}">${i + 1}</button>`).join('');
-    $('rankTabs').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
-      e.currentTarget.blur(); rankView = +b.dataset.v; renderRank();
-    }));
-    const list = loadRank(rankView).slice(0, 3);
-    $('rankBody').innerHTML = list.length ? list.map((r, i) =>
-      `<tr class="${r.id === lastId ? 'me' : ''}"><td>${i + 1}</td><td>${esc(r.name)}</td><td>${r.total.toFixed(2)}초</td></tr>`).join('')
+  // 도전모드 랭킹: 난이도 보통(2) · 5라운드 고정. (일반/스피드러너 각각 따로)
+  const CHAL_VER = 2, CHAL_ROUNDS = 5;
+  let playMode = 'free', isChallenge = false, savedFree = null;
+
+  // ▣ 도전모드 랭킹은 '아화중_쉬어가는게임랭킹' 스프레드시트에 저장해 반 전체가 함께 봐요.
+  //   (다른 쉬어가는 게임과 같은 Apps Script 웹 앱 · 탭: 초맞추기_일반도전 / 초맞추기_스피드러너)
+  //   이 기기의 localStorage 기록은 인터넷이 안 될 때 보여 주는 백업으로만 써요.
+  const RANK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+  const RANK_SHEET = { normal: '초맞추기_일반도전', speed: '초맞추기_스피드러너' };
+  const shared = { normal: null, speed: null };          // 불러온 반 전체 기록 (총 오차 오름차순)
+  const sharedState = { normal: 'idle', speed: 'idle' }; // idle | loading | ok | fail
+  const sharedAt = { normal: 0, speed: 0 };
+  const mine = { normal: [], speed: [] };                // 방금 올린 내 기록(시트 반영 전에도 보이게)
+  let lastEntry = null;
+  function todayStr(){ const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+  const sameEntry = (a, b) => a && b && a.name === b.name && Math.abs(a.total - b.total) < 1e-7;
+  async function fetchShared(k, force){
+    const id = kindId(k);
+    if (!force && (sharedState[id] === 'loading' || (sharedState[id] === 'ok' && Date.now() - sharedAt[id] < 30000))) return;
+    sharedState[id] = 'loading'; refreshBoards();
+    try{
+      const res = await fetch(RANK_URL + '?worksheet=' + encodeURIComponent(RANK_SHEET[id]));
+      if (!res.ok) throw new Error('status ' + res.status);
+      const rows = await res.json();
+      shared[id] = rows.map(r => ({ name: String(r.name || '').slice(0, 10), total: Number(r.total) }))
+        .filter(r => r.name && Number.isFinite(r.total) && r.total >= 0)
+        .sort((a, b) => a.total - b.total);
+      sharedState[id] = 'ok'; sharedAt[id] = Date.now();
+    }catch(e){
+      console.warn('공유 랭킹을 불러오지 못했어요:', e);
+      sharedState[id] = 'fail';
+    }
+    refreshBoards();
+  }
+  async function submitShared(k, entry){
+    const id = kindId(k);
+    try{
+      await fetch(RANK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ worksheet: RANK_SHEET[id], name: entry.name, total: entry.total.toFixed(6), date: todayStr() }) });
+    }catch(e){ console.warn('공유 랭킹 전송에 실패했어요:', e); }
+    setTimeout(() => fetchShared(k, true), 1500);
+  }
+  function boardList(k){
+    const id = kindId(k);
+    if (sharedState[id] === 'ok' && shared[id]){
+      const list = shared[id].slice();
+      mine[id].forEach(m => { if (!list.some(r => sameEntry(r, m))) list.push(m); });
+      return list.sort((a, b) => a.total - b.total);
+    }
+    return loadRank(k, CHAL_VER, CHAL_ROUNDS);
+  }
+  function boardRows(k, hl){
+    const list = boardList(k).slice(0, 3);
+    return list.length ? list.map((r, i) =>
+      `<tr class="${sameEntry(r, hl) ? 'me' : ''}"><td>${i + 1}</td><td>${esc(r.name)}</td><td>${fx(r.total)}초</td></tr>`).join('')
       : '<tr><td colspan="3">아직 기록이 없어요</td></tr>';
+  }
+  function sourceNote(k){
+    const st = sharedState[kindId(k)];
+    return st === 'ok' ? '🌐 반 전체가 함께 보는 공유 랭킹이에요.'
+      : st === 'fail' ? '⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여 주고 있어요.'
+      : '🌐 반 전체 랭킹을 불러오는 중...';
+  }
+  function renderRank(){
+    $('rankBody').innerHTML = boardRows(gameKind, lastEntry);
+    $('rankTitle').textContent = '도전모드 랭킹 · ' + (kindId(gameKind) === 'speed' ? '스피드러너 도전' : '일반 도전');
+    $('rankNote').textContent = '총 오차가 작을수록 높은 순위 (상위 3명) · ' + sourceNote(gameKind);
+  }
+  function renderChalBoards(){
+    $('chalRankNormal').innerHTML = boardRows(0, null);
+    $('chalRankSpeed').innerHTML = boardRows(1, null);
+    $('chalNoteNormal').textContent = sourceNote(0);
+    $('chalNoteSpeed').textContent = sourceNote(1);
+  }
+  function refreshBoards(){ renderChalBoards(); if (state === 'result' && isChallenge) renderRank(); }
+  function restoreFree(){
+    if (isChallenge && savedFree){ gameKind = savedFree.gameKind; gameVer = savedFree.gameVer; ROUNDS = savedFree.ROUNDS; }
+    isChallenge = false; savedFree = null;
+  }
+  function startChallenge(k){
+    if (!isChallenge) savedFree = {gameKind, gameVer, ROUNDS};
+    isChallenge = true;
+    gameKind = k; gameVer = CHAL_VER; ROUNDS = CHAL_ROUNDS;
+    startGame();
   }
   // 시작 화면 버전 선택
   function renderVers(){
+    $('playModeRow').innerHTML = [['free','자유 모드'],['challenge','도전모드']].map(([id, label]) =>
+      `<button data-m="${id}" class="${id === playMode ? 'active' : ''}">${label}</button>`).join('');
+    $('playModeRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
+      e.currentTarget.blur(); playMode = b.dataset.m; renderVers();
+    }));
+    $('freeBox').classList.toggle('hidden', playMode !== 'free');
+    $('chalBox').classList.toggle('hidden', playMode !== 'challenge');
+    renderChalBoards();
+    if (playMode === 'challenge'){ fetchShared(0); fetchShared(1); }
+    $('kindRow').innerHTML = KINDS.map((k, i) =>
+      `<button data-k="${i}" class="${i === gameKind ? 'active' : ''}">${k.label}</button>`).join('');
+    $('kindRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
+      e.currentTarget.blur(); gameKind = +b.dataset.k; renderVers();
+    }));
+    $('kindDesc').textContent = KINDS[gameKind].desc;
+    $('roundRow').innerHTML = ROUND_OPTS.concat(ROUND_OPTS.includes(ROUNDS) ? [] : [ROUNDS]).map(n =>
+      `<button data-r="${n}" class="${n === ROUNDS ? 'active' : ''}">${n}라운드</button>`).join('');
+    $('roundIn').value = ROUND_OPTS.includes(ROUNDS) ? '' : ROUNDS;
+    $('roundRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
+      e.currentTarget.blur(); ROUNDS = +b.dataset.r; renderVers();
+    }));
     $('verRow').innerHTML = VERS.map((v, i) =>
       `<button data-v="${i}" class="${i === gameVer ? 'active' : ''}">${v.label}</button>`).join('');
     $('verRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
@@ -265,33 +530,40 @@
     $('verDesc').textContent = VERS[gameVer].desc;
   }
   function submitRank(){
-    if (submitted) return;
+    if (submitted || !isChallenge) return;
     const name = $('nameIn').value.trim();
     if (!name){ $('nameIn').focus(); return; }
-    const list = loadRank(gameVer);
+    const list = loadRank(gameKind, gameVer, ROUNDS);
     const id = Date.now() + Math.random();
     list.push({id, name, total: lastTotal});
     list.sort((a, b) => a.total - b.total);
-    saveRank(gameVer, list.slice(0, 100));
+    saveRank(gameKind, gameVer, ROUNDS, list.slice(0, 100));   // 이 기기 백업
     submitted = true;
     $('rankBtn').disabled = true;
     $('rankBtn').textContent = '등록 완료';
     lastId = id;
-    rankView = gameVer;
+    lastEntry = { name, total: lastTotal };
+    mine[kindId(gameKind)].push(lastEntry);
+    submitShared(gameKind, lastEntry);                         // 반 전체 공유 랭킹(스프레드시트)
     renderRank();
+    renderChalBoards();
   }
 
   function show(name){
     for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
   }
   function renderDots(){
-    $('dots').innerHTML = Array.from({length:ROUNDS}, (_, i) => `<i class="${i < round ? 'on' : ''}"></i>`).join('');
+    const w = ROUNDS > 20 ? 8 : ROUNDS > 10 ? 16 : 30;
+    $('dots').innerHTML = Array.from({length:ROUNDS}, (_, i) => `<i class="${i < round ? 'on' : ''}" style="width:${w}px"></i>`).join('');
   }
   function newRound(){
-    target = MIN + Math.floor(Math.random() * (MAX - MIN + 1));
-    $('roundText').textContent = `${VERS[gameVer].label} · ${round + 1} / ${ROUNDS} 라운드`;
-    $('target').textContent = target + '초';
-    $('timer').textContent = VERS[gameVer].hideFrom === 0 ? '? ? ?' : '0.00';
+    target = kindId(gameKind) === 'speed'
+      ? (1 + Math.floor(Math.random() * 10)) / 10           // 0.1 ~ 1.0초
+      : MIN + Math.floor(Math.random() * (MAX - MIN + 1));
+    $('roundText').textContent = `${isChallenge ? '도전모드 · ' : ''}${kindId(gameKind) === 'speed' ? '스피드러너 · ' : ''}${VERS[gameVer].label} · ${round + 1} / ${ROUNDS} 라운드`;
+    $('target').textContent = fmtT(target) + '초';
+    $('timer').textContent = VERS[gameVer].hideFrom === 0 ? '? ? ?' : fx(0);
+    $('cs').textContent = '';
     $('hint').textContent = '스페이스바를 눌러 시작';
     renderDots();
     show('play');
@@ -300,23 +572,26 @@
   function startGame(){ gameToken++; round = 0; records = []; newRound(); }
   function soloExit(){
     cancelAnimationFrame(raf); gameToken++;
+    restoreFree();
     state = 'start'; show('start'); renderVers();
   }
   function tick(){
     const el = (performance.now() - t0) / 1000;
-    $('timer').textContent = el >= target * VERS[gameVer].hideFrom ? '? ? ?' : el.toFixed(2);
+    const hid = el >= target * VERS[gameVer].hideFrom;
+    $('timer').textContent = hid ? '? ? ?' : fx(el);
+    setCs('cs', hid ? null : el);
     raf = requestAnimationFrame(tick);
   }
-  function startTimer(){
-    t0 = performance.now();
+  function startTimer(ts = performance.now()){
+    t0 = ts;
     state = 'running';
     $('hint').textContent = '목표 시간에 스페이스바!';
     raf = requestAnimationFrame(tick);
   }
-  function stopTimer(){
+  function stopTimer(ts = performance.now()){
     cancelAnimationFrame(raf);
-    const sec = Math.round((performance.now() - t0) / 10) / 100;
-    records.push({target, sec, diff: Math.round(Math.abs(sec - target) * 100) / 100});
+    const sec = q6((ts - t0) / 1000);
+    records.push({target, sec, diff: q6(Math.abs(sec - target))});
     round++;
     renderDots();
     $('hint').textContent = '';
@@ -325,33 +600,41 @@
     setTimeout(() => { if (tk !== gameToken) return; round >= ROUNDS ? finish() : newRound(); }, 800);
   }
   function finish(){
+    $('rows').parentElement.querySelector('thead').innerHTML =
+      '<tr><th>라운드</th><th>목표</th><th>내 기록</th><th>차이</th>' + (csOn ? '<th>세슘 주기</th>' : '') + '</tr>';
     $('rows').innerHTML = records.map((r, i) =>
-      `<tr><td>${i + 1}</td><td>${r.target}초</td><td>${r.sec.toFixed(2)}초</td><td>${r.diff.toFixed(2)}초</td></tr>`).join('');
-    lastTotal = Math.round(records.reduce((a, r) => a + r.diff, 0) * 100) / 100;
-    $('totalDiff').textContent = '총 오차: ' + lastTotal.toFixed(2) + '초';
+      `<tr><td>${i + 1}</td><td>${fmtT(r.target)}초</td><td>${fx(r.sec)}초</td><td>${fx(r.diff)}초</td>` +
+      (csOn ? `<td>${cycles(r.sec)}</td>` : '') + '</tr>').join('');
+    lastTotal = q6(records.reduce((a, r) => a + r.diff, 0));
+    $('totalDiff').textContent = '총 오차: ' + fx(lastTotal) + '초';
     submitted = false;
     $('rankBtn').disabled = false;
     $('rankBtn').textContent = '랭킹 올리기';
     $('nameIn').value = '';
-    $('modeNote').textContent = '이번 판은 ' + VERS[gameVer].label + ' 랭킹에 올라가요.';
-    lastId = -1;
-    rankView = gameVer;
+    $('modeNote').textContent = isChallenge
+      ? '도전모드 · ' + (kindId(gameKind) === 'speed' ? '스피드러너 도전' : '일반 도전') + ' 기록이에요. 이름을 적고 랭킹에 올려 보세요!'
+      : '자유 모드는 랭킹에 올라가지 않아요. 랭킹은 도전모드에서 도전해 보세요.';
+    $('rankBox').classList.toggle('hidden', !isChallenge);
+    lastId = -1; lastEntry = null;
     renderRank();
+    if (isChallenge) fetchShared(gameKind);
     show('result');
     state = 'result';
   }
-  function gameAction(){
-    if (state === 'start') startGame();
-    else if (state === 'ready') startTimer();
-    else if (state === 'running') stopTimer();
+  function gameAction(ts){
+    if (state === 'start'){ if (playMode === 'free'){ restoreFree(); startGame(); } }
+    else if (state === 'ready') startTimer(ts);
+    else if (state === 'running') stopTimer(ts);
     else if (state === 'result') startGame();
   }
-  $('play').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (state === 'ready' || state === 'running') gameAction(); });
+  $('play').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (state === 'ready' || state === 'running') gameAction(nowOf(e)); });
   $('exitBtn').addEventListener('click', e => { e.currentTarget.blur(); soloExit(); });
-  $('startBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'start') startGame(); });
+  $('startBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'start'){ restoreFree(); startGame(); } });
+  $('chalNormalBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'start') startChallenge(0); });
+  $('chalSpeedBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'start') startChallenge(1); });
   $('rankBtn').addEventListener('click', e => { e.currentTarget.blur(); submitRank(); });
   $('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') submitRank(); });
-  $('homeBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'result'){ state = 'start'; show('start'); renderVers(); } });
+  $('homeBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'result'){ restoreFree(); state = 'start'; show('start'); renderVers(); } });
   $('retryBtn').addEventListener('click', e => { e.currentTarget.blur(); if (state === 'result') startGame(); });
 
   /* ---------- 스톱워치 (0초부터 올라감) ---------- */
@@ -376,11 +659,11 @@
   $('swReset').addEventListener('click', e => { e.currentTarget.blur(); swReset(); });
 
   /* ---------- 카운트다운 (정한 시간에서 줄어듦) ---------- */
-  let cdRunning = false, cdEnd = 0, cdLeft = 30;
+  let cdRunning = false, cdEnd = 0, cdLeft = 30, cdTimeout = 0, cdAlarm = null, cdAlarmTok = 0;
   function readInputs(){
     const m = Math.max(0, parseInt($('inMin').value) || 0);
-    const s = Math.min(59, Math.max(0, parseInt($('inSec').value) || 0));
-    cdLeft = m * 60 + s;
+    const s = Math.min(59.999999, Math.max(0, parseFloat($('inSec').value) || 0));
+    cdLeft = q6(m * 60 + s);
     render();
   }
   function setInputs(total){
@@ -388,30 +671,23 @@
     $('inSec').value = total % 60;
     readInputs();
   }
-  function beep(){
-    try{
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
-      [0, .35, .7].forEach(d => {
-        const o = ac.createOscillator(), g = ac.createGain();
-        o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
-        g.gain.setValueAtTime(.25, ac.currentTime + d);
-        g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d + .25);
-        o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .3);
-      });
-    }catch(e){}
-  }
   function cdValue(){ return cdRunning ? Math.max(0, (cdEnd - performance.now()) / 1000) : cdLeft; }
   function lockInputs(v){ $('inMin').disabled = $('inSec').disabled = v; }
   function cdToggle(){
     if (cdRunning){
       cdLeft = cdValue(); cdRunning = false;
+      clearTimeout(cdTimeout); cancelCdAlarm();
       $('cdStart').textContent = '계속';
       $('cdHint').textContent = '일시정지';
     } else {
       if (cdLeft <= 0) readInputs();
       if (cdLeft <= 0) return;
+      dismissAlarm();
       cdEnd = performance.now() + cdLeft * 1000;
       cdRunning = true;
+      scheduleCdAlarm(cdEnd);                                   // 오디오 시계로 정확한 시각에 알람 예약
+      clearTimeout(cdTimeout);
+      cdTimeout = setTimeout(cdCheck, Math.max(0, cdEnd - performance.now()));
       $('cdStart').textContent = '일시정지';
       $('cdHint').textContent = '진행 중';
       lockInputs(true);
@@ -420,6 +696,7 @@
   }
   function cdReset(){
     cdRunning = false;
+    clearTimeout(cdTimeout); cancelCdAlarm(); dismissAlarm();
     lockInputs(false);
     $('cdStart').textContent = '시작';
     $('cdHint').textContent = '정한 시간에서 줄어들어요. 게임 화면으로 가도 계속 작동해요.';
@@ -449,7 +726,7 @@
   function updateMini(){
     const parts = [];
     if (swRunning) parts.push('스톱워치 ' + fmt(swValue()));
-    if (cdRunning) parts.push('카운트다운 ' + fmt(cdValue()));
+    if (cdRunning) parts.push('카운트다운 ' + fmt(cdValue(), true));
     const mini = $('mini');
     if (mode !== 'timer' && parts.length){
       mini.textContent = parts.join(' / ');
@@ -460,32 +737,45 @@
   }
   function render(){
     $('swDisplay').textContent = fmt(swValue());
-    $('cdDisplay').textContent = fmt(cdValue());
+    $('cdDisplay').textContent = fmt(cdValue(), true);
+    setCs('swCs', swValue());
+    setCs('cdCs', cdValue());
     updateMini();
   }
-  setInterval(() => {
-    if (cdRunning && cdEnd - performance.now() <= 0){
-      cdRunning = false; cdLeft = 0;
-      lockInputs(false);
-      $('cdStart').textContent = '시작';
-      $('cdHint').textContent = '시간 종료!';
-      beep();
-    }
+  function cdCheck(){
+    if (cdRunning && cdEnd - performance.now() <= 0) cdFinish();
+  }
+  function cdFinish(){
+    cdRunning = false; cdLeft = 0;
+    clearTimeout(cdTimeout);
+    lockInputs(false);
+    $('cdStart').textContent = '시작';
+    $('cdHint').textContent = '시간 종료!';
+    const node = cdAlarm; cdAlarm = null; cdAlarmTok++;
+    startRinging(node);
     render();
-  }, 30);
+  }
+  setInterval(() => { cdCheck(); render(); }, 30);
 
-  /* ---------- 멀티게임 ---------- */
+  /* ---------- 멀티게임 (전원이 같은 목표로 돌아가며, 라운드마다 탈락) ---------- */
   const MTYPES = [
-    {label:'가장 가깝게', rounds:3, desc:'3라운드 동안 돌아가며 목표 시간에 최대한 가깝게 맞춰요. 오차의 합이 가장 작은 사람이 승리!'},
-    {label:'넘으면 패배', rounds:1, desc:'돌아가며 한 번씩 멈춰요. 목표 시간을 넘거나 같으면 패배! 안 넘은 사람 중 가장 가까운 사람이 승리.'}
+    {label:'가장 가깝게', desc:'모두 같은 목표 시간으로 돌아가며 멈춰요. 매 라운드 목표에서 가장 먼 사람이 탈락하고, 마지막 한 명이 남으면 승리!'},
+    {label:'넘으면 패배', desc:'목표 시간(예: 8초)이 정해지면 카운트를 이어받아요. 앞 사람이 멈춘 시간에서 시작해서 목표에 최대한 가깝게 멈추세요. 목표를 넘거나 같으면 패배! 뒤 순서가 불리하니까 순서별 보너스가 있어요: 1번 없음, 2번 -0.05625초, 3번 -0.1125초, 4번 -0.16875초, 5번 -0.225초, 6번 -0.28125초를 멈춘 기록에서 빼요. 빼고 나면 카운트가 줄어들 수도 있어요.'}
   ];
   let mType = 0, mVer = 4, mCount = 2, mNames = ['플레이어 1','플레이어 2','플레이어 3','플레이어 4','플레이어 5','플레이어 6'];
-  let mState = 'setup';   // setup | ready | running | between | result
-  let mPlayer = 0, mRound = 0, mTarget = 0, mT0 = 0, mRaf = 0, mTok = 0, mRec = [];
+  let mState = 'setup';   // setup | ready | running | between | summary | result
+  let mPlayer = 0, mRound = 0, mTarget = 0, mT0 = 0, mRaf = 0, mTok = 0;
+  let mAlive = [], mQueue = [], mRoundRec = [], mLog = [];
+  let mC = 0, mLog1 = [];
+  const mBonus = i => (type1Bonus(i));
+  const BONUS_SCALE = 0.75 * 0.75;                                       // 보너스 25% 감소를 두 번 적용 (원래의 56.25%)
+  function type1Bonus(i){ return q6(Math.min(Math.max(i, 0), 5) / 10 * BONUS_SCALE); }   // 순서(0부터): 0, .05625, .1125, .16875, .225, .28125초
+  const bStr = b => String(q6(b));
+  const mEff = adv => Math.max(0, q6(mC + adv - mBonus(mPlayer)));          // 보너스를 뺀 카운트 (줄어들 수 있음, 0 미만은 0)   // 넘으면 패배: 이어받는 카운트, 턴 기록
 
   function mName(i){ return (mNames[i] || '').trim() || ('플레이어 ' + (i + 1)); }
   function mShow(name){
-    for (const k of ['mSetup','mPlay','mResult']) $(k).classList.toggle('hidden', k !== name);
+    for (const k of ['mSetup','mPlay','mSummary','mResult']) $(k).classList.toggle('hidden', k !== name);
   }
   function renderMSetup(){
     $('mTypeRow').innerHTML = MTYPES.map((t, i) => `<button data-i="${i}" class="${i === mType ? 'active' : ''}">${t.label}</button>`).join('');
@@ -503,84 +793,134 @@
     $('mVerDesc').textContent = VERS[mVer].desc;
   }
   function pickTarget(){ return MIN + Math.floor(Math.random() * (MAX - MIN + 1)); }
+
+  function mShowVal(v){ return v >= mTarget * VERS[mVer].hideFrom ? '? ? ?' : fx(v); }
   function multiStart(){
     mTok++;
-    mRec = Array.from({length:mCount}, () => []);
-    mPlayer = 0; mRound = 0;
+    if (mType === 1){
+      mTarget = 5 + Math.floor(Math.random() * 9);   // 5~13초
+      mC = 0; mPlayer = 0; mLog1 = [];
+      mTurn();
+      return;
+    }
+    mC = 0;
+    mAlive = Array.from({length:mCount}, (_, i) => i);
+    mRound = 0; mLog = [];
+    mNewRound();
+  }
+  function mNewRound(){
     mTarget = pickTarget();
+    mQueue = mAlive.slice();
+    mRoundRec = [];
+    mPlayer = mQueue[0];
     mTurn();
   }
   function mTurn(){
-    const rounds = MTYPES[mType].rounds;
-    $('mInfo').textContent = (rounds > 1 ? `${mRound + 1} / ${rounds} 라운드 · ` : '') + mName(mPlayer) + ' 차례';
+    $('mInfo').textContent = mType === 1
+      ? `${mName(mPlayer)} 차례` + (mBonus(mPlayer) > 0 ? ` (보너스 -${bStr(mBonus(mPlayer))}초)` : '')
+      : `${mRound + 1}라운드 · ${mName(mPlayer)} 차례 (남은 ${mAlive.length}명)`;
     $('mTarget').textContent = mTarget + '초';
-    $('mTimer').textContent = VERS[mVer].hideFrom === 0 ? '? ? ?' : '0.00';
-    $('mHint').textContent = '스페이스바를 눌러 시작';
+    $('mTimer').textContent = mShowVal(mC);
+    $('mCs').textContent = '';
+    $('mHint').textContent = mType === 1
+      ? `현재 ${fx(mC)}초에서 시작 · 스페이스바를 눌러 시작` + (mBonus(mPlayer) > 0 ? ` · 멈춘 시간에서 ${bStr(mBonus(mPlayer))}초를 빼줘요` : '')
+      : '스페이스바를 눌러 시작';
     mShow('mPlay');
     mState = 'ready';
   }
   function mTick(){
     const el = (performance.now() - mT0) / 1000;
-    $('mTimer').textContent = el >= mTarget * VERS[mVer].hideFrom ? '? ? ?' : el.toFixed(2);
+    const cur = mType === 1 ? mEff(el) : mC + el;       // 넘으면 패배: 보너스를 뺀 값을 보여줘요
+    $('mTimer').textContent = mShowVal(cur);
+    setCs('mCs', cur >= mTarget * VERS[mVer].hideFrom ? null : cur);
     mRaf = requestAnimationFrame(mTick);
   }
-  function mStartTimer(){
-    mT0 = performance.now(); mState = 'running';
-    $('mHint').textContent = '목표 시간에 스페이스바!';
+  function mStartTimer(ts = performance.now()){
+    mT0 = ts; mState = 'running';
+    $('mHint').textContent = mType === 1 ? `목표(${mTarget}초)를 넘지 않게 스페이스바!` : '목표 시간에 스페이스바!';
     mRaf = requestAnimationFrame(mTick);
   }
-  function mStopTimer(){
+  function mStopCarry(ts = performance.now()){
+    const adv = (ts - mT0) / 1000;
     cancelAnimationFrame(mRaf);
-    const sec = Math.round((performance.now() - mT0) / 10) / 100;
-    let msg;
-    if (mType === 0){
-      const diff = Math.round(Math.abs(sec - mTarget) * 100) / 100;
-      mRec[mPlayer].push(diff);
-      msg = `${sec.toFixed(2)}초 (오차 ${diff.toFixed(2)}초)`;
-    } else {
-      const out = sec >= mTarget;
-      mRec[mPlayer] = {sec, out};
-      msg = `${sec.toFixed(2)}초 - ` + (out ? '넘었어요! 패배' : '통과!');
-    }
-    $('mTimer').textContent = sec.toFixed(2);
-    $('mHint').textContent = msg;
+    const from = mC;
+    const bonus = mBonus(mPlayer);
+    const total = mEff(adv);
+    const over = total >= mTarget;
+    mLog1.push({p:mPlayer, from, total, over, bonus});
+    mC = total;
+    $('mTimer').textContent = fx(total);
+    $('mHint').textContent = over ? `${fx(total)}초 - 넘었어요!` : `${fx(total)}초 (남은 ${fx(mTarget - total)}초)` + (bonus > 0 ? ` · 보너스 -${bStr(bonus)}초 적용` : '');
     mState = 'between';
     const tk = mTok;
-    setTimeout(() => { if (tk === mTok) mNext(); }, 1800);
+    setTimeout(() => {
+      if (tk !== mTok) return;
+      if (over){ mFinishCarry(); return; }
+      mPlayer = (mPlayer + 1) % mCount;
+      mTurn();
+    }, 1500);
+  }
+  function mFinishCarry(){
+    const last = mLog1[mLog1.length - 1];
+    $('mWinner').textContent = mName(last.p) + ' 패배!';
+    $('mTable').innerHTML = `<thead><tr><th>순서</th><th>이름</th><th>시작 → 멈춤 (목표 ${mTarget}초)</th></tr></thead><tbody>` +
+      mLog1.map((l, i) => `<tr class="${l.over ? 'me' : ''}"><td>${i + 1}</td><td>${esc(mName(l.p))}</td><td>${fx(l.from)} → ${fx(l.total)}초${l.bonus > 0 ? ` (보너스 -${bStr(l.bonus)})` : ''}${l.over ? ' (넘음)' : ''}</td></tr>`).join('') + '</tbody>';
+    mShow('mResult');
+    mState = 'result';
+  }
+  function mStopTimer(ts = performance.now()){
+    if (mType === 1){ mStopCarry(ts); return; }
+    cancelAnimationFrame(mRaf);
+    const sec = q6((ts - mT0) / 1000);
+    const diff = q6(Math.abs(sec - mTarget));
+    const out = sec >= mTarget;
+    mRoundRec.push({p:mPlayer, sec, diff, out});
+    $('mTimer').textContent = fx(sec);
+    $('mHint').textContent = mType === 0
+      ? `${fx(sec)}초 (오차 ${fx(diff)}초)`
+      : `${fx(sec)}초 - ` + (out ? '넘었어요!' : '통과!');
+    mState = 'between';
+    const tk = mTok;
+    setTimeout(() => { if (tk === mTok) mNext(); }, 1500);
   }
   function mNext(){
-    mPlayer++;
-    if (mPlayer >= mCount){
-      mPlayer = 0; mRound++;
-      if (mRound >= MTYPES[mType].rounds){ mFinish(); return; }
-      mTarget = pickTarget();
+    mQueue.shift();
+    if (mQueue.length){ mPlayer = mQueue[0]; mTurn(); }
+    else mResolve();
+  }
+  function mResolve(){
+    let elim = [];
+    if (mType === 0){
+      const worst = Math.max(...mRoundRec.map(r => r.diff));
+      elim = mRoundRec.filter(r => r.diff === worst).map(r => r.p);
+    } else {
+      elim = mRoundRec.filter(r => r.out).map(r => r.p);
     }
-    mTurn();
+    let note;
+    if (elim.length === mAlive.length){
+      elim = [];
+      note = mType === 0 ? '모두 같은 오차라 탈락자 없이 다시 진행해요.' : '모두 넘어서 탈락자 없이 다시 진행해요.';
+    } else if (!elim.length){
+      note = '아무도 넘지 않아서 탈락자 없이 다음 라운드로 가요.';
+    } else {
+      note = '탈락: ' + elim.map(mName).join(', ');
+    }
+    mLog.push({round:mRound + 1, target:mTarget, elim:elim.slice(), rows:mRoundRec.slice()});
+    mAlive = mAlive.filter(p => !elim.includes(p));
+
+    if (mAlive.length === 1){ mFinish(); return; }
+
+    $('mSumTitle').textContent = `${mRound + 1}라운드 결과 (목표 ${mTarget}초)`;
+    $('mSumTable').innerHTML = '<thead><tr><th>이름</th><th>기록</th><th>오차</th><th>결과</th></tr></thead><tbody>' +
+      mRoundRec.map(r => `<tr class="${elim.includes(r.p) ? 'me' : ''}"><td>${esc(mName(r.p))}</td><td>${fx(r.sec)}초</td><td>${fx(r.diff)}초</td><td>${elim.includes(r.p) ? '탈락' : (mType === 1 && !r.out ? '통과' : '생존')}</td></tr>`).join('') + '</tbody>';
+    $('mSumNote').textContent = note;
+    mShow('mSummary');
+    mState = 'summary';
   }
   function mFinish(){
-    let html = '', title = '';
-    if (mType === 0){
-      const totals = mRec.map(a => Math.round(a.reduce((x, y) => x + y, 0) * 100) / 100);
-      const best = Math.min(...totals);
-      const winners = totals.map((t, i) => t === best ? mName(i) : null).filter(Boolean);
-      title = winners.length > 1 ? `무승부: ${esc(winners.join(', '))}` : `${esc(winners[0])} 승리!`;
-      const rounds = MTYPES[0].rounds;
-      html = '<thead><tr><th>이름</th>' + Array.from({length:rounds}, (_, r) => `<th>${r + 1}R</th>`).join('') + '<th>총 오차</th></tr></thead><tbody>' +
-        mRec.map((a, i) => `<tr class="${totals[i] === best ? 'me' : ''}"><td>${esc(mName(i))}</td>` + a.map(d => `<td>${d.toFixed(2)}</td>`).join('') + `<td>${totals[i].toFixed(2)}초</td></tr>`).join('') + '</tbody>';
-    } else {
-      const alive = mRec.map((r, i) => ({r, i})).filter(x => !x.r.out);
-      if (!alive.length) title = '모두 패배! 무승부';
-      else {
-        const best = Math.max(...alive.map(x => x.r.sec));
-        const winners = alive.filter(x => x.r.sec === best).map(x => mName(x.i));
-        title = winners.length > 1 ? `무승부: ${esc(winners.join(', '))}` : `${esc(winners[0])} 승리!`;
-      }
-      const bestSec = alive.length ? Math.max(...alive.map(x => x.r.sec)) : null;
-      html = `<thead><tr><th>이름</th><th>기록 (목표 ${mTarget}초)</th><th>결과</th></tr></thead><tbody>` +
-        mRec.map((r, i) => `<tr class="${!r.out && r.sec === bestSec ? 'me' : ''}"><td>${esc(mName(i))}</td><td>${r.sec.toFixed(2)}초</td><td>${r.out ? '패배(넘음)' : '통과'}</td></tr>`).join('') + '</tbody>';
-    }
-    $('mWinner').innerHTML = title;
-    $('mTable').innerHTML = html;
+    $('mWinner').textContent = mName(mAlive[0]) + ' 승리!';
+    $('mTable').innerHTML = '<thead><tr><th>라운드</th><th>목표</th><th>탈락</th></tr></thead><tbody>' +
+      mLog.map(l => `<tr><td>${l.round}</td><td>${l.target}초</td><td>${l.elim.length ? esc(l.elim.map(mName).join(', ')) : '없음'}</td></tr>`).join('') + '</tbody>';
     mShow('mResult');
     mState = 'result';
   }
@@ -588,30 +928,353 @@
     cancelAnimationFrame(mRaf); mTok++;
     mState = 'setup'; mShow('mSetup'); renderMSetup();
   }
-  function multiAction(){
+  function mContinue(){ mRound++; mNewRound(); }
+  function multiAction(ts){
     if (mState === 'setup') multiStart();
-    else if (mState === 'ready') mStartTimer();
-    else if (mState === 'running') mStopTimer();
+    else if (mState === 'ready') mStartTimer(ts);
+    else if (mState === 'running') mStopTimer(ts);
+    else if (mState === 'summary') mContinue();
     else if (mState === 'result') multiStart();
   }
   $('mStartBtn').addEventListener('click', e => { e.currentTarget.blur(); if (mState === 'setup') multiStart(); });
   $('mExitBtn').addEventListener('click', e => { e.currentTarget.blur(); multiExit(); });
+  $('mSumExitBtn').addEventListener('click', e => { e.currentTarget.blur(); multiExit(); });
+  $('mNextBtn').addEventListener('click', e => { e.currentTarget.blur(); if (mState === 'summary') mContinue(); });
   $('mRetryBtn').addEventListener('click', e => { e.currentTarget.blur(); if (mState === 'result') multiStart(); });
   $('mSetupBtn').addEventListener('click', e => { e.currentTarget.blur(); multiExit(); });
-  $('mPlay').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (mState === 'ready' || mState === 'running') multiAction(); });
+  $('mPlay').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (mState === 'ready' || mState === 'running') multiAction(nowOf(e)); });
+
+  /* ---------- 반응속도 테스트 ---------- */
+  const R_TRIES = 5;
+  const R_BEST_KEY = 'secReactBest';
+  let rState = 'idle', rTimer = 0, rGoAt = 0, rResults = [];
+  function rSet(cls, main, sub){
+    $('rBox').className = 'rbox ' + cls;
+    $('rMain').textContent = main;
+    $('rSub').textContent = sub;
+  }
+  function rBestSaved(){
+    try{ const v = parseFloat(localStorage.getItem(R_BEST_KEY)); return isNaN(v) ? null : v; }catch(e){ return null; }
+  }
+  function renderR(){
+    $('rTable').classList.toggle('hidden', !rResults.length);
+    $('rRows').innerHTML = rResults.map((ms, i) => `<tr><td>${i + 1}</td><td>${fmtMs(ms)}ms</td></tr>`).join('');
+    const b = rBestSaved();
+    $('rBest').textContent = b === null ? '' : `내 최고 기록: ${fmtMs(b)}ms`;
+  }
+  function reactReset(){
+    clearTimeout(rTimer);
+    rResults = []; rState = 'idle';
+    rSet('idle', '반응속도 테스트', `검정 화면이 흰색으로 바뀌는 순간 최대한 빨리 누르세요. (총 ${R_TRIES}번)\n클릭 또는 스페이스바로 시작`);
+    renderR();
+  }
+  function rStartWait(){
+    rState = 'wait';
+    rSet('wait', '기다리세요...', `${rResults.length + 1} / ${R_TRIES}번째 · 흰색으로 바뀌면 누르세요`);
+    rTimer = setTimeout(() => {
+      // 화면이 실제로 바뀌는 프레임에서 시간을 재서 그리기 지연을 줄임
+      requestAnimationFrame(() => {
+        if (rState !== 'wait') return;
+        rState = 'go'; rGoAt = performance.now();
+        rSet('go', '지금!', '');
+      });
+    }, 1500 + Math.random() * 3500);
+  }
+  function rPress(ts = performance.now()){
+    if (rState === 'idle' || rState === 'done'){ rResults = []; renderR(); rStartWait(); }
+    else if (rState === 'wait'){
+      clearTimeout(rTimer); rState = 'early';
+      rSet('idle', '너무 일찍 눌렀어요', '클릭 또는 스페이스바로 다시 시도 (이번 회차는 기록되지 않아요)');
+    }
+    else if (rState === 'early' || rState === 'show'){ rStartWait(); }
+    else if (rState === 'go'){
+      const ms = q3(ts - rGoAt);
+      rResults.push(ms);
+      const best = rBestSaved();
+      if (best === null || ms < best){ try{ localStorage.setItem(R_BEST_KEY, String(ms)); }catch(e){} }
+      renderR();
+      if (rResults.length >= R_TRIES){
+        const avg = q3(rResults.reduce((a, b) => a + b, 0) / rResults.length);
+        const grade = avg < 200 ? '엄청 빨라요!' : avg < 250 ? '빠른 편이에요' : avg < 300 ? '평균 정도예요' : '조금 느려요';
+        rState = 'done';
+        rSet('idle', `평균 ${fmtMs(avg)}ms`, `최고 ${fmtMs(Math.min(...rResults))}ms · ${grade}\n클릭 또는 스페이스바로 다시 시작`);
+      } else {
+        rState = 'show';
+        rSet('idle', fmtMs(ms) + 'ms', `${rResults.length} / ${R_TRIES}번 완료 · 클릭 또는 스페이스바로 다음`);
+      }
+    }
+  }
+  $('rBox').addEventListener('pointerdown', e => { e.preventDefault(); rPress(nowOf(e)); });
+
+  /* ---------- 알람 (큰 소리 · 진동 · 원하는 노래) ---------- */
+  let ac = null, beepBuf = null, alarmBuf = null, alarmBlob = null, alarmName = '';
+  let alarmNode = null, ringing = false, vibTimer = 0, ringTimer = 0;
+  const ALARM_MAX_SEC = 60;
+  function getAC(){
+    if (!ac){
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      try{ ac = new C({latencyHint:'interactive'}); }catch(e){ return null; }
+    }
+    if (ac.state === 'suspended'){ try{ ac.resume(); }catch(e){} }
+    return ac;
+  }
+  // performance.now() 시각(ms)을 오디오 시계 시각(초)으로 변환 (출력 지연 포함)
+  function audioTimeAt(p){
+    const a = getAC(); if (!a) return 0;
+    try{
+      const ts = a.getOutputTimestamp();
+      if (ts && ts.performanceTime > 0) return ts.contextTime + (p - ts.performanceTime) / 1000;
+    }catch(e){}
+    return a.currentTime + (p - performance.now()) / 1000;
+  }
+  function makeBeepBuffer(a){
+    const sr = a.sampleRate, len = Math.round(sr * 1.2);
+    const buf = a.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    for (const t0 of [0, .25, .5]){                       // 삐-삐-삐 (사각파, 최대 진폭)
+      const n0 = Math.round(t0 * sr), n1 = Math.round((t0 + .17) * sr);
+      for (let i = n0; i < n1; i++){
+        const t = (i - n0) / sr;
+        const edge = Math.min(1, t / .004, (n1 - i) / sr / .004);
+        d[i] = .95 * (Math.sin(2 * Math.PI * 1760 * t) >= 0 ? 1 : -1) * edge;
+      }
+    }
+    return buf;
+  }
+  function createAlarmSource(when){
+    const a = getAC(); if (!a) return null;
+    try{
+      const src = a.createBufferSource();
+      if (!alarmBuf && !beepBuf) beepBuf = makeBeepBuffer(a);
+      src.buffer = alarmBuf || beepBuf;
+      src.loop = true;
+      const g = a.createGain();
+      g.gain.value = alarmVol / 100;
+      src.connect(g); g.connect(a.destination);
+      const t = Math.max(when, a.currentTime);
+      src.start(t);
+      src.stop(t + ALARM_MAX_SEC);
+      return {src, g};
+    }catch(e){ return null; }
+  }
+  function stopAlarmNode(n){
+    if (!n) return;
+    try{ n.src.stop(); }catch(e){}
+    try{ n.src.disconnect(); n.g.disconnect(); }catch(e){}
+  }
+  async function ensureAlarmBuf(){
+    if (alarmBuf || !alarmBlob) return;
+    const a = getAC(); if (!a) return;
+    try{ alarmBuf = await a.decodeAudioData(await alarmBlob.arrayBuffer()); }
+    catch(e){ alarmBuf = null; alarmBlob = null; alarmName = ''; $('songName').textContent = '이 파일은 재생할 수 없어요. 다른 파일을 골라 주세요.'; }
+  }
+  async function scheduleCdAlarm(endPerf){
+    const tok = ++cdAlarmTok;
+    stopAlarmNode(cdAlarm); cdAlarm = null;
+    await ensureAlarmBuf();
+    if (tok !== cdAlarmTok || !cdRunning) return;
+    cdAlarm = createAlarmSource(audioTimeAt(endPerf));
+  }
+  function cancelCdAlarm(){ cdAlarmTok++; stopAlarmNode(cdAlarm); cdAlarm = null; }
+  function startRinging(node){
+    dismissAlarm();
+    const a = getAC();
+    alarmNode = node || (a ? createAlarmSource(a.currentTime) : null);
+    ringing = true;
+    $('alarmStop').classList.remove('hidden');
+    if (vibOn && navigator.vibrate){
+      const v = () => navigator.vibrate([700]);
+      v(); vibTimer = setInterval(v, 1100);
+    }
+    ringTimer = setTimeout(dismissAlarm, ALARM_MAX_SEC * 1000);
+  }
+  function dismissAlarm(){
+    stopAlarmNode(alarmNode); alarmNode = null;
+    clearInterval(vibTimer); clearTimeout(ringTimer);
+    if (navigator.vibrate){ try{ navigator.vibrate(0); }catch(e){} }
+    ringing = false;
+    $('alarmStop').classList.add('hidden');
+  }
+  async function testAlarm(){
+    await ensureAlarmBuf();
+    startRinging(null);
+  }
+  $('alarmStop').addEventListener('click', () => dismissAlarm());
+
+  // 노래 파일 저장 (IndexedDB: 새로 고침해도 유지)
+  const idbOpen = () => new Promise((res, rej) => {
+    if (!window.indexedDB){ rej(new Error('no idb')); return; }
+    const r = indexedDB.open('secGameDB', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  async function idbGet(k){
+    const db = await idbOpen();
+    return new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  }
+  async function idbPut(k, v){
+    const db = await idbOpen();
+    return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+  }
+  async function idbDel(k){
+    const db = await idbOpen();
+    return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').delete(k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+  }
+  function renderSong(){
+    $('songName').textContent = alarmName ? '알람 노래: ' + alarmName : '기본 알람음 사용 중';
+    $('songDel').disabled = !alarmName;
+  }
+  function renderVib(){
+    $('vibBtn').textContent = '진동: ' + (vibOn ? '켜짐' : '꺼짐');
+    $('vibBtn').classList.toggle('active', vibOn);
+  }
+  $('songBtn').addEventListener('click', e => { e.currentTarget.blur(); $('songIn').click(); });
+  $('songIn').addEventListener('change', async () => {
+    const f = $('songIn').files[0];
+    if (!f) return;
+    if (f.size > 30 * 1024 * 1024){ $('songName').textContent = '파일이 너무 커요 (30MB 이하만 가능해요)'; $('songIn').value = ''; return; }
+    alarmBlob = f; alarmName = f.name; alarmBuf = null;
+    try{ await idbPut('alarmSong', {name:f.name, blob:f}); }catch(e){}
+    await ensureAlarmBuf();
+    renderSong();
+    $('songIn').value = '';
+  });
+  $('songDel').addEventListener('click', e => {
+    e.currentTarget.blur();
+    alarmBlob = null; alarmBuf = null; alarmName = '';
+    idbDel('alarmSong').catch(() => {});
+    renderSong();
+  });
+  $('vibBtn').addEventListener('click', e => { e.currentTarget.blur(); vibOn = !vibOn; saveSettings(); renderVib(); if (vibOn && navigator.vibrate) navigator.vibrate(150); });
+  $('alarmTestBtn').addEventListener('click', e => { e.currentTarget.blur(); testAlarm(); });
+  $('volRange').addEventListener('input', () => {
+    alarmVol = Math.min(200, Math.max(0, +$('volRange').value || 0));
+    $('volVal').textContent = alarmVol + '%';
+    if (alarmNode) alarmNode.g.gain.value = alarmVol / 100;
+    saveSettings();
+  });
+  function loadSavedSong(){
+    idbGet('alarmSong').then(v => {
+      if (v && v.blob){ alarmBlob = v.blob; alarmName = v.name || '저장된 노래'; renderSong(); }
+    }).catch(() => {});
+  }
+
+  /* ---------- 설정 패널 ---------- */
+  const clamp255 = v => Math.min(255, Math.max(0, Math.round(+v) || 0));
+  const validRGB = c => Array.isArray(c) && c.length === 3 && c.every(v => Number.isFinite(+v));
+  const hex = c => '#' + c.map(v => clamp255(v).toString(16).padStart(2, '0')).join('');
+  const mixRGB = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]); };
+  function contrast(){ const a = lum(BG), b = lum(FG); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); }
+
+  function saveSettings(){
+    try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify({prec:PREC, cs:csOn, bg:BG, fg:FG, vol:alarmVol, vib:vibOn})); }catch(e){}
+  }
+  function loadSettings(){
+    try{
+      const o = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+      if (!o) return;
+      if (Number.isInteger(o.prec) && o.prec >= 2 && o.prec <= 6) PREC = o.prec;
+      csOn = !!o.cs;
+      if (Number.isFinite(o.vol)) alarmVol = Math.min(200, Math.max(0, o.vol));
+      if (typeof o.vib === 'boolean') vibOn = o.vib;
+      if (validRGB(o.bg)) BG = o.bg.map(clamp255);
+      if (validRGB(o.fg)) FG = o.fg.map(clamp255);
+    }catch(e){}
+  }
+  function applyColors(){
+    const r = document.documentElement.style;
+    r.setProperty('--bg', hex(BG));
+    r.setProperty('--fg', hex(FG));
+    r.setProperty('--dim', hex(mixRGB(BG, FG, .2)));
+    r.setProperty('--soft', hex(mixRGB(BG, FG, .08)));
+    const c = contrast();
+    $('contrastNote').textContent = `글자와 배경의 명암 대비: ${c.toFixed(2)} : 1` + (c < 3 ? ' (너무 낮아서 읽기 어려울 수 있어요)' : '');
+  }
+  function buildEditor(id, key, name){
+    const c = key === 'bg' ? BG : FG;
+    $(id).innerHTML = `<strong>${name} (RGB)</strong>
+      <div style="margin-top:8px"><span class="swatch" id="sw_${key}"></span><code id="hex_${key}"></code></div>` +
+      ['R','G','B'].map((ch, i) => `<label class="chan">${ch}
+        <input type="range" min="0" max="255" value="${c[i]}" data-k="${key}" data-i="${i}" aria-label="${name} ${ch}">
+        <input type="number" min="0" max="255" value="${c[i]}" data-k="${key}" data-i="${i}" aria-label="${name} ${ch} 값"></label>`).join('');
+    $(id).querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
+      const v = clamp255(inp.value);
+      const arr = inp.dataset.k === 'bg' ? BG : FG;
+      arr[+inp.dataset.i] = v;
+      $(id).querySelectorAll(`input[data-i="${inp.dataset.i}"]`).forEach(o => { if (o !== inp) o.value = v; });
+      syncSwatches(); applyColors(); saveSettings();
+    }));
+  }
+  function syncSwatches(){
+    $('sw_bg').style.background = hex(BG); $('hex_bg').textContent = hex(BG) + `  rgb(${BG.join(', ')})`;
+    $('sw_fg').style.background = hex(FG); $('hex_fg').textContent = hex(FG) + `  rgb(${FG.join(', ')})`;
+  }
+  function syncEditorValues(){
+    for (const [id, arr] of [['bgEditor', BG], ['fgEditor', FG]])
+      $(id).querySelectorAll('input').forEach(inp => { inp.value = arr[+inp.dataset.i]; });
+    syncSwatches();
+  }
+  function renderPrec(){
+    $('precRow').innerHTML = [2,3,4,5,6].map(n => `<button data-n="${n}" class="${n === PREC ? 'active' : ''}">${n}자리</button>`).join('');
+    $('precRow').querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
+      e.currentTarget.blur(); PREC = +b.dataset.n; saveSettings(); renderPrec(); render(); renderRank(); renderChalBoards();
+    }));
+  }
+  function renderCsBtn(){
+    $('csBtn').textContent = csOn ? '켜짐' : '꺼짐';
+    $('csBtn').classList.toggle('active', csOn);
+    $('csBtn').setAttribute('aria-pressed', csOn);
+  }
+  $('csBtn').addEventListener('click', e => { e.currentTarget.blur(); csOn = !csOn; saveSettings(); renderCsBtn(); render(); });
+  $('invBtn').addEventListener('click', e => {
+    e.currentTarget.blur();
+    const t = BG.slice(); BG = FG.slice(); FG = t;
+    syncEditorValues(); applyColors(); saveSettings();
+  });
+  $('colorResetBtn').addEventListener('click', e => {
+    e.currentTarget.blur(); BG = [255,255,255]; FG = [0,0,0];
+    syncEditorValues(); applyColors(); saveSettings();
+  });
+  $('modeSet').addEventListener('click', e => {
+    e.currentTarget.blur();
+    const open = $('settings').classList.toggle('hidden') === false;
+    $('modeSet').classList.toggle('active', open);
+    $('modeSet').setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('settings').classList.contains('hidden')){
+      $('settings').classList.add('hidden'); $('modeSet').classList.remove('active'); $('modeSet').setAttribute('aria-expanded', false);
+    }
+  });
+
+  $('roundSet').addEventListener('click', e => { e.currentTarget.blur(); setRounds($('roundIn').value); });
+  $('roundIn').addEventListener('keydown', e => { if (e.key === 'Enter') setRounds($('roundIn').value); });
 
   /* ---------- 키보드 ---------- */
   document.addEventListener('keydown', e => {
     if (e.code !== 'Space' || e.repeat) return;
     if (e.target.tagName === 'INPUT') return;
     e.preventDefault();
-    if (mode === 'game') gameAction();
-    else if (mode === 'multi') multiAction();
+    if (ringing){ dismissAlarm(); return; }
+    const ts = nowOf(e);
+    if (mode === 'game') gameAction(ts);
+    else if (mode === 'multi') multiAction(ts);
+    else if (mode === 'react') rPress(ts);
     else if (sub === 'sw') swToggle();
     else cdToggle();
   });
 
+  loadSettings();
+  buildEditor('bgEditor', 'bg', '배경색');
+  buildEditor('fgEditor', 'fg', '글자색');
+  syncSwatches(); applyColors(); renderPrec(); renderCsBtn();
+  $('volRange').value = alarmVol; $('volVal').textContent = alarmVol + '%';
+  renderVib(); renderSong(); loadSavedSong();
   setMode('game');
+  reactReset();
   renderVers();
   renderMSetup();
   readInputs();
