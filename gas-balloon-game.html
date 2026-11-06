@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보일·샤를 풍선 비행 — 기체의 성질 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:#0B1630;
+    font-family:"Jua","Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    color:#1B2438;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .stage{
+    position:relative;
+    container-type:inline-size;
+    width:min(100vw, calc(100vh * 16 / 9));
+    aspect-ratio:16 / 9;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+    user-select:none; -webkit-user-select:none;
+  }
+  canvas{ display:block; width:100%; height:100%; touch-action:none; cursor:pointer; }
+
+  .overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(8,16,40,.5); backdrop-filter:blur(3px);
+  }
+  .overlay.hidden{ display:none; }
+  .panel{
+    background:#FFFCF3; border:4px solid #1D3461; border-radius:22px;
+    padding:clamp(14px,2.4vw,26px) clamp(18px,3.6vw,38px); width:min(680px, 94%);
+    text-align:center; box-shadow:0 14px 34px rgba(0,0,0,.35);
+    max-height:94%; overflow-y:auto;
+  }
+  .panel h1{ font-size:clamp(26px,4.6vw,46px); color:#1D3461; letter-spacing:.02em; }
+  .panel p, .panel li{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; }
+  .panel p{ font-size:clamp(12px,1.55vw,15px); line-height:1.75; margin-top:8px; color:#3A4560; }
+  .panel b{ color:#D2581C; }
+  .laws{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; text-align:left; }
+  .law{ border-radius:14px; padding:10px 12px; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; line-height:1.6; color:#2A3658; }
+  .law .t{ font-family:"Jua",sans-serif; font-size:17px; }
+  .law.boyle{ background:#E8EEFF; } .law.boyle .t{ color:#3E5BD8; }
+  .law.charles{ background:#FFEBDD; } .law.charles .t{ color:#D2581C; }
+  .panel ul{ text-align:left; font-size:clamp(12px,1.45vw,14px); line-height:1.8; margin:10px auto 0; max-width:540px; color:#3A4560; padding-left:18px; }
+  .start-btn{
+    margin-top:16px; font-family:inherit; font-size:clamp(18px,2.4vw,22px); cursor:pointer;
+    background:#1D3461; color:#FFE08A; border:none; border-radius:14px; padding:10px 34px;
+    box-shadow:0 4px 0 #0E1B36;
+  }
+  .start-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #0E1B36; }
+  .color-pick{ display:flex; justify-content:center; gap:10px; margin-top:12px; align-items:center; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; color:#3A4560; font-weight:700; }
+  .chip{ width:30px; height:30px; border-radius:50%; border:3px solid transparent; cursor:pointer; box-shadow:inset -5px -6px 8px rgba(0,0,0,.25), inset 4px 4px 6px rgba(255,255,255,.45); }
+  .chip.picked{ border-color:#FFB703; transform:scale(1.12); }
+
+  .score-big{ font-size:clamp(40px,8vw,70px); color:#D2581C; margin-top:4px; }
+  .rank-msg{ font-size:clamp(18px,3vw,26px); color:#1D3461; }
+  .best{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; color:#6B7690; margin-top:4px; }
+
+  /* 조작 버튼(터치·마우스) */
+  .ctrl{ position:absolute; right:1.2%; bottom:3%; display:flex; gap:1cqw; }
+  .ctrl button{
+    font-family:"Jua",sans-serif; font-size:1.8cqw; cursor:pointer; border:none; border-radius:1.4cqw;
+    padding:1.1cqw 1.8cqw; color:#fff; box-shadow:0 .4cqw 0 rgba(0,0,0,.25); touch-action:none;
+  }
+  .ctrl .heat{ background:linear-gradient(#FF8A3D,#E04A1B); }
+  .ctrl .cool{ background:linear-gradient(#5CC8FF,#2E7DD1); }
+  .ctrl button.on{ transform:translateY(.3cqw); box-shadow:none; filter:brightness(1.15); }
+  .sound-btn{
+    position:absolute; left:1.2%; bottom:3%; font-size:1.6cqw;
+    background:rgba(255,255,255,.85); border:2px solid #1D3461; border-radius:.8cqw; padding:.1cqw .7cqw; cursor:pointer;
+  }
+
+  /* ---------- 반 전체 공유 랭킹 ---------- */
+  .board-wrap{ margin-top:14px; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; }
+  .board-title{ font-size:14px; font-weight:800; color:#1D3461; }
+  .board-note{ font-size:11px; color:#6B7690; margin-top:3px; }
+  .name-form{ display:flex; gap:7px; width:100%; max-width:320px; margin:10px auto 0; }
+  .name-form input{ flex:1; padding:9px 11px; border:2px solid #1D3461; border-radius:9px; font-family:inherit; font-size:13px; color:#1B2438; }
+  .name-form button{ font-family:inherit; font-size:13px; font-weight:800; cursor:pointer; border:none; border-radius:9px; padding:9px 16px; background:#1D3461; color:#fff; }
+  .board-list{ list-style:none; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5, auto); grid-auto-flow:column; gap:4px 8px; max-width:540px; margin:10px auto 0; text-align:left; }
+  .board-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; padding:4px 10px; border-radius:8px; background:#EEF1F8; }
+  .board-row.me{ background:#FFE3B3; font-weight:800; }
+  .board-row .rank{ width:20px; text-align:center; font-weight:800; color:#6B7690; flex:none; }
+  .board-row:nth-child(1) .rank{ color:#E8A23F; }
+  .board-row:nth-child(2) .rank{ color:#9AA3B5; }
+  .board-row:nth-child(3) .rank{ color:#C98A5D; }
+  .board-row .bname{ flex:1; font-weight:700; color:#1B2438; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .board-row .bscore{ font-variant-numeric:tabular-nums; color:#D2581C; font-weight:800; }
+  .board-row .bdate{ font-size:11px; color:#8A93AA; min-width:3em; text-align:right; font-variant-numeric:tabular-nums; }
+  .board-row.empty{ background:transparent; border:1px dashed #D5DBE8; }
+  .board-row.empty .bname{ color:#B4BCCD; font-weight:400; }
+
+  /* ---------- 명예의 전당 (오른쪽 위 금·은·동) ---------- */
+  .hof{
+    position:absolute; pointer-events:none; right:1.1%; top:1.8%; width:16.5%;
+    font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;
+    font-size:clamp(9px,1.7vmin,14px); font-size:1.05cqw;
+    border-radius:.9cqw; padding:.5cqw .85cqw .55cqw;
+    background:rgba(10,20,50,.72); border:2px solid rgba(255,214,110,.6);
+  }
+  .hof-title{ font-family:"Jua",sans-serif; font-size:1.2em; text-align:center; margin-bottom:.1em; color:#FFD66E; }
+  .hof-list{ list-style:none; }
+  .hof-row{ display:flex; align-items:center; gap:.45em; line-height:1.55; }
+  .hof-medal{ width:1.3em; text-align:center; }
+  .hof-name{ flex:1; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#fff; }
+  .hof-date{ font-size:.85em; font-variant-numeric:tabular-nums; color:#A9B8DA; }
+  .hof-score{ font-weight:800; min-width:3.2em; text-align:right; font-variant-numeric:tabular-nums; color:#FFD66E; }
+  .hof-empty{ font-size:.9em; text-align:center; padding:.3em 0; color:#D4DCF2; }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <canvas id="game" width="1280" height="720" aria-label="보일·샤를 풍선 비행 게임 화면"></canvas>
+  <div class="hof" id="hof" aria-label="명예의 전당">
+    <div class="hof-title">🏆 명예의 전당</div>
+    <ol class="hof-list" id="hof-list"></ol>
+  </div>
+  <div class="ctrl">
+    <button type="button" class="cool" id="btn-cool">❄️ 냉각</button>
+    <button type="button" class="heat" id="btn-heat">🔥 가열 (꾹)</button>
+  </div>
+  <button type="button" class="sound-btn" id="sound-btn" title="소리 켜기/끄기">🔊</button>
+
+  <div class="overlay" id="intro">
+    <div class="panel">
+      <h1>🎈 보일·샤를 풍선 비행</h1>
+      <p>기체를 가득 채운 풍선을 타고 날씨가 변하는 하늘을 날아가요! 풍선이 <b>클수록 높이</b> 뜨고, 작아지면 내려가요. 구름 벽의 틈으로 지나가려면 풍선의 부피를 알맞게 맞춰야 해요.</p>
+      <div class="laws">
+        <div class="law charles"><div class="t">🔥 샤를 법칙 — 내가 조절!</div>압력이 일정할 때 기체를 <b>가열</b>하면 부피가 커지고, <b>냉각</b>하면 작아져요. (부피 ∝ 절대 온도)</div>
+        <div class="law boyle"><div class="t">🌀 보일 법칙 — 날씨가 바꿔요!</div><b>저기압</b> 구역에서는 바깥 압력이 낮아 풍선이 저절로 커지고, <b>고기압</b>에서는 작아져요. (부피 ∝ 1/압력)</div>
+      </div>
+      <ul>
+        <li><b>가열</b> — 스페이스바·↑ 또는 화면(🔥 버튼)을 꾹 누르면 온도가 올라가요. 손을 떼면 천천히 식어요.</li>
+        <li><b>냉각</b> — ↓ 키 또는 ❄️ 버튼을 누르면 빠르게 식어요.</li>
+        <li>구름 벽 통과 <b>+100</b>(연속이면 콤보), 별 <b>+30</b>, 퀴즈 관문에서 정답 통로로 지나가면 <b>+300</b>!</li>
+        <li>풍선이 너무 커지면 <b>펑!</b> 터지고, 너무 작아지면 땅으로 떨어져요. 구름 벽·번개구름·새에 부딪혀도 목숨이 줄어요.</li>
+      </ul>
+      <div class="color-pick" id="color-pick">풍선 색깔</div>
+      <button type="button" class="start-btn" id="start-btn">출발하기</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="result">
+    <div class="panel">
+      <h1 id="final-title">🎈 비행 끝!</h1>
+      <div class="score-big" id="final-score">0점</div>
+      <div class="rank-msg" id="final-rank"></div>
+      <div class="best" id="final-best"></div>
+      <p id="final-detail"></p>
+      <div class="board-wrap">
+        <div class="board-title">🏆 반 전체 랭킹 TOP 10</div>
+        <div class="board-note" id="board-source-note"></div>
+        <form class="name-form" id="name-form">
+          <input type="text" id="name-input" maxlength="12" placeholder="이름을 입력하고 랭킹에 등록하세요" autocomplete="off" required>
+          <button type="submit">등록</button>
+        </form>
+        <ul class="board-list" id="leader-list"></ul>
+      </div>
+      <button type="button" class="start-btn" id="again-btn">다시 하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   화면 (게임 좌표 1280×720)
+=========================================================== */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const VW = 1280, VH = 720;
+function setupCanvas(){
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = VW * dpr; canvas.height = VH * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+setupCanvas();
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const TAU = Math.PI * 2;
+
+/* ==========================================================
+   기체 상수 — 보일·샤를 법칙
+   V = V0 × (T / T0) ÷ (P / P0)   (T는 절대 온도, P는 기압)
+   기준: 20 ℃(293 K), 1기압에서 부피 1.00
+=========================================================== */
+const T0 = 293, T_MIN_C = -30, T_MAX_C = 180, T_AMB_C = 20;
+const V_POP = 2.15, V_CRUSH = 0.6;                // 이보다 크면 터지고, 작으면 떨어짐
+const V_TOP = 2.0, V_BOT = 0.62;                  // 이 부피일 때 화면 맨 위/맨 아래 높이
+const Y_TOP = 110, Y_BOT = 600, GROUND = 650;
+const PLAYER_X = 400;
+const LIVES = 3;
+const P_LEVELS = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
+
+function volumeOf(Tc, P){ return ((Tc + 273) / T0) / P; }
+function yOfV(V){ return lerp(Y_BOT, Y_TOP, clamp((V - V_BOT) / (V_TOP - V_BOT), 0, 1)); }
+function radiusOfV(V){ return 40 * Math.cbrt(clamp(V, .3, 2.6)); }
+function vRange(P){ return [volumeOf(T_MIN_C, P), volumeOf(T_MAX_C, P)]; }
+
+const COLORS = [
+  { base: "#FF5A5F", light: "#FFB3B5", dark: "#B3262B", stripe: "#FFE08A" },
+  { base: "#3E8BFF", light: "#AFCFFF", dark: "#1A4FB3", stripe: "#FFFFFF" },
+  { base: "#2ECC71", light: "#A9F0C6", dark: "#178A47", stripe: "#FFE08A" },
+  { base: "#B57BFF", light: "#E2CCFF", dark: "#6A36B8", stripe: "#FFD1EC" }
+];
+let skin = COLORS[0];
+
+/* ==========================================================
+   소리
+=========================================================== */
+let actx = null, soundOn = true, burner = null;
+function audio(){
+  if (!soundOn) return null;
+  try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); }
+  catch (e) { return null; }
+  return actx;
+}
+function tone(f, d, type = "sine", v = .12, to){
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, a.currentTime);
+  if (to) o.frequency.exponentialRampToValueAtTime(to, a.currentTime + d);
+  g.gain.setValueAtTime(v, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + d);
+  o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + d);
+}
+function noise(d, f, v){
+  const a = audio(); if (!a) return;
+  const b = a.createBuffer(1, a.sampleRate * d, a.sampleRate), ch = b.getChannelData(0);
+  for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / ch.length);
+  const s = a.createBufferSource(); s.buffer = b;
+  const fl = a.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = f;
+  const g = a.createGain(); g.gain.value = v;
+  s.connect(fl).connect(g).connect(a.destination); s.start();
+}
+function burnerSound(on){
+  const a = audio(); if (!a) return;
+  if (!burner){
+    const b = a.createBuffer(1, a.sampleRate, a.sampleRate), ch = b.getChannelData(0);
+    for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+    const s = a.createBufferSource(); s.buffer = b; s.loop = true;
+    const f = a.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 520; f.Q.value = .8;
+    const g = a.createGain(); g.gain.value = 0;
+    s.connect(f).connect(g).connect(a.destination); s.start();
+    burner = g;
+  }
+  burner.gain.setTargetAtTime(on && soundOn ? .09 : 0, a.currentTime, .05);
+}
+const SFX = {
+  gate(c){ const b = 520 * Math.pow(1.06, Math.min(c, 10)); tone(b, .12, "triangle", .1); setTimeout(() => tone(b * 1.5, .14, "triangle", .09), 70); },
+  star(){ [1046, 1318, 1568].forEach((f, i) => setTimeout(() => tone(f, .1, "sine", .08), i * 45)); },
+  right(){ [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, .18, "triangle", .12), i * 80)); },
+  wrong(){ tone(330, .35, "sawtooth", .08, 160); },
+  pop(){ noise(.35, 4000, .5); tone(600, .2, "square", .06, 80); },
+  hit(){ noise(.4, 900, .45); tone(150, .4, "sawtooth", .1, 60); },
+  zone(){ tone(440, .25, "sine", .08, 660); },
+  warn(){ tone(1100, .06, "square", .04); },
+  over(){ [392, 330, 262].forEach((f, i) => setTimeout(() => tone(f, .3, "triangle", .12), i * 170)); }
+};
+document.getElementById("sound-btn").addEventListener("click", e => {
+  soundOn = !soundOn; e.currentTarget.textContent = soundOn ? "🔊" : "🔇";
+  if (!soundOn) burnerSound(false);
+});
+
+/* ==========================================================
+   퀴즈 관문 문제(보일·샤를 법칙)
+=========================================================== */
+const QUIZ = [
+  { q: "온도가 일정할 때 압력을 2배로 높이면 기체의 부피는?", a: "1/2배", b: "2배" },
+  { q: "압력이 일정할 때 기체를 가열하면 부피는?", a: "커진다", b: "작아진다" },
+  { q: "높은 산에 올라가면 과자 봉지가 부푸는 까닭은?", a: "바깥 압력↓", b: "바깥 온도↑" },
+  { q: "찌그러진 탁구공을 뜨거운 물에 넣으면?", a: "펴진다", b: "더 찌그러진다" },
+  { q: "주사기 입구를 막고 피스톤을 누르면 기체 입자 수는?", a: "그대로", b: "줄어든다" },
+  { q: "압력이 커질 때 기체 입자가 벽에 부딪히는 횟수는?", a: "많아진다", b: "적어진다" },
+  { q: "온도가 높아지면 기체 입자의 움직임은?", a: "빨라진다", b: "느려진다" },
+  { q: "부피 20 mL인 기체의 압력이 2배가 되면? (온도 일정)", a: "10 mL", b: "40 mL" },
+  { q: "보일 법칙: 압력과 부피의 관계는?", a: "반비례", b: "비례" },
+  { q: "샤를 법칙: 부피는 무엇에 비례할까?", a: "절대 온도", b: "압력" },
+  { q: "여름철 자동차 타이어의 공기압이 높아지는 까닭은?", a: "온도↑", b: "입자 수↑" },
+  { q: "잠수부가 내뿜은 공기 방울이 위로 올라갈수록?", a: "커진다", b: "작아진다" }
+];
+let quizOrder = [];
+function nextQuiz(){
+  if (!quizOrder.length) quizOrder = QUIZ.map((_, i) => i).sort(() => Math.random() - .5);
+  return QUIZ[quizOrder.pop()];
+}
+
+/* ==========================================================
+   월드: 기압 구역 · 장애물 생성
+=========================================================== */
+let zones = [], obstacles = [], stars = [], particles = [], popups = [];
+let worldX = 0, genX = 0, zoneEnd = 0, obstacleCount = 0;
+let phase = "intro";
+let score = 0, lives = LIVES, combo = 0, gatesPassed = 0, starsGot = 0, quizRight = 0, quizTotal = 0;
+let Tc = T_AMB_C, heating = false, cooling = false;
+let ball = { y: 0, vy: 0, V: 1, P: 1, invuln: 0, dead: 0, popped: false };
+let banner = null, activeQuiz = null, shake = 0, playTime = 0, warnT = 0;
+let lastReason = "";
+
+function addZone(){
+  const prev = zones.length ? zones[zones.length - 1] : null;
+  let P;
+  if (!prev) P = 1.0;
+  else {
+    const pool = P_LEVELS.filter(p => Math.abs(p - prev.P) >= .2 && Math.abs(p - prev.P) <= .45);
+    P = pool[Math.floor(Math.random() * pool.length)];
+  }
+  const start = prev ? prev.end : 0;
+  const len = prev ? rand(1500, 2300) : 1400;
+  zones.push({ start, end: start + len, P, announced: false });
+  zoneEnd = start + len;
+}
+const TRANS = 380;    // 구역이 바뀔 때 기압이 부드럽게 변하는 거리
+function pressureAt(x){
+  for (let i = 0; i < zones.length; i++){
+    const z = zones[i];
+    if (x < z.end || i === zones.length - 1){
+      if (i > 0 && x < z.start + TRANS){
+        const t = clamp((x - z.start) / TRANS, 0, 1);
+        const s = t * t * (3 - 2 * t);
+        return lerp(zones[i - 1].P, z.P, s);
+      }
+      return z.P;
+    }
+  }
+  return 1;
+}
+function zoneAt(x){ return zones.find(z => x >= z.start && x < z.end) || zones[zones.length - 1]; }
+function zoneName(P){ return P <= .85 ? "저기압 구역" : P >= 1.15 ? "고기압 구역" : "보통 기압 구역"; }
+
+function difficulty(){ return clamp(worldX / 26000, 0, 1); }
+
+// 해당 위치의 기압에서 만들 수 있는 부피 중 하나를 골라 그 높이에 틈을 둔다
+let lastGapY = 355, quizDue = false;
+function pickGapY(x, margin){
+  const P = pressureAt(x);
+  const [lo, hi] = vRange(P);
+  const a = Math.max(lo + margin, V_BOT + .05), b = Math.min(hi - margin, 1.86);
+  // 이 기압에서 만들 수 있는 높이 범위(y가 작을수록 위)
+  let yA = yOfV(b), yB = yOfV(a);
+  if (yA > yB) [yA, yB] = [yB, yA];
+  // 앞 틈과의 높이 차이를 줄여 연속 통과가 가능하게 한다(구역이 바뀔 때는 범위 쪽으로 따라감)
+  const lo2 = Math.max(yA, lastGapY - 210), hi2 = Math.min(yB, lastGapY + 210);
+  const y = lo2 <= hi2 ? rand(lo2, hi2) : clamp(lastGapY, yA, yB);
+  lastGapY = y;
+  return y;
+}
+function inTransition(x){
+  for (let i = 1; i < zones.length; i++) if (x > zones[i].start - 140 && x < zones[i].start + TRANS + 140) return true;
+  return false;
+}
+
+function generate(){
+  while (zoneEnd < worldX + VW * 2) addZone();
+  while (genX < worldX + VW * 1.6){
+    const d = difficulty();
+    const x = genX;
+    obstacleCount++;
+    if (obstacleCount % 9 === 0) quizDue = true;
+    if (quizDue && !inTransition(x)){
+      // 퀴즈 관문: 위·아래 두 통로 중 정답 쪽으로 (두 통로 사이에 벽이 충분히 있어야 함)
+      const P = pressureAt(x), [lo, hi] = vRange(P);
+      const yA = yOfV(Math.min(hi - .06, 1.82)), yB = yOfV(Math.max(lo + .06, V_BOT + .1));
+      if (yB - yA >= 230){
+        const mid = (yA + yB) / 2, half = Math.min(150, (yB - yA) / 2);
+        const q = nextQuiz(), correctTop = Math.random() < .5;
+        obstacles.push({ type: "quiz", x, w: 120, gaps: [{ y: mid - half, h: 132 }, { y: mid + half, h: 132 }], labels: correctTop ? [q.a, q.b] : [q.b, q.a], correct: correctTop ? 0 : 1, q: q.q, passed: false });
+        lastGapY = mid;
+        quizDue = false;
+        genX += 760;
+        continue;
+      }
+    }
+    const r = Math.random();
+    if (r < .2 + d * .15 && obstacleCount > 3){
+      // 번개구름(위아래로 둥실)
+      const y = pickGapY(x, .05);
+      obstacles.push({ type: "storm", x, y, baseY: y, r: rand(44, 58), amp: rand(40, 90) + d * 40, ph: Math.random() * TAU, sp: rand(1, 1.8), passed: false });
+      if (Math.random() < .6) stars.push({ x: x + 240, y: pickGapY(x + 240, .05), got: false, bob: Math.random() * TAU });
+      genX += rand(380, 480) - d * 60;
+    } else if (r < .3 + d * .15 && obstacleCount > 5){
+      // 새 떼
+      const y = pickGapY(x, .05);
+      obstacles.push({ type: "bird", x, y, baseY: y, vx: -rand(60, 120), amp: rand(60, 120), ph: Math.random() * TAU, flap: 0, passed: false });
+      genX += rand(340, 420);
+    } else {
+      // 구름 벽(틈 하나)
+      const gh = lerp(230, 165, d) + rand(-10, 15);
+      const y = pickGapY(x, .08);
+      obstacles.push({ type: "wall", x, w: rand(90, 120), gy: y, gh, passed: false, puff: Array.from({ length: 14 }, () => rand(.85, 1.15)) });
+      if (Math.random() < .7) stars.push({ x: x + rand(220, 300), y: pickGapY(x + 260, .06), got: false, bob: Math.random() * TAU });
+      genX += rand(520, 600) - d * 110;
+    }
+  }
+  obstacles = obstacles.filter(o => o.x - worldX > -300);
+  stars = stars.filter(s => s.x - worldX > -100 && !s.gone);
+}
+
+/* ==========================================================
+   입력: 가열(꾹) · 냉각
+=========================================================== */
+function setHeat(v){ heating = v; document.getElementById("btn-heat").classList.toggle("on", v); burnerSound(v && phase === "play"); }
+function setCool(v){ cooling = v; document.getElementById("btn-cool").classList.toggle("on", v); }
+window.addEventListener("keydown", e => {
+  if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW"){ e.preventDefault(); if (!e.repeat) { audio(); setHeat(true); } }
+  if (e.code === "ArrowDown" || e.code === "KeyS"){ e.preventDefault(); setCool(true); }
+});
+window.addEventListener("keyup", e => {
+  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") setHeat(false);
+  if (e.code === "ArrowDown" || e.code === "KeyS") setCool(false);
+});
+canvas.addEventListener("pointerdown", e => { e.preventDefault(); audio(); setHeat(true); });
+window.addEventListener("pointerup", () => { setHeat(false); setCool(false); });
+window.addEventListener("pointercancel", () => { setHeat(false); setCool(false); });
+window.addEventListener("blur", () => { setHeat(false); setCool(false); });
+const bh = document.getElementById("btn-heat"), bc = document.getElementById("btn-cool");
+bh.addEventListener("pointerdown", e => { e.preventDefault(); audio(); setHeat(true); });
+bc.addEventListener("pointerdown", e => { e.preventDefault(); audio(); setCool(true); });
+[bh, bc].forEach(b => b.addEventListener("contextmenu", e => e.preventDefault()));
+
+/* ==========================================================
+   진행
+=========================================================== */
+function burst(x, y, c, n, sp){
+  for (let i = 0; i < n; i++){
+    const a = Math.random() * TAU, s = rand(.3, 1) * sp;
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(.4, .9), max: .9, c, r: rand(2, 4.5) });
+  }
+}
+function popup(text, color, x = PLAYER_X, y = ball.y - 60){ popups.push({ text, color, x, y, t: 0 }); }
+
+function loseLife(reason){
+  if (ball.invuln > 0 || ball.dead > 0) return;
+  lives--; combo = 0; shake = 14; lastReason = reason;
+  if (reason === "pop"){ SFX.pop(); burst(PLAYER_X, ball.y, skin.base, 40, 340); popup("펑! 너무 부풀었어요", "#FF6B6B"); }
+  else if (reason === "crush"){ SFX.hit(); burst(PLAYER_X, GROUND - 20, "#A0784F", 26, 200); popup("너무 쪼그라들어 떨어졌어요", "#FFB45A"); }
+  else { SFX.hit(); burst(PLAYER_X, ball.y, "#FFFFFF", 26, 240); popup(reason, "#FF8A7A"); }
+  ball.dead = 1.1; ball.popped = reason === "pop";
+}
+function respawn(){
+  // 지금 기압에서 화면 가운데 높이가 되도록 온도를 맞춰 다시 출발
+  const P = pressureAt(worldX + PLAYER_X);
+  const [lo, hi] = vRange(P);
+  const V = clamp((lo + hi) / 2, V_BOT + .1, V_TOP - .1);
+  Tc = clamp(V * P * T0 - 273, T_MIN_C, T_MAX_C);
+  ball.V = volumeOf(Tc, P); ball.y = yOfV(ball.V); ball.vy = 0;
+  ball.invuln = 1.8; ball.dead = 0; ball.popped = false;
+  // 바로 앞 장애물은 치워 준다
+  obstacles = obstacles.filter(o => o.x - worldX < PLAYER_X - 80 || o.x - worldX > PLAYER_X + 420);
+}
+
+function update(dt){
+  playTime += dt;
+  const d = difficulty();
+  const speed = lerp(240, 340, d);
+  if (ball.dead > 0){
+    ball.dead -= dt;
+    if (ball.dead <= 0){ if (lives <= 0) { endGame(); return; } respawn(); }
+    worldX += speed * dt * .3;
+    generate();
+    return;
+  }
+  worldX += speed * dt;
+  score += speed * dt * .02;
+  generate();
+
+  // 온도: 가열·냉각·자연 냉각(샤를 법칙)
+  if (heating) Tc += 80 * dt;
+  if (cooling) Tc -= 110 * dt;
+  if (!heating) Tc += (T_AMB_C - Tc) * .42 * dt;
+  Tc = clamp(Tc, T_MIN_C, T_MAX_C);
+
+  // 바깥 압력(보일 법칙) → 부피 → 떠오르는 높이
+  const P = pressureAt(worldX + PLAYER_X);
+  ball.P = P;
+  ball.V = volumeOf(Tc, P);
+  const ty = yOfV(ball.V);
+  ball.vy += ((ty - ball.y) * 16 - ball.vy * 6) * dt;
+  ball.y += ball.vy * dt;
+  if (ball.invuln > 0) ball.invuln -= dt;
+
+  // 구역 안내
+  const z = zoneAt(worldX + PLAYER_X + 160);
+  if (z && !z.announced){
+    z.announced = true;
+    if (zones.indexOf(z) > 0){
+      const prevP = zones[zones.indexOf(z) - 1].P;
+      banner = { t: 0, title: `${z.P < prevP ? "🌀" : "☀️"} ${zoneName(z.P)} · ${z.P.toFixed(1)}기압`,
+        sub: z.P < prevP ? "바깥 압력이 낮아져요 → 풍선이 저절로 커져요 (보일 법칙)" : "바깥 압력이 높아져요 → 풍선이 저절로 작아져요 (보일 법칙)" };
+      SFX.zone();
+    }
+  }
+
+  // 위험 경고(너무 크거나 작음)
+  if (ball.V > V_POP - .15 || ball.V < V_CRUSH + .05){ warnT -= dt; if (warnT <= 0){ SFX.warn(); warnT = .35; } }
+  if (ball.V >= V_POP){ loseLife("pop"); return; }
+  if (ball.V <= V_CRUSH || ball.y > GROUND - 30){ loseLife("crush"); return; }
+
+  const R = radiusOfV(ball.V), bx = PLAYER_X, by = ball.y;
+  const hitR = R * .86;
+  activeQuiz = null;
+  for (const o of obstacles){
+    const sx = o.x - worldX;
+    if (o.type === "storm"){
+      o.ph += o.sp * dt; o.y = o.baseY + Math.sin(o.ph) * o.amp;
+      if (ball.invuln <= 0 && Math.hypot(sx - bx, o.y - by) < o.r * .8 + hitR){ loseLife("번개구름에 부딪혔어요!"); return; }
+    } else if (o.type === "bird"){
+      o.x += o.vx * dt; o.ph += dt * 2; o.flap += dt * 12; o.y = o.baseY + Math.sin(o.ph) * o.amp;
+      if (ball.invuln <= 0 && Math.hypot(sx - bx, o.y - by) < 18 + hitR){ loseLife("새와 부딪혔어요!"); return; }
+    } else if (o.type === "wall" || o.type === "quiz"){
+      const gaps = o.type === "wall" ? [{ y: o.gy, h: o.gh }] : o.gaps;
+      if (o.type === "quiz" && sx > bx - 60 && sx < bx + 760) activeQuiz = o;
+      if (bx + hitR > sx && bx - hitR < sx + o.w){
+        // 틈 안에 완전히 들어와 있는지 확인
+        const inGap = gaps.findIndex(g => by - hitR > g.y - g.h / 2 && by + hitR < g.y + g.h / 2);
+        if (inGap < 0 && ball.invuln <= 0){ loseLife(o.type === "quiz" ? "관문 벽에 부딪혔어요!" : "구름 벽에 부딪혔어요!"); return; }
+        if (inGap >= 0) o.lastGap = inGap;
+      }
+      if (!o.passed && sx + o.w < bx - hitR){
+        o.passed = true;
+        if (o.type === "wall"){
+          combo++; gatesPassed++;
+          const pts = 100 * Math.min(combo, 5); score += pts;
+          SFX.gate(combo); popup(combo > 1 ? `+${pts} (콤보 x${Math.min(combo, 5)})` : `+${pts}`, "#FFE27A");
+        } else if (o.lastGap !== undefined){
+          quizTotal++;
+          if (o.lastGap === o.correct){ quizRight++; score += 300; SFX.right(); popup("⭕ 정답! +300", "#7DFFB2"); burst(bx, by, "#7DFFB2", 30, 260); }
+          else { SFX.wrong(); combo = 0; popup(`❌ 정답은 "${o.labels[o.correct]}"`, "#FFB3B3"); }
+        }
+      }
+    }
+  }
+  for (const s of stars){
+    if (!s.got && Math.hypot(s.x - worldX - bx, s.y - by) < hitR + 18){
+      s.got = true; starsGot++; score += 30; SFX.star(); burst(s.x - worldX, s.y, "#FFE27A", 12, 160); popup("+30", "#FFF3A0", s.x - worldX, s.y - 20);
+    }
+  }
+}
+
+/* ==========================================================
+   그리기
+=========================================================== */
+function mixColor(a, b, t){
+  const pa = a.match(/\w\w/g).map(h => parseInt(h, 16)), pb = b.match(/\w\w/g).map(h => parseInt(h, 16));
+  return `rgb(${pa.map((v, i) => Math.round(lerp(v, pb[i], t))).join(",")})`;
+}
+const CLOUDS = Array.from({ length: 10 }, () => ({ x: Math.random() * 2600, y: rand(60, 340), s: rand(.6, 1.4), par: rand(.12, .3) }));
+const HILLS = Array.from({ length: 9 }, (_, i) => ({ x: i * 340 + rand(-60, 60), h: rand(90, 180), w: rand(260, 420) }));
+
+function skyColors(P){
+  // 저기압은 보랏빛 푸른 하늘, 고기압은 맑은 주황빛 하늘
+  if (P < 1){ const t = clamp((1 - P) / .3, 0, 1); return [mixColor("#4FA8E0", "#5B5FD6", t), mixColor("#D9F0FA", "#C7C3FF", t)]; }
+  const t = clamp((P - 1) / .4, 0, 1); return [mixColor("#4FA8E0", "#F08A4B", t), mixColor("#D9F0FA", "#FFE7B8", t)];
+}
+
+function drawBackground(t){
+  const P = pressureAt(worldX + PLAYER_X);
+  const [c1, c2] = skyColors(P);
+  const g = ctx.createLinearGradient(0, 0, 0, VH);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+  // 해
+  ctx.fillStyle = "rgba(255,250,220,.9)";
+  ctx.beginPath(); ctx.arc(1060, 140, 46, 0, TAU); ctx.fill();
+  ctx.fillStyle = "rgba(255,250,220,.25)";
+  ctx.beginPath(); ctx.arc(1060, 140, 80, 0, TAU); ctx.fill();
+  // 먼 구름
+  for (const c of CLOUDS){
+    const x = ((c.x - worldX * c.par) % 2600 + 2600) % 2600 - 300;
+    drawPuff(x, c.y, 60 * c.s, "rgba(255,255,255,.75)");
+  }
+  // 언덕
+  ctx.fillStyle = "rgba(90,160,110,.55)";
+  for (const h of HILLS){
+    const x = ((h.x - worldX * .35) % 3060 + 3060) % 3060 - 400;
+    ctx.beginPath(); ctx.ellipse(x, GROUND + 10, h.w, h.h, 0, Math.PI, TAU); ctx.fill();
+  }
+  // 땅
+  const gg = ctx.createLinearGradient(0, GROUND, 0, VH);
+  gg.addColorStop(0, "#6CC06A"); gg.addColorStop(1, "#3F8A44");
+  ctx.fillStyle = gg; ctx.fillRect(0, GROUND, VW, VH - GROUND);
+  ctx.fillStyle = "#5AAE58";
+  for (let x = -((worldX * .9) % 40); x < VW; x += 40){ ctx.beginPath(); ctx.moveTo(x, GROUND); ctx.lineTo(x + 8, GROUND - 10); ctx.lineTo(x + 16, GROUND); ctx.fill(); }
+
+  // 구역 경계 표지판
+  for (let i = 1; i < zones.length; i++){
+    const sx = zones[i].start - worldX;
+    if (sx < -200 || sx > VW + 200) continue;
+    const low = zones[i].P < zones[i - 1].P;
+    ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.setLineDash([10, 12]); ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(sx, 60); ctx.lineTo(sx, GROUND); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = low ? "#5B5FD6" : "#E5603A";
+    ctx.beginPath(); ctx.arc(sx, GROUND - 70, 30, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.font = "34px Jua, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(low ? "L" : "H", sx, GROUND - 68);
+    ctx.font = "16px Jua, sans-serif"; ctx.fillStyle = "#1B2438";
+    ctx.fillText(`${zones[i].P.toFixed(1)}기압`, sx, GROUND - 26);
+  }
+  ctx.textBaseline = "alphabetic";
+}
+
+function drawPuff(x, y, r, color){
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, r * .6, 0, TAU); ctx.arc(x + r * .55, y - r * .2, r * .5, 0, TAU);
+  ctx.arc(x + r * 1.05, y, r * .55, 0, TAU); ctx.arc(x + r * .5, y + r * .15, r * .55, 0, TAU);
+  ctx.fill();
+}
+
+function drawWallPart(sx, w, y0, y1, o, dark){
+  if (y1 - y0 < 4) return;
+  const g = ctx.createLinearGradient(sx, 0, sx + w, 0);
+  g.addColorStop(0, dark ? "#6E7891" : "#F4F7FF"); g.addColorStop(1, dark ? "#4A5470" : "#C9D3EA");
+  ctx.fillStyle = g;
+  ctx.fillRect(sx + 10, y0, w - 20, y1 - y0);
+  const n = Math.max(2, Math.ceil((y1 - y0) / 34));
+  for (let i = 0; i <= n; i++){
+    const yy = lerp(y0, y1, i / n), s = o.puff ? o.puff[i % o.puff.length] : 1;
+    ctx.beginPath(); ctx.arc(sx + 18, yy, 22 * s, 0, TAU); ctx.arc(sx + w - 18, yy, 22 * s, 0, TAU); ctx.arc(sx + w / 2, yy, 26 * s, 0, TAU); ctx.fill();
+  }
+}
+
+function drawObstacles(t){
+  for (const o of obstacles){
+    const sx = o.x - worldX;
+    if (sx < -200 || sx > VW + 200) continue;
+    if (o.type === "wall"){
+      drawWallPart(sx, o.w, 0, o.gy - o.gh / 2, o, false);
+      drawWallPart(sx, o.w, o.gy + o.gh / 2, GROUND, o, false);
+      // 틈 테두리(목표 부피 안내)
+      ctx.strokeStyle = "rgba(255,226,122,.85)"; ctx.lineWidth = 3; ctx.setLineDash([8, 6]);
+      ctx.strokeRect(sx + 4, o.gy - o.gh / 2 + 4, o.w - 8, o.gh - 8); ctx.setLineDash([]);
+    } else if (o.type === "quiz"){
+      const gs = o.gaps;
+      const top = gs[0].y < gs[1].y ? gs[0] : gs[1], bot = gs[0].y < gs[1].y ? gs[1] : gs[0];
+      drawWallPart(sx, o.w, 0, top.y - top.h / 2, o, true);
+      drawWallPart(sx, o.w, top.y + top.h / 2, bot.y - bot.h / 2, o, true);
+      drawWallPart(sx, o.w, bot.y + bot.h / 2, GROUND, o, true);
+      gs.forEach((g, i) => {
+        ctx.fillStyle = i === 0 ? "rgba(91,95,214,.88)" : "rgba(229,96,58,.88)";
+        const lw = 168, lx = sx + o.w / 2 - lw / 2, ly = g.y - 22;
+        ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - 120, ly, lw, 44, 12) : ctx.rect(lx - 120, ly, lw, 44); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.font = "21px Jua, sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(o.labels[i], lx - 120 + lw / 2, ly + 30);
+        ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 3; ctx.setLineDash([8, 6]);
+        ctx.strokeRect(sx + 4, g.y - g.h / 2 + 4, o.w - 8, g.h - 8); ctx.setLineDash([]);
+      });
+    } else if (o.type === "storm"){
+      drawPuff(o.x - worldX - o.r, o.y, o.r * 1.3, "#5B6378");
+      drawPuff(o.x - worldX - o.r * .8, o.y - o.r * .25, o.r, "#6E7891");
+      if (Math.sin(t * 9 + o.ph * 3) > .55){
+        ctx.strokeStyle = "#FFE45C"; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(sx, o.y + o.r * .3); ctx.lineTo(sx - 12, o.y + o.r * .9); ctx.lineTo(sx + 6, o.y + o.r * .9); ctx.lineTo(sx - 8, o.y + o.r * 1.5); ctx.stroke();
+      }
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(sx - 14, o.y - 4, 5, 0, TAU); ctx.arc(sx + 10, o.y - 4, 5, 0, TAU); ctx.fill();
+      ctx.fillStyle = "#222"; ctx.beginPath(); ctx.arc(sx - 14, o.y - 3, 2.5, 0, TAU); ctx.arc(sx + 10, o.y - 3, 2.5, 0, TAU); ctx.fill();
+    } else if (o.type === "bird"){
+      const wing = Math.sin(o.flap) * 14;
+      ctx.fillStyle = "#3A3F55";
+      ctx.beginPath(); ctx.ellipse(sx, o.y, 18, 10, 0, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(sx - 4, o.y - 2); ctx.lineTo(sx - 22, o.y - 12 - wing); ctx.lineTo(sx + 6, o.y - 4); ctx.fill();
+      ctx.fillStyle = "#F2A33B"; ctx.beginPath(); ctx.moveTo(sx - 18, o.y); ctx.lineTo(sx - 28, o.y + 3); ctx.lineTo(sx - 18, o.y + 5); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(sx - 10, o.y - 3, 3, 0, TAU); ctx.fill();
+    }
+  }
+  for (const s of stars){
+    if (s.got) continue;
+    const sx = s.x - worldX, y = s.y + Math.sin(t * 3 + s.bob) * 5;
+    if (sx < -40 || sx > VW + 40) continue;
+    ctx.save(); ctx.translate(sx, y); ctx.rotate(Math.sin(t * 2 + s.bob) * .3);
+    ctx.fillStyle = "#FFD84D"; ctx.strokeStyle = "#FFF6C2"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 7 : 16; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  }
+}
+
+// 풍선 속 기체 입자(입자 수는 그대로, 온도가 높을수록 빠르게)
+const GAS = Array.from({ length: 22 }, () => ({ x: rand(-.6, .6), y: rand(-.6, .6), vx: rand(-1, 1), vy: rand(-1, 1) }));
+function drawBalloon(t, dt){
+  if (ball.dead > 0 && ball.popped) return;
+  if (ball.invuln > 0 && Math.floor(ball.invuln * 10) % 2 === 0) return;
+  const R = radiusOfV(ball.V), x = PLAYER_X, y = ball.y;
+  const tilt = clamp(ball.vy / 900, -.18, .18);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+  // 줄과 바구니
+  ctx.strokeStyle = "#6B4A2A"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-R * .45, R * .78); ctx.lineTo(-11, R + 30); ctx.moveTo(R * .45, R * .78); ctx.lineTo(11, R + 30); ctx.stroke();
+  ctx.fillStyle = "#A8743F"; ctx.fillRect(-15, R + 30, 30, 22);
+  ctx.strokeStyle = "#7A5128"; ctx.lineWidth = 2; ctx.strokeRect(-15, R + 30, 30, 22);
+  ctx.beginPath(); ctx.moveTo(-15, R + 41); ctx.lineTo(15, R + 41); ctx.stroke();
+  // 버너 불꽃
+  if (heating && phase === "play"){
+    const fh = 18 + Math.random() * 10;
+    const fg = ctx.createLinearGradient(0, R + 28, 0, R + 28 - fh);
+    fg.addColorStop(0, "#FFE45C"); fg.addColorStop(1, "rgba(255,90,30,.2)");
+    ctx.fillStyle = fg;
+    ctx.beginPath(); ctx.moveTo(-7, R + 28); ctx.quadraticCurveTo(0, R + 28 - fh * 1.6, 7, R + 28); ctx.fill();
+  }
+  // 풍선 몸체(위가 둥근 물방울 모양)
+  const g = ctx.createRadialGradient(-R * .35, -R * .4, R * .1, 0, 0, R * 1.1);
+  g.addColorStop(0, skin.light); g.addColorStop(.55, skin.base); g.addColorStop(1, skin.dark);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(0, -R);
+  ctx.bezierCurveTo(R * 1.15, -R, R * 1.15, R * .45, R * .42, R * .82);
+  ctx.lineTo(-R * .42, R * .82);
+  ctx.bezierCurveTo(-R * 1.15, R * .45, -R * 1.15, -R, 0, -R);
+  ctx.fill();
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = skin.stripe; ctx.globalAlpha = .55;
+  ctx.beginPath(); ctx.ellipse(0, 0, R * .32, R * 1.05, 0, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+  // 기체 입자
+  const spd = Math.sqrt((Tc + 273) / T0) * 1.6;
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  for (const p of GAS){
+    p.x += p.vx * spd * dt; p.y += p.vy * spd * dt;
+    if (p.x < -.7 || p.x > .7) p.vx *= -1;
+    if (p.y < -.75 || p.y > .55) p.vy *= -1;
+    p.x = clamp(p.x, -.7, .7); p.y = clamp(p.y, -.75, .55);
+    ctx.beginPath(); ctx.arc(p.x * R, p.y * R, 3.2, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+  ctx.fillStyle = "rgba(255,255,255,.4)";
+  ctx.beginPath(); ctx.ellipse(-R * .4, -R * .45, R * .14, R * .28, -.5, 0, TAU); ctx.fill();
+  // 너무 크거나 작을 때 테두리 경고
+  if (ball.V > V_POP - .15 || ball.V < V_CRUSH + .05){
+    ctx.strokeStyle = Math.floor(t * 8) % 2 ? "#FF3B3B" : "#FFE45C"; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(0, -R * .05, R * 1.08, 0, TAU); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function roundRectPath(x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+function drawHUD(t){
+  // 점수
+  ctx.fillStyle = "rgba(10,20,50,.7)"; roundRectPath(14, 12, 250, 84, 14); ctx.fill();
+  ctx.fillStyle = "#FFE27A"; ctx.font = "20px Jua, sans-serif"; ctx.textAlign = "left";
+  ctx.fillText("점수", 30, 42);
+  ctx.fillStyle = "#fff"; ctx.font = "32px Jua, sans-serif"; ctx.fillText(String(Math.floor(score)), 86, 44);
+  let hearts = ""; for (let i = 0; i < LIVES; i++) hearts += i < lives ? "❤️" : "🖤";
+  ctx.font = "18px sans-serif"; ctx.fillText(hearts, 30, 80);
+  ctx.font = "16px Jua, sans-serif"; ctx.fillStyle = "#CFE0FF";
+  ctx.fillText(`⭐${starsGot}  ⭕${quizRight}/${quizTotal}${combo > 1 ? `  콤보 x${Math.min(combo, 5)}` : ""}`, 130, 80);
+
+  // 기체 계기판: 압력 · 온도 · 부피
+  const px = 14, py = VH - 200, pw = 330, ph = 150;
+  ctx.fillStyle = "rgba(10,20,50,.72)"; roundRectPath(px, py, pw, ph, 16); ctx.fill();
+  ctx.font = "16px Jua, sans-serif"; ctx.fillStyle = "#FFE27A"; ctx.fillText("기체 계기판", px + 16, py + 26);
+  ctx.fillStyle = "#CFE0FF"; ctx.font = "14px Jua, sans-serif"; ctx.textAlign = "right";
+  ctx.fillText("부피 = 기준 × (T ÷ 293 K) ÷ 압력", px + pw - 14, py + 26);
+  ctx.textAlign = "left";
+  const rows = [
+    { label: "🌀 압력", val: `${ball.P.toFixed(2)} 기압`, f: (ball.P - .6) / .9, c: "#8FA0FF" },
+    { label: "🔥 온도", val: `${Math.round(Tc)} ℃ (${Math.round(Tc + 273)} K)`, f: (Tc - T_MIN_C) / (T_MAX_C - T_MIN_C), c: "#FF9A5C" },
+    { label: "🎈 부피", val: `${ball.V.toFixed(2)} 배`, f: (ball.V - V_CRUSH) / (V_POP - V_CRUSH), c: ball.V > V_POP - .15 || ball.V < V_CRUSH + .05 ? "#FF4D4D" : "#7DFFB2" }
+  ];
+  rows.forEach((r, i) => {
+    const y = py + 56 + i * 32;
+    ctx.fillStyle = "#fff"; ctx.font = "16px Jua, sans-serif"; ctx.fillText(r.label, px + 16, y + 5);
+    ctx.fillStyle = "rgba(255,255,255,.15)"; roundRectPath(px + 92, y - 8, 120, 14, 7); ctx.fill();
+    ctx.fillStyle = r.c; roundRectPath(px + 92, y - 8, Math.max(8, 120 * clamp(r.f, 0, 1)), 14, 7); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.font = "14px Jua, sans-serif"; ctx.fillText(r.val, px + 220, y + 5);
+  });
+
+  // 구역 안내 배너
+  if (activeQuiz){
+    ctx.fillStyle = "rgba(255,252,243,.95)"; roundRectPath(VW / 2 - 360, 18, 720, 70, 18); ctx.fill();
+    ctx.strokeStyle = "#1D3461"; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = "#1D3461"; ctx.textAlign = "center"; ctx.font = "16px Jua, sans-serif";
+    ctx.fillText("❓ 퀴즈 관문 — 정답이 적힌 통로로 지나가세요!", VW / 2, 42);
+    ctx.font = "22px Jua, sans-serif"; ctx.fillStyle = "#D2581C";
+    ctx.fillText(activeQuiz.q, VW / 2, 74);
+  } else if (banner && banner.t < 3.2){
+    const a = Math.min(1, banner.t * 3, (3.2 - banner.t) * 2);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = "rgba(10,20,50,.8)"; roundRectPath(VW / 2 - 330, 18, 660, 76, 18); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.font = "28px Jua, sans-serif";
+    ctx.fillText(banner.title, VW / 2, 52);
+    ctx.font = "17px Jua, sans-serif"; ctx.fillStyle = "#FFE27A"; ctx.fillText(banner.sub, VW / 2, 80);
+    ctx.globalAlpha = 1;
+  }
+  ctx.textAlign = "left";
+  if (playTime < 6 && phase === "play"){
+    ctx.globalAlpha = clamp(6 - playTime, 0, 1);
+    ctx.fillStyle = "rgba(10,20,50,.75)"; roundRectPath(VW / 2 - 300, VH - 66, 600, 44, 22); ctx.fill();
+    ctx.fillStyle = "#FFF3C4"; ctx.font = "19px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("꾹 누르면 🔥 가열(부피↑ 위로), 떼면 식어요(부피↓ 아래로)", VW / 2, VH - 37);
+    ctx.globalAlpha = 1; ctx.textAlign = "left";
+  }
+}
+
+function render(t, dt){
+  ctx.save();
+  if (shake > 0) ctx.translate(rand(-shake, shake), rand(-shake, shake));
+  drawBackground(t);
+  drawObstacles(t);
+  for (const p of particles){
+    ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, TAU); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  drawBalloon(t, dt);
+  for (const p of popups){
+    ctx.globalAlpha = Math.max(0, 1 - p.t / 1.3);
+    ctx.font = "24px Jua, sans-serif"; ctx.textAlign = "center"; ctx.lineWidth = 4; ctx.strokeStyle = "rgba(0,0,0,.45)";
+    ctx.strokeText(p.text, p.x, p.y - p.t * 40); ctx.fillStyle = p.color; ctx.fillText(p.text, p.x, p.y - p.t * 40);
+  }
+  ctx.globalAlpha = 1; ctx.textAlign = "left";
+  ctx.restore();
+  if (phase !== "intro") drawHUD(t);
+}
+
+/* ==========================================================
+   메인 루프
+=========================================================== */
+let lastT = null;
+function frame(now){
+  const t = now / 1000;
+  if (lastT === null) lastT = t;
+  const dt = clamp(t - lastT, 0, .05);
+  lastT = t;
+  if (phase === "play") update(dt);
+  else if (phase === "intro"){ worldX += 60 * dt; generate(); ball.y = yOfV(ball.V) + Math.sin(t * 1.5) * 8; }
+  for (const p of particles){ p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 300 * dt; p.life -= dt; }
+  particles = particles.filter(p => p.life > 0);
+  for (const p of popups) p.t += dt;
+  popups = popups.filter(p => p.t < 1.3);
+  if (banner) banner.t += dt;
+  if (shake > 0) shake = Math.max(0, shake - dt * 40);
+  // 가열·냉각 중 연기·서리
+  if (phase === "play" && ball.dead <= 0){
+    const R = radiusOfV(ball.V);
+    if (cooling && Math.random() < .6) particles.push({ x: PLAYER_X + rand(-R, R), y: ball.y + rand(-R, R * .6), vx: rand(-20, 20), vy: rand(-30, 10), life: .6, max: .6, c: "#D8F3FF", r: rand(2, 3.5) });
+  }
+  render(t, dt);
+  requestAnimationFrame(frame);
+}
+
+/* ==========================================================
+   반 전체 공유 랭킹 (다른 쉬어가는 게임들과 같은 스프레드시트 웹 앱 사용)
+=========================================================== */
+const LEADERBOARD_KEY = "science-gas-balloon-leaderboard";
+const LEADERBOARD_WORKSHEET = "기체풍선_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+
+function loadLeaderboard(){ try { const r = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]"); if (Array.isArray(r)) return r; } catch (e) {} return []; }
+function saveLeaderboard(list){ try { localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); } catch (e) {} }
+async function fetchSharedLeaderboard(){
+  if (!LEADERBOARD_WEBHOOK_URL) return null;
+  try {
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if (!res.ok) throw new Error("status " + res.status);
+    const rows = await res.json();
+    return rows.map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), date: r.date || r.timestamp })).filter(r => r.name && !Number.isNaN(r.score));
+  } catch (err) { console.warn("공유 랭킹을 불러오지 못했습니다:", err); return null; }
+}
+async function submitToSharedLeaderboard(entry){
+  if (!LEADERBOARD_WEBHOOK_URL) return;
+  try {
+    await fetch(LEADERBOARD_WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, score: String(entry.score), gates: String(entry.gates), quiz: entry.quiz, date: entry.date }) });
+  } catch (err) { console.warn("공유 랭킹 전송에 실패했습니다:", err); }
+}
+function localDateStr(){ const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function fmtDate(v){
+  if (!v) return "";
+  const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return `${Number(m[2])}.${Number(m[3])}`;
+  const t = new Date(v); if (isNaN(t)) return "";
+  return `${t.getMonth() + 1}.${t.getDate()}`;
+}
+function renderLeaderboardInto(listEl, board, maxN, hi){
+  listEl.innerHTML = "";
+  for (let i = 0; i < maxN; i++){
+    const e = board[i], li = document.createElement("li");
+    if (!e){ li.className = "board-row empty"; li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname">—</span><span class="bdate"></span><span class="bscore"></span>`; listEl.appendChild(li); continue; }
+    const isMe = hi && e.name === hi.name && e.score === hi.score;
+    li.className = "board-row" + (isMe ? " me" : "");
+    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bdate">${fmtDate(e.date)}</span><span class="bscore">${e.score}점</span>`;
+    li.querySelector(".bname").textContent = e.name;
+    listEl.appendChild(li);
+  }
+}
+function renderHallOfFame(board){
+  const el = document.getElementById("hof-list");
+  el.innerHTML = "";
+  if (board.length === 0){ el.innerHTML = '<li class="hof-empty">아직 기록이 없어요. 첫 주인공이 되어 보세요!</li>'; return; }
+  ["🥇", "🥈", "🥉"].forEach((medal, i) => {
+    const e = board[i], li = document.createElement("li");
+    li.className = "hof-row";
+    li.innerHTML = `<span class="hof-medal">${medal}</span><span class="hof-name"></span><span class="hof-date">${e ? fmtDate(e.date) : ""}</span><span class="hof-score">${e ? e.score + "점" : ""}</span>`;
+    li.querySelector(".hof-name").textContent = e ? e.name : "—";
+    el.appendChild(li);
+  });
+}
+async function renderAllLeaderboards(hi){
+  const list = document.getElementById("leader-list"), note = document.getElementById("board-source-note");
+  const local = loadLeaderboard().sort((a, b) => b.score - a.score);
+  renderLeaderboardInto(list, local, 10, hi); renderHallOfFame(local);
+  note.textContent = "🌐 반 전체 랭킹을 불러오는 중...";
+  const shared = await fetchSharedLeaderboard();
+  if (shared){
+    shared.sort((a, b) => b.score - a.score); saveLeaderboard(shared.slice(0, 10));
+    renderLeaderboardInto(list, shared, 10, hi); renderHallOfFame(shared);
+    note.textContent = "🌐 반 전체가 함께 보는 공유 랭킹이에요.";
+  } else note.textContent = "⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여주고 있어요.";
+}
+let pendingEntry = null;
+document.getElementById("name-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = document.getElementById("name-input").value.trim();
+  if (!name || !pendingEntry) return;
+  const entry = { ...pendingEntry, name };
+  const local = loadLeaderboard(); local.push(entry); local.sort((a, b) => b.score - a.score); local.length = Math.min(local.length, 10);
+  saveLeaderboard(local);
+  renderLeaderboardInto(document.getElementById("leader-list"), local, 10, entry); renderHallOfFame(local);
+  document.getElementById("name-form").style.display = "none";
+  await submitToSharedLeaderboard(entry);
+  renderAllLeaderboards(entry);
+});
+
+/* ==========================================================
+   시작 · 끝
+=========================================================== */
+const intro = document.getElementById("intro"), result = document.getElementById("result");
+const pick = document.getElementById("color-pick");
+COLORS.forEach((c, i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip" + (i === 0 ? " picked" : "");
+  b.style.background = `radial-gradient(circle at 35% 30%, ${c.light}, ${c.base} 55%, ${c.dark})`;
+  b.addEventListener("click", () => { skin = c; pick.querySelectorAll(".chip").forEach(x => x.classList.remove("picked")); b.classList.add("picked"); });
+  pick.appendChild(b);
+});
+
+function resetWorld(){
+  zones = []; obstacles = []; stars = []; particles = []; popups = [];
+  worldX = 0; genX = 900; zoneEnd = 0; obstacleCount = 0; quizOrder = []; lastGapY = 355; quizDue = false;
+  addZone(); generate();
+  Tc = T_AMB_C; ball = { y: yOfV(1), vy: 0, V: 1, P: 1, invuln: 0, dead: 0, popped: false };
+  banner = null; activeQuiz = null;
+}
+function startGame(){
+  audio();
+  resetWorld();
+  score = 0; lives = LIVES; combo = 0; gatesPassed = 0; starsGot = 0; quizRight = 0; quizTotal = 0; playTime = 0;
+  ball.invuln = 1.2;
+  phase = "play";
+  intro.classList.add("hidden"); result.classList.add("hidden");
+  banner = { t: 0, title: "☁️ 보통 기압 구역 · 1.0기압", sub: "꾹 눌러 가열하면 풍선이 커지며 떠올라요 (샤를 법칙)" };
+}
+function endGame(){
+  if (phase !== "play") return;
+  phase = "over"; setHeat(false); setCool(false); burnerSound(false); SFX.over();
+  score = Math.floor(score);
+  let best = 0;
+  try { best = Number(localStorage.getItem("gas-balloon-best") || 0); } catch (e) {}
+  if (score > best){ best = score; try { localStorage.setItem("gas-balloon-best", String(score)); } catch (e) {} }
+  document.getElementById("final-score").textContent = `${score}점`;
+  document.getElementById("final-rank").textContent =
+    score >= 6000 ? "🏆 기체 법칙의 달인!" : score >= 3500 ? "🥇 보일·샤를 박사님이에요!" : score >= 2000 ? "🎈 하늘을 자유롭게 날았어요!" : score >= 900 ? "👍 좋아요, 조금만 더!" : "💪 다시 도전해 볼까요?";
+  document.getElementById("final-best").textContent = `이 컴퓨터 최고 기록: ${best}점`;
+  document.getElementById("final-detail").textContent = `구름 벽 ${gatesPassed}개 통과 · 별 ${starsGot}개 · 퀴즈 ${quizRight}/${quizTotal} 정답 · 비행 거리 ${(worldX / 10).toFixed(0)} m`;
+  pendingEntry = { score, gates: gatesPassed, quiz: `${quizRight}/${quizTotal}`, date: localDateStr() };
+  document.getElementById("name-form").style.display = "flex";
+  document.getElementById("name-input").value = "";
+  renderAllLeaderboards(null);
+  setTimeout(() => result.classList.remove("hidden"), 600);
+}
+document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("again-btn").addEventListener("click", startGame);
+
+resetWorld();
+renderAllLeaderboards(null);
+requestAnimationFrame(frame);
+
+// 개발·검증용 훅
+window.__balloon = {
+  get state(){ return { phase, score: Math.floor(score), lives, Tc, V: ball.V, P: ball.P, y: ball.y, worldX, gatesPassed, starsGot, quizRight, quizTotal, dead: ball.dead, lastReason }; },
+  get obstacles(){ return obstacles; },
+  setHeat, setCool, update, startGame, endGame,
+  pressureAt, volumeOf, yOfV, vRange, radiusOfV
+};
+</script>
+</body>
+</html>
