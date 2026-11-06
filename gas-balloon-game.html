@@ -138,7 +138,7 @@
       <ul>
         <li><b>가열</b> — 스페이스바·↑ 또는 화면(🔥 버튼)을 꾹 누르면 온도가 올라가요. 손을 떼면 천천히 식어요.</li>
         <li><b>냉각</b> — ↓ 키 또는 ❄️ 버튼을 누르면 빠르게 식어요.</li>
-        <li>구름 벽 통과 <b>+100</b>(연속이면 콤보), 별 <b>+30</b>, 퀴즈 관문에서 정답 통로로 지나가면 <b>+300</b>!</li>
+        <li>구름 벽 통과 <b>+100</b>(연속이면 콤보), 별 <b>+30</b>, 퀴즈 관문에서 정답 통로로 지나가면 <b>+300</b>! 퀴즈를 <b>연속 2번</b> 맞히면 <b>💖 생명 +1</b> (최대 5개)</li>
         <li>풍선이 너무 커지면 <b>펑!</b> 터지고, 너무 작아지면 땅으로 떨어져요. 구름 벽·번개구름·새에 부딪혀도 목숨이 줄어요.</li>
       </ul>
       <div class="color-pick" id="color-pick">풍선 색깔</div>
@@ -195,7 +195,7 @@ const V_POP = 2.15, V_CRUSH = 0.6;                // 이보다 크면 터지고,
 const V_TOP = 2.0, V_BOT = 0.62;                  // 이 부피일 때 화면 맨 위/맨 아래 높이
 const Y_TOP = 110, Y_BOT = 600, GROUND = 650;
 const PLAYER_X = 400;
-const LIVES = 3;
+const LIVES = 3, MAX_LIVES = 5;   // 퀴즈 연속 2번 정답마다 생명 +1 (최대 5개)
 const P_LEVELS = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
 
 function volumeOf(Tc, P){ return ((Tc + 273) / T0) / P; }
@@ -296,7 +296,7 @@ function nextQuiz(){
 let zones = [], obstacles = [], stars = [], particles = [], popups = [];
 let worldX = 0, genX = 0, zoneEnd = 0, obstacleCount = 0;
 let phase = "intro";
-let score = 0, lives = LIVES, combo = 0, gatesPassed = 0, starsGot = 0, quizRight = 0, quizTotal = 0;
+let score = 0, lives = LIVES, combo = 0, gatesPassed = 0, starsGot = 0, quizRight = 0, quizTotal = 0, quizStreak = 0, heartsWon = 0;
 let Tc = T_AMB_C, heating = false, cooling = false;
 let ball = { y: 0, vy: 0, V: 1, P: 1, invuln: 0, dead: 0, popped: false };
 let banner = null, activeQuiz = null, shake = 0, playTime = 0, warnT = 0;
@@ -388,7 +388,7 @@ function generate(){
     } else if (r < .3 + d * .15 && obstacleCount > 5){
       // 새 떼
       const y = pickGapY(x, .05);
-      obstacles.push({ type: "bird", x, y, baseY: y, vx: -rand(60, 120), amp: rand(60, 120), ph: Math.random() * TAU, flap: 0, passed: false });
+      obstacles.push({ type: "bird", x, y, vx: -rand(60, 120), flap: 0, passed: false });   // 같은 높이로 곧게 날아옴
       genX += rand(340, 420);
     } else {
       // 구름 벽(틈 하나)
@@ -515,7 +515,7 @@ function update(dt){
       o.ph += o.sp * dt; o.y = o.baseY + Math.sin(o.ph) * o.amp;
       if (ball.invuln <= 0 && Math.hypot(sx - bx, o.y - by) < o.r * .8 + hitR){ loseLife("번개구름에 부딪혔어요!"); return; }
     } else if (o.type === "bird"){
-      o.x += o.vx * dt; o.ph += dt * 2; o.flap += dt * 12; o.y = o.baseY + Math.sin(o.ph) * o.amp;
+      o.x += o.vx * dt; o.flap += dt * 12;
       if (ball.invuln <= 0 && Math.hypot(sx - bx, o.y - by) < 18 + hitR){ loseLife("새와 부딪혔어요!"); return; }
     } else if (o.type === "wall" || o.type === "quiz"){
       const gaps = o.type === "wall" ? [{ y: o.gy, h: o.gh }] : o.gaps;
@@ -526,7 +526,10 @@ function update(dt){
       if (bx + hitR > sx && bx - hitR < sx + o.w){
         // 틈 안에 완전히 들어와 있는지 확인
         const inGap = gaps.findIndex(g => by - hitR > g.y - g.h / 2 && by + hitR < g.y + g.h / 2);
-        if (inGap < 0 && ball.invuln <= 0){ loseLife(o.type === "quiz" ? "관문 벽에 부딪혔어요!" : "구름 벽에 부딪혔어요!"); return; }
+        if (inGap < 0 && ball.invuln <= 0){
+          if (o.type === "quiz"){ quizStreak = 0; quizTotal++; o.passed = true; }
+          loseLife(o.type === "quiz" ? "관문 벽에 부딪혔어요!" : "구름 벽에 부딪혔어요!"); return;
+        }
         if (inGap >= 0) o.lastGap = inGap;
       }
       if (!o.passed && sx + o.w < bx - hitR){
@@ -537,8 +540,16 @@ function update(dt){
           SFX.gate(combo); popup(combo > 1 ? `+${pts} (콤보 x${Math.min(combo, 5)})` : `+${pts}`, "#FFE27A");
         } else if (o.lastGap !== undefined){
           quizTotal++;
-          if (o.lastGap === o.correct){ quizRight++; score += 300; SFX.right(); popup("⭕ 정답! +300", "#7DFFB2"); burst(bx, by, "#7DFFB2", 30, 260); }
-          else { SFX.wrong(); combo = 0; popup(`❌ 정답은 "${o.labels[o.correct]}"`, "#FFB3B3"); }
+          if (o.lastGap === o.correct){
+            quizRight++; quizStreak++; score += 300; SFX.right(); burst(bx, by, "#7DFFB2", 30, 260);
+            if (quizStreak % 2 === 0){
+              // 연속 2번 정답 → 생명 +1 (가득 차 있으면 보너스 점수)
+              if (lives < MAX_LIVES){ lives++; heartsWon++; popup("💖 연속 2번 정답! 생명 +1", "#FF9AC8"); burst(bx, by, "#FF6FA8", 30, 220); }
+              else { score += 200; popup("💖 연속 2번 정답! 생명 가득 +200", "#FF9AC8"); }
+              setTimeout(() => SFX.star(), 250);
+            } else popup("⭕ 정답! +300 · 한 번 더 맞히면 💖", "#7DFFB2");
+          }
+          else { SFX.wrong(); combo = 0; quizStreak = 0; popup(`❌ 정답은 "${o.labels[o.correct]}"`, "#FFB3B3"); }
         }
       }
     }
@@ -751,14 +762,14 @@ function roundRectPath(x, y, w, h, r){
 
 function drawHUD(t){
   // 점수
-  ctx.fillStyle = "rgba(10,20,50,.7)"; roundRectPath(14, 12, 250, 84, 14); ctx.fill();
+  ctx.fillStyle = "rgba(10,20,50,.7)"; roundRectPath(14, 12, 270, 108, 14); ctx.fill();
   ctx.fillStyle = "#FFE27A"; ctx.font = "20px Jua, sans-serif"; ctx.textAlign = "left";
   ctx.fillText("점수", 30, 42);
   ctx.fillStyle = "#fff"; ctx.font = "32px Jua, sans-serif"; ctx.fillText(String(Math.floor(score)), 86, 44);
-  let hearts = ""; for (let i = 0; i < LIVES; i++) hearts += i < lives ? "❤️" : "🖤";
-  ctx.font = "18px sans-serif"; ctx.fillText(hearts, 30, 80);
+  let hearts = ""; for (let i = 0; i < Math.max(LIVES, lives); i++) hearts += i < lives ? "❤️" : "🖤";
+  ctx.font = "18px sans-serif"; ctx.fillText(hearts, 30, 76);
   ctx.font = "16px Jua, sans-serif"; ctx.fillStyle = "#CFE0FF";
-  ctx.fillText(`⭐${starsGot}  ⭕${quizRight}/${quizTotal}${combo > 1 ? `  콤보 x${Math.min(combo, 5)}` : ""}`, 130, 80);
+  ctx.fillText(`⭐${starsGot}  ⭕${quizRight}/${quizTotal}${quizStreak % 2 === 1 ? " 💖까지 1번" : ""}${combo > 1 ? `  콤보 x${Math.min(combo, 5)}` : ""}`, 30, 104);
 
   // 기체 계기판: 압력 · 온도 · 부피
   const px = 14, py = VH - 200, pw = 330, ph = 150;
@@ -969,7 +980,7 @@ function resetWorld(){
 function startGame(){
   audio();
   resetWorld();
-  score = 0; lives = LIVES; combo = 0; gatesPassed = 0; starsGot = 0; quizRight = 0; quizTotal = 0; playTime = 0;
+  score = 0; lives = LIVES; combo = 0; gatesPassed = 0; starsGot = 0; quizRight = 0; quizTotal = 0; quizStreak = 0; heartsWon = 0; playTime = 0;
   ball.invuln = 1.2;
   phase = "play";
   intro.classList.add("hidden"); result.classList.add("hidden");
@@ -986,7 +997,7 @@ function endGame(){
   document.getElementById("final-rank").textContent =
     score >= 6000 ? "🏆 기체 법칙의 달인!" : score >= 3500 ? "🥇 보일·샤를 박사님이에요!" : score >= 2000 ? "🎈 하늘을 자유롭게 날았어요!" : score >= 900 ? "👍 좋아요, 조금만 더!" : "💪 다시 도전해 볼까요?";
   document.getElementById("final-best").textContent = `이 컴퓨터 최고 기록: ${best}점`;
-  document.getElementById("final-detail").textContent = `구름 벽 ${gatesPassed}개 통과 · 별 ${starsGot}개 · 퀴즈 ${quizRight}/${quizTotal} 정답 · 비행 거리 ${(worldX / 10).toFixed(0)} m`;
+  document.getElementById("final-detail").textContent = `구름 벽 ${gatesPassed}개 통과 · 별 ${starsGot}개 · 퀴즈 ${quizRight}/${quizTotal} 정답(💖 ${heartsWon}개 획득) · 비행 거리 ${(worldX / 10).toFixed(0)} m`;
   pendingEntry = { score, gates: gatesPassed, quiz: `${quizRight}/${quizTotal}`, date: localDateStr() };
   document.getElementById("name-form").style.display = "flex";
   document.getElementById("name-input").value = "";
@@ -1002,7 +1013,7 @@ requestAnimationFrame(frame);
 
 // 개발·검증용 훅
 window.__balloon = {
-  get state(){ return { phase, score: Math.floor(score), lives, Tc, V: ball.V, P: ball.P, y: ball.y, worldX, gatesPassed, starsGot, quizRight, quizTotal, dead: ball.dead, lastReason, quizPause }; },
+  get state(){ return { phase, score: Math.floor(score), lives, Tc, V: ball.V, P: ball.P, y: ball.y, worldX, gatesPassed, starsGot, quizRight, quizTotal, dead: ball.dead, lastReason, quizPause, quizStreak, heartsWon }; },
   get obstacles(){ return obstacles; },
   setHeat, setCool, update, startGame, endGame,
   pressureAt, volumeOf, yOfV, vRange, radiusOfV
