@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2B2A27">
+<title>흔들흔들 지진계 — 진도 챌린지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; overflow:hidden; overscroll-behavior:none; }
+  body{
+    background:#2B2A27; color:#2B2A27;
+    font-family:"Jua","Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+    -webkit-user-select:none; user-select:none; touch-action:none;
+  }
+  #paper{ position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+
+  /* 위쪽 바 */
+  .top{
+    position:fixed; left:0; right:0; top:0; z-index:5; padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;
+    display:flex; align-items:center; gap:8px; background:linear-gradient(#2B2A27 70%, rgba(43,42,39,0));
+    color:#FFE7A3; pointer-events:none;
+  }
+  .top .title{ font-size:18px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .top .pill{ font-size:12px; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.12); color:#fff; white-space:nowrap; }
+  .top .pill.on{ background:#2E9E5B; }
+  .top button{ pointer-events:auto; font-family:inherit; font-size:13px; border:none; border-radius:10px; padding:6px 10px; background:#FFE7A3; color:#2B2A27; }
+
+  /* 진행 중 정보 */
+  .hud{
+    position:fixed; left:10px; right:10px; bottom:calc(env(safe-area-inset-bottom) + 10px); z-index:5;
+    display:flex; gap:8px; pointer-events:none;
+  }
+  .hud .box{ flex:1; background:rgba(43,42,39,.86); color:#fff; border-radius:14px; padding:7px 10px; text-align:center; }
+  .hud .lab{ font-size:11px; color:#FFE7A3; }
+  .hud .val{ font-size:22px; font-variant-numeric:tabular-nums; }
+  .hud .val small{ font-size:12px; }
+  .banner{
+    position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 56px); transform:translateX(-50%); z-index:6;
+    background:rgba(43,42,39,.9); color:#fff; border-radius:16px; padding:8px 16px; text-align:center; pointer-events:none;
+    min-width:70%; max-width:94%;
+  }
+  .banner .big{ font-size:26px; color:#FFE7A3; }
+  .banner .small{ font-size:13px; margin-top:2px; line-height:1.4; }
+  .hidden{ display:none !important; }
+
+  /* 메뉴·결과 패널 */
+  .overlay{
+    position:fixed; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; padding:14px;
+    background:rgba(20,18,15,.6); backdrop-filter:blur(3px); touch-action:pan-y;
+  }
+  .panel{
+    width:min(520px,100%); max-height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y;
+    background:#FFFBEF; border:4px solid #2B2A27; border-radius:22px; padding:18px 16px; text-align:center;
+    box-shadow:0 14px 34px rgba(0,0,0,.4);
+  }
+  .panel h1{ font-size:28px; color:#2B2A27; }
+  .panel h2{ font-size:20px; margin-top:12px; color:#2B2A27; }
+  .panel p, .panel li, .panel .note{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; }
+  .panel p{ font-size:13.5px; line-height:1.7; color:#4A4535; margin-top:6px; }
+  .panel b{ color:#C8402E; }
+  .how{ text-align:left; background:#F4ECD6; border-radius:14px; padding:10px 12px; margin-top:10px; font-size:13px; line-height:1.7; color:#4A4535; }
+  .how ol{ padding-left:18px; }
+  .modes{ display:grid; gap:8px; margin-top:12px; }
+  .mode{
+    display:flex; align-items:center; gap:10px; text-align:left; width:100%; cursor:pointer;
+    font-family:inherit; border:3px solid #2B2A27; border-radius:16px; padding:10px 12px; background:#fff;
+  }
+  .mode .ic{ font-size:30px; }
+  .mode .t{ font-size:18px; color:#2B2A27; }
+  .mode .d{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:12px; color:#6B6450; line-height:1.5; margin-top:2px; }
+  .mode:active{ transform:translateY(2px); }
+  .btn{ font-family:inherit; font-size:18px; cursor:pointer; border:none; border-radius:14px; padding:10px 24px; background:#2B2A27; color:#FFE7A3; margin-top:12px; }
+  .btn.ghost{ background:#E9E0C6; color:#2B2A27; }
+  .row{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .score-big{ font-size:56px; color:#C8402E; }
+  .note{ font-size:12px; color:#7A7258; margin-top:6px; line-height:1.6; }
+  table.res{ width:100%; border-collapse:collapse; margin-top:10px; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:13px; }
+  table.res th, table.res td{ border-bottom:1px solid #D9CFAF; padding:6px 4px; }
+  table.res th{ color:#6B6450; font-size:12px; }
+
+  /* 랭킹 */
+  .board-title{ font-size:15px; margin-top:12px; color:#2B2A27; }
+  .board-note{ font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; font-size:11px; color:#7A7258; margin-top:2px; }
+  .name-form{ display:flex; gap:7px; max-width:320px; margin:8px auto 0; }
+  .name-form input{ flex:1; min-width:0; padding:9px 10px; border:2px solid #2B2A27; border-radius:10px; font-family:inherit; font-size:15px; }
+  .name-form button{ font-family:inherit; font-size:15px; border:none; border-radius:10px; padding:9px 14px; background:#2B2A27; color:#FFE7A3; }
+  .board-list{ list-style:none; margin-top:8px; text-align:left; font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif; }
+  .board-row{ display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 10px; border-radius:8px; background:#F4ECD6; margin-top:3px; }
+  .board-row.me{ background:#FFD98A; font-weight:800; }
+  .board-row .rank{ width:22px; text-align:center; font-weight:800; color:#7A7258; }
+  .board-row:nth-child(1) .rank{ color:#D99A1E; } .board-row:nth-child(2) .rank{ color:#9AA3B5; } .board-row:nth-child(3) .rank{ color:#C98A5D; }
+  .board-row .bname{ flex:1; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .board-row .bdate{ font-size:11px; color:#9A9276; }
+  .board-row .bscore{ font-weight:800; color:#C8402E; font-variant-numeric:tabular-nums; }
+  .board-row.empty{ background:transparent; border:1px dashed #D9CFAF; color:#B8AE90; }
+  .tabs{ display:flex; gap:6px; justify-content:center; margin-top:8px; }
+  .tabs button{ font-family:inherit; font-size:13px; border:2px solid #2B2A27; border-radius:10px; padding:5px 10px; background:#fff; }
+  .tabs button.on{ background:#2B2A27; color:#FFE7A3; }
+</style>
+</head>
+<body>
+
+<canvas id="paper" aria-label="지진 기록 종이"></canvas>
+
+<div class="top">
+  <div class="title" id="top-title">📈 흔들흔들 지진계</div>
+  <span class="pill" id="pen-pill">✏️ 펜 없음</span>
+  <span class="pill" id="sensor-pill">📳 센서 꺼짐</span>
+  <button type="button" id="stop-btn" class="hidden">■ 그만</button>
+</div>
+
+<div class="banner hidden" id="banner"><div class="big" id="banner-big"></div><div class="small" id="banner-small"></div></div>
+
+<div class="hud hidden" id="hud">
+  <div class="box"><div class="lab">펜 진폭</div><div class="val" id="h-amp">0<small> mm</small></div></div>
+  <div class="box"><div class="lab">흔들림 진도</div><div class="val" id="h-mmi">Ⅰ</div></div>
+  <div class="box"><div class="lab" id="h-lab3">점수</div><div class="val" id="h-3">0</div></div>
+</div>
+
+<!-- 시작 메뉴 -->
+<div class="overlay" id="menu">
+  <div class="panel">
+    <h1>📈 흔들흔들 지진계</h1>
+    <p>노란 지진계의 종이 대신 <b>휴대폰</b>을, 사인펜 대신 <b>터치펜</b>을 매달아 보세요. 받침대를 흔들면 휴대폰은 같이 움직이지만, 매달린 펜은 <b>관성</b> 때문에 제자리에 있으려 해서 화면에 지진 기록이 그려져요!</p>
+    <div class="how">
+      <ol>
+        <li>휴대폰을 <b>세로로</b> 받침대 위에 올리고 테이프로 살짝 고정해요.</li>
+        <li>터치펜이 화면 <b>가운데쯤</b>에 살짝 닿도록 높이를 맞춰요.</li>
+        <li>게임을 고르고 [시작]을 누른 뒤 손을 떼면 카운트다운 후 시작돼요.</li>
+        <li>받침대를 <b>좌우(화면의 가로 방향)</b>로 흔들어요!</li>
+      </ol>
+    </div>
+    <div class="modes">
+      <button type="button" class="mode" data-mode="mmi"><span class="ic">🎯</span><span><span class="t">진도 맞추기 챌린지</span><span class="d" style="display:block">목표 진도(Ⅳ~Ⅸ)에 딱 맞게 흔들어요. 휴대폰 가속도 센서가 흔들림의 세기를 재요. (5라운드)</span></span></button>
+      <button type="button" class="mode" data-mode="wave"><span class="ic">🌊</span><span><span class="t">지진파 따라 그리기</span><span class="d" style="display:block">내려오는 고요 → P파 → S파 → 표면파 구간의 목표 진폭에 맞춰 흔들어 펜 기록을 맞춰요. (터치펜)</span></span></button>
+      <button type="button" class="mode" data-mode="free"><span class="ic">📜</span><span><span class="t">자유 기록 (진짜 지진계)</span><span class="d" style="display:block">마음껏 흔들며 지진 기록지를 만들고, 최대 진도를 확인하고 그림으로 저장해요.</span></span></button>
+    </div>
+    <p class="note">💡 휴대폰 화면이 꺼지지 않게 해 주세요. 아이폰은 처음에 "동작 및 방향" 접근을 허용해야 진도 맞추기를 할 수 있어요. 컴퓨터에서는 마우스로 끌어서 펜처럼 연습할 수 있어요.</p>
+  </div>
+</div>
+
+<!-- 결과 -->
+<div class="overlay hidden" id="result">
+  <div class="panel">
+    <h1 id="r-title">결과</h1>
+    <div class="score-big" id="r-score">0점</div>
+    <div id="r-msg" style="font-size:18px"></div>
+    <div id="r-detail"></div>
+    <div id="r-board-wrap">
+      <div class="board-title" id="r-board-title">🏆 반 전체 랭킹 TOP 10</div>
+      <div class="board-note" id="r-board-note"></div>
+      <form class="name-form" id="name-form">
+        <input type="text" id="name-input" maxlength="12" placeholder="이름을 입력하세요" autocomplete="off" required>
+        <button type="submit">등록</button>
+      </form>
+      <ul class="board-list" id="r-board"></ul>
+    </div>
+    <div class="row">
+      <button type="button" class="btn" id="r-again">다시 하기</button>
+      <button type="button" class="btn ghost" id="r-save">🖼️ 기록지 저장</button>
+      <button type="button" class="btn ghost" id="r-menu">처음으로</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   기본 설정
+   - 휴대폰을 세로로 놓고, 종이(기록지)는 위에서 아래로 흘러내린다.
+   - 펜(터치) 위치의 가로 변화 = 받침대의 흔들림(반대 방향)
+=========================================================== */
+const $ = id => document.getElementById(id);
+const cv = $("paper"), ctx = cv.getContext("2d");
+let W = 0, H = 0, DPR = 1;
+const PX_PER_MM = 96 / 25.4;          // CSS 1px ≈ 0.26 mm (기기마다 조금 다를 수 있음)
+const SPEED = 70;                     // 종이가 흐르는 속도(px/초)
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rand = (a, b) => a + Math.random() * (b - a);
+
+function resize(){
+  DPR = Math.min(3, window.devicePixelRatio || 1);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener("resize", resize);
+resize();
+const penY = () => Math.round(H * .34);   // 펜이 기록하는 줄(이 위쪽이 앞으로 올 종이)
+
+/* ==========================================================
+   진도(계기진도, 수정 메르칼리 진도 Ⅰ~Ⅻ)
+   최대 지반 가속도(PGA)로 진도를 추정한다 (Wald 외, 1999)
+=========================================================== */
+const ROMAN = ["", "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ", "Ⅺ", "Ⅻ"];
+const MMI_DESC = {
+  1: "대부분 느끼지 못해요",
+  2: "조용히 쉬고 있는 몇 사람만 느껴요",
+  3: "실내, 특히 건물 위층에서 뚜렷하게 느껴요",
+  4: "실내의 많은 사람이 느끼고 그릇·창문이 흔들려요",
+  5: "거의 모든 사람이 느끼고 그릇·창문이 깨지기도 해요",
+  6: "모든 사람이 느끼고 무거운 가구가 움직이기도 해요",
+  7: "서 있기 어렵고 부실한 건물은 피해를 입어요",
+  8: "일반 건물도 피해가 크고 부분적으로 무너져요",
+  9: "잘 지은 건물도 큰 피해, 땅에 금이 가요",
+  10: "대부분의 건물이 무너져요"
+};
+function mmiFromPGA(ms2){              // 가속도(m/s²) → 진도(소수)
+  const gal = Math.max(ms2 * 100, .01);
+  let m = 3.66 * Math.log10(gal) - 1.66;
+  if (m < 5) m = 2.20 * Math.log10(gal) + 1.0;
+  return clamp(m, 1, 12);
+}
+const mmiLevel = m => clamp(Math.round(m), 1, 12);
+
+/* ==========================================================
+   소리
+=========================================================== */
+let actx = null;
+function audio(){ try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch (e) {} return actx; }
+function tone(f, d, type = "sine", v = .15){
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + d);
+  o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + d);
+}
+const vib = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+/* ==========================================================
+   입력 1: 터치펜(포인터) — 첫 번째 접촉만 펜으로 사용
+=========================================================== */
+const pen = { id: null, x: 0, y: 0, down: false, lastT: 0 };
+cv.addEventListener("pointerdown", e => {
+  e.preventDefault();
+  if (pen.id !== null && pen.down) return;   // 손바닥 등 두 번째 접촉은 무시
+  pen.id = e.pointerId; pen.down = true; pen.x = e.clientX; pen.y = e.clientY; pen.lastT = performance.now();
+  try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+});
+cv.addEventListener("pointermove", e => {
+  if (e.pointerId !== pen.id || !pen.down) return;
+  e.preventDefault();
+  pen.x = e.clientX; pen.y = e.clientY; pen.lastT = performance.now();
+});
+function penUp(e){ if (e.pointerId === pen.id){ pen.down = false; pen.id = null; } }
+cv.addEventListener("pointerup", penUp);
+cv.addEventListener("pointercancel", penUp);
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("touchmove", e => { if (!e.target.closest(".panel")) e.preventDefault(); }, { passive: false });
+
+/* ==========================================================
+   입력 2: 가속도 센서 (휴대폰을 눕혀 둔 상태에서 가로·세로 방향 흔들림)
+=========================================================== */
+const sensor = { ok: false, asked: false, a: 0, hist: [], grav: { x: 0, y: 0, z: 0 } };
+function onMotion(e){
+  let ax, ay;
+  if (e.acceleration && e.acceleration.x !== null){ ax = e.acceleration.x; ay = e.acceleration.y; }
+  else if (e.accelerationIncludingGravity){
+    // 중력 성분을 걸러 내고(고역 통과) 흔들림만 남김
+    const g = e.accelerationIncludingGravity, k = .9;
+    sensor.grav.x = k * sensor.grav.x + (1 - k) * g.x; sensor.grav.y = k * sensor.grav.y + (1 - k) * g.y;
+    ax = g.x - sensor.grav.x; ay = g.y - sensor.grav.y;
+  } else return;
+  const a = Math.hypot(ax || 0, ay || 0);
+  sensor.hist.push(a); if (sensor.hist.length > 3) sensor.hist.shift();
+  sensor.a = sensor.hist.reduce((s, v) => s + v, 0) / sensor.hist.length;   // 순간 잡음 줄이기
+  if (!sensor.ok){ sensor.ok = true; updatePills(); }
+}
+async function enableSensor(){
+  if (sensor.asked) return sensor.ok;
+  sensor.asked = true;
+  try {
+    if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function"){
+      const r = await DeviceMotionEvent.requestPermission();
+      if (r !== "granted") return false;
+    }
+    window.addEventListener("devicemotion", onMotion);
+  } catch (e) { return false; }
+  await new Promise(r => setTimeout(r, 400));
+  return sensor.ok;
+}
+
+// 화면 꺼짐 방지
+let wakeLock = null;
+async function keepAwake(){ try { if ("wakeLock" in navigator && !wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && wakeLock) { wakeLock = null; keepAwake(); } });
+
+function updatePills(){
+  $("pen-pill").textContent = pen.down ? "✏️ 펜 닿음" : "✏️ 펜 없음";
+  $("pen-pill").classList.toggle("on", pen.down);
+  $("sensor-pill").textContent = sensor.ok ? "📳 센서 켜짐" : "📳 센서 꺼짐";
+  $("sensor-pill").classList.toggle("on", sensor.ok);
+}
+
+/* ==========================================================
+   기록지(종이) 데이터
+   s = 종이가 흐른 거리(px). 펜 줄(penY)에서 s를 기록하고, 위쪽(미래)은 아직 안 온 종이.
+=========================================================== */
+let trace = [];        // { s, x, down, z }  z: 그 순간의 흔들림 가속도
+let s = 0, x0 = 0, running = false, mode = null, phase = "menu";
+let counting = 0, countLabel = "";
+let maxAmp = 0, maxMMI = 1, peakA = 0;
+
+/* ---------- 지진파 따라 그리기: 구간(목표 진폭 mm) ---------- */
+let WAVE = [];
+function buildWave(){
+  const j = () => rand(.9, 1.1);
+  WAVE = [
+    { name: "고요", sub: "펜이 흔들리지 않게 가만히!", sec: 3, lo: 0, hi: 2.5, color: "#7CB342" },
+    { name: "P파 도착", sub: "작고 빠르게 흔들기", sec: 4, lo: 3 * j(), hi: 10 * j(), color: "#29B6F6" },
+    { name: "S파 도착", sub: "크게 흔들기!", sec: 4.5, lo: 14 * j(), hi: 30 * j(), color: "#EF5350" },
+    { name: "표면파", sub: "중간 크기로 길게 흔들기", sec: 4, lo: 7 * j(), hi: 18 * j(), color: "#AB47BC" },
+    { name: "다시 고요", sub: "흔들림을 멈춰요", sec: 3, lo: 0, hi: 2.5, color: "#7CB342" }
+  ];
+  let start = 0;
+  for (const w of WAVE){ w.s0 = start; w.s1 = start + w.sec * SPEED; start = w.s1; }
+}
+const waveAt = ss => WAVE.find(w => ss >= w.s0 && ss < w.s1);
+let waveWin = [], waveGood = 0, waveTotal = 0, waveBySec = {};
+
+/* ---------- 진도 맞추기 ---------- */
+const MMI_ROUNDS = 5;
+let mmiRound = 0, mmiTarget = 0, mmiState = "", mmiT = 0, mmiPeak = 0, mmiResults = [], mmiScore = 0;
+
+/* ==========================================================
+   그리기
+=========================================================== */
+function drawPaper(){
+  // 기록지 바탕(아이보리) + mm 모눈
+  ctx.fillStyle = "#FBF6E6"; ctx.fillRect(0, 0, W, H);
+  const step = PX_PER_MM * 5;             // 5 mm 모눈
+  const off = (s % step);
+  ctx.lineWidth = 1;
+  for (let y = penY() + off - step * Math.ceil(H / step); y < H; y += step){
+    ctx.strokeStyle = "rgba(200,170,110,.25)";
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  const cx = x0 || W / 2;
+  for (let i = -20; i <= 20; i++){
+    const x = cx + i * step;
+    if (x < 0 || x > W) continue;
+    ctx.strokeStyle = i === 0 ? "rgba(120,90,40,.55)" : i % 2 === 0 ? "rgba(200,170,110,.35)" : "rgba(200,170,110,.18)";
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  // 1초 눈금(시간)
+  ctx.fillStyle = "rgba(120,90,40,.55)"; ctx.font = "11px Pretendard, sans-serif"; ctx.textAlign = "left";
+  const sec0 = Math.floor(s / SPEED);
+  for (let k = sec0 - 20; k <= sec0 + 20; k++){
+    if (k < 0) continue;
+    const y = penY() + (s - k * SPEED);
+    if (y < 40 || y > H) continue;
+    ctx.fillRect(0, y - .5, 8, 1);
+    if (k % 2 === 0) ctx.fillText(k + "s", 10, y + 4);
+  }
+}
+
+function drawWaveBands(){
+  const cx = x0;
+  for (const w of WAVE){
+    const yTop = penY() - (w.s1 - s), yBot = penY() - (w.s0 - s);
+    if (yBot < 0 || yTop > H) continue;
+    const y0 = Math.max(0, yTop), y1 = Math.min(H, yBot);
+    const lo = w.lo * PX_PER_MM, hi = w.hi * PX_PER_MM;
+    // 허용 구간(초록) · 넘으면 안 되는 바깥(빨강)
+    ctx.fillStyle = "rgba(220,60,40,.10)";
+    ctx.fillRect(0, y0, cx - hi, y1 - y0); ctx.fillRect(cx + hi, y0, W - cx - hi, y1 - y0);
+    ctx.fillStyle = hexA(w.color, .22);
+    ctx.fillRect(cx - hi, y0, hi - lo, y1 - y0); ctx.fillRect(cx + lo, y0, hi - lo, y1 - y0);
+    if (lo === 0){ ctx.fillRect(cx - hi, y0, hi * 2, y1 - y0); }
+    ctx.strokeStyle = hexA(w.color, .9); ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+    ctx.beginPath(); ctx.moveTo(cx - hi, y0); ctx.lineTo(cx - hi, y1); ctx.moveTo(cx + hi, y0); ctx.lineTo(cx + hi, y1); ctx.stroke();
+    if (lo > 0){ ctx.beginPath(); ctx.moveTo(cx - lo, y0); ctx.lineTo(cx - lo, y1); ctx.moveTo(cx + lo, y0); ctx.lineTo(cx + lo, y1); ctx.stroke(); }
+    ctx.setLineDash([]);
+    // 구간 이름(앞으로 올 구간의 시작 부분에)
+    if (yBot > 60 && yBot < H){
+      ctx.fillStyle = w.color; ctx.font = "bold 15px Jua, sans-serif"; ctx.textAlign = "right";
+      ctx.fillText(`${w.name} ${w.lo ? w.lo.toFixed(0) + "~" : "~"}${w.hi.toFixed(0)}mm`, W - 8, Math.max(yTop + 18, Math.min(yBot - 6, H - 80)));
+    }
+  }
+}
+function hexA(hex, a){ const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+
+function drawTrace(){
+  // 흔들림 세기(가속도) 띠: 기록 옆에 연한 막대로
+  ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.strokeStyle = "#1F3A93";
+  ctx.beginPath();
+  let drawing = false;
+  for (let i = 0; i < trace.length; i++){
+    const p = trace[i];
+    const y = penY() + (s - p.s);
+    if (y > H + 20){ drawing = false; continue; }
+    if (!p.down){ drawing = false; continue; }
+    if (!drawing){ ctx.moveTo(p.x, y); drawing = true; } else ctx.lineTo(p.x, y);
+  }
+  ctx.stroke();
+  if (sensor.ok){
+    ctx.fillStyle = "rgba(200,64,46,.35)";
+    for (const p of trace){
+      const y = penY() + (s - p.s);
+      if (y > H || !p.z) continue;
+      const w = Math.min(40, p.z * 4);
+      ctx.fillRect(W - 6 - w, y, w, 2);
+    }
+  }
+}
+
+function drawPenLine(){
+  const y = penY();
+  ctx.strokeStyle = "rgba(43,42,39,.55)"; ctx.lineWidth = 1.5; ctx.setLineDash([4, 6]);
+  ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); ctx.setLineDash([]);
+  // 펜 끝 표시
+  if (pen.down){
+    ctx.fillStyle = "rgba(200,64,46,.25)"; ctx.beginPath(); ctx.arc(pen.x, pen.y, 22, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#C8402E"; ctx.beginPath(); ctx.arc(pen.x, pen.y, 5, 0, Math.PI * 2); ctx.fill();
+  } else if (phase !== "menu"){
+    ctx.fillStyle = "rgba(43,42,39,.45)"; ctx.font = "16px Jua, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("✏️ 터치펜을 화면에 닿게 해 주세요", W / 2, y - 12);
+  }
+  // 기준선(펜이 쉬는 위치)
+  if (x0){
+    ctx.fillStyle = "#2B2A27"; ctx.beginPath();
+    ctx.moveTo(x0, y + 4); ctx.lineTo(x0 - 6, y + 14); ctx.lineTo(x0 + 6, y + 14); ctx.fill();
+  }
+}
+
+/* ==========================================================
+   진행
+=========================================================== */
+let lastNow = performance.now();
+function frame(now){
+  const dt = clamp((now - lastNow) / 1000, 0, .05); lastNow = now;
+  updatePills();
+
+  if (counting > 0){
+    counting -= dt;
+    // 카운트다운 동안 펜이 닿아 있으면 그 위치를 기준선(0점)으로
+    if (pen.down) x0 = x0 ? x0 * .9 + pen.x * .1 : pen.x;
+    setBanner(Math.ceil(counting) + "", countLabel);
+    if (Math.ceil(counting) !== Math.ceil(counting + dt)) tone(660, .12, "square", .08);
+    if (counting <= 0){ tone(990, .25, "square", .1); vib(120); if (!x0) x0 = W / 2; begin(); }
+  } else if (running){
+    s += SPEED * dt;
+    const amp = pen.down ? Math.abs(pen.x - x0) / PX_PER_MM : 0;
+    trace.push({ s, x: pen.down ? pen.x : x0, down: pen.down, z: sensor.ok ? sensor.a : 0 });
+    if (trace.length > 4000) trace.splice(0, trace.length - 4000);
+    if (pen.down) maxAmp = Math.max(maxAmp, amp);
+    peakA = Math.max(peakA * Math.pow(.25, dt), sensor.a);           // 최근 흔들림의 최대값(서서히 줄어듦)
+    const mmiNow = sensor.ok ? mmiFromPGA(peakA) : 1;
+    if (sensor.ok) maxMMI = Math.max(maxMMI, mmiFromPGA(sensor.a));
+    $("h-amp").innerHTML = `${amp.toFixed(1)}<small> mm</small>`;
+    $("h-mmi").textContent = sensor.ok ? ROMAN[mmiLevel(mmiNow)] : "—";
+    if (mode === "wave") stepWave(dt, amp);
+    else if (mode === "mmi") stepMMI(dt);
+    else { $("h-3").innerHTML = `${(s / SPEED).toFixed(0)}<small> 초</small>`; }
+  }
+
+  drawPaper();
+  if (mode === "wave" && phase !== "menu") drawWaveBands();
+  drawTrace();
+  drawPenLine();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+function setBanner(big, small){
+  $("banner").classList.remove("hidden");
+  $("banner-big").textContent = big; $("banner-small").textContent = small || "";
+}
+function hideBanner(){ $("banner").classList.add("hidden"); }
+
+/* ---------- 지진파 따라 그리기 ---------- */
+function stepWave(dt, amp){
+  const w = waveAt(s);
+  if (!w){ finishWave(); return; }
+  setBanner(w.name, `${w.sub} · 목표 ${w.lo ? w.lo.toFixed(0) + "~" : "0~"}${w.hi.toFixed(0)} mm`);
+  // 0.5초 창마다 최대 진폭이 목표 범위에 드는지 확인
+  waveWin.push(pen.down ? amp : -1);
+  if (waveWin.length * dt >= .5 || waveWin.length > 40){
+    const lifted = waveWin.some(a => a < 0);
+    const m = Math.max(...waveWin.map(a => Math.max(a, 0)));
+    const ok = !lifted && m >= w.lo && m <= w.hi;
+    waveTotal++; if (ok) waveGood++;
+    const key = w.name; waveBySec[key] = waveBySec[key] || { good: 0, total: 0, lo: w.lo, hi: w.hi };
+    waveBySec[key].total++; if (ok) waveBySec[key].good++;
+    waveWin = [];
+    if (ok) tone(880, .05, "sine", .05); else vib(30);
+  }
+  $("h-lab3").textContent = "성공률";
+  $("h-3").innerHTML = `${waveTotal ? Math.round(waveGood / waveTotal * 100) : 0}<small>%</small>`;
+}
+function finishWave(){
+  running = false; hideBanner();
+  const pct = waveTotal ? Math.round(waveGood / waveTotal * 100) : 0;
+  const rows = Object.entries(waveBySec).map(([k, v]) =>
+    `<tr><td>${k}</td><td>${v.lo.toFixed(0)}~${v.hi.toFixed(0)} mm</td><td>${Math.round(v.good / v.total * 100)}%</td></tr>`).join("");
+  showResult({
+    title: "🌊 지진파 따라 그리기 결과", score: pct, unit: "%",
+    msg: pct >= 85 ? "🏆 지진계 장인이에요!" : pct >= 65 ? "🥇 지진파를 잘 표현했어요!" : pct >= 40 ? "👍 좋아요, 한 번 더!" : "💪 흔드는 세기를 조절해 보세요",
+    detail: `<table class="res"><tr><th>구간</th><th>목표 진폭</th><th>성공</th></tr>${rows}</table><p class="note">P파는 S파보다 먼저 도착하고 진폭이 작아요. 기록지에서 진폭이 갑자기 커지는 곳이 S파가 도착한 때예요.</p>`,
+    board: "wave"
+  });
+}
+
+/* ---------- 진도 맞추기 ---------- */
+function nextMMIRound(){
+  mmiRound++;
+  mmiTarget = [4, 5, 6, 7, 8, 9][Math.floor(Math.random() * 6)];
+  mmiState = "ready"; mmiT = 2.2; mmiPeak = 0;
+}
+function stepMMI(dt){
+  if (!sensor.ok){ setBanner("📳 센서가 없어요", "휴대폰에서 열어야 진도를 잴 수 있어요"); return; }
+  mmiT -= dt;
+  if (mmiState === "ready"){
+    setBanner(`목표 진도 ${ROMAN[mmiTarget]}`, `${MMI_DESC[mmiTarget]} · ${Math.ceil(mmiT)}초 뒤 흔들기!`);
+    if (mmiT <= 0){ mmiState = "shake"; mmiT = 3; tone(990, .2, "square", .1); vib(80); }
+  } else if (mmiState === "shake"){
+    mmiPeak = Math.max(mmiPeak, sensor.a);
+    setBanner(`흔들어! 목표 ${ROMAN[mmiTarget]}`, `지금 진도 ${ROMAN[mmiLevel(mmiFromPGA(mmiPeak))]} · 남은 시간 ${mmiT.toFixed(1)}초`);
+    if (mmiT <= 0){
+      const got = mmiFromPGA(mmiPeak);
+      const diff = Math.abs(got - mmiTarget);
+      const pts = Math.max(0, Math.round(100 - diff * 45));
+      mmiScore += pts;
+      mmiResults.push({ target: mmiTarget, got, pts, pga: mmiPeak });
+      mmiState = "rest"; mmiT = 2.2;
+      tone(pts >= 80 ? 1046 : pts >= 40 ? 784 : 330, .3, "triangle", .12);
+      setBanner(`${pts >= 80 ? "🎯 딱 맞았어요!" : pts >= 40 ? "👍 아깝다!" : "😮 많이 달라요"} +${pts}`, `목표 ${ROMAN[mmiTarget]} · 내 흔들림 진도 ${got.toFixed(1)} (${ROMAN[mmiLevel(got)]}) · 최대 가속도 ${(mmiPeak / 9.81).toFixed(2)} g`);
+    }
+  } else if (mmiState === "rest"){
+    if (mmiT <= 0){ if (mmiRound >= MMI_ROUNDS) finishMMI(); else nextMMIRound(); }
+  }
+  $("h-lab3").textContent = `점수 (${Math.min(mmiRound, MMI_ROUNDS)}/${MMI_ROUNDS})`;
+  $("h-3").textContent = mmiScore;
+}
+function finishMMI(){
+  running = false; hideBanner();
+  const rows = mmiResults.map((r, i) => `<tr><td>${i + 1}</td><td>${ROMAN[r.target]}</td><td>${r.got.toFixed(1)} (${ROMAN[mmiLevel(r.got)]})</td><td>${(r.pga / 9.81).toFixed(2)} g</td><td>${r.pts}</td></tr>`).join("");
+  showResult({
+    title: "🎯 진도 맞추기 결과", score: mmiScore, unit: "점",
+    msg: mmiScore >= 420 ? "🏆 지진 흔들기의 달인!" : mmiScore >= 320 ? "🥇 진도를 잘 조절했어요!" : mmiScore >= 200 ? "👍 좋아요!" : "💪 다시 도전해 볼까요?",
+    detail: `<table class="res"><tr><th>#</th><th>목표</th><th>내 진도</th><th>최대 가속도</th><th>점수</th></tr>${rows}</table><p class="note">진도는 어느 장소가 얼마나 흔들렸는지를 나타내요(장소마다 달라요). 규모는 지진 자체의 에너지 크기예요(지진마다 하나). 여기서는 휴대폰이 느낀 최대 가속도로 계기진도를 추정했어요.</p>`,
+    board: "mmi"
+  });
+}
+
+/* ==========================================================
+   시작 · 끝
+=========================================================== */
+async function startMode(m){
+  audio(); keepAwake();
+  mode = m;
+  if (m === "mmi"){
+    const ok = await enableSensor();
+    if (!ok){
+      alert("휴대폰의 가속도 센서를 사용할 수 없어요.\n휴대폰에서 열고, 아이폰이라면 '동작 및 방향' 접근을 허용해 주세요.\n(지진파 따라 그리기·자유 기록은 터치펜만으로 할 수 있어요)");
+      return;
+    }
+  } else enableSensor();   // 있으면 함께 표시
+  $("menu").classList.add("hidden"); $("result").classList.add("hidden");
+  $("hud").classList.remove("hidden"); $("stop-btn").classList.remove("hidden");
+  trace = []; s = 0; x0 = 0; maxAmp = 0; maxMMI = 1; peakA = 0;
+  waveWin = []; waveGood = 0; waveTotal = 0; waveBySec = {};
+  mmiRound = 0; mmiResults = []; mmiScore = 0;
+  if (m === "wave") buildWave(); else WAVE = [];
+  $("top-title").textContent = m === "mmi" ? "🎯 진도 맞추기" : m === "wave" ? "🌊 지진파 따라 그리기" : "📜 자유 기록";
+  $("h-lab3").textContent = m === "free" ? "기록 시간" : m === "wave" ? "성공률" : "점수";
+  phase = "count"; counting = 5;
+  countLabel = "손을 떼고 펜을 화면에 닿게 해 두세요 (기준선을 맞춰요)";
+}
+function begin(){
+  phase = "run"; running = true; hideBanner();
+  if (mode === "mmi") nextMMIRound();
+}
+function stopNow(){
+  if (phase === "count"){ counting = 0; phase = "menu"; backToMenu(); return; }
+  if (!running) return;
+  if (mode === "free"){
+    running = false;
+    showResult({
+      title: "📜 나의 지진 기록", score: maxAmp.toFixed(1), unit: " mm",
+      msg: `최대 펜 진폭 · 최대 진도 ${sensor.ok ? ROMAN[mmiLevel(maxMMI)] : "—"}`,
+      detail: `<p>기록 시간 ${(s / SPEED).toFixed(1)}초. ${sensor.ok ? `최대 흔들림 진도 <b>${ROMAN[mmiLevel(maxMMI)]}</b> — ${MMI_DESC[Math.min(10, mmiLevel(maxMMI))]}.` : "휴대폰 센서가 꺼져 있어 진도는 재지 못했어요."}</p><p class="note">지진계의 추(펜)는 관성 때문에 제자리에 있고, 땅(받침대)만 흔들려서 기록이 그려져요. [기록지 저장]으로 그림을 저장할 수 있어요.</p>`,
+      board: null
+    });
+  } else if (mode === "wave") finishWave();
+  else if (mode === "mmi"){ if (mmiResults.length) finishMMI(); else { running = false; backToMenu(); } }
+}
+function backToMenu(){
+  running = false; phase = "menu"; mode = null; hideBanner();
+  $("menu").classList.remove("hidden"); $("result").classList.add("hidden");
+  $("hud").classList.add("hidden"); $("stop-btn").classList.add("hidden");
+  $("top-title").textContent = "📈 흔들흔들 지진계";
+}
+let lastResult = null;
+function showResult(r){
+  lastResult = r; phase = "result";
+  $("hud").classList.add("hidden"); $("stop-btn").classList.add("hidden");
+  $("r-title").textContent = r.title;
+  $("r-score").textContent = r.score + r.unit;
+  $("r-msg").textContent = r.msg;
+  $("r-detail").innerHTML = r.detail;
+  $("r-board-wrap").classList.toggle("hidden", !r.board);
+  if (r.board){
+    pendingEntry = { board: r.board, score: Number(r.score), date: localDateStr() };
+    $("name-form").style.display = "flex"; $("name-input").value = "";
+    renderBoard(r.board, null);
+  }
+  $("result").classList.remove("hidden");
+  $("result").querySelector(".panel").scrollTop = 0;
+}
+document.querySelectorAll(".mode").forEach(b => b.addEventListener("click", () => startMode(b.dataset.mode)));
+$("stop-btn").addEventListener("click", stopNow);
+$("r-again").addEventListener("click", () => startMode(lastResult && lastResult.board === "mmi" ? "mmi" : lastResult && lastResult.board === "wave" ? "wave" : "free"));
+$("r-menu").addEventListener("click", backToMenu);
+$("r-save").addEventListener("click", saveImage);
+
+// 기록지를 그림(PNG)으로 저장
+function saveImage(){
+  const len = Math.max(s, 10), h = Math.min(Math.ceil(len) + 120, 8000);
+  const c = document.createElement("canvas"); c.width = W * 2; c.height = h * 2;
+  const g = c.getContext("2d"); g.scale(2, 2);
+  g.fillStyle = "#FBF6E6"; g.fillRect(0, 0, W, h);
+  g.strokeStyle = "rgba(200,170,110,.35)"; g.lineWidth = 1;
+  const step = PX_PER_MM * 5;
+  for (let y = 0; y < h; y += step){ g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+  for (let x = (x0 % step); x < W; x += step){ g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+  g.strokeStyle = "rgba(120,90,40,.6)"; g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0, h); g.stroke();
+  g.fillStyle = "#2B2A27"; g.font = "16px sans-serif";
+  g.fillText(`흔들흔들 지진계 기록 · ${new Date().toLocaleString("ko-KR")} · 최대 진폭 ${maxAmp.toFixed(1)} mm`, 8, 22);
+  g.strokeStyle = "#1F3A93"; g.lineWidth = 2.4; g.lineJoin = "round"; g.beginPath();
+  let on = false;
+  for (const p of trace){
+    const y = 50 + p.s;      // 시간 순서대로 위에서 아래로
+    if (!p.down){ on = false; continue; }
+    if (!on){ g.moveTo(p.x, y); on = true; } else g.lineTo(p.x, y);
+  }
+  g.stroke();
+  const a = document.createElement("a");
+  a.download = "지진기록지.png"; a.href = c.toDataURL("image/png"); a.click();
+}
+
+/* ==========================================================
+   반 전체 공유 랭킹 (아화중 쉬어가는 게임 랭킹 스프레드시트)
+=========================================================== */
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+const BOARDS = {
+  mmi:  { sheet: "지진계_진도맞추기", key: "science-seismo-mmi", unit: "점" },
+  wave: { sheet: "지진계_지진파", key: "science-seismo-wave", unit: "%" }
+};
+let pendingEntry = null;
+function localDateStr(){ const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function fmtDate(v){ if (!v) return ""; const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/); if (m) return `${+m[2]}.${+m[3]}`; const t = new Date(v); return isNaN(t) ? "" : `${t.getMonth() + 1}.${t.getDate()}`; }
+function loadLocal(b){ try { const r = JSON.parse(localStorage.getItem(BOARDS[b].key) || "[]"); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
+function saveLocal(b, list){ try { localStorage.setItem(BOARDS[b].key, JSON.stringify(list)); } catch (e) {} }
+async function fetchShared(b){
+  try {
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(BOARDS[b].sheet));
+    if (!res.ok) throw new Error(res.status);
+    const rows = await res.json();
+    return rows.map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), date: r.date || r.timestamp })).filter(r => r.name && !isNaN(r.score));
+  } catch (e) { return null; }
+}
+function drawBoard(b, list, hi){
+  const el = $("r-board"); el.innerHTML = "";
+  for (let i = 0; i < 10; i++){
+    const e = list[i], li = document.createElement("li");
+    if (!e){ li.className = "board-row empty"; li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname">—</span>`; el.appendChild(li); continue; }
+    li.className = "board-row" + (hi && e.name === hi.name && e.score === hi.score ? " me" : "");
+    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bdate">${fmtDate(e.date)}</span><span class="bscore">${e.score}${BOARDS[b].unit}</span>`;
+    li.querySelector(".bname").textContent = e.name;
+    el.appendChild(li);
+  }
+}
+async function renderBoard(b, hi){
+  $("r-board-title").textContent = `🏆 반 전체 랭킹 TOP 10 · ${b === "mmi" ? "진도 맞추기" : "지진파 따라 그리기"}`;
+  const local = loadLocal(b).sort((x, y) => y.score - x.score);
+  drawBoard(b, local, hi);
+  $("r-board-note").textContent = "🌐 반 전체 랭킹을 불러오는 중...";
+  const shared = await fetchShared(b);
+  if (shared){
+    if (hi && !shared.some(e => e.name === hi.name && e.score === hi.score)) shared.push(hi);
+    shared.sort((x, y) => y.score - x.score); saveLocal(b, shared.slice(0, 10));
+    drawBoard(b, shared, hi); $("r-board-note").textContent = "🌐 반 전체가 함께 보는 공유 랭킹이에요.";
+  } else $("r-board-note").textContent = "⚠️ 공유 랭킹을 불러오지 못해 이 기기 기록만 보여 주고 있어요.";
+}
+$("name-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("name-input").value.trim();
+  if (!name || !pendingEntry) return;
+  const b = pendingEntry.board, entry = { name, score: pendingEntry.score, date: pendingEntry.date };
+  const local = loadLocal(b); local.push(entry); local.sort((x, y) => y.score - x.score); saveLocal(b, local.slice(0, 10));
+  drawBoard(b, local, entry);
+  $("name-form").style.display = "none";
+  try {
+    await fetch(LEADERBOARD_WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ worksheet: BOARDS[b].sheet, name, score: String(entry.score), date: entry.date }) });
+  } catch (err) {}
+  setTimeout(() => renderBoard(b, entry), 1200);
+});
+
+// 개발·검증용 훅
+window.__seismo = {
+  get state(){ return { phase, mode, running, s, x0, maxAmp, waveGood, waveTotal, mmiRound, mmiScore, mmiTarget, mmiState, sensor: sensor.ok, counting }; },
+  fakeMotion(a){ sensor.ok = true; sensor.a = a; },
+  skipCount(){ counting = 0.001; },
+  startMode, mmiFromPGA
+};
+</script>
+</body>
+</html>
