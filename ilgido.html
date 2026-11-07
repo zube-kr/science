@@ -123,6 +123,16 @@
   .tool.stamp-h{ color:#1F5FD0; } .tool.stamp-l{ color:#D33A2C; }
   .tool.stamp-h.on{ background:#1F5FD0; color:#fff; } .tool.stamp-l.on{ background:#D33A2C; color:#fff; }
   .sep{ width:1px; height:26px; background:var(--line); }
+  .ptabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .ptab{
+    font:inherit; font-size:14px; font-weight:800; border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:12px; padding:8px 14px; cursor:pointer; text-align:left; line-height:1.3;
+  }
+  .ptab small{ display:block; font-size:11.5px; font-weight:600; color:var(--ink-soft); }
+  .ptab.on{ background:var(--brand); border-color:var(--brand); color:#fff; }
+  .ptab.on small{ color:#FCE4EC; }
+  .pdesc{ background:var(--brand-soft); border-radius:12px; padding:10px 14px; font-size:13.5px; margin-bottom:12px; }
+  .pdesc span{ color:var(--ink-soft); }
   .map-wrap{
     position:relative; width:100%; aspect-ratio:900 / 720; border-radius:14px; overflow:hidden;
     border:3px solid #2F6FDB; background:var(--sea); touch-action:none;
@@ -293,6 +303,7 @@
       <li>등압선은 서로 만나거나 갈라지지 않고, 기압 값이 그보다 큰 곳과 작은 곳 사이를 지나간다.</li>
       <li>등압선이 닫힌 곡선으로 둘러싸인 곳 중 주변보다 기압이 높은 곳에 <b>H(고기압)</b>, 낮은 곳에 <b>L(저기압)</b> 도장을 찍는다.</li>
     </ol>
+    <div id="mainBoard">
     <div class="toolbar">
       <button type="button" class="tool on" data-tool="pen" data-color="#1F2733"><span class="sw" style="background:#1F2733"></span>검정 펜</button>
       <button type="button" class="tool" data-tool="pen" data-color="#2F6FDB"><span class="sw" style="background:#2F6FDB"></span>파랑 펜</button>
@@ -302,22 +313,59 @@
       <button type="button" class="tool stamp-h" data-tool="H">H 고기압</button>
       <button type="button" class="tool stamp-l" data-tool="L">L 저기압</button>
       <span class="sep"></span>
-      <button type="button" class="tool" id="undoBtn">↶ 되돌리기</button>
-      <button type="button" class="tool" id="clearBtn">🗑 모두 지우기</button>
+      <button type="button" class="tool" data-act="undo">↶ 되돌리기</button>
+      <button type="button" class="tool" data-act="clear">🗑 모두 지우기</button>
       <span class="sep"></span>
-      <button type="button" class="tool" id="answerBtn">👀 정답 등압선 보기</button>
-      <button type="button" class="tool" id="saveBtn">💾 그림 저장</button>
+      <button type="button" class="tool" data-act="answer">👀 정답 등압선 보기</button>
+      <button type="button" class="tool" data-act="save">💾 그림 저장</button>
     </div>
-    <div class="map-wrap" id="mapWrap">
-      <svg id="mapSvg" viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg"></svg>
-      <svg id="answerSvg" viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg" style="display:none;pointer-events:none"></svg>
-      <canvas id="drawCanvas"></canvas>
+    <div class="map-wrap">
+      <svg class="map-svg" viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg class="answer-svg" viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg" style="display:none;pointer-events:none"></svg>
+      <canvas></canvas>
     </div>
     <div class="legend-line">
-      <span>관측소 기호: 동그라미(구름의 양) · 깃대(풍향·풍속) · 숫자(기압 뒤 두 자리) · 초록 점(비)</span>
+      <span>관측소 기호: 동그라미(구름의 양) · 깃대(풍향·풍속) · 숫자(기압 뒤 두 자리) · 초록 점(비)·별표(눈)</span>
     </div>
-    <button type="button" class="check-btn" id="checkMap">H·L 위치 확인</button>
-    <div class="map-check" id="mapFb">고기압(H)과 저기압(L) 도장을 찍은 뒤 <b>H·L 위치 확인</b>을 눌러 보세요. 등압선은 <b>정답 등압선 보기</b>로 내가 그린 것과 비교할 수 있어요.</div>
+    <button type="button" class="check-btn" data-act="check">H·L 위치 확인</button>
+    <div class="map-check">고기압(H)과 저기압(L) 도장을 찍은 뒤 <b>H·L 위치 확인</b>을 눌러 보세요. 등압선은 <b>정답 등압선 보기</b>로 내가 그린 것과 비교할 수 있어요.</div>
+    </div>
+  </section>
+
+
+  <!-- 5-1. 연습 일기도 -->
+  <section class="card">
+    <h2><span class="num">+</span>연습 일기도 그리기 <span class="tag">5장</span></h2>
+    <p class="hint">계절마다 달라지는 기압 배치로 등압선 그리기를 더 연습해 보자. 탭을 넘겨도 그린 그림은 장마다 따로 남아 있어요. (연습은 채점되지 않고, 몇 장을 연습했는지만 함께 제출돼요.)</p>
+    <div class="ptabs" id="practiceTabs"></div>
+    <div class="pdesc" id="practiceDesc"></div>
+    <div id="practiceBoard">
+    <div class="toolbar">
+      <button type="button" class="tool on" data-tool="pen" data-color="#1F2733"><span class="sw" style="background:#1F2733"></span>검정 펜</button>
+      <button type="button" class="tool" data-tool="pen" data-color="#2F6FDB"><span class="sw" style="background:#2F6FDB"></span>파랑 펜</button>
+      <button type="button" class="tool" data-tool="pen" data-color="#D33A2C"><span class="sw" style="background:#D33A2C"></span>빨강 펜</button>
+      <button type="button" class="tool" data-tool="erase">🧽 지우개</button>
+      <span class="sep"></span>
+      <button type="button" class="tool stamp-h" data-tool="H">H 고기압</button>
+      <button type="button" class="tool stamp-l" data-tool="L">L 저기압</button>
+      <span class="sep"></span>
+      <button type="button" class="tool" data-act="undo">↶ 되돌리기</button>
+      <button type="button" class="tool" data-act="clear">🗑 모두 지우기</button>
+      <span class="sep"></span>
+      <button type="button" class="tool" data-act="answer">👀 정답 등압선 보기</button>
+      <button type="button" class="tool" data-act="save">💾 그림 저장</button>
+    </div>
+    <div class="map-wrap">
+      <svg class="map-svg" viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg class="answer-svg" viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg" style="display:none;pointer-events:none"></svg>
+      <canvas></canvas>
+    </div>
+    <div class="legend-line">
+      <span>관측소 기호: 동그라미(구름의 양) · 깃대(풍향·풍속) · 숫자(기압 뒤 두 자리) · 초록 점(비)·별표(눈)</span>
+    </div>
+    <button type="button" class="check-btn" data-act="check">H·L 위치 확인</button>
+    <div class="map-check">고기압(H)과 저기압(L) 도장을 찍은 뒤 <b>H·L 위치 확인</b>을 눌러 보세요. 등압선은 <b>정답 등압선 보기</b>로 내가 그린 것과 비교할 수 있어요.</div>
+    </div>
   </section>
 
   <!-- 6. 일기도 해석 -->
@@ -559,41 +607,72 @@ const LON0 = 100, LON1 = 150, LAT0 = 20, LAT1 = 52;
 const px = lon => (lon - LON0) / (LON1 - LON0) * MW;
 const py = lat => (LAT1 - lat) / (LAT1 - LAT0) * MH;
 
-// 기압 배치: 중국 중부의 저기압, 북태평양 고기압, 몽골 쪽 고기압
-const SYSTEMS = [
-  { type:'L', lon:114, lat:33, amp:-15, sig:5 },
-  { type:'H', lon:143, lat:30, amp:9,   sig:9 },
-  { type:'H', lon:106, lat:47, amp:8,   sig:7 }
+// 기압 배치(시나리오): 기본 기압 1013 hPa에 고기압·저기압을 더한다
+const MAIN_SCENARIO = {
+  key:'main', seed:20261107,
+  systems:[
+    { type:'L', lon:114, lat:33, amp:-15, sig:5 },   // 중국 중부의 저기압
+    { type:'H', lon:143, lat:30, amp:9,   sig:9 },   // 북태평양 고기압
+    { type:'H', lon:106, lat:47, amp:8,   sig:7 }    // 몽골 쪽 고기압
+  ]
+};
+const PRACTICE = [
+  { key:'p1', seed:11, title:'겨울철 — 서고동저', precip:'snow',
+    desc:'시베리아 고기압이 크게 발달한 겨울철 일기도예요.',
+    think:'우리나라 부근의 등압선은 남북 방향일까요, 동서 방향일까요? 우리나라에는 어느 쪽에서 바람이 불어올까요?',
+    systems:[ { type:'H', lon:108, lat:44, amp:16, sig:12 }, { type:'L', lon:147, lat:45, amp:-14, sig:10 } ] },
+  { key:'p2', seed:22, title:'여름철 — 남고북저', rainBelow:1007,
+    desc:'북태평양 고기압이 세력을 넓힌 여름철 일기도예요.',
+    think:'우리나라의 남쪽과 북쪽 중 기압이 높은 곳은? 우리나라에는 어느 쪽에서 덥고 습한 바람이 불어올까요?',
+    systems:[ { type:'H', lon:146, lat:29, amp:10, sig:10 }, { type:'L', lon:116, lat:45, amp:-10, sig:8 } ] },
+  { key:'p3', seed:33, title:'봄·가을 — 이동성 고기압', rainBelow:1007,
+    desc:'고기압과 저기압이 번갈아 지나가는 봄·가을 일기도예요.',
+    think:'고기압 중심 부근의 구름은 어떤가요? 서쪽의 저기압이 다가오면 우리나라 날씨는 어떻게 바뀔까요?',
+    systems:[ { type:'H', lon:121, lat:36, amp:8, sig:5 }, { type:'L', lon:143, lat:42, amp:-10, sig:6 }, { type:'L', lon:105, lat:38, amp:-6, sig:5 } ] },
+  { key:'p4', seed:44, title:'태풍이 다가올 때',
+    desc:'제주도 남쪽 바다에 강한 태풍이 있는 일기도예요. 등압선을 촘촘하게 그려야 해요.',
+    think:'태풍 중심 가까이에서 등압선 간격과 풍속(깃의 수)은 어떤가요? 태풍이 북쪽으로 올라오면 우리나라는?',
+    systems:[ { type:'L', lon:125, lat:27, amp:-28, sig:2.6 }, { type:'H', lon:147, lat:33, amp:8, sig:9 } ] },
+  { key:'p5', seed:55, title:'장마철 — 두 고기압 사이', rainBelow:1008,
+    desc:'북쪽의 오호츠크해 고기압과 남쪽의 북태평양 고기압 사이에 기압이 낮은 띠가 동서로 길게 놓인 초여름 일기도예요.',
+    think:'두 고기압 사이의 낮은 기압 지대는 어디에 길게 놓여 있나요? 그곳의 날씨(구름·비)는 어떤가요?',
+    systems:[ { type:'H', lon:143, lat:49, amp:9, sig:7 }, { type:'H', lon:145, lat:23, amp:10, sig:9 }, { type:'L', lon:122, lat:33, amp:-10, sx:12, sy:3.5, win:14 } ] }
 ];
-function pressure(lon, lat){
-  let p = 1013;
-  SYSTEMS.forEach(s => { p += s.amp * Math.exp(-((lon - s.lon) ** 2 + (lat - s.lat) ** 2) / (2 * s.sig * s.sig)); });
-  return p;
-}
-// 실제 중심(격자에서 가장 높은/낮은 곳)
-const CENTERS = SYSTEMS.map(s => {
-  let best = null;
-  for(let lo = s.lon - 4; lo <= s.lon + 4; lo += 0.25) for(let la = s.lat - 4; la <= s.lat + 4; la += 0.25){
-    const p = pressure(lo, la);
-    if(!best || (s.type === 'H' ? p > best.p : p < best.p)) best = { lon:lo, lat:la, p };
-  }
-  return { type:s.type, x:px(best.lon), y:py(best.lat), p:best.p };
-});
 
 function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
 const CITIES = [ { name:'서울', lon:127.0, lat:37.6 }, { name:'부산', lon:129.1, lat:35.2 } ];
-const STATIONS = (() => {
-  const R = rng(20261107), out = [];
-  CITIES.forEach(c => out.push({ lon:c.lon, lat:c.lat, city:c.name }));
+
+// 시나리오 → 기압 함수, 실제 중심, 관측소 자료
+function computeScenario(sc){
+  if(sc.ready) return sc;
+  const pressure = (lon, lat) => {
+    let p = 1013;
+    sc.systems.forEach(s => { const sx = s.sx || s.sig, sy = s.sy || s.sig; p += s.amp * Math.exp(-((lon - s.lon) ** 2 / (2 * sx * sx) + (lat - s.lat) ** 2 / (2 * sy * sy))); });
+    return p;
+  };
+  // 중심: 주변 격자에서 가장 높은/낮은 곳 (탐색 범위 가장자리면 진짜 중심이 아니므로 뺀다)
+  const centers = [];
+  sc.systems.forEach(s => {
+    let best = null;
+    const W = s.win || 4;
+    for(let lo = s.lon - W; lo <= s.lon + W + 0.001; lo += 0.25) for(let la = s.lat - 4; la <= s.lat + 4.001; la += 0.25){
+      const p = pressure(lo, la);
+      if(!best || (s.type === 'H' ? p > best.p : p < best.p)) best = { lon:lo, lat:la, p };
+    }
+    const onEdge = Math.abs(best.lon - s.lon) > W - 0.1 || Math.abs(best.lat - s.lat) > 3.9;
+    const inside = best.lon > LON0 + 0.5 && best.lon < LON1 - 0.5 && best.lat > LAT0 + 0.5 && best.lat < LAT1 - 0.5;
+    if(!onEdge && inside) centers.push({ type:s.type, x:px(best.lon), y:py(best.lat), p:best.p });
+  });
+  const R = rng(sc.seed), pts = [];
+  CITIES.forEach(c => pts.push({ lon:c.lon, lat:c.lat, city:c.name }));
   for(let lat = 23; lat <= 50; lat += 3.9){
     for(let lon = 103; lon <= 148; lon += 4.6){
       const lo = lon + (R() - 0.5) * 2.4, la = lat + (R() - 0.5) * 2.2;
-      if(out.some(s => Math.hypot(s.lon - lo, s.lat - la) < 2.6)) continue;
-      out.push({ lon:lo, lat:la });
+      if(pts.some(s => Math.hypot(s.lon - lo, s.lat - la) < 2.6)) continue;
+      pts.push({ lon:lo, lat:la });
     }
   }
-  return out.map(s => {
+  const stations = pts.map(s => {
     const p = pressure(s.lon, s.lat);
     const h = 0.05;
     const dPx = (pressure(s.lon + h, s.lat) - pressure(s.lon - h, s.lat)) / (2 * h);
@@ -605,14 +684,16 @@ const STATIONS = (() => {
     const vx = c * gx + sn * tx, vy = c * gy + sn * ty;              // 바람이 불어 가는 방향(동, 북)
     const toward = (Math.atan2(vx, vy) * 180 / Math.PI + 360) % 360;
     const dir = (toward + 180) % 360;
-    const speed = Math.max(1, Math.min(14, Math.round(g * 5)));
-    const R2 = rng(Math.round(s.lon * 100 + s.lat * 7));
-    let cloud = Math.round(3 + (1011 - p) * 0.55 + (R2() - 0.5) * 2);
+    const speed = Math.max(1, Math.min(30, Math.round(g * 5)));
+    const R2 = rng(Math.round(s.lon * 100 + s.lat * 7) + sc.seed);
+    let cloud = Math.round(3 + ((sc.rainBelow || 1002.5) + 8.5 - p) * 0.55 + (R2() - 0.5) * 2);
     cloud = Math.max(0, Math.min(8, cloud));
-    const wx = p < 1002.5 ? 'rain' : '';
+    let wx = '';
+    if(p < (sc.rainBelow || 1002.5)) wx = sc.precip === 'snow' && s.lat > 33 ? 'snow' : (speed >= 15 ? 'shower' : 'rain');
     return { ...s, p, pres:Math.round(p), dir, speed, cloud, wx };
   });
-})();
+  return Object.assign(sc, { pressure, centers, stations, actions:[], answerShown:false, ready:true });
+}
 
 /* 해안선(간략) — 경도, 위도 */
 const LAND = [
@@ -638,7 +719,7 @@ const LAND = [
   [[142.0,46.0],[143.5,46.5],[143.0,49.0],[144.2,49.0],[143.0,51.5],[143.0,53.5],[142.6,54.3],[142.0,53.5],[141.7,51.0],[142.0,49.0],[141.9,47.5]]
 ];
 
-function buildMap(){
+function mapSvgMarkup(sc){
   let s = `<rect width="${MW}" height="${MH}" fill="#BFDCEB"/>`;
   LAND.forEach(poly => {
     s += `<path d="M${poly.map(([lo, la]) => px(lo).toFixed(1) + ',' + py(la).toFixed(1)).join(' L')} Z" fill="#EBDDA4" stroke="#3B3B3B" stroke-width="1.6" stroke-linejoin="round"/>`;
@@ -649,24 +730,25 @@ function buildMap(){
   for(let la = 30; la < LAT1; la += 10) grid += `<line x1="0" y1="${py(la)}" x2="${MW}" y2="${py(la)}"/><text x="4" y="${py(la) - 4}">${la}°N</text>`;
   s += `<g stroke="#5A6A7A" stroke-width="0.8" stroke-dasharray="5 5" fill="#5A6A7A" font-size="11" opacity=".6">${grid}</g>`;
   // 관측소
-  STATIONS.forEach(st => {
-    const k = 0.95;
-    s += `<g transform="translate(${px(st.lon).toFixed(1)},${py(st.lat).toFixed(1)})">${stationSvg({ cloud:st.cloud, dir:st.dir, speed:st.speed, wx:st.wx, pres:st.pres }, k)}</g>`;
+  sc.stations.forEach(st => {
+    s += `<g transform="translate(${px(st.lon).toFixed(1)},${py(st.lat).toFixed(1)})">${stationSvg({ cloud:st.cloud, dir:st.dir, speed:st.speed, wx:st.wx, pres:st.pres }, 0.95)}</g>`;
     if(st.city) s += `<text x="${px(st.lon) - 12}" y="${py(st.lat) + 20}" font-size="12" font-weight="800" fill="#C2185B" text-anchor="middle">${st.city}</text>`;
   });
-  $('mapSvg').innerHTML = s;
+  return s;
 }
-buildMap();
 
-/* 정답 등압선 (마칭 스퀘어) */
-function buildAnswer(){
-  const step = 0.25, levels = [];
-  for(let v = 996; v <= 1024; v += 4) levels.push(v);
+/* 정답 등압선 (마칭 스퀘어, 4 hPa 간격) */
+function answerSvgMarkup(sc){
+  const step = 0.25;
   const nx = Math.round((LON1 - LON0) / step), ny = Math.round((LAT1 - LAT0) / step);
   const P = [];
-  for(let j = 0; j <= ny; j++){ P[j] = []; for(let i = 0; i <= nx; i++) P[j][i] = pressure(LON0 + i * step, LAT0 + j * step); }
+  let pmin = Infinity, pmax = -Infinity;
+  for(let j = 0; j <= ny; j++){ P[j] = []; for(let i = 0; i <= nx; i++){ const v = sc.pressure(LON0 + i * step, LAT0 + j * step); P[j][i] = v; pmin = Math.min(pmin, v); pmax = Math.max(pmax, v); } }
+  const levels = [];
+  for(let v = Math.ceil(pmin / 4) * 4; v <= pmax; v += 4) levels.push(v);
   let out = '';
-  levels.forEach(v => {
+  levels.forEach((v, li) => {
+    const south = li % 2 === 0;
     let d = '';
     const labelPts = [null, null];
     for(let j = 0; j < ny; j++) for(let i = 0; i < nx; i++){
@@ -681,142 +763,174 @@ function buildAnswer(){
       for(let k = 0; k + 1 < pts.length; k += 2){
         d += `M${px(pts[k][0]).toFixed(1)},${py(pts[k][1]).toFixed(1)}L${px(pts[k + 1][0]).toFixed(1)},${py(pts[k + 1][1]).toFixed(1)}`;
         const cand = pts[k], side = cand[0] < 125 ? 0 : 1;
-        // 이름표는 지도 왼쪽·오른쪽 부분마다 등압선의 가장 남쪽 지점에
-        if(!labelPts[side] || cand[1] < labelPts[side][1]) labelPts[side] = cand;
+        // 이름표는 지도 왼쪽·오른쪽 부분마다, 등압선을 번갈아 가장 남쪽/북쪽 지점에 (겹치지 않게)
+        if(!labelPts[side] || (south ? cand[1] < labelPts[side][1] : cand[1] > labelPts[side][1])) labelPts[side] = cand;
       }
     }
     if(!d) return;
     out += `<path d="${d}" fill="none" stroke="#2F6FDB" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>`;
-    labelPts.filter(Boolean).forEach(labelPt => {
-      const x = px(labelPt[0]), y = Math.min(MH - 12, py(labelPt[1]));
+    labelPts.filter(Boolean).forEach(lp => {
+      const x = Math.min(MW - 22, Math.max(22, px(lp[0]))), y = Math.min(MH - 12, Math.max(14, py(lp[1])));
       out += `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><rect x="-19" y="-10" width="38" height="18" rx="5" fill="#fff" opacity=".9"/><text text-anchor="middle" y="4" font-size="12" font-weight="800" fill="#2F6FDB">${v}</text></g>`;
     });
   });
-  CENTERS.forEach(c => {
+  sc.centers.forEach(c => {
     const col = c.type === 'H' ? '#1F5FD0' : '#D33A2C';
     out += `<g transform="translate(${c.x.toFixed(1)},${c.y.toFixed(1)})"><circle r="17" fill="#fff" opacity=".85" stroke="${col}" stroke-width="2" stroke-dasharray="4 3"/><text text-anchor="middle" y="8" font-size="22" font-weight="900" fill="${col}">${c.type}</text></g>`;
   });
-  $('answerSvg').innerHTML = out;
+  return out;
 }
-buildAnswer();
 
-/* 그리기 */
-const cv = $('drawCanvas'), ctx = cv.getContext('2d');
-let actions = [];          // { kind:'stroke', color, width, erase, pts:[[x,y]] } | { kind:'stamp', type, x, y }
-let tool = 'pen', color = '#1F2733', cur = null;
-function sizeCanvas(){
+function drawActionsTo(c, actions){
+  for(const a of actions){
+    if(a.kind !== 'stroke') continue;
+    c.save();
+    c.globalCompositeOperation = a.erase ? 'destination-out' : 'source-over';
+    c.strokeStyle = a.color; c.lineWidth = a.width; c.lineCap = 'round'; c.lineJoin = 'round';
+    c.beginPath();
+    a.pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y));
+    if(a.pts.length === 1) c.lineTo(a.pts[0][0] + 0.1, a.pts[0][1]);
+    c.stroke(); c.restore();
+  }
+  for(const a of actions){
+    if(a.kind !== 'stamp') continue;
+    const col = a.type === 'H' ? '#1F5FD0' : '#D33A2C';
+    c.save();
+    c.font = '900 34px "Noto Sans KR", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.lineWidth = 5; c.strokeStyle = '#fff'; c.strokeText(a.type, a.x, a.y);
+    c.fillStyle = col; c.fillText(a.type, a.x, a.y);
+    c.restore();
+  }
+}
+
+/* H·L 위치 확인 */
+function checkStampsOf(sc){
+  const stamps = sc.actions.filter(a => a.kind === 'stamp');
+  const near = c => stamps.some(s => s.type === c.type && Math.hypot(s.x - c.x, s.y - c.y) < 95);
+  const lows = sc.centers.filter(c => c.type === 'L'), highs = sc.centers.filter(c => c.type === 'H');
+  const lowFound = lows.filter(near).length, highFound = highs.filter(near).length;
+  const wrong = stamps.filter(s => !sc.centers.some(c => c.type === s.type && Math.hypot(s.x - c.x, s.y - c.y) < 95)).length;
+  return { lowOk: lowFound === lows.length, lowFound, lowAll: lows.length, highOk: highFound === highs.length, highFound, highAll: highs.length, wrong, n: stamps.length };
+}
+function stampFeedback(sc){
+  const r = checkStampsOf(sc);
+  if(!r.n) return '아직 찍은 도장이 없어요. <b>H 고기압</b>, <b>L 저기압</b> 버튼을 누르고 지도에서 중심을 눌러 찍어 보세요.';
+  const codes = sc.stations.map(s => s.pres).sort((a, b) => a - b);
+  const lowHint = [...new Set(codes.slice(0, 2).map(presCode))].join(', ');
+  const highHint = [...new Set(codes.slice(-2).map(presCode))].join(', ');
+  return `저기압(L): ${r.lowOk ? `✅ ${r.lowAll > 1 ? r.lowAll + '곳 모두' : '중심을 잘'} 찾았어요.` : `${r.lowFound}/${r.lowAll}곳 찾았어요. 기압 값이 낮은(${lowHint} 근처) 곳을 둘러싼 등압선을 찾아보세요.`}<br>` +
+    `고기압(H): ${r.highOk ? `✅ ${r.highAll > 1 ? r.highAll + '곳 모두' : '중심을 잘'} 찾았어요.` : `${r.highFound}/${r.highAll}곳 찾았어요. 기압 값이 높은(${highHint} 근처) 곳을 둘러싼 등압선을 찾아보세요.`}` +
+    (r.wrong ? `<br>⚠ 중심에서 먼 도장이 ${r.wrong}개 있어요. 지우개로 도장을 누르면 지울 수 있어요.` : '');
+}
+
+/* 일기도 판: 툴바·지도·그리기를 한 묶음으로 */
+function makeBoard(root, sc, fileName){
+  const q = s => root.querySelector(s);
+  const wrap = q('.map-wrap'), mapSvg = q('.map-svg'), ansSvg = q('.answer-svg'), cv = q('canvas'), ctx = cv.getContext('2d');
+  const answerBtn = q('[data-act="answer"]'), fb = q('.map-check');
+  const fbDefault = fb.innerHTML;
+  let tool = 'pen', color = '#1F2733', cur = null;
+  const board = { sc:null };
+
+  function redraw(){ ctx.clearRect(0, 0, MW, MH); drawActionsTo(ctx, board.sc.actions); }
+  function syncAnswer(){
+    ansSvg.style.display = board.sc.answerShown ? '' : 'none';
+    answerBtn.textContent = board.sc.answerShown ? '🙈 정답 숨기기' : '👀 정답 등압선 보기';
+  }
+  board.setScenario = s => {
+    board.sc = computeScenario(s);
+    mapSvg.innerHTML = mapSvgMarkup(board.sc);
+    ansSvg.innerHTML = answerSvgMarkup(board.sc);
+    fb.innerHTML = fbDefault;
+    syncAnswer(); redraw();
+  };
   const dpr = window.devicePixelRatio || 1;
   cv.width = MW * dpr; cv.height = MH * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  redraw();
-}
-function drawActions(c){
-  for(const a of actions){
-    if(a.kind === 'stroke'){
-      c.save();
-      c.globalCompositeOperation = a.erase ? 'destination-out' : 'source-over';
-      c.strokeStyle = a.color; c.lineWidth = a.width; c.lineCap = 'round'; c.lineJoin = 'round';
-      c.beginPath();
-      a.pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y));
-      if(a.pts.length === 1) c.lineTo(a.pts[0][0] + 0.1, a.pts[0][1]);
-      c.stroke(); c.restore();
+  const toMap = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * MW, (e.clientY - r.top) / r.height * MH]; };
+
+  cv.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const acts = board.sc.actions, [x, y] = toMap(e);
+    if(tool === 'H' || tool === 'L'){ acts.push({ kind:'stamp', type:tool, x, y }); redraw(); return; }
+    if(tool === 'erase'){
+      // 도장 가까이를 누르면 도장을 지운다
+      const i = acts.map((a, k) => [a, k]).reverse().find(([a]) => a.kind === 'stamp' && Math.hypot(a.x - x, a.y - y) < 22);
+      if(i){ acts.splice(i[1], 1); redraw(); return; }
     }
-  }
-  for(const a of actions){
-    if(a.kind === 'stamp'){
-      const col = a.type === 'H' ? '#1F5FD0' : '#D33A2C';
-      c.save();
-      c.font = '900 34px "Noto Sans KR", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.lineWidth = 5; c.strokeStyle = '#fff'; c.strokeText(a.type, a.x, a.y);
-      c.fillStyle = col; c.fillText(a.type, a.x, a.y);
-      c.restore();
+    cur = { kind:'stroke', color, width: tool === 'erase' ? 22 : 3, erase: tool === 'erase', pts:[[x, y]] };
+    acts.push(cur);
+    cv.setPointerCapture(e.pointerId);
+    redraw();
+  });
+  cv.addEventListener('pointermove', e => {
+    if(!cur) return;
+    const [x, y] = toMap(e), last = cur.pts[cur.pts.length - 1];
+    if(Math.hypot(x - last[0], y - last[1]) < 1.5) return;
+    cur.pts.push([x, y]); redraw();
+  });
+  ['pointerup','pointercancel'].forEach(t => cv.addEventListener(t, () => { cur = null; }));
+
+  root.querySelectorAll('.tool[data-tool]').forEach(b => b.addEventListener('click', () => {
+    root.querySelectorAll('.tool[data-tool]').forEach(x => x.classList.toggle('on', x === b));
+    tool = b.dataset.tool;
+    if(b.dataset.color) color = b.dataset.color;
+    wrap.classList.toggle('stamp', tool === 'H' || tool === 'L');
+  }));
+  q('[data-act="undo"]').addEventListener('click', () => { board.sc.actions.pop(); redraw(); });
+  q('[data-act="clear"]').addEventListener('click', () => {
+    if(board.sc.actions.length && confirm('그린 등압선과 도장을 모두 지울까요?')){ board.sc.actions.length = 0; redraw(); }
+  });
+  answerBtn.addEventListener('click', () => {
+    const sc = board.sc;
+    if(!sc.answerShown && !sc.actions.some(a => a.kind === 'stroke' && !a.erase) && !confirm('먼저 직접 등압선을 그려 본 뒤에 비교하면 더 좋아요. 그래도 정답을 볼까요?')) return;
+    sc.answerShown = !sc.answerShown; syncAnswer();
+  });
+  q('[data-act="check"]').addEventListener('click', () => { fb.innerHTML = stampFeedback(board.sc); });
+
+  /* 그림 저장 (지도 + 내 그림) */
+  q('[data-act="save"]').addEventListener('click', async () => {
+    const out = document.createElement('canvas'); out.width = MW * 2; out.height = MH * 2;
+    const c = out.getContext('2d'); c.scale(2, 2);
+    const layers = [mapSvg].concat(board.sc.answerShown ? [ansSvg] : []);
+    for(const svg of layers){
+      const xml = new XMLSerializer().serializeToString(svg).replace('<svg ', `<svg width="${MW}" height="${MH}" font-family="Noto Sans KR, sans-serif" `);
+      const url = URL.createObjectURL(new Blob([xml], { type:'image/svg+xml' }));
+      await new Promise(res => { const img = new Image(); img.onload = () => { c.drawImage(img, 0, 0, MW, MH); URL.revokeObjectURL(url); res(); }; img.onerror = res; img.src = url; });
     }
-  }
+    const layer = document.createElement('canvas'); layer.width = MW; layer.height = MH;
+    drawActionsTo(layer.getContext('2d'), board.sc.actions);
+    c.drawImage(layer, 0, 0);
+    const a = document.createElement('a');
+    a.download = `${fileName(board.sc)}_${($('ws-name').value || '이름').trim()}.png`;
+    a.href = out.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  window.addEventListener('resize', redraw);
+  board.setScenario(sc);
+  return board;
 }
-function redraw(){ ctx.clearRect(0, 0, MW, MH); drawActions(ctx); }
-function toMap(e){ const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * MW, (e.clientY - r.top) / r.height * MH]; }
 
-cv.addEventListener('pointerdown', e => {
-  e.preventDefault();
-  const [x, y] = toMap(e);
-  if(tool === 'H' || tool === 'L'){ actions.push({ kind:'stamp', type:tool, x, y }); redraw(); return; }
-  if(tool === 'erase'){
-    // 도장 가까이를 누르면 도장을 지운다
-    const i = actions.map((a, k) => [a, k]).reverse().find(([a]) => a.kind === 'stamp' && Math.hypot(a.x - x, a.y - y) < 22);
-    if(i){ actions.splice(i[1], 1); redraw(); return; }
-  }
-  cur = { kind:'stroke', color, width: tool === 'erase' ? 22 : 3, erase: tool === 'erase', pts:[[x, y]] };
-  actions.push(cur);
-  cv.setPointerCapture(e.pointerId);
-  redraw();
-});
-cv.addEventListener('pointermove', e => {
-  if(!cur) return;
-  const [x, y] = toMap(e), last = cur.pts[cur.pts.length - 1];
-  if(Math.hypot(x - last[0], y - last[1]) < 1.5) return;
-  cur.pts.push([x, y]); redraw();
-});
-['pointerup','pointercancel'].forEach(t => cv.addEventListener(t, () => { cur = null; }));
+/* 5. 본 일기도 */
+const mainBoard = makeBoard($('mainBoard'), MAIN_SCENARIO, () => '내_일기도');
+const MAIN = mainBoard.sc;
 
-document.querySelectorAll('.tool[data-tool]').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('.tool[data-tool]').forEach(x => x.classList.toggle('on', x === b));
-  tool = b.dataset.tool;
-  if(b.dataset.color) color = b.dataset.color;
-  $('mapWrap').classList.toggle('stamp', tool === 'H' || tool === 'L');
-}));
-$('undoBtn').addEventListener('click', () => { actions.pop(); redraw(); });
-$('clearBtn').addEventListener('click', () => { if(actions.length && confirm('그린 등압선과 도장을 모두 지울까요?')){ actions = []; redraw(); } });
-let answerShown = false;
-$('answerBtn').addEventListener('click', () => {
-  if(!answerShown && !actions.some(a => a.kind === 'stroke' && !a.erase) && !confirm('먼저 직접 등압선을 그려 본 뒤에 비교하면 더 좋아요. 그래도 정답을 볼까요?')) return;
-  answerShown = !answerShown;
-  $('answerSvg').style.display = answerShown ? '' : 'none';
-  $('answerBtn').textContent = answerShown ? '🙈 정답 숨기기' : '👀 정답 등압선 보기';
-});
-window.addEventListener('resize', redraw);
-sizeCanvas();
-
-/* H·L 위치 확인 */
-function checkStamps(){
-  const stamps = actions.filter(a => a.kind === 'stamp');
-  const near = c => stamps.some(s => s.type === c.type && Math.hypot(s.x - c.x, s.y - c.y) < 95);
-  const lows = CENTERS.filter(c => c.type === 'L'), highs = CENTERS.filter(c => c.type === 'H');
-  const lowOk = lows.every(near), highFound = highs.filter(near).length;
-  const wrong = stamps.filter(s => !CENTERS.some(c => c.type === s.type && Math.hypot(s.x - c.x, s.y - c.y) < 95)).length;
-  return { lowOk, highOk: highFound === highs.length, highFound, highAll: highs.length, wrong, n: stamps.length };
+/* 5-1. 연습 일기도 5장 */
+const practiceBoard = makeBoard($('practiceBoard'), PRACTICE[0], sc => `연습일기도${PRACTICE.indexOf(sc) + 1}`);
+function showPractice(i){
+  const sc = PRACTICE[i];
+  practiceBoard.setScenario(sc);
+  document.querySelectorAll('#practiceTabs .ptab').forEach((b, k) => b.classList.toggle('on', k === i));
+  $('practiceDesc').innerHTML = `<b>연습 ${i + 1}. ${sc.title}</b> — ${sc.desc}<br><span>💭 생각해 보기: ${sc.think}</span>`;
 }
-$('checkMap').addEventListener('click', () => {
-  const r = checkStamps(), fb = $('mapFb');
-  if(!r.n){ fb.innerHTML = '아직 찍은 도장이 없어요. <b>H 고기압</b>, <b>L 저기압</b> 버튼을 누르고 지도에서 중심을 눌러 찍어 보세요.'; return; }
-  fb.innerHTML =
-    `저기압(L): ${r.lowOk ? '✅ 중심을 잘 찾았어요.' : '❌ 아직 못 찾았어요. 기압 값이 가장 낮은(01, 02 근처) 곳을 찾아보세요.'}<br>` +
-    `고기압(H): ${r.highOk ? `✅ ${r.highAll}곳 모두 찾았어요.` : `${r.highFound}/${r.highAll}곳 찾았어요. 기압 값이 큰(16~20) 곳을 둘러싼 곳이 더 있어요.`}` +
-    (r.wrong ? `<br>⚠ 중심에서 먼 도장이 ${r.wrong}개 있어요. 지우개로 도장을 누르면 지울 수 있어요.` : '');
-});
-
-/* 그림 저장 (지도 + 내 그림) */
-$('saveBtn').addEventListener('click', async () => {
-  const out = document.createElement('canvas'); out.width = MW * 2; out.height = MH * 2;
-  const c = out.getContext('2d'); c.scale(2, 2);
-  const layers = [$('mapSvg')].concat(answerShown ? [$('answerSvg')] : []);
-  for(const svg of layers){
-    const xml = new XMLSerializer().serializeToString(svg).replace('<svg ', `<svg width="${MW}" height="${MH}" font-family="Noto Sans KR, sans-serif" `);
-    const url = URL.createObjectURL(new Blob([xml], { type:'image/svg+xml' }));
-    await new Promise(res => { const img = new Image(); img.onload = () => { c.drawImage(img, 0, 0, MW, MH); URL.revokeObjectURL(url); res(); }; img.onerror = res; img.src = url; });
-  }
-  const layer = document.createElement('canvas'); layer.width = MW; layer.height = MH;
-  drawActions(layer.getContext('2d'));
-  c.drawImage(layer, 0, 0);
-  const a = document.createElement('a');
-  a.download = `내_일기도_${($('ws-name').value || '이름').trim()}.png`;
-  a.href = out.toDataURL('image/png');
-  document.body.appendChild(a); a.click(); a.remove();
-});
+$('practiceTabs').innerHTML = PRACTICE.map((sc, i) => `<button type="button" class="ptab" data-i="${i}">연습 ${i + 1}<small>${sc.title}</small></button>`).join('');
+$('practiceTabs').addEventListener('click', e => { const b = e.target.closest('.ptab'); if(b) showPractice(+b.dataset.i); });
+showPractice(0);
 
 /* ==========================================================
    6. 일기도 해석
 =========================================================== */
-const SEOUL = STATIONS.find(s => s.city === '서울');
+const SEOUL = MAIN.stations.find(s => s.city === '서울');
 (function(){
   const right = SEOUL.pres;
   const opts = [right - 8, right - 4, right, right + 4].map(v => `${v} hPa`);
@@ -839,12 +953,12 @@ submitBtn.addEventListener('click', async () => {
   if(!classNum || !number || !name){ alert('반, 번호, 이름을 모두 입력해 주세요.'); return; }
   const blanks = [...Object.keys(QUIZ_ANS), ...Object.keys(MQ_ANS)].filter(id => !$(id).value);
   if(blanks.length){ alert('아직 선택하지 않은 문항이 있어요. 4번과 6번의 모든 문항을 골라 주세요.'); return; }
-  const strokes = actions.filter(a => a.kind === 'stroke' && !a.erase).length;
+  const strokes = MAIN.actions.filter(a => a.kind === 'stroke' && !a.erase).length;
   if(!strokes){ alert('5번 지도에 등압선을 그려 주세요.'); return; }
   const forecast = $('forecast').value.trim();
   if(!forecast){ alert('6번 ⑥ 내일 날씨 예보를 써 주세요.'); return; }
 
-  const q = gradeSelects(QUIZ_ANS), m = gradeSelects(MQ_ANS), st = checkStamps();
+  const q = gradeSelects(QUIZ_ANS), m = gradeSelects(MQ_ANS), st = checkStampsOf(MAIN);
   const correct = q + m + (st.lowOk ? 1 : 0) + (st.highOk ? 1 : 0);
   const total = Object.keys(QUIZ_ANS).length + Object.keys(MQ_ANS).length + 2;
   $('ws-result').textContent = `${correct} / ${total} 개 정답`;
@@ -863,9 +977,14 @@ submitBtn.addEventListener('click', async () => {
     '등압선-획수':strokes,
     '저기압L':st.lowOk ? '정확' : '못 찾음',
     '고기압H':`${st.highFound}/${st.highAll}`,
-    '도장위치':actions.filter(a => a.kind === 'stamp').map(a => `${a.type}(${Math.round(a.x)},${Math.round(a.y)})`).join(' '),
+    '도장위치':MAIN.actions.filter(a => a.kind === 'stamp').map(a => `${a.type}(${Math.round(a.x)},${Math.round(a.y)})`).join(' '),
     '해석-서울기압':v('m1'), '해석-저기압바람':v('m2'), '해석-저기압날씨':v('m3'), '해석-등압선간격':v('m4'), '해석-이동예측':v('m5'),
-    '내일날씨예보':forecast
+    '내일날씨예보':forecast,
+    '연습일기도':PRACTICE.map((sc, i) => {
+      if(!sc.ready || !sc.actions.some(a => a.kind === 'stroke' && !a.erase)) return `${i + 1}:안 함`;
+      const r = checkStampsOf(sc);
+      return `${i + 1}:H${r.highFound}/${r.highAll} L${r.lowFound}/${r.lowAll}`;
+    }).join(' ')
   };
   try{
     await fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(payload) });
