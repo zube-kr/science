@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바람 타고 세계 일주 — 풍선 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1F2733; --soft:#5E6878; --line:#DDE3EC; --brand:#2F6FDB; --pink:#E8457A;
+    --ok:#2E9E5B; --bad:#D8493B; --gold:#F2B705;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:'Noto Sans KR', sans-serif; color:var(--ink); background:linear-gradient(160deg,#E7F1FF,#F7F9FC 60%); min-height:100vh; }
+  .wrap{ max-width:1240px; margin:0 auto; padding:16px 14px 40px; }
+  header{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+  header h1{ font-size:clamp(22px,3vw,30px); font-weight:900; letter-spacing:-.5px; }
+  header h1 em{ font-style:normal; color:var(--brand); }
+  header p{ font-size:13.5px; color:var(--soft); }
+  .hud{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-weight:800; font-size:14px; }
+  .hud .pill{ background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 12px; }
+  .energy{ width:150px; height:12px; background:#E6EAF0; border-radius:8px; overflow:hidden; display:inline-block; vertical-align:middle; }
+  .energy i{ display:block; height:100%; background:linear-gradient(90deg,#3BC48A,#9BE15D); transition:width .2s; }
+  .energy.low i{ background:linear-gradient(90deg,#E8457A,#F29F4C); }
+
+  .game{ display:grid; grid-template-columns:1fr 290px; gap:14px; align-items:start; }
+  .stage-box{ position:relative; border-radius:16px; overflow:hidden; border:3px solid #2F6FDB; background:#9CC9E8; box-shadow:0 10px 30px rgba(31,39,51,.12); }
+  #view{ display:block; width:100%; height:auto; aspect-ratio:1000 / 560; touch-action:none; }
+  .overlay{
+    position:absolute; inset:0; background:rgba(12,22,48,.62); display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+  .overlay[hidden]{ display:none; }
+  .dialog{ background:#fff; border-radius:18px; padding:22px 24px; max-width:560px; width:100%; max-height:100%; overflow:auto; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .dialog h2{ font-size:22px; font-weight:900; margin-bottom:8px; }
+  .dialog p, .dialog li{ font-size:14px; line-height:1.7; color:#333C4B; }
+  .dialog ul{ margin:6px 0 10px 18px; }
+  .dialog .tip{ background:#EEF4FF; border-radius:12px; padding:10px 12px; margin:10px 0; font-size:13.5px; }
+  .dialog .tip b{ color:var(--brand); }
+  .btn{ font:inherit; font-size:15px; font-weight:800; border:none; border-radius:12px; padding:11px 20px; cursor:pointer; background:var(--brand); color:#fff; }
+  .btn.ghost{ background:#EEF2F8; color:var(--ink); }
+  .btn.pink{ background:var(--pink); }
+  .btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .score-big{ font-size:30px; font-weight:900; color:var(--pink); }
+  .name-row{ display:flex; gap:8px; margin-top:10px; }
+  .name-row input{ flex:1; font:inherit; font-size:15px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; }
+  .board{ list-style:none; margin-top:10px; }
+  .board li{ display:grid; grid-template-columns:34px 1fr 60px 70px; gap:6px; padding:6px 8px; border-radius:8px; font-size:14px; }
+  .board li:nth-child(odd){ background:#F4F6FA; }
+  .board li.me{ background:#FFF1C9; font-weight:800; }
+  .board .rk{ font-weight:900; color:var(--brand); }
+  .board .sc{ text-align:right; font-weight:800; }
+  .board .dt{ text-align:right; color:var(--soft); font-size:12px; }
+
+  .panel{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:0 8px 24px rgba(31,39,51,.06); }
+  .panel h3{ font-size:15px; font-weight:900; margin-bottom:4px; }
+  .panel .sub{ font-size:12px; color:var(--soft); margin-bottom:8px; }
+  .compass{ position:relative; width:230px; height:230px; margin:6px auto 4px; }
+  .compass .ring{ position:absolute; inset:28px; border-radius:50%; border:2px dashed #C9D6EA; }
+  .compass button{
+    position:absolute; width:50px; height:50px; margin:-25px 0 0 -25px; border-radius:50%;
+    border:2px solid #C9D6EA; background:#fff; font:inherit; font-size:12.5px; font-weight:900; color:var(--ink); cursor:pointer; line-height:1.1;
+  }
+  .compass button.on{ background:var(--brand); border-color:var(--brand); color:#fff; box-shadow:0 6px 14px rgba(47,111,219,.35); }
+  .compass .center{ position:absolute; left:50%; top:50%; width:110px; height:110px; margin:-55px 0 0 -55px; }
+  .compass .center svg{ width:100%; height:100%; }
+  .speed-row{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:14px; margin-top:6px; }
+  .speed-row input{ flex:1; accent-color:var(--brand); }
+  .speed-row .v{ min-width:62px; text-align:right; color:var(--brand); }
+  .explain{ margin-top:10px; background:#F2F6FD; border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.6; }
+  .explain b{ color:var(--brand); }
+  .keys{ font-size:11.5px; color:var(--soft); margin-top:8px; line-height:1.6; }
+  .keys kbd{ background:#EEF2F8; border:1px solid #D5DCE8; border-radius:5px; padding:0 5px; font-family:inherit; font-weight:700; }
+  #mini{ width:100%; height:auto; display:block; border-radius:10px; margin-top:10px; border:1px solid var(--line); }
+  .row-btns{ display:flex; gap:6px; margin-top:10px; }
+  .row-btns .btn{ flex:1; padding:9px 10px; font-size:13.5px; }
+  .legend{ display:flex; flex-wrap:wrap; gap:6px 12px; font-size:12px; color:var(--soft); margin-top:8px; }
+
+  @media (max-width:980px){
+    .game{ grid-template-columns:1fr; }
+    .panel{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .panel > div{ min-width:0; }
+  }
+  @media (max-width:700px){
+    .overlay{ position:fixed; z-index:50; }
+    .dialog{ max-height:calc(100vh - 32px); padding:18px; }
+    .stage-box{ position:sticky; top:0; z-index:5; }
+  }
+  @media (max-width:600px){
+    .panel{ grid-template-columns:1fr; padding:10px 12px; }
+    .compass{ transform:scale(.8); margin:-18px auto -16px; }
+    .hud{ gap:6px; font-size:13px; }
+    .hud .pill{ padding:4px 10px; }
+    .energy{ width:90px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🎈 바람 타고 <em>세계 일주</em></h1>
+      <p>풍향과 풍속을 바꿔 풍선을 목적지까지 날려 보내자! 태풍·뇌우·모래 폭풍·산맥을 피해야 해요.</p>
+    </div>
+    <div class="hud">
+      <span class="pill" id="hudStage">1단계</span>
+      <span class="pill" id="hudLives">🎈🎈🎈</span>
+      <span class="pill">바람 에너지 <span class="energy" id="energyBar"><i id="energyFill" style="width:100%"></i></span></span>
+      <span class="pill">⭐ <span id="hudScore">0</span>점</span>
+      <span class="pill">⏱ <span id="hudTime">0.0</span>초</span>
+    </div>
+  </header>
+
+  <div class="game">
+    <div class="stage-box">
+      <canvas id="view" width="1000" height="560"></canvas>
+
+      <div class="overlay" id="ovStart">
+        <div class="dialog">
+          <h2>🎈 바람 타고 세계 일주</h2>
+          <p>풍선은 스스로 날지 못해요. <b>바람</b>이 부는 대로 흘러가요! 오른쪽에서 바람을 골라 풍선을 목적지 🏁까지 보내 보세요.</p>
+          <ul>
+            <li><b>풍향</b> = 바람이 <b>불어오는</b> 방향이에요. <b>서풍</b>이면 서쪽에서 불어와서 풍선은 <b>동쪽</b>으로 가요.</li>
+            <li><b>풍속</b>이 셀수록 빨리 가지만 <b>바람 에너지</b>를 많이 써요. ⭐을 먹으면 에너지가 차요.</li>
+            <li>지도의 연한 화살표는 지구의 <b>자연 바람</b>(편서풍·무역풍·극동풍)이에요. 내 바람에 더해져요!</li>
+            <li>🌀 태풍, ⛈ 뇌우, 🌪 모래 폭풍, ⛰ 산맥, 🧊 빙산에 닿거나 지도 밖으로 나가면 풍선이 터져요. 풍선은 3개!</li>
+          </ul>
+          <div class="tip">조작: 오른쪽 <b>나침반</b>에서 풍향을 고르고, <b>풍속</b> 막대를 움직이세요. 키보드 <b>Q/E</b>(풍향 돌리기), <b>W/S</b>(풍속), <b>스페이스</b>(일시 정지)도 돼요.</div>
+          <div class="btns"><button type="button" class="btn" id="btnStart">출발하기 ▶</button><button type="button" class="btn ghost" id="btnShowRank">🏆 명예의 전당</button></div>
+        </div>
+      </div>
+
+      <div class="overlay" id="ovBrief" hidden>
+        <div class="dialog">
+          <h2 id="briefTitle"></h2>
+          <p id="briefText"></p>
+          <div class="tip" id="briefTip"></div>
+          <div class="btns"><button type="button" class="btn" id="btnGo">시작! ▶</button></div>
+        </div>
+      </div>
+
+      <div class="overlay" id="ovResult" hidden>
+        <div class="dialog">
+          <h2 id="resTitle"></h2>
+          <p id="resText"></p>
+          <div class="tip" id="resTip"></div>
+          <div class="btns" id="resBtns"></div>
+        </div>
+      </div>
+
+      <div class="overlay" id="ovEnd" hidden>
+        <div class="dialog">
+          <h2 id="endTitle"></h2>
+          <div class="score-big" id="endScore"></div>
+          <p id="endText"></p>
+          <div class="name-row" id="nameRow"><input type="text" id="nameInput" maxlength="12" placeholder="이름(별명)을 입력하세요"><button type="button" class="btn pink" id="btnSave">기록 올리기</button></div>
+          <ol class="board" id="board"></ol>
+          <p class="sub" id="boardNote" style="font-size:12px;color:var(--soft);margin-top:6px;"></p>
+          <div class="btns"><button type="button" class="btn" id="btnRestart">처음부터 다시 ↺</button></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <div>
+        <h3>🧭 풍향 고르기</h3>
+        <div class="sub">바람이 <b>불어오는</b> 쪽을 눌러요</div>
+        <div class="compass" id="compass">
+          <div class="ring"></div>
+          <div class="center"><svg id="barb" viewBox="-60 -60 120 120"></svg></div>
+        </div>
+        <div class="speed-row">풍속 <input type="range" id="speed" min="0" max="20" value="8"><span class="v" id="speedV">8 m/s</span></div>
+      </div>
+      <div>
+        <div class="explain" id="explain"></div>
+        <div class="keys"><kbd>Q</kbd>/<kbd>E</kbd> 풍향 돌리기 · <kbd>W</kbd>/<kbd>S</kbd> 풍속 · <kbd>Space</kbd> 일시 정지</div>
+        <canvas id="mini" width="360" height="180"></canvas>
+        <div class="legend"><span>🏁 목적지</span><span>⭐ 에너지</span><span>🌀 태풍</span><span>⛈ 뇌우</span><span>🌪 모래 폭풍</span><span>⛰ 산맥</span><span>🧊 빙산</span></div>
+        <div class="row-btns"><button type="button" class="btn ghost" id="btnPause">⏸ 일시 정지</button><button type="button" class="btn ghost" id="btnRetry">↺ 이 단계 다시</button></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ==========================================================
+   세계 지도 (간략한 해안선, 경도·위도)
+=========================================================== */
+const LAND = [
+  // 북아메리카
+  [[-168,66],[-162,70],[-156,71.3],[-140,69.6],[-128,70],[-115,68],[-95,72],[-82,73],[-80,63],[-94,60],[-90,57],[-82,55],[-79,52],[-77,58],[-70,61],[-64,60],[-61,56],[-56,52],[-60,47],[-66,45],[-70,43],[-70,41.5],[-74,40.5],[-76,38],[-76,35],[-81,31.5],[-80,26],[-81.5,25],[-83,29.5],[-89,30],[-94,29.5],[-97,26],[-97.5,22],[-95,18.5],[-91,19],[-90,21],[-87,21.5],[-88,16],[-84,15.5],[-83.5,11],[-79.5,9],[-77.5,8.5],[-80,7.5],[-83,8.5],[-86,12],[-92,14.5],[-96,15.8],[-101,17.5],[-105.5,20],[-106,23],[-110,27.5],[-112.5,31],[-114.5,30],[-110,23],[-112,24.5],[-114.5,27.8],[-117,32.5],[-120.5,34.5],[-122.5,37.5],[-124,40.5],[-124.5,43],[-124,46.5],[-123,49],[-127,51],[-131,54.5],[-135,57],[-140,60],[-146,61],[-152,59],[-158,57],[-164,54.5],[-160,58.5],[-165,60.5],[-166,64]],
+  // 그린란드
+  [[-73,78],[-60,82],[-30,83.5],[-20,80],[-20,75],[-22,70],[-32,68],[-42,60],[-48,61],[-53,66],[-55,70],[-60,76]],
+  // 남아메리카
+  [[-77.5,8.5],[-72,12],[-63,10.7],[-60,8.5],[-52,5],[-50,1.5],[-44,-2.5],[-35,-5.5],[-35,-9],[-39,-13.5],[-40,-20],[-42,-23],[-48,-26],[-53,-34],[-58,-34.5],[-57,-38],[-62,-39],[-65,-42],[-67.5,-46.5],[-66,-48],[-69,-51],[-68.5,-54.5],[-74,-52],[-75,-46],[-73.5,-41],[-73.5,-37],[-71.5,-30],[-70.5,-18.5],[-76,-14],[-81,-6],[-80,-1],[-77.5,4]],
+  // 아프리카
+  [[-17,21],[-16,28],[-9.5,30.5],[-6,35.7],[-2,35.2],[3,36.8],[10,37.2],[11,33.5],[15,32.3],[20,30.8],[25,31.8],[32,31.3],[34,27.8],[37,22],[39,15.8],[43,12.7],[51,11.8],[48,4.5],[41,-1.5],[39.5,-6],[40.5,-11],[40.5,-15.5],[35,-20],[35.5,-24],[32.5,-28.5],[28,-33],[20,-34.8],[18,-31],[15,-27],[12,-18],[13.5,-12],[12,-5],[9.5,1],[9.5,4],[4,6.3],[-2,4.8],[-7.5,4.3],[-13,8],[-17,14.5]],
+  // 마다가스카르
+  [[44.5,-25],[47,-25],[50.5,-15.5],[49.3,-12],[44,-17],[43.5,-22]],
+  // 유라시아
+  [[-9.5,36.8],[-9,43],[-1.5,43.5],[-1.5,46.5],[-4.5,48.5],[1.5,50.5],[4,51.5],[8,53.5],[8.5,57],[10.5,57.7],[10.5,54],[14,54],[21,55],[21,57],[24,59.5],[30,60],[22.5,60.5],[21.5,63],[25,65.5],[22,65.8],[17.5,62.5],[18.5,59.5],[16,56.2],[12.5,56],[11,59],[5.5,58.5],[5,62],[13,67.5],[20,70],[28,71],[33,69.5],[41,67],[44,68.5],[54,68.5],[60,69.8],[69,73],[80,73.5],[87,75],[100,77.5],[112,74],[130,71],[140,72.5],[160,70],[170,70],[180,68.5],[180,65],[178,64.5],[172,61],[163,59.8],[160,54],[156,51],[155.5,57.5],[150,59.5],[143,59.3],[137,54],[141,52],[140.5,48.5],[137,45],[133,42.8],[130.7,42.3],[129.7,40.8],[128,39.5],[129.4,36.5],[129,35],[126.5,34.5],[126.5,37.7],[125,38],[124.8,39.7],[121.5,39],[122,40.8],[119.5,39.5],[117.7,39],[118.8,37.5],[122.5,37.2],[119.2,34.8],[120.8,32.5],[122,30],[119.5,25.5],[116,22.9],[110.5,21],[106.5,20],[105.5,18.5],[109,12.5],[106.5,9],[104.8,8.6],[103,10.5],[100.5,13.5],[99,10],[101,6.8],[103.5,1.4],[100.5,3.5],[98.5,8],[98,16],[94.5,16],[93,20.5],[91.5,22.5],[88.5,21.7],[86.5,20],[82,16.5],[80,15.5],[80.3,13],[78,8.2],[76.5,9],[73,16.5],[72.6,21],[70,21],[68,23.8],[66.5,25.5],[61.5,25.2],[57,25.8],[56.4,26.5],[52,27.8],[50,30],[48,30],[50,26],[51.5,24.5],[54,24],[56.3,26],[56.4,24.8],[59.8,22.5],[55,17],[52,15.8],[45,13],[43.4,12.7],[42.5,15],[39,21.5],[35,28],[34.6,29.5],[34.2,31.3],[35.5,33.9],[36,36.8],[32,36.2],[28,36.7],[26.5,38.5],[26,40.3],[23,40.6],[22.5,38],[21,38.4],[19.5,40.5],[19,42],[13.5,45.5],[12.3,44.5],[16,41.5],[18.5,40.2],[16,38],[15.7,40],[12,41.8],[10,44],[7,43.6],[3.2,43],[3,41.8],[0.5,40.5],[-0.5,38.5],[-2,36.7],[-5.6,36]],
+  // 영국·아일랜드·아이슬란드
+  [[-5.7,50],[1.5,51],[1.7,52.7],[0,53.5],[-1.5,55.5],[-2,57.5],[-3.5,58.6],[-5,58.6],[-6,56.5],[-5,54.8],[-3,54],[-4.5,53.3],[-4.3,51.7]],
+  [[-10,51.6],[-6,52.2],[-6,54.5],[-8,55.2],[-10,54]],
+  [[-24,65.5],[-22,66.4],[-16,66.5],[-13.5,65],[-18,63.4],[-22.5,63.8]],
+  // 일본
+  [[130,31.5],[131.5,31.5],[132,33.8],[135,33.6],[136.8,34.3],[139.8,35],[140.8,35.7],[141,38],[142,39.5],[141.5,41.4],[140,40.5],[139.5,38.4],[136.7,37],[133,35.5],[130.9,34.3],[129.7,33.2]],
+  [[140,41.5],[141.7,42.6],[145.5,43.3],[142,45.4],[140.5,43.2]],
+  // 타이완·필리핀·스리랑카
+  [[120.1,23],[120.7,22],[121.6,24],[121.9,25],[120.7,24.5]],
+  [[120,18.5],[122.5,18.4],[124,13],[126,9],[126,6.5],[122,7],[123.5,10],[121,13],[120.5,15]],
+  [[80,6],[81.8,7.5],[80,9.8],[79.8,8]],
+  // 인도네시아·뉴기니
+  [[95.3,5.6],[98,4],[104,-2],[106,-5.8],[102,-4],[96,2]],
+  [[105,-6.8],[114.5,-7.8],[106,-7.6]],
+  [[109,1.5],[111,-3],[116,-4],[118,1],[119,5],[116.5,7],[113,3.5]],
+  [[131,-1],[141,-2.5],[150,-6],[147,-8],[143,-9],[138,-8.3],[134,-4]],
+  // 오스트레일리아·뉴질랜드
+  [[113,-22],[114,-26],[115,-33.8],[118,-35],[123.5,-34],[129,-31.6],[134,-32.7],[138,-35.6],[140,-38],[146,-39],[150,-37.5],[153,-32],[153.5,-28],[153,-25],[149,-21],[146,-19],[145.4,-15],[142.5,-10.7],[141.5,-13],[141.6,-17],[139.5,-17.5],[136,-15],[136.8,-12],[132.5,-11.4],[129.5,-15],[126,-14],[122,-17.5],[121,-19.6],[116.7,-20.6]],
+  [[145,-40.8],[148.3,-41],[147,-43.5],[145.2,-42.2]],
+  [[173,-35],[174.6,-36.8],[178.5,-37.7],[177,-39.5],[175,-41.5],[174,-39.5],[173.8,-37]],
+  [[172.7,-40.5],[174.3,-41.5],[171,-44.5],[168.5,-46.6],[166.5,-46],[168,-44],[171,-42]],
+  // 쿠바·하와이
+  [[-85,21.8],[-82,23.2],[-77,22],[-74.2,20.2],[-77.5,19.9],[-81,21.6]],
+  [[-156,19],[-154.8,19.5],[-155.8,20.3],[-156.1,19.7]],
+  // 남극
+  [[-180,-90],[-180,-78],[-150,-76],[-120,-73.5],[-100,-73],[-80,-73],[-68,-70],[-60,-63.5],[-57,-63.3],[-62,-66],[-60,-74],[-30,-77],[0,-70],[30,-69],[70,-67],[100,-66],[140,-66.5],[170,-71],[180,-78],[180,-90]]
+];
+const WATER = [
+  [[28,41.3],[28.5,43.5],[30,45.5],[33.5,44.5],[36.5,45.3],[38,47],[39.5,47],[41.5,42],[38,41],[35,42],[31,41.2]],          // 흑해
+  [[47,44],[50,46.5],[53,47],[54,44],[52.5,41.5],[54,37.5],[50.5,37],[49,38.5],[49.5,40.5],[47.5,42.5]]                       // 카스피해
+];
+
+/* ==========================================================
+   단계(스테이지)
+   경도는 날짜 변경선을 넘을 때 180보다 크게 써도 된다(예: 하와이 202°).
+=========================================================== */
+const STAGES = [
+  {
+    name:'서울 → 도쿄', view:[114, 153, 25, 47], bg:0.7, par:12,
+    start:{ name:'서울', lon:127, lat:37.5 }, goal:{ name:'도쿄', lon:139.7, lat:35.7 },
+    stars:[[132.5,39.5],[134,33.5]],
+    hazards:[
+      { type:'storm', lon:133, lat:36.5, r:1.6 },
+      { type:'storm', lon:128.5, lat:42.5, r:1.8, vx:0.5, vy:0, box:[124,140,41,44] },
+      { type:'storm', lon:136.8, lat:38.5, r:1.4, vx:0, vy:-0.7, box:[136,137.5,32.5,39.5] }
+    ],
+    brief:'첫 비행! 우리나라에서 일본까지 날아가 보자. 동쪽으로 가려면 어느 쪽에서 바람이 불어와야 할까?',
+    tip:'<b>편서풍</b> — 중위도(위도 30°~60°)에서는 서쪽에서 동쪽으로 바람이 불어요. 그래서 우리나라의 날씨도 대체로 서쪽에서 동쪽으로 바뀌어요.'
+  },
+  {
+    name:'부산 → 하와이', view:[118, 210, 6, 57], bg:1, par:45,
+    start:{ name:'부산', lon:129, lat:35.1 }, goal:{ name:'호놀룰루', lon:202.1, lat:21.3 },
+    stars:[[150,40],[170,43],[188,34],[160,22]],
+    hazards:[
+      { type:'typhoon', lon:142, lat:24, r:3.2, vx:-0.35, vy:0.35, box:[128,165,12,34] },
+      { type:'typhoon', lon:170, lat:16, r:3.0, vx:-0.4, vy:0.25, box:[150,195,10,30] },
+      { type:'storm', lon:180, lat:38, r:2.4, vx:0, vy:0.5, box:[175,185,30,46] },
+      { type:'storm', lon:158, lat:33, r:2.2 }
+    ],
+    brief:'태평양을 건너 하와이까지! 남쪽 바다에는 태풍이 움직이고 있어요.',
+    tip:'<b>무역풍</b> — 적도 부근(위도 0°~30°)에서는 동쪽에서 서쪽으로 바람이 불어요. 하와이 근처에서는 풍선이 서쪽으로 밀리니, 편서풍대에서 동쪽으로 충분히 간 뒤 남쪽으로 내려오면 쉬워요. 태풍은 무역풍을 타고 서쪽으로 움직여요.'
+  },
+  {
+    name:'런던 → 뉴욕', view:[-84, 6, 22, 68], bg:1, par:55,
+    start:{ name:'런던', lon:-0.1, lat:51.5 }, goal:{ name:'뉴욕', lon:-74, lat:40.7 },
+    stars:[[-20,45],[-40,55],[-55,38],[-30,33]],
+    hazards:[
+      { type:'storm', lon:-25, lat:52, r:3, vx:0.45, vy:0, box:[-50,-8,46,58] },
+      { type:'storm', lon:-45, lat:44, r:2.8, vx:0.4, vy:0.15, box:[-62,-30,38,50] },
+      { type:'typhoon', lon:-65, lat:28, r:3, vx:-0.3, vy:0.35, box:[-78,-50,24,36] },
+      { type:'iceberg', lon:-50, lat:50, r:1.1 }, { type:'iceberg', lon:-47, lat:47.5, r:0.9 }
+    ],
+    brief:'이번에는 서쪽으로! 대서양을 건너 뉴욕까지 가 보자. 그런데 자연 바람이 반대쪽으로 불어요.',
+    tip:'비행기도 <b>편서풍</b> 때문에 유럽 → 미국(서쪽)은 미국 → 유럽(동쪽)보다 1시간쯤 더 걸려요. 편서풍이 약한 남쪽(위도 30° 근처)으로 돌아가는 것도 방법이에요. 대서양의 열대 저기압은 <b>허리케인</b>이라고 불러요.'
+  },
+  {
+    name:'카이로 → 뭄바이', view:[24, 90, 2, 41], bg:0.9, par:40,
+    start:{ name:'카이로', lon:31.2, lat:30 }, goal:{ name:'뭄바이', lon:72.9, lat:19.1 },
+    stars:[[42,26],[58,23.5],[60,16],[48,14]],
+    hazards:[
+      { type:'dust', lon:44, lat:22, r:3, vx:0.35, vy:0.25, box:[38,56,16,30] },
+      { type:'dust', lon:52, lat:20, r:2.6, vx:-0.3, vy:0.3, box:[45,60,16,26] },
+      { type:'dust', lon:65, lat:27, r:2.4 },
+      { type:'mountain', pts:[[46,36],[52,33],[57,29],[62,28]], r:1.2 },
+      { type:'storm', lon:66, lat:12, r:2.2, vx:0, vy:0.4, box:[62,70,8,18] }
+    ],
+    brief:'사막을 지나 인도까지! 사막의 모래 폭풍과 이란의 산맥을 피해야 해요.',
+    tip:'<b>황사·모래 폭풍</b> — 사막의 모래 먼지가 강한 바람에 날려 올라가요. 일기도에서는 <b>S</b> 기호로 나타내요. 봄철 우리나라 황사도 중국·몽골 사막의 먼지가 편서풍을 타고 날아온 거예요.'
+  },
+  {
+    name:'산티아고 → 남극 세종 기지', view:[-110, -21, -72, -22], bg:1.25, par:40,
+    start:{ name:'산티아고', lon:-71.8, lat:-33.4 }, goal:{ name:'세종 기지', lon:-58.8, lat:-62.2 },
+    stars:[[-80,-42],[-78,-55],[-66,-58],[-50,-50]],
+    hazards:[
+      { type:'mountain', pts:[[-68.8,-24],[-69.4,-31],[-69.9,-37],[-71.2,-45],[-72.4,-51]], r:0.8 },
+      { type:'storm', lon:-85, lat:-50, r:3, vx:0.5, vy:0, box:[-100,-75,-54,-46] },
+      { type:'storm', lon:-60, lat:-56, r:2.4, vx:0, vy:-0.35, box:[-64,-56,-60,-50] },
+      { type:'iceberg', lon:-66, lat:-61, r:1 }, { type:'iceberg', lon:-54, lat:-60, r:1 }, { type:'iceberg', lon:-62, lat:-64.5, r:0.9 }
+    ],
+    brief:'마지막 도전! 안데스 산맥을 넘지 말고, 남극 대륙의 우리나라 세종 과학 기지까지 가 보자.',
+    tip:'남반구 위도 40°~60°의 바다에는 막아 주는 땅이 거의 없어서 <b>편서풍</b>이 아주 세요. 뱃사람들은 이곳을 "울부짖는 40도, 사나운 50도"라고 불렀어요. <b>세종 과학 기지</b>는 1988년에 세운 우리나라 첫 남극 기지예요.'
+  }
+];
+
+/* ==========================================================
+   바람
+=========================================================== */
+const DIRS = [0, 45, 90, 135, 180, 225, 270, 315];
+const DIR_NAME = { 0:'북', 45:'북동', 90:'동', 135:'남동', 180:'남', 225:'남서', 270:'서', 315:'북서' };
+const DEG_PER_MPS = 0.13;       // 풍속 1 m/s → 초당 0.13° 이동 (게임용)
+
+// 지구의 자연 바람(대기 대순환) — 위도에 따라 [동쪽 성분, 북쪽 성분] m/s
+function naturalWind(lat){
+  const a = Math.abs(lat), ns = lat >= 0 ? 1 : -1;
+  const trade = [-4, -1.4 * ns], west = [6, 0.8 * ns], polar = [-3, -0.6 * ns];
+  const mix = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+  const sm = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+  if(a < 33) return mix(trade, west, sm(27, 33, a));
+  return mix(west, polar, sm(57, 63, a));
+}
+// 풍향(불어오는 쪽) → 풍선이 가는 방향의 [동, 북] 단위 벡터
+const goVec = dir => { const r = dir * Math.PI / 180; return [-Math.sin(r), -Math.cos(r)]; };
+
+/* ==========================================================
+   일기도 바람 깃 기호
+=========================================================== */
+function windSvg(dir, speed, r, L, color){
+  if(speed < 1) return `<circle r="${r*1.6}" fill="none" stroke="${color}" stroke-width="${r*0.18}"/>`;
+  const a = dir * Math.PI / 180, ux = Math.sin(a), uy = -Math.cos(a);
+  const x0 = ux * r, y0 = uy * r, x1 = ux * (r + L), y1 = uy * (r + L);
+  const th = 62 * Math.PI / 180;
+  const fx = ux * Math.cos(th) - uy * Math.sin(th), fy = ux * Math.sin(th) + uy * Math.cos(th);
+  const sw = r * 0.22;
+  let g = `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`;
+  let rem = Math.round(speed);
+  const n25 = Math.floor(rem / 25); rem -= n25 * 25;
+  const n5 = Math.floor(rem / 5); rem -= n5 * 5;
+  const nh = rem >= 2 ? 1 : 0, fl = L * 0.5, gap = L * 0.16;
+  let d = 0;
+  for(let i = 0; i < n5; i++){
+    const bx = x1 - ux * d, by = y1 - uy * d;
+    g += `<line x1="${bx}" y1="${by}" x2="${bx + fx * fl}" y2="${by + fy * fl}" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    d += gap;
+  }
+  if(nh){
+    if(n5 === 0) d = gap;
+    const bx = x1 - ux * d, by = y1 - uy * d;
+    g += `<line x1="${bx}" y1="${by}" x2="${bx + fx * fl * 0.5}" y2="${by + fy * fl * 0.5}" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`;
+  }
+  return g;
+}
+
+/* ==========================================================
+   상태
+=========================================================== */
+const cv = $('view'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+let windDir = 270, windSpeed = 8;
+let stageIdx = 0, lives = 3, totalScore = 0, stageScores = [];
+let S = null;          // 현재 단계 실행 상태
+let running = false, paused = false, lastT = 0;
+let mapLayer = null;
+
+function proj(st){
+  const [lo0, lo1, la0, la1] = st.view;
+  const sc = Math.min(W / (lo1 - lo0), H / (la1 - la0));
+  const ox = (W - (lo1 - lo0) * sc) / 2, oy = (H - (la1 - la0) * sc) / 2;
+  return { sc, x: lon => ox + (lon - lo0) * sc, y: lat => oy + (la1 - lat) * sc };
+}
+
+function buildMapLayer(st){
+  const P = proj(st);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const sea = g.createLinearGradient(0, 0, 0, H);
+  sea.addColorStop(0, '#A9D3EE'); sea.addColorStop(1, '#7DB8DF');
+  g.fillStyle = sea; g.fillRect(0, 0, W, H);
+  const polyPath = (poly, off) => { g.beginPath(); poly.forEach(([lo, la], i) => { const x = P.x(lo + off), y = P.y(la); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); };
+  [-360, 0, 360].forEach(off => {
+    LAND.forEach(poly => { polyPath(poly, off); g.fillStyle = '#E9DCA5'; g.fill(); g.strokeStyle = '#7A6A3A'; g.lineWidth = 1.4; g.stroke(); });
+    WATER.forEach(poly => { polyPath(poly, off); g.fillStyle = '#8EC4E6'; g.fill(); g.strokeStyle = '#7A6A3A'; g.lineWidth = 1; g.stroke(); });
+  });
+  // 경위선
+  g.save(); g.strokeStyle = 'rgba(40,60,90,.25)'; g.setLineDash([5, 6]); g.lineWidth = 1;
+  g.fillStyle = 'rgba(30,45,70,.55)'; g.font = '11px "Noto Sans KR", sans-serif';
+  const [lo0, lo1, la0, la1] = st.view;
+  for(let lo = Math.ceil(lo0 / 10) * 10; lo <= lo1; lo += 10){ g.beginPath(); g.moveTo(P.x(lo), 0); g.lineTo(P.x(lo), H); g.stroke(); const L = ((lo + 540) % 360) - 180; g.fillText(L === 180 ? '180°' : (L < 0 ? `${-L}°W` : `${L}°E`), P.x(lo) + 3, H - 6); }
+  for(let la = Math.ceil(la0 / 10) * 10; la <= la1; la += 10){ g.beginPath(); g.moveTo(0, P.y(la)); g.lineTo(W, P.y(la)); g.stroke(); g.fillText(la === 0 ? '적도' : (la > 0 ? `${la}°N` : `${-la}°S`), 4, P.y(la) - 4); }
+  g.restore();
+  // 자연 바람 화살표
+  const step = Math.max(4, Math.round((lo1 - lo0) / 14));
+  g.save(); g.strokeStyle = 'rgba(255,255,255,.55)'; g.fillStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 2;
+  for(let la = la0 + step / 2; la < la1; la += step * 0.8){
+    for(let lo = lo0 + step / 2; lo < lo1; lo += step){
+      const [u, v] = naturalWind(la), m = Math.hypot(u, v) || 1;
+      const x = P.x(lo), y = P.y(la), len = 8 + m * 2.2, dx = u / m * len, dy = -v / m * len;
+      g.beginPath(); g.moveTo(x - dx / 2, y - dy / 2); g.lineTo(x + dx / 2, y + dy / 2); g.stroke();
+      const ang = Math.atan2(dy, dx);
+      g.beginPath(); g.moveTo(x + dx / 2, y + dy / 2);
+      g.lineTo(x + dx / 2 - 7 * Math.cos(ang - 0.5), y + dy / 2 - 7 * Math.sin(ang - 0.5));
+      g.lineTo(x + dx / 2 - 7 * Math.cos(ang + 0.5), y + dy / 2 - 7 * Math.sin(ang + 0.5)); g.closePath(); g.fill();
+    }
+  }
+  g.restore();
+  // 바람대 이름
+  g.save(); g.font = '800 13px "Noto Sans KR", sans-serif'; g.fillStyle = 'rgba(20,50,100,.55)';
+  [[45, '편서풍대'], [15, '무역풍대'], [70, '극동풍대'], [-45, '편서풍대'], [-15, '무역풍대'], [-67, '극동풍대']].forEach(([la, t]) => {
+    if(la > la0 + 2 && la < la1 - 2) g.fillText(t, W - 76, P.y(la) + 4);
+  });
+  g.restore();
+  // 출발지
+  const s = st.start;
+  g.fillStyle = '#fff'; g.strokeStyle = '#1F2733'; g.lineWidth = 2;
+  g.beginPath(); g.arc(P.x(s.lon), P.y(s.lat), 6, 0, Math.PI * 2); g.fill(); g.stroke();
+  g.font = '800 13px "Noto Sans KR", sans-serif'; g.fillStyle = '#1F2733';
+  g.fillText(`출발 ${s.name}`, P.x(s.lon) + 9, P.y(s.lat) - 8);
+  return c;
+}
+
+/* ==========================================================
+   단계 시작
+=========================================================== */
+function startStage(i){
+  stageIdx = i;
+  const st = STAGES[i];
+  mapLayer = buildMapLayer(st);
+  S = {
+    st, P: proj(st), lon: st.start.lon, lat: st.start.lat, t: 0, energy: 100,
+    stars: st.stars.map(([lon, lat]) => ({ lon, lat, got:false })),
+    hazards: st.hazards.map(h => ({ ...h })), trail: [], starGot: 0, ended:false, pop:null
+  };
+  $('hudStage').textContent = `${i + 1}단계 · ${st.name}`;
+  updateHud(); drawMini(); render(0);
+  $('briefTitle').textContent = `${i + 1}단계 · ${st.name}`;
+  $('briefText').textContent = st.brief;
+  $('briefTip').innerHTML = '💡 ' + st.tip;
+  $('ovBrief').hidden = false;
+  running = false;
+}
+function go(){
+  $('ovBrief').hidden = true;
+  running = true; paused = false; lastT = performance.now();
+  $('btnPause').textContent = '⏸ 일시 정지';
+  requestAnimationFrame(loop);
+}
+
+/* ==========================================================
+   진행
+=========================================================== */
+function segDist(px, py, ax, ay, bx, by){
+  const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy || 1)));
+  return Math.hypot(px - ax - dx * t, py - ay - dy * t);
+}
+function step(dt){
+  const st = S.st;
+  S.t += dt;
+  // 내 바람(에너지가 있을 때만) + 자연 바람
+  const useSpeed = S.energy > 0 ? windSpeed : 0;
+  S.energy = Math.max(0, S.energy - 0.025 * Math.pow(useSpeed, 1.45) * dt);
+  const [gx, gy] = goVec(windDir);
+  const [nu, nv] = naturalWind(S.lat);
+  const u = gx * useSpeed + nu * st.bg, v = gy * useSpeed + nv * st.bg;
+  S.lon += u * DEG_PER_MPS * dt / Math.max(0.35, Math.cos(S.lat * Math.PI / 180)) * 0.8;
+  S.lat += v * DEG_PER_MPS * dt;
+  S.vel = [u, v];
+  if(!S.trail.length || Math.hypot(S.trail[S.trail.length - 1][0] - S.lon, S.trail[S.trail.length - 1][1] - S.lat) > 0.4) S.trail.push([S.lon, S.lat]);
+
+  // 움직이는 장애물
+  S.hazards.forEach(h => {
+    if(!h.vx && !h.vy) return;
+    h.lon += h.vx * dt; h.lat += h.vy * dt;
+    if(h.box){
+      if(h.lon < h.box[0] || h.lon > h.box[1]) h.vx *= -1;
+      if(h.lat < h.box[2] || h.lat > h.box[3]) h.vy *= -1;
+    }
+  });
+
+  const P = S.P, bx = P.x(S.lon), by = P.y(S.lat), BR = 11;
+  // 별(에너지)
+  S.stars.forEach(s => {
+    if(!s.got && Math.hypot(P.x(s.lon) - bx, P.y(s.lat) - by) < 22){ s.got = true; S.starGot++; S.energy = Math.min(100, S.energy + 35); }
+  });
+  // 충돌
+  for(const h of S.hazards){
+    let hit = false;
+    if(h.type === 'mountain'){
+      for(let k = 0; k + 1 < h.pts.length; k++){
+        const [a, b] = [h.pts[k], h.pts[k + 1]];
+        if(segDist(bx, by, P.x(a[0]), P.y(a[1]), P.x(b[0]), P.y(b[1])) < h.r * P.sc + BR * 0.6) hit = true;
+      }
+    }else if(Math.hypot(P.x(h.lon) - bx, P.y(h.lat) - by) < h.r * P.sc * (h.type === 'iceberg' ? 1 : 0.85) + BR * 0.6) hit = true;
+    if(hit){ return fail(h.type); }
+  }
+  if(bx < -5 || bx > W + 5 || by < -5 || by > H + 5) return fail('out');
+  // 도착
+  if(Math.hypot(P.x(st.goal.lon) - bx, P.y(st.goal.lat) - by) < 26) return clear();
+}
+
+const HAZ_NAME = { typhoon:'태풍', storm:'뇌우 구름', dust:'모래 폭풍', mountain:'산맥', iceberg:'빙산', out:'지도 밖' };
+function fail(type){
+  running = false; S.ended = true; S.pop = { t: 0 };
+  lives--;
+  updateHud();
+  const msg = type === 'out' ? '풍선이 지도 밖으로 날아가 버렸어요!' : `풍선이 ${HAZ_NAME[type]}에 부딪혀 터졌어요!`;
+  const hint = {
+    typhoon:'태풍은 주변보다 기압이 매우 낮은 열대 저기압이에요. 바람이 아주 세서 가까이 가면 위험해요.',
+    storm:'뇌우는 번개와 소나기를 동반한 키 큰 구름(적란운)이에요. 피해서 돌아가요.',
+    dust:'모래 폭풍은 강한 바람이 사막의 모래를 들어 올린 거예요.',
+    mountain:'높은 산맥은 풍선이 넘을 수 없어요. 산맥 옆으로 돌아가 보세요.',
+    iceberg:'빙산은 바다 위에 떠 있는 거대한 얼음덩어리예요.',
+    out:'자연 바람(연한 화살표)도 풍선을 밀어요. 내 바람과 자연 바람을 합쳐서 생각해 보세요.'
+  }[type];
+  setTimeout(() => {
+    if(lives <= 0) return endGame(false);
+    $('resTitle').textContent = '💥 앗, 풍선이 터졌어요!';
+    $('resText').textContent = `${msg} 남은 풍선: ${'🎈'.repeat(lives)}`;
+    $('resTip').innerHTML = '💡 ' + hint;
+    $('resBtns').innerHTML = '<button type="button" class="btn" id="btnAgain">이 단계 다시 하기 ↺</button>';
+    $('btnAgain').onclick = () => { $('ovResult').hidden = true; startStage(stageIdx); };
+    $('ovResult').hidden = false;
+  }, 700);
+}
+function clear(){
+  running = false; S.ended = true;
+  const st = S.st;
+  const timeBonus = Math.max(0, Math.round((st.par - S.t) * 10));
+  const sc = 500 + S.starGot * 100 + Math.round(S.energy) * 3 + timeBonus;
+  stageScores[stageIdx] = sc;
+  totalScore = stageScores.reduce((a, b) => a + (b || 0), 0);
+  updateHud();
+  $('resTitle').textContent = `🏁 ${st.goal.name} 도착!`;
+  $('resText').innerHTML = `걸린 시간 <b>${S.t.toFixed(1)}초</b> · 모은 별 <b>${S.starGot}개</b> · 남은 에너지 <b>${Math.round(S.energy)}</b><br>이번 단계 점수 <b>${sc}점</b> (도착 500 + 별 ${S.starGot * 100} + 에너지 ${Math.round(S.energy) * 3} + 시간 ${timeBonus})`;
+  $('resTip').innerHTML = '💡 ' + st.tip;
+  const last = stageIdx === STAGES.length - 1;
+  $('resBtns').innerHTML = last ? '<button type="button" class="btn pink" id="btnNext">세계 일주 완성! 🏆</button>'
+    : `<button type="button" class="btn" id="btnNext">다음 단계로 ▶</button><button type="button" class="btn ghost" id="btnAgain">이 단계 다시 (점수 갱신)</button>`;
+  $('btnNext').onclick = () => { $('ovResult').hidden = true; last ? endGame(true) : startStage(stageIdx + 1); };
+  if($('btnAgain')) $('btnAgain').onclick = () => { $('ovResult').hidden = true; startStage(stageIdx); };
+  $('ovResult').hidden = false;
+}
+
+function loop(t){
+  if(!running){
+    render(t);
+    if(S && S.pop && S.pop.t < 0.7) requestAnimationFrame(loop);
+    return;
+  }
+  const dt = Math.max(0, Math.min(0.05, (t - lastT) / 1000)); lastT = t;
+  if(!paused) step(dt);
+  updateHud();
+  render(t);
+  if(running || (S && S.pop && S.pop.t < 0.7)) requestAnimationFrame(loop);
+}
+
+/* ==========================================================
+   그리기
+=========================================================== */
+function drawHazard(h, t){
+  const P = S.P, x = P.x(h.lon), y = P.y(h.lat), r = h.r * P.sc;
+  ctx.save();
+  if(h.type === 'typhoon'){
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(0.15, 'rgba(120,130,150,.9)'); g.addColorStop(1, 'rgba(90,100,125,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.translate(x, y); ctx.rotate(-t / 400);     // 북반구 태풍: 시계 반대 방향
+    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3;
+    for(let k = 0; k < 3; k++){
+      ctx.beginPath();
+      for(let a = 0; a < 4.5; a += 0.1){ const rr = r * 0.12 + a * r * 0.19; const px = Math.cos(a + k * 2.09) * rr, py = -Math.sin(a + k * 2.09) * rr; a ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#D33A2C'; ctx.font = '900 14px "Noto Sans KR"'; ctx.textAlign = 'center'; ctx.rotate(t / 400); ctx.fillText('태풍', 0, 5);
+  }else if(h.type === 'storm'){
+    ctx.fillStyle = 'rgba(70,78,98,.92)';
+    [[-0.45, 0.1, 0.5], [0, -0.15, 0.62], [0.45, 0.1, 0.5], [0, 0.25, 0.55]].forEach(([dx, dy, rr]) => { ctx.beginPath(); ctx.arc(x + dx * r, y + dy * r, rr * r, 0, Math.PI * 2); ctx.fill(); });
+    if(Math.sin(t / 120 + h.lon) > 0.6){
+      ctx.strokeStyle = '#FFE14D'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x - 4, y + r * 0.3); ctx.lineTo(x + 6, y + r * 0.6); ctx.lineTo(x - 2, y + r * 0.65); ctx.lineTo(x + 8, y + r * 1.05); ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(46,158,68,.9)';
+    for(let k = 0; k < 4; k++){ const yy = y + r * 0.6 + ((t / 8 + k * 9) % (r * 0.6)); ctx.fillRect(x - r * 0.4 + k * r * 0.25, yy, 2, 6); }
+  }else if(h.type === 'dust'){
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(176,120,60,.85)'); g.addColorStop(1, 'rgba(200,150,80,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.translate(x, y); ctx.rotate(t / 500);
+    ctx.fillStyle = 'rgba(120,70,30,.6)';
+    for(let k = 0; k < 18; k++){ const a = k * 0.7, rr = (k / 18) * r * 0.9; ctx.beginPath(); ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 2.5, 0, Math.PI * 2); ctx.fill(); }
+    ctx.rotate(-t / 500); ctx.fillStyle = '#7A3E2B'; ctx.font = '900 20px serif'; ctx.textAlign = 'center'; ctx.fillText('S', 0, 7);
+  }else if(h.type === 'mountain'){
+    const P2 = S.P, rr = h.r * P2.sc;
+    ctx.strokeStyle = 'rgba(120,85,50,.35)'; ctx.lineWidth = rr * 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); h.pts.forEach(([lo, la], i) => i ? ctx.lineTo(P2.x(lo), P2.y(la)) : ctx.moveTo(P2.x(lo), P2.y(la))); ctx.stroke();
+    for(let k = 0; k + 1 < h.pts.length; k++){
+      const [a, b] = [h.pts[k], h.pts[k + 1]];
+      const n = Math.max(2, Math.round(Math.hypot(P2.x(b[0]) - P2.x(a[0]), P2.y(b[1]) - P2.y(a[1])) / 18));
+      for(let j = 0; j < n; j++){
+        const tt = j / n, mx = P2.x(a[0]) + (P2.x(b[0]) - P2.x(a[0])) * tt, my = P2.y(a[1]) + (P2.y(b[1]) - P2.y(a[1])) * tt;
+        ctx.fillStyle = '#8A5A33'; ctx.beginPath(); ctx.moveTo(mx - 9, my + 7); ctx.lineTo(mx, my - 10); ctx.lineTo(mx + 9, my + 7); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(mx - 3.5, my - 3.5); ctx.lineTo(mx, my - 10); ctx.lineTo(mx + 3.5, my - 3.5); ctx.closePath(); ctx.fill();
+      }
+    }
+  }else if(h.type === 'iceberg'){
+    ctx.fillStyle = '#F4FBFF'; ctx.strokeStyle = '#6FA8C8'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x - r, y + r * 0.4); ctx.lineTo(x - r * 0.5, y - r * 0.6); ctx.lineTo(x + r * 0.1, y - r * 0.2); ctx.lineTo(x + r * 0.6, y - r * 0.8); ctx.lineTo(x + r, y + r * 0.4); ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBalloon(x, y, t){
+  const sway = Math.sin(t / 300) * 0.08 + (S.vel ? Math.max(-0.35, Math.min(0.35, S.vel[0] * 0.02)) : 0);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(sway);
+  // 줄과 바구니
+  ctx.strokeStyle = '#6B4B2A'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(-6, 6); ctx.lineTo(-4, 16); ctx.moveTo(6, 6); ctx.lineTo(4, 16); ctx.stroke();
+  ctx.fillStyle = '#A0682F'; ctx.fillRect(-5, 15, 10, 7);
+  // 풍선
+  const g = ctx.createRadialGradient(-4, -8, 2, 0, -2, 15);
+  g.addColorStop(0, '#FF9BB8'); g.addColorStop(1, '#E8457A');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, -3, 12, 13.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.ellipse(0, -3, 5, 13.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+
+function render(t){
+  if(!S) return;
+  const P = S.P, st = S.st;
+  ctx.drawImage(mapLayer, 0, 0);
+  // 목적지
+  const gx = P.x(st.goal.lon), gy = P.y(st.goal.lat);
+  ctx.save();
+  ctx.fillStyle = 'rgba(232,69,122,.18)'; ctx.beginPath(); ctx.arc(gx, gy, 26 + Math.sin(t / 250) * 3, 0, Math.PI * 2); ctx.fill();
+  ctx.font = '26px serif'; ctx.textAlign = 'center'; ctx.fillText('🏁', gx + 4, gy + 9);
+  ctx.font = '900 14px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#B0174E';
+  ctx.fillText(st.goal.name, gx, gy - 30);
+  ctx.restore();
+  // 별
+  S.stars.forEach(s => {
+    if(s.got) return;
+    const x = P.x(s.lon), y = P.y(s.lat) + Math.sin(t / 300 + s.lon) * 3;
+    ctx.font = '22px serif'; ctx.textAlign = 'center'; ctx.fillText('⭐', x, y + 8);
+  });
+  S.hazards.forEach(h => drawHazard(h, t));
+  // 지나온 길
+  ctx.save(); ctx.strokeStyle = 'rgba(232,69,122,.55)'; ctx.setLineDash([4, 5]); ctx.lineWidth = 2;
+  ctx.beginPath(); S.trail.forEach(([lo, la], i) => i ? ctx.lineTo(P.x(lo), P.y(la)) : ctx.moveTo(P.x(lo), P.y(la))); ctx.lineTo(P.x(S.lon), P.y(S.lat)); ctx.stroke(); ctx.restore();
+  const bx = P.x(S.lon), by = P.y(S.lat);
+  if(S.pop){
+    S.pop.t += 0.03;
+    ctx.save(); ctx.fillStyle = '#E8457A';
+    for(let k = 0; k < 10; k++){ const a = k * 0.63, d = S.pop.t * 70; ctx.globalAlpha = Math.max(0, 1 - S.pop.t * 1.4); ctx.beginPath(); ctx.arc(bx + Math.cos(a) * d, by + Math.sin(a) * d, 4, 0, Math.PI * 2); ctx.fill(); }
+    ctx.restore();
+    ctx.font = '900 22px "Noto Sans KR"'; ctx.fillStyle = '#D33A2C'; ctx.textAlign = 'center'; ctx.fillText('펑!', bx, by - 20);
+  }else{
+    // 진행 방향 화살표
+    if(S.vel && running){
+      const m = Math.hypot(S.vel[0], S.vel[1]);
+      if(m > 0.5){
+        const dx = S.vel[0] / m, dy = -S.vel[1] / m, len = 22 + m * 2;
+        ctx.save(); ctx.strokeStyle = '#1F2733'; ctx.fillStyle = '#1F2733'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(bx + dx * 16, by + dy * 16); ctx.lineTo(bx + dx * len, by + dy * len); ctx.stroke();
+        const a = Math.atan2(dy, dx), ex = bx + dx * len, ey = by + dy * len;
+        ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex - 8 * Math.cos(a - 0.5), ey - 8 * Math.sin(a - 0.5)); ctx.lineTo(ex - 8 * Math.cos(a + 0.5), ey - 8 * Math.sin(a + 0.5)); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
+    drawBalloon(bx, by, t);
+  }
+  if(paused && running){
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff'; ctx.font = '900 34px "Noto Sans KR"'; ctx.textAlign = 'center'; ctx.fillText('⏸ 일시 정지', W / 2, H / 2);
+  }
+}
+
+/* 작은 세계 지도: 지금 단계가 지구의 어디인지 */
+function drawMini(){
+  const m = $('mini'), g = m.getContext('2d'), w = m.width, h = m.height;
+  const x = lo => (lo + 180) / 360 * w, y = la => (90 - la) / 180 * h;
+  g.fillStyle = '#8EC4E6'; g.fillRect(0, 0, w, h);
+  [-360, 0].forEach(off => LAND.forEach(poly => { g.beginPath(); poly.forEach(([lo, la], i) => i ? g.lineTo(x(lo + off), y(la)) : g.moveTo(x(lo + off), y(la))); g.closePath(); g.fillStyle = '#E9DCA5'; g.fill(); }));
+  // 단계별 경로
+  STAGES.forEach((st, i) => {
+    const L = v => v > 180 ? v - 360 : v;
+    g.strokeStyle = i === stageIdx ? '#E8457A' : (stageScores[i] ? '#2E9E5B' : 'rgba(31,39,51,.35)');
+    g.lineWidth = i === stageIdx ? 2.5 : 1.5; g.setLineDash(i === stageIdx ? [] : [3, 3]);
+    g.beginPath(); g.moveTo(x(L(st.start.lon)), y(st.start.lat)); g.lineTo(x(L(st.goal.lon)), y(st.goal.lat)); g.stroke();
+  });
+  g.setLineDash([]);
+  if(S){
+    const [lo0, lo1, la0, la1] = S.st.view;
+    g.strokeStyle = '#E8457A'; g.lineWidth = 1.5;
+    const L0 = lo0 > 180 ? lo0 - 360 : lo0;
+    g.strokeRect(x(L0), y(la1), (lo1 - lo0) / 360 * w, (la1 - la0) / 180 * h);
+  }
+  g.fillStyle = 'rgba(31,39,51,.7)'; g.font = '700 11px "Noto Sans KR"'; g.fillText('세계 일주 경로', 6, 14);
+}
+
+/* ==========================================================
+   조작판
+=========================================================== */
+function buildCompass(){
+  const c = $('compass');
+  DIRS.forEach(d => {
+    const a = d * Math.PI / 180, R = 92;
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.dir = d;
+    b.style.left = (115 + Math.sin(a) * R) + 'px'; b.style.top = (115 - Math.cos(a) * R) + 'px';
+    b.innerHTML = `${DIR_NAME[d]}<br><small style="font-size:10px">${DIR_NAME[d]}풍</small>`;
+    b.addEventListener('click', () => { windDir = d; updateControls(); });
+    c.appendChild(b);
+  });
+}
+function updateControls(){
+  document.querySelectorAll('#compass button').forEach(b => b.classList.toggle('on', +b.dataset.dir === windDir));
+  $('speedV').textContent = `${windSpeed} m/s`;
+  $('barb').innerHTML = `<circle r="9" fill="#fff" stroke="#1F2733" stroke-width="2.5"/>` + windSvg(windDir, windSpeed, 9, 38, '#1F2733') +
+    `<text x="0" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#5E6878">일기도 기호</text>`;
+  const toward = DIR_NAME[(windDir + 180) % 360];
+  $('explain').innerHTML = windSpeed < 1
+    ? `지금은 <b>바람 없음(무풍)</b>이에요. 풍선은 <b>자연 바람</b>에만 실려 가요. 에너지를 아낄 수 있어요!`
+    : `<b>${DIR_NAME[windDir]}풍</b> = <b>${DIR_NAME[windDir]}쪽에서</b> 불어오는 바람<br>→ 풍선은 <b>${toward}쪽</b>으로 날아가요.<br>풍속 <b>${windSpeed} m/s</b> (긴 깃 = 5, 짧은 깃 = 2)`;
+}
+$('speed').addEventListener('input', e => { windSpeed = +e.target.value; updateControls(); });
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+  const k = e.key.toLowerCase();
+  if(k === 'q'){ windDir = (windDir + 315) % 360; updateControls(); }
+  else if(k === 'e'){ windDir = (windDir + 45) % 360; updateControls(); }
+  else if(k === 'w'){ windSpeed = Math.min(20, windSpeed + 1); $('speed').value = windSpeed; updateControls(); }
+  else if(k === 's'){ windSpeed = Math.max(0, windSpeed - 1); $('speed').value = windSpeed; updateControls(); }
+  else if(k === ' '){ e.preventDefault(); togglePause(); }
+});
+function togglePause(){
+  if(!running) return;
+  paused = !paused; lastT = performance.now();
+  $('btnPause').textContent = paused ? '▶ 계속하기' : '⏸ 일시 정지';
+}
+$('btnPause').addEventListener('click', togglePause);
+$('btnRetry').addEventListener('click', () => {
+  if(!S || S.ended || !running) return;
+  if(confirm('이 단계를 처음부터 다시 할까요? (풍선은 줄어들지 않아요)')){ running = false; startStage(stageIdx); }
+});
+
+function updateHud(){
+  $('hudLives').textContent = '🎈'.repeat(Math.max(0, lives)) + '·'.repeat(Math.max(0, 3 - lives));
+  $('hudScore').textContent = totalScore;
+  if(S){
+    $('energyFill').style.width = S.energy + '%';
+    $('energyBar').classList.toggle('low', S.energy < 25);
+    $('hudTime').textContent = S.t.toFixed(1);
+  }
+}
+
+/* ==========================================================
+   게임 시작·끝, 명예의 전당
+=========================================================== */
+function newGame(){
+  lives = 3; totalScore = 0; stageScores = [];
+  ['ovStart','ovEnd','ovResult'].forEach(id => $(id).hidden = true);
+  startStage(0);
+}
+$('btnStart').addEventListener('click', newGame);
+$('btnGo').addEventListener('click', go);
+$('btnRestart').addEventListener('click', newGame);
+
+const LEADERBOARD_KEY = "science-wind-balloon-leaderboard";
+const LEADERBOARD_WORKSHEET = "바람풍선_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+let lastEntry = null;
+
+function loadLocal(){ try{ const r = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]'); return Array.isArray(r) ? r : []; }catch(e){ return []; } }
+function saveLocal(list){ try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){} }
+async function fetchShared(){
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + '?worksheet=' + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if(!res.ok) throw new Error(res.status);
+    const rows = await res.json();
+    return rows.map(r => ({ name:String(r.name || '').slice(0, 12), score:Number(r.score), stage:r.stage, date:r.date || r.timestamp }))
+               .filter(r => r.name && !Number.isNaN(r.score));
+  }catch(e){ console.warn('공유 랭킹을 불러오지 못했습니다:', e); return null; }
+}
+async function submitShared(entry){
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+      body:new URLSearchParams({ worksheet:LEADERBOARD_WORKSHEET, name:entry.name, score:String(entry.score), stage:String(entry.stage), date:entry.date }) });
+  }catch(e){ console.warn('공유 랭킹 전송 실패:', e); }
+}
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const fmtDate = v => { const m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return `${+m[2]}.${+m[3]}`; const t = new Date(v); return isNaN(t) ? '' : `${t.getMonth() + 1}.${t.getDate()}`; };
+
+async function showBoard(){
+  const list = $('board');
+  list.innerHTML = '<li><span></span><span>불러오는 중…</span></li>';
+  const shared = await fetchShared();
+  let rows = shared || loadLocal();
+  if(shared && lastEntry && !shared.some(r => r.name === lastEntry.name && r.score === lastEntry.score)) rows = rows.concat([lastEntry]);
+  rows.sort((a, b) => b.score - a.score);
+  $('boardNote').textContent = shared ? '반 전체 친구들의 기록이에요.' : '공유 랭킹에 연결하지 못해서 이 기기의 기록만 보여요.';
+  list.innerHTML = '';
+  for(let i = 0; i < 10; i++){
+    const r = rows[i], li = document.createElement('li');
+    if(r && lastEntry && r.name === lastEntry.name && r.score === lastEntry.score) li.className = 'me';
+    li.innerHTML = r ? `<span class="rk">${['🥇','🥈','🥉'][i] || i + 1}</span><span></span><span class="sc">${r.score}</span><span class="dt">${fmtDate(r.date)}</span>`
+                     : `<span class="rk">${i + 1}</span><span style="color:#aaa">—</span><span></span><span></span>`;
+    if(r) li.children[1].textContent = `${r.name}${r.stage ? ` · ${r.stage}단계` : ''}`;
+    list.appendChild(li);
+  }
+}
+function endGame(allClear){
+  running = false;
+  drawMini();
+  const reached = allClear ? 5 : stageScores.filter(Boolean).length;
+  $('endTitle').textContent = allClear ? '🏆 세계 일주 성공!' : '🎈 풍선을 모두 잃었어요';
+  $('endScore').textContent = `${totalScore}점`;
+  $('endText').textContent = allClear ? '5개 도시를 모두 바람만으로 여행했어요! 기록을 올려 보세요.' : `${reached}단계까지 성공했어요. 기록을 올리고 다시 도전해 보세요.`;
+  $('nameRow').style.display = totalScore > 0 ? '' : 'none';
+  $('btnSave').disabled = false; $('btnSave').textContent = '기록 올리기';
+  lastEntry = null;
+  $('btnRestart').textContent = '처음부터 다시 ↺';
+  $('ovEnd').hidden = false;
+  showBoard();
+}
+$('btnSave').addEventListener('click', async () => {
+  const name = $('nameInput').value.trim().slice(0, 12);
+  if(!name){ alert('이름(별명)을 입력해 주세요.'); return; }
+  const reached = stageScores.filter(Boolean).length;
+  lastEntry = { name, score: totalScore, stage: reached, date: today() };
+  const local = loadLocal(); local.push(lastEntry); local.sort((a, b) => b.score - a.score); saveLocal(local.slice(0, 50));
+  $('btnSave').disabled = true; $('btnSave').textContent = '올렸어요 ✓';
+  await submitShared(lastEntry);
+  showBoard();
+});
+$('btnShowRank').addEventListener('click', () => {
+  $('ovStart').hidden = true;
+  $('endTitle').textContent = '🏆 명예의 전당'; $('endScore').textContent = ''; $('endText').textContent = '';
+  $('nameRow').style.display = 'none'; lastEntry = null;
+  $('btnRestart').textContent = '게임 시작 ▶';
+  $('ovEnd').hidden = false; showBoard();
+});
+
+/* 처음 화면 */
+buildCompass(); updateControls();
+startStage(0); $('ovBrief').hidden = true; $('ovStart').hidden = false;
+</script>
+</body>
+</html>
