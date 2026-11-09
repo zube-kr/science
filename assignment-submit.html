@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📮 1학년 과제제출방</title>
+<style>
+  :root{
+    --bg:#F5F3EE; --card:#FFFFFF; --ink:#232A35; --ink-soft:#626A78; --line:#DCD6C7;
+    --blue:#2F6FDB; --blue-soft:#E7EFFC; --green:#1F9D61; --green-soft:#E3F5EC;
+    --red:#D8493B; --red-soft:#FDEAE7; --amber:#C77A12; --amber-soft:#FFF3DC;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
+  .wrap{max-width:680px;margin:0 auto;padding:20px 16px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  header .mail{font-size:34px}
+  h1{font-size:24px;margin:0}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .card.locked{opacity:.45;pointer-events:none}
+  .step{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:17px;font-weight:700}
+  .step .n{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:14px;flex:none}
+  .step .done{margin-left:auto;font-size:13px;font-weight:600;color:var(--green)}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  input[type=text],input[type=password]{font:inherit;font-size:18px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;min-width:0;flex:1;letter-spacing:.15em}
+  input::placeholder{letter-spacing:0;font-size:16px}
+  input:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:0}
+  .btn{background:var(--ink);color:#fff;font-weight:700;padding:10px 18px;font-size:16px}
+  .btn:disabled{background:#B9BCC4;cursor:not-allowed}
+  .btn.big{width:100%;padding:14px;font-size:18px;background:var(--blue)}
+  .btn.big:disabled{background:#B9BCC4}
+  .link{background:none;color:var(--blue);padding:0;font-size:13px;text-decoration:underline}
+  .msg{font-size:14px;margin-top:8px;min-height:1px}
+  .msg.err{color:var(--red)} .msg.ok{color:var(--green)}
+  .who{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .who button,.task{background:#FAF8F3;border:1.5px solid var(--line);color:var(--ink);padding:12px 8px;text-align:center}
+  .who button b{display:block;font-size:17px}
+  .who button span{font-size:12px;color:var(--ink-soft)}
+  .who button.sel,.task.sel{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 1px var(--blue) inset}
+  .tasks{display:flex;flex-direction:column;gap:8px}
+  .task{text-align:left;padding:12px 14px;display:block;width:100%}
+  .task .t{font-weight:700;font-size:16px}
+  .task .d{font-size:13px;color:var(--ink-soft);margin-top:2px;white-space:pre-wrap}
+  .badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:1px}
+  .badge.due{background:var(--amber-soft);color:var(--amber)}
+  .badge.late{background:var(--red-soft);color:var(--red)}
+  .badge.free{background:var(--green-soft);color:var(--green)}
+  .drop{display:block;border:2px dashed #BFC7D6;border-radius:14px;padding:22px 12px;text-align:center;background:#FAFBFE;cursor:pointer}
+  .drop.over{border-color:var(--blue);background:var(--blue-soft)}
+  .drop .big{font-size:30px}
+  .drop b{display:block;font-size:16px;margin-top:4px}
+  .drop small{color:var(--ink-soft);font-size:13px}
+  .rules{font-size:13px;color:var(--ink-soft);margin:10px 0 0;padding-left:18px}
+  .files{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:8px}
+  .files li{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff}
+  .files .ic{font-size:24px;width:40px;height:40px;display:grid;place-items:center;flex:none;border-radius:8px;background:#F1EEE6;overflow:hidden}
+  .files .ic img{width:100%;height:100%;object-fit:cover}
+  .files .info{flex:1;min-width:0}
+  .files .nm{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .files .st{font-size:12px;color:var(--ink-soft)}
+  .files .st.err{color:var(--red)} .files .st.ok{color:var(--green)}
+  .files .x{background:none;font-size:20px;color:var(--ink-soft);padding:4px 8px}
+  .result{border-radius:14px;padding:16px;margin-top:12px;font-size:15px}
+  .result.ok{background:var(--green-soft);color:#11603A}
+  .result.err{background:var(--red-soft);color:#8A2A20}
+  .mine{list-style:none;padding:0;margin:0;font-size:14px}
+  .mine li{padding:8px 0;border-bottom:1px solid #EEE9DD}
+  .mine li:last-child{border:0}
+  .mine .tm{color:var(--ink-soft);font-size:12px}
+  .notice{background:var(--amber-soft);border:1px solid #F0D49A;color:#7A4B07;border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:14px}
+  details.teacher{margin-top:26px}
+  details.teacher summary{cursor:pointer;color:var(--ink-soft);font-size:14px}
+  .tbl-wrap{overflow-x:auto;margin-top:12px}
+  table{border-collapse:collapse;font-size:13px;min-width:100%}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;vertical-align:top}
+  th{background:#F1EEE6;font-weight:700;min-width:150px}
+  th:first-child{min-width:0}
+  td.nm{text-align:left;white-space:nowrap;font-weight:600}
+  td.yes{background:var(--green-soft)} td.no{background:#FFF8F6;color:var(--red)}
+  td a{display:block;font-size:12px;color:var(--blue);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span class="mail">📮</span><h1>1학년 과제제출방</h1></header>
+  <p class="sub">사진·문서 파일을 선생님께 바로 제출해요. 올린 파일은 선생님만 볼 수 있어요.</p>
+
+  <div class="notice hidden" id="not-ready">🛠️ 과제제출방을 준비하고 있어요. 선생님이 설정을 마치면 바로 쓸 수 있어요.</div>
+
+  <!-- ① 제출코드 -->
+  <section class="card" id="card-code">
+    <div class="step"><span class="n">1</span>제출코드 입력<span class="done hidden" id="code-done">✓ 확인됨</span></div>
+    <div id="code-form" class="row">
+      <input type="text" id="code" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="선생님이 알려준 코드">
+      <button class="btn" id="code-btn" type="button">확인</button>
+    </div>
+    <div id="code-ok" class="hidden" style="font-size:14px">제출코드가 확인되었어요. <button class="link" id="code-reset" type="button">다른 코드 입력</button></div>
+    <div class="msg" id="code-msg"></div>
+  </section>
+
+  <!-- ② 학생 선택 -->
+  <section class="card locked" id="card-who">
+    <div class="step"><span class="n">2</span>나는 누구인가요? <small style="font-weight:500;color:var(--ink-soft)">(1학년 1반)</small></div>
+    <div class="who" id="who"></div>
+  </section>
+
+  <!-- ③ 과제 선택 -->
+  <section class="card locked" id="card-task">
+    <div class="step"><span class="n">3</span>과제 고르기</div>
+    <div class="tasks" id="tasks"><div class="msg">과제 목록을 불러오는 중…</div></div>
+  </section>
+
+  <!-- ④ 파일 -->
+  <section class="card locked" id="card-file">
+    <div class="step"><span class="n">4</span>파일 올리기</div>
+    <label class="drop" id="drop">
+      <div class="big">📎</div>
+      <b>파일 선택 / 사진 찍기</b>
+      <small>여기에 파일을 끌어다 놓아도 돼요</small>
+      <input type="file" id="file" multiple class="hidden"
+        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.hwp,.hwpx,image/jpeg,image/png,application/pdf">
+    </label>
+    <ul class="rules">
+      <li>올릴 수 있는 파일: <b>jpg · png · pdf · doc(x) · hwp(x)</b></li>
+      <li>파일 1개 최대 <b>10MB</b>, 한 번에 <b>5개</b>까지</li>
+      <li>큰 사진은 글씨가 잘 보이도록 알맞은 크기로 자동으로 줄여서 올라가요</li>
+    </ul>
+    <ul class="files" id="files"></ul>
+    <div style="margin-top:14px"><button class="btn big" id="submit" type="button" disabled>제출하기</button></div>
+    <div id="result"></div>
+  </section>
+
+  <!-- 내 제출 기록 -->
+  <section class="card hidden" id="card-mine">
+    <div class="step">📋 <span id="mine-title">내 제출 기록</span><button class="link" id="mine-refresh" type="button" style="margin-left:auto">새로고침</button></div>
+    <ul class="mine" id="mine"></ul>
+  </section>
+
+  <!-- 교사용 -->
+  <details class="teacher" id="teacher">
+    <summary>👩‍🏫 선생님용 제출 현황</summary>
+    <div class="card" style="margin-top:10px">
+      <div class="row">
+        <input type="password" id="tcode" inputmode="numeric" autocomplete="off" placeholder="교사 확인 코드">
+        <button class="btn" id="tcode-btn" type="button">현황 보기</button>
+      </div>
+      <div class="msg" id="t-msg"></div>
+      <div id="t-out"></div>
+    </div>
+  </details>
+</div>
+
+<script>
+/* 웹 앱 주소: code-submit.gs 를 배포한 뒤 발급된 …/exec 주소를 넣는다 */
+const SUBMIT_API = "";
+
+const GRADE = "1", CLS = "1";
+const ROSTER = [ { num: "1", name: "유민석" }, { num: "2", name: "이예인" }, { num: "3", name: "이원근" } ];
+const ALLOWED = ["jpg","jpeg","png","pdf","doc","docx","hwp","hwpx"];
+const MAX_BYTES = 10 * 1024 * 1024, MAX_FILES = 5;
+const IMG_MAX_SIDE = 2000, IMG_SHRINK_OVER = 1.5 * 1024 * 1024;
+const MIME = { jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", pdf:"application/pdf",
+  doc:"application/msword", docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  hwp:"application/x-hwp", hwpx:"application/haansofthwpx" };
+const LS_CODE = "science-submit-code", LS_WHO = "science-submit-who";
+
+const $ = id => document.getElementById(id);
+const st = { code: "", who: null, task: null, tasks: [], files: [], busy: false };
+
+function store(k, v){ try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} }
+function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtSize(b){ return b >= 1048576 ? (b/1048576).toFixed(1) + "MB" : Math.max(1, Math.round(b/1024)) + "KB"; }
+function extOf(n){ const m = /\.([^.]+)$/.exec(n || ""); return m ? m[1].toLowerCase() : ""; }
+function icon(ext){ return ext === "pdf" ? "📕" : (ext === "doc" || ext === "docx") ? "📘" : (ext === "hwp" || ext === "hwpx") ? "📗" : "🖼️"; }
+
+async function api(params){
+  const u = new URL(SUBMIT_API);
+  Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
+  const r = await fetch(u.toString(), { method: "GET" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+async function apiPost(body){
+  // text/plain 본문 → 브라우저 사전요청(preflight) 없이 Apps Script로 바로 전송
+  const r = await fetch(SUBMIT_API, { method: "POST", body: JSON.stringify(body) });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+/* ---------- ① 제출코드 ---------- */
+async function checkCode(code, silent){
+  const msg = $("code-msg");
+  if (!code){ msg.className = "msg err"; msg.textContent = "제출코드를 입력해 주세요."; return; }
+  $("code-btn").disabled = true;
+  if (!silent){ msg.className = "msg"; msg.innerHTML = '<span class="spin"></span> 확인 중…'; }
+  try{
+    const res = await api({ action: "check", code });
+    if (res.ok){
+      st.code = code; store(LS_CODE, code);
+      msg.textContent = "";
+      setCodeOk(true);
+    } else {
+      store(LS_CODE, null); setCodeOk(false);
+      msg.className = "msg err"; msg.textContent = silent ? "" : "제출코드가 맞지 않아요. 선생님께 다시 확인해 주세요.";
+    }
+  }catch(e){
+    msg.className = "msg err"; msg.textContent = "연결이 안 돼요. 인터넷 연결을 확인하고 다시 눌러 주세요.";
+  }finally{ $("code-btn").disabled = false; }
+}
+function setCodeOk(ok){
+  $("code-form").classList.toggle("hidden", ok);
+  $("code-ok").classList.toggle("hidden", !ok);
+  $("code-done").classList.toggle("hidden", !ok);
+  if (!ok) st.code = "";
+  refreshLocks();
+}
+$("code-btn").onclick = () => checkCode($("code").value.trim());
+$("code").addEventListener("keydown", e => { if (e.key === "Enter") checkCode($("code").value.trim()); });
+$("code-reset").onclick = () => { store(LS_CODE, null); $("code").value = ""; setCodeOk(false); $("code").focus(); };
+
+/* ---------- ② 학생 ---------- */
+function renderWho(){
+  $("who").innerHTML = ROSTER.map(s =>
+    `<button type="button" data-num="${s.num}" class="${st.who && st.who.num === s.num ? "sel" : ""}"><b>${esc(s.name)}</b><span>${s.num}번</span></button>`).join("");
+  $("who").querySelectorAll("button").forEach(b => b.onclick = () => {
+    st.who = ROSTER.find(s => s.num === b.dataset.num);
+    store(LS_WHO, st.who.num);
+    renderWho(); refreshLocks(); loadMine();
+  });
+}
+
+/* ---------- ③ 과제 ---------- */
+function daysLeft(due){
+  if (!due) return null;
+  const end = new Date(due + "T23:59:59");
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d0 = new Date(due + "T00:00:00");
+  return { past: Date.now() > end.getTime(), d: Math.round((d0 - today) / 86400000) };
+}
+function dueBadge(due){
+  const x = daysLeft(due);
+  if (!x) return '<span class="badge free">마감 없음</span>';
+  if (x.past) return `<span class="badge late">마감 지남 · 지각 제출</span>`;
+  return `<span class="badge due">${x.d === 0 ? "오늘 마감" : "D-" + x.d} (${due.slice(5).replace("-", "/")})</span>`;
+}
+async function loadTasks(){
+  const box = $("tasks");
+  box.innerHTML = '<div class="msg"><span class="spin"></span> 과제 목록을 불러오는 중…</div>';
+  try{
+    const res = await api({ action: "tasks", grade: GRADE });
+    st.tasks = (res && res.tasks) || [];
+    if (st.task && !st.tasks.some(t => t.title === st.task.title)) st.task = null;
+    if (!st.task && st.tasks.length === 1) st.task = st.tasks[0];
+    renderTasks();
+  }catch(e){
+    box.innerHTML = '<div class="msg err">과제 목록을 불러오지 못했어요. <button class="link" type="button" onclick="loadTasks()">다시 시도</button></div>';
+  }
+}
+function renderTasks(){
+  const box = $("tasks");
+  if (!st.tasks.length){ box.innerHTML = '<div class="msg">지금 제출할 과제가 없어요.</div>'; refreshLocks(); return; }
+  box.innerHTML = st.tasks.map((t, i) =>
+    `<button type="button" class="task ${st.task && st.task.title === t.title ? "sel" : ""}" data-i="${i}">
+      <div class="t">${esc(t.title)}${dueBadge(t.due)}</div>${t.desc ? `<div class="d">${esc(t.desc)}</div>` : ""}</button>`).join("");
+  box.querySelectorAll(".task").forEach(b => b.onclick = () => { st.task = st.tasks[+b.dataset.i]; renderTasks(); });
+  refreshLocks();
+}
+
+/* ---------- ④ 파일 ---------- */
+function loadImage(file){
+  return new Promise((ok, bad) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => ok({ img, url });
+    img.onerror = () => { URL.revokeObjectURL(url); bad(new Error("이미지를 열 수 없어요")); };
+    img.src = url;
+  });
+}
+async function prepareImage(item){
+  const { img, url } = await loadImage(item.file);
+  item.thumb = url;
+  const w = img.naturalWidth, h = img.naturalHeight, side = Math.max(w, h);
+  if (item.file.size <= IMG_SHRINK_OVER && side <= IMG_MAX_SIDE) return;
+  const k = Math.min(1, IMG_MAX_SIDE / side);
+  const cv = document.createElement("canvas");
+  cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); // 투명 PNG → 흰 배경
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  const blob = await new Promise(r => cv.toBlob(r, "image/jpeg", .85));
+  if (blob && blob.size < item.file.size){
+    item.blob = blob;
+    item.name = item.name.replace(/\.[^.]+$/, "") + ".jpg";
+    item.mime = "image/jpeg";
+    item.note = `사진 크기 줄임 ${fmtSize(item.file.size)} → ${fmtSize(blob.size)}`;
+  }
+}
+async function addFiles(list){
+  const arr = Array.from(list || []);
+  let over = 0;
+  for (const f of arr){
+    if (st.files.filter(x => x.status !== "done" && x.status !== "bad").length >= MAX_FILES){ over++; continue; }
+    const ext = extOf(f.name);
+    const item = { id: Math.random().toString(36).slice(2), file: f, name: f.name || ("file." + ext), ext, size: f.size,
+      mime: f.type || MIME[ext] || "application/octet-stream", blob: null, status: "ready", note: "", thumb: "" };
+    if (ext === "heic" || ext === "heif"){ item.status = "bad"; item.note = "아이폰 HEIC 사진은 안 돼요. 카메라로 바로 찍거나 jpg로 바꿔서 올려 주세요."; }
+    else if (!ALLOWED.includes(ext)){ item.status = "bad"; item.note = "올릴 수 없는 파일 형식이에요 (jpg·png·pdf·doc·hwp만)."; }
+    else if (!f.size){ item.status = "bad"; item.note = "빈 파일이에요."; }
+    st.files.push(item);
+    if (item.status === "ready" && (ext === "jpg" || ext === "jpeg" || ext === "png")){
+      item.status = "prep"; renderFiles();
+      try{ await prepareImage(item); item.status = "ready"; }
+      catch(e){ item.status = "ready"; }
+    }
+    if (item.status === "ready"){
+      const sz = item.blob ? item.blob.size : f.size;
+      if (sz > MAX_BYTES){ item.status = "bad"; item.note = `파일이 너무 커요 (${fmtSize(sz)}). 10MB 이하만 올릴 수 있어요.`; }
+    }
+    renderFiles();
+  }
+  if (over) alertMsg(`한 번에 ${MAX_FILES}개까지 올릴 수 있어요. ${over}개는 빠졌어요. 먼저 제출한 뒤 나머지를 올려 주세요.`);
+}
+function alertMsg(t){ $("result").innerHTML = `<div class="result err">${esc(t)}</div>`; }
+function renderFiles(){
+  $("files").innerHTML = st.files.map(it => {
+    const sz = it.blob ? it.blob.size : it.size;
+    const s = it.status === "bad" ? `<span class="st err">⚠️ ${esc(it.note)}</span>`
+      : it.status === "prep" ? `<span class="st"><span class="spin"></span> 사진 준비 중…</span>`
+      : it.status === "up" ? `<span class="st"><span class="spin"></span> 올리는 중…</span>`
+      : it.status === "done" ? `<span class="st ok">✅ 제출 완료${it.late ? " (지각)" : ""}</span>`
+      : it.status === "fail" ? `<span class="st err">❌ ${esc(it.note)}</span>`
+      : `<span class="st">${fmtSize(sz)}${it.note ? " · " + esc(it.note) : ""}</span>`;
+    const ic = it.thumb ? `<img src="${it.thumb}" alt="">` : icon(it.ext);
+    const canX = !st.busy && it.status !== "up";
+    return `<li data-id="${it.id}"><div class="ic">${ic}</div><div class="info"><div class="nm">${esc(it.name)}</div>${s}</div>${canX ? `<button class="x" type="button" title="빼기">×</button>` : ""}</li>`;
+  }).join("");
+  $("files").querySelectorAll(".x").forEach(b => b.onclick = () => {
+    const id = b.closest("li").dataset.id;
+    const it = st.files.find(x => x.id === id);
+    if (it && it.thumb) URL.revokeObjectURL(it.thumb);
+    st.files = st.files.filter(x => x.id !== id);
+    renderFiles();
+  });
+  refreshLocks();
+}
+function clearFinished(){ st.files = st.files.filter(x => { const keep = x.status !== "done" && x.status !== "bad"; if (!keep && x.thumb) URL.revokeObjectURL(x.thumb); return keep; }); }
+$("file").addEventListener("change", e => { $("result").innerHTML = ""; clearFinished(); addFiles(e.target.files); e.target.value = ""; });
+const drop = $("drop");
+["dragenter","dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { $("result").innerHTML = ""; clearFinished(); addFiles(e.dataTransfer.files); });
+
+function toBase64(blob){
+  return new Promise((ok, bad) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(",")[1] || "");
+    r.onerror = () => bad(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+async function uploadOne(it){
+  const data = await toBase64(it.blob || it.file);
+  const body = { code: st.code, grade: GRADE, cls: CLS, num: st.who.num, name: st.who.name, task: st.task.title,
+    fileName: it.name, mimeType: it.mime, data };
+  let lastErr = null;
+  for (let tries = 0; tries < 2; tries++){
+    try{ return await apiPost(body); }
+    catch(e){ lastErr = e; await new Promise(r => setTimeout(r, 1500)); }
+  }
+  throw lastErr;
+}
+$("submit").onclick = async () => {
+  const todo = st.files.filter(x => x.status === "ready" || x.status === "fail");
+  if (!todo.length || st.busy) return;
+  st.busy = true; $("result").innerHTML = ""; refreshLocks();
+  let ok = 0, fail = 0, codeBad = false, late = false;
+  for (const it of todo){
+    it.status = "up"; renderFiles();
+    try{
+      const res = await uploadOne(it);
+      if (res && res.ok){ it.status = "done"; it.late = res.late; it.name = res.fileName || it.name; ok++; if (res.late) late = true; }
+      else { it.status = "fail"; it.note = (res && res.error) || "제출하지 못했어요."; fail++; if (/제출코드/.test(it.note)) codeBad = true; }
+    }catch(e){ it.status = "fail"; it.note = "연결이 끊겼어요. 다시 [제출하기]를 눌러 주세요."; fail++; }
+    renderFiles();
+  }
+  st.busy = false; renderFiles();
+  $("result").innerHTML = fail
+    ? `<div class="result err">${ok ? `${ok}개는 제출됐지만 ` : ""}${fail}개를 제출하지 못했어요. 빨간 글씨를 확인하고 다시 [제출하기]를 눌러 주세요.</div>`
+    : `<div class="result ok">🎉 <b>${esc(st.who.name)}</b> 학생, <b>${esc(st.task.title)}</b> 과제 ${ok}개 파일 제출 완료!${late ? "<br><small>마감일이 지나서 지각 제출로 기록됐어요.</small>" : ""}</div>`;
+  if (codeBad){ store(LS_CODE, null); setCodeOk(false); }
+  if (ok) loadMine();
+};
+
+/* ---------- 내 제출 기록 ---------- */
+async function loadMine(){
+  if (!st.code || !st.who) { $("card-mine").classList.add("hidden"); return; }
+  $("card-mine").classList.remove("hidden");
+  $("mine-title").textContent = `${st.who.name} 학생의 제출 기록`;
+  $("mine").innerHTML = '<li><span class="spin"></span> 불러오는 중…</li>';
+  try{
+    const res = await api({ action: "mine", code: st.code, grade: GRADE, cls: CLS, num: st.who.num });
+    if (!res.ok){ $("mine").innerHTML = `<li>${esc(res.error || "불러오지 못했어요.")}</li>`; return; }
+    const items = (res.items || []).slice().reverse();
+    $("mine").innerHTML = items.length ? items.map(r =>
+      `<li><b>${esc(r.task)}</b>${r.late ? '<span class="badge late">지각</span>' : ""}<br>📎 ${esc(r.file)} <span class="tm">· ${esc(r.time)}</span></li>`).join("")
+      : "<li>아직 제출한 파일이 없어요.</li>";
+  }catch(e){ $("mine").innerHTML = '<li>기록을 불러오지 못했어요.</li>'; }
+}
+$("mine-refresh").onclick = loadMine;
+
+/* ---------- 잠금 상태 ---------- */
+function refreshLocks(){
+  const ready = !!SUBMIT_API;
+  $("card-code").classList.toggle("locked", !ready);
+  $("card-who").classList.toggle("locked", !(ready && st.code));
+  $("card-task").classList.toggle("locked", !(ready && st.code && st.who));
+  $("card-file").classList.toggle("locked", !(ready && st.code && st.who && st.task));
+  const n = st.files.filter(x => x.status === "ready" || x.status === "fail").length;
+  const prep = st.files.some(x => x.status === "prep");
+  $("submit").disabled = st.busy || prep || !n || !(st.code && st.who && st.task);
+  $("submit").textContent = st.busy ? "제출하는 중…" : n ? `${n}개 파일 제출하기` : "제출하기";
+}
+
+/* ---------- 교사용 현황 ---------- */
+async function loadStatus(){
+  const tcode = $("tcode").value.trim(), m = $("t-msg"), out = $("t-out");
+  if (!tcode){ m.className = "msg err"; m.textContent = "교사 확인 코드를 입력해 주세요."; return; }
+  m.className = "msg"; m.innerHTML = '<span class="spin"></span> 불러오는 중…'; out.innerHTML = "";
+  try{
+    const res = await api({ action: "status", tcode, grade: GRADE });
+    if (!res.ok){ m.className = "msg err"; m.textContent = res.error || "확인하지 못했어요."; return; }
+    m.className = "msg ok"; m.innerHTML = `제출 기록 ${res.log.length}건 · <a href="${esc(res.folder)}" target="_blank" rel="noopener">📁 드라이브 폴더 열기</a>`;
+    const roster = [];
+    Object.keys(res.roster).sort((a,b)=>a-b).forEach(c => Object.keys(res.roster[c]).sort((a,b)=>a-b).forEach(n => roster.push({ cls: c, num: n, name: res.roster[c][n] })));
+    const tasks = res.tasks.length ? res.tasks : [];
+    if (!tasks.length){ out.innerHTML = '<p class="msg">과제목록 탭에 과제가 없어요.</p>'; return; }
+    let h = '<div class="tbl-wrap"><table><thead><tr><th>학생</th>' +
+      tasks.map(t => `<th>${esc(t.title)}${t.open ? "" : "<br><small>(비공개)</small>"}${t.due ? `<br><small>마감 ${esc(t.due)}</small>` : ""}</th>`).join("") + "</tr></thead><tbody>";
+    roster.forEach(s => {
+      h += `<tr><td class="nm">${s.cls}반 ${s.num}번 ${esc(s.name)}</td>`;
+      tasks.forEach(t => {
+        const rows = res.log.filter(r => r.cls === s.cls && r.num === s.num && r.task === t.title);
+        h += rows.length
+          ? `<td class="yes">✅ ${rows.length}개${rows.some(r => r.late) ? ' <span class="badge late">지각</span>' : ""}` +
+            rows.map(r => `<a href="${esc(r.url)}" target="_blank" rel="noopener" title="${esc(r.file)} · ${esc(r.time)}">${esc(r.file)}</a>`).join("") + "</td>"
+          : '<td class="no">미제출</td>';
+      });
+      h += "</tr>";
+    });
+    out.innerHTML = h + "</tbody></table></div>";
+  }catch(e){ m.className = "msg err"; m.textContent = "연결이 안 돼요. 잠시 후 다시 시도해 주세요."; }
+}
+$("tcode-btn").onclick = loadStatus;
+$("tcode").addEventListener("keydown", e => { if (e.key === "Enter") loadStatus(); });
+
+/* ---------- 시작 ---------- */
+(function init(){
+  const whoNum = load(LS_WHO);
+  st.who = ROSTER.find(s => s.num === whoNum) || null;
+  renderWho(); renderFiles();
+  if (!SUBMIT_API){ $("not-ready").classList.remove("hidden"); refreshLocks(); $("tasks").innerHTML = ""; return; }
+  loadTasks();
+  const saved = load(LS_CODE);
+  if (saved){ $("code").value = saved; checkCode(saved, true).then(() => { if (st.code) loadMine(); }); }
+  refreshLocks();
+})();
+</script>
+</body>
+</html>
