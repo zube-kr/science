@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚽ 마그누스 프리킥 — 바나나킥 챌린지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#0B1220}
+  body{font-family:"Jua","Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;color:#fff;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  #view{position:fixed;inset:0;touch-action:none}
+  #view canvas{display:block;width:100%;height:100%}
+  .hidden{display:none!important}
+  .sans{font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif}
+
+  /* ---------- HUD ---------- */
+  .hud-top{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:stretch;z-index:5;pointer-events:none}
+  .chip{background:rgba(8,14,30,.78);border:1.5px solid rgba(255,255,255,.18);border-radius:14px;padding:6px 14px;text-align:center;backdrop-filter:blur(4px)}
+  .chip small{display:block;font-size:12px;color:#A9B8D8;font-family:"Pretendard",system-ui,sans-serif}
+  .chip b{font-size:22px;line-height:1.1}
+  .chip.lv b{font-size:16px;color:#FFD166}
+  .hof{position:fixed;top:10px;left:10px;z-index:5;width:min(230px,30vw);background:rgba(8,13,30,.82);border:2px solid rgba(255,209,102,.55);border-radius:14px;padding:8px 10px;pointer-events:none}
+  .hof-title{color:#FFD166;text-align:center;font-size:16px;margin-bottom:2px}
+  .hof-list{list-style:none}
+  .hof-row{display:flex;gap:6px;align-items:center;font-size:13.5px;line-height:1.6}
+  .hof-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hof-date{font-size:11px;color:#8EA0C6;font-family:"Pretendard",system-ui,sans-serif}
+  .hof-score{color:#FFD166;min-width:3em;text-align:right}
+  .hof-empty{font-size:12px;color:#C9D4F0;text-align:center}
+  .side{position:fixed;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .wind{width:112px;background:rgba(8,14,30,.8);border:1.5px solid rgba(255,255,255,.18);border-radius:14px;padding:6px;text-align:center}
+  .wind svg{width:64px;height:64px;display:block;margin:0 auto}
+  .wind .wv{font-size:15px}
+  .wind small{display:block;font-size:11px;color:#A9B8D8;font-family:"Pretendard",system-ui,sans-serif}
+  .env{font-size:11.5px;color:#CFE0FF;background:rgba(8,14,30,.8);border-radius:10px;padding:4px 8px;font-family:"Pretendard",system-ui,sans-serif;text-align:right;max-width:170px}
+  .icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(8,14,30,.8);border:1.5px solid rgba(255,255,255,.18);color:#fff;font-size:18px;cursor:pointer}
+
+  .controls{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:flex-end;justify-content:space-between;padding:12px 14px calc(12px + env(safe-area-inset-bottom));gap:10px;pointer-events:none}
+  .controls > *{pointer-events:auto}
+  .contact{background:rgba(8,14,30,.82);border:1.5px solid rgba(255,255,255,.2);border-radius:18px;padding:8px 10px;display:flex;gap:10px;align-items:center}
+  #contact-cv{width:128px;height:128px;touch-action:none;cursor:crosshair;border-radius:50%}
+  .contact .ct{width:min(210px,34vw);font-family:"Pretendard",system-ui,sans-serif;font-size:12.5px;line-height:1.45;color:#DCE6FA}
+  .contact .ct b{font-family:"Jua",sans-serif;font-size:16px;color:#FFD166;display:block;margin-bottom:2px}
+  .aim{display:flex;gap:8px;align-items:center}
+  .aim button{width:52px;height:52px;border-radius:50%;border:0;background:rgba(8,14,30,.82);color:#fff;font-size:22px;border:1.5px solid rgba(255,255,255,.2);cursor:pointer}
+  .aim .lbl{font-size:12px;color:#A9B8D8;text-align:center;font-family:"Pretendard",system-ui,sans-serif}
+  .kick-wrap{display:flex;align-items:flex-end;gap:10px}
+  .power{width:22px;height:150px;border-radius:12px;background:rgba(8,14,30,.85);border:1.5px solid rgba(255,255,255,.25);position:relative;overflow:hidden}
+  .power .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(0deg,#4ADE80,#FACC15 60%,#F43F5E)}
+  .power .mark{position:absolute;left:-2px;right:-2px;height:2px;background:#fff;opacity:.6}
+  .kick{width:112px;height:112px;border-radius:50%;border:0;font-family:"Jua",sans-serif;font-size:26px;color:#3A1B00;cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,#FFE9A8,#FFB020 60%,#E07A00);box-shadow:0 6px 0 #9A4F00,0 12px 30px rgba(0,0,0,.45);touch-action:none}
+  .kick:active,.kick.on{transform:translateY(4px);box-shadow:0 2px 0 #9A4F00}
+  .kick small{display:block;font-size:12px;font-family:"Pretendard",sans-serif;font-weight:700}
+  .kick:disabled{filter:grayscale(.8) brightness(.7);cursor:not-allowed}
+
+  .banner{position:fixed;left:50%;top:22%;transform:translate(-50%,-50%);z-index:6;text-align:center;pointer-events:none;animation:pop .35s ease}
+  .banner .big{font-size:clamp(46px,9vw,88px);color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 30px rgba(255,209,102,.6);letter-spacing:2px}
+  .banner .sub{font-size:clamp(16px,2.6vw,22px);color:#FFE7A3;text-shadow:0 2px 0 rgba(0,0,0,.4);margin-top:4px}
+  @keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+  .analysis{position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:6;width:min(300px,86vw);background:rgba(8,14,30,.9);border:1.5px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;font-family:"Pretendard",system-ui,sans-serif}
+  .analysis h3{font-family:"Jua",sans-serif;font-weight:400;font-size:18px;color:#FFD166;margin-bottom:6px}
+  .analysis canvas{width:100%;height:auto;display:block;border-radius:10px;background:#1E5E2E}
+  .analysis .stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:12.5px;margin-top:8px;color:#DCE6FA}
+  .analysis .stats b{color:#fff}
+  .analysis .tip{font-size:12px;color:#BFD3FF;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.06);border-radius:8px;padding:6px 8px}
+  .analysis button{margin-top:10px;width:100%;padding:10px;border-radius:12px;border:0;background:#FFB020;color:#3A1B00;font-family:"Jua",sans-serif;font-size:18px;cursor:pointer}
+
+  /* ---------- 오버레이 ---------- */
+  .overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(5,9,20,.62);padding:14px}
+  .panel{background:#FFFDF6;color:#1B2438;border-radius:22px;padding:22px 22px 18px;width:min(560px,100%);max-height:94vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}
+  .panel h1{font-size:clamp(26px,5vw,40px);color:#1D3461}
+  .panel h2{font-size:24px;color:#1D3461}
+  .panel p,.panel li{font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;font-size:14px;line-height:1.7;color:#3A4560}
+  .panel ul{text-align:left;margin:8px 0 0 18px}
+  .panel b{color:#C8402E}
+  .sci{display:flex;gap:12px;align-items:center;background:#EEF4FF;border-radius:14px;padding:10px;margin:12px 0;text-align:left}
+  .sci svg{width:150px;flex:none}
+  .sci p{font-size:13px;line-height:1.55}
+  .formula{font-family:Georgia,serif;font-style:italic;font-size:17px;color:#1D3461;font-weight:700}
+  .start-btn{margin-top:14px;padding:13px 40px;border-radius:16px;border:0;background:#1D3461;color:#fff;font-family:"Jua",sans-serif;font-size:22px;cursor:pointer;box-shadow:0 5px 0 #0E1B36}
+  .start-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0E1B36}
+  .final-score{font-size:56px;color:#C8402E;line-height:1.1}
+  .final-sub{font-family:"Pretendard",sans-serif;font-size:14px;color:#4C5672;margin:4px 0 10px}
+  .name-form{display:flex;gap:7px;max-width:340px;margin:8px auto}
+  .name-form input{flex:1;padding:10px 12px;border-radius:10px;border:2px solid #CBD3E6;font-size:15px;font-family:"Pretendard",sans-serif}
+  .name-form button{padding:10px 16px;border-radius:10px;border:0;background:#C8402E;color:#fff;font-family:"Jua",sans-serif;font-size:16px;cursor:pointer}
+  .board-note{font-size:12px;color:#6B7690;font-family:"Pretendard",sans-serif;margin:4px 0}
+  .board-list{list-style:none;display:flex;flex-direction:column;gap:3px;max-width:380px;margin:6px auto 0}
+  .board-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 10px;border-radius:8px;background:#EEF1F8;font-family:"Pretendard",sans-serif}
+  .board-row.me{background:#FFE3B3;font-weight:800}
+  .board-row .rank{width:20px;text-align:center;font-weight:800;color:#6B7690}
+  .board-row:nth-child(1) .rank{color:#E8A23F}.board-row:nth-child(2) .rank{color:#9AA3B5}.board-row:nth-child(3) .rank{color:#C98A5D}
+  .board-row .bname{flex:1;font-weight:700;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .board-row .bdate{font-size:11.5px;color:#8A93AA}
+  .board-row .bscore{color:#C8402E;font-weight:800;min-width:56px;text-align:right}
+  .board-row.empty .bname{color:#B3BACB}
+  .shots-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:6px 0}
+  .shots-row span{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:16px;background:#EEF1F8}
+
+  @media (max-width:760px){
+    .hof{width:140px;padding:4px 7px;top:8px;left:8px}.hof-title{font-size:13px}.hof-row{font-size:11.5px;line-height:1.45}.hof-date{display:none}.hof-empty{font-size:10.5px}
+    .hud-top{top:8px;left:auto;right:8px;transform:none;flex-wrap:wrap;justify-content:flex-end;gap:4px;width:calc(100% - 160px)}
+    .chip{padding:2px 8px;border-radius:10px}.chip b{font-size:15px}.chip small{font-size:10px}
+    .chip.lv{width:100%}.chip.lv b{font-size:13px}
+    .side{top:96px;left:8px;right:auto;align-items:flex-start}
+    .env{display:none}
+    .wind{width:74px;padding:4px}.wind svg{width:40px;height:40px}.wind .wv{font-size:13px}.wind small{font-size:9.5px}
+    .icon-btn{width:34px;height:34px;font-size:15px}
+    .controls{flex-wrap:wrap;justify-content:center;gap:8px}
+    .contact{order:1;width:100%;justify-content:center}
+    #contact-cv{width:104px;height:104px}
+    .contact .ct{width:auto;flex:1;font-size:12px}
+    .aim{order:2}.kick-wrap{order:3}
+    .kick{width:90px;height:90px;font-size:22px}
+    .power{height:110px}
+    .analysis{top:auto;bottom:10px;transform:none;right:50%;margin-right:calc(min(300px,86vw) / -2)}
+  }
+</style>
+</head>
+<body>
+<div id="view"></div>
+
+<!-- HUD -->
+<div class="hof" id="hof"><div class="hof-title">🏆 명예의 전당</div><ol class="hof-list" id="hof-list"></ol></div>
+<div class="hud-top">
+  <div class="chip"><small>슛</small><b id="h-shot">1/10</b></div>
+  <div class="chip"><small>점수</small><b id="h-score">0</b></div>
+  <div class="chip"><small>골</small><b id="h-goals">0</b></div>
+  <div class="chip lv"><small id="h-stage-s">경기장</small><b id="h-stage">연습 경기장</b></div>
+</div>
+<div class="side">
+  <div class="wind" id="wind-box">
+    <svg viewBox="-32 -32 64 64"><circle r="29" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"/><g id="wind-arrow"><path d="M0 22 V-14 M-9 -5 L0 -18 L9 -5" fill="none" stroke="#7FD3FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+    <div class="wv"><span id="wind-v">0.0</span> m/s</div><small>바람 (화면 기준)</small>
+  </div>
+  <div class="env" id="env-box"></div>
+  <button class="icon-btn" id="sound-btn" title="소리">🔊</button>
+</div>
+
+<div class="controls" id="controls">
+  <div class="contact">
+    <canvas id="contact-cv" width="256" height="256"></canvas>
+    <div class="ct" id="contact-txt"></div>
+  </div>
+  <div class="aim">
+    <button id="aim-l" type="button">◀</button>
+    <div class="lbl">방향<br><span id="aim-v">0°</span></div>
+    <button id="aim-r" type="button">▶</button>
+  </div>
+  <div class="kick-wrap">
+    <div class="power"><div class="mark" style="bottom:70%"></div><div class="mark" style="bottom:90%"></div><div class="fill" id="power-fill"></div></div>
+    <button class="kick" id="kick-btn" type="button">슛!<small>누르고 있다가 떼기</small></button>
+  </div>
+</div>
+
+<div class="banner hidden" id="banner"><div class="big" id="banner-big"></div><div class="sub" id="banner-sub"></div></div>
+
+<div class="analysis hidden" id="analysis">
+  <h3 id="an-title">슛 분석</h3>
+  <canvas id="an-cv" width="560" height="420"></canvas>
+  <div class="stats" id="an-stats"></div>
+  <div class="tip" id="an-tip"></div>
+  <button id="an-next" type="button">다음 슛 ▶</button>
+</div>
+
+<!-- 시작 화면 -->
+<div class="overlay" id="menu">
+  <div class="panel">
+    <h1>⚽ 마그누스 프리킥</h1>
+    <p>공의 <b>어느 부분을 차느냐</b>에 따라 회전이 바뀌고, 회전하는 공은 공기 속에서 휘어져요. 수비벽을 돌아 골망을 흔들어 보세요!</p>
+    <div class="sci">
+      <svg viewBox="0 0 160 110">
+        <defs><marker id="m1" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10z" fill="#2F6FDB"/></marker>
+        <marker id="m2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10z" fill="#C8402E"/></marker></defs>
+        <path d="M5 30 C55 20 105 20 155 30" stroke="#2F6FDB" stroke-width="3" fill="none" marker-end="url(#m1)"/>
+        <path d="M5 80 C55 92 105 92 155 80" stroke="#8AA6D8" stroke-width="2" fill="none" marker-end="url(#m1)"/>
+        <circle cx="80" cy="55" r="22" fill="#fff" stroke="#1B2438" stroke-width="2"/>
+        <path d="M66 40 A20 20 0 0 1 98 46" fill="none" stroke="#1B2438" stroke-width="2.5" marker-end="url(#m2)"/>
+        <path d="M80 30 V8" stroke="#C8402E" stroke-width="4" marker-end="url(#m2)"/>
+        <text x="86" y="14" font-size="10" fill="#C8402E" font-weight="700">마그누스 힘</text>
+        <text x="8" y="22" font-size="9" fill="#2F6FDB">빠른 공기 → 압력 ↓</text>
+        <text x="8" y="104" font-size="9" fill="#4A6AA8">느린 공기 → 압력 ↑</text>
+      </svg>
+      <p><b>마그누스 효과</b>: 회전하는 공 주위에서 한쪽 공기는 빨라지고 다른 쪽은 느려져 압력 차가 생겨요. 그래서 공은 압력이 낮은 쪽으로 휘어집니다.<br><span class="formula">F = ½ ρ A C<sub>L</sub> v²</span></p>
+    </div>
+    <ul>
+      <li><b>공 그림</b>에서 찰 부분을 고르세요. 오른쪽을 차면 → 왼쪽으로 휘는 <b>바나나킥</b>, 아래를 차면 → 떠오름, 위를 차면 → 뚝 떨어짐, 정중앙은 → 흔들리는 <b>무회전 킥</b>.</li>
+      <li>◀ ▶ 또는 화면을 좌우로 끌어 <b>방향</b>을 정하고, <b>슛!</b>을 누르고 있다가 원하는 <b>파워</b>에서 떼세요.</li>
+      <li>수비벽은 점프하고, 골키퍼는 공이 <b>곧게 온다고 예상</b>해요. 휘는 공으로 속여 보세요! 바람과 공기 밀도도 공의 궤적을 바꿔요.</li>
+      <li>10번 슛 · 골 100점 + 휘어진 거리·구석 표적·연속 골 보너스. 반 전체 랭킹에 도전!</li>
+    </ul>
+    <button class="start-btn" id="start-btn" type="button">킥오프 ▶</button>
+  </div>
+</div>
+
+<!-- 결과 -->
+<div class="overlay hidden" id="result">
+  <div class="panel">
+    <h2>🏁 경기 종료</h2>
+    <div class="final-score" id="final-score">0점</div>
+    <div class="final-sub" id="final-sub"></div>
+    <div class="shots-row" id="shots-row"></div>
+    <form class="name-form" id="name-form">
+      <input type="text" id="name-input" maxlength="12" placeholder="이름을 입력하고 랭킹에 등록하세요" autocomplete="off" required>
+      <button type="submit">등록</button>
+    </form>
+    <div class="board-note" id="board-source-note"></div>
+    <ul class="board-list" id="leader-list"></ul>
+    <button class="start-btn" id="again-btn" type="button">다시 하기</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "./lib/three-0.160.0.module.min.js";
+
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+
+/* =====================================================================
+   물리 상수 (실제 축구공)
+   ===================================================================== */
+const BALL_R = 0.11, BALL_M = 0.43, BALL_A = Math.PI * BALL_R * BALL_R;
+const G = 9.81, CD = 0.25;
+const GOAL_HW = 3.66, GOAL_H = 2.44, POST_R = 0.06, POST_X = GOAL_HW + POST_R, BAR_Y = GOAL_H + POST_R;
+const NET_D = 2.0;
+
+/* 10번의 슛: 거리, 옆 위치, 벽 인원, 키퍼 실력, 최대 바람, 공기 밀도 */
+const STAGES = [
+  { name: "연습 경기장", d: 20, x: 0, wall: 3, keeper: 0.2, wind: 0, rho: 1.2 },
+  { name: "동네 운동장", d: 21.5, x: -6, wall: 4, keeper: 0.25, wind: 1.5, rho: 1.2 },
+  { name: "학교 대회", d: 23, x: 7, wall: 4, keeper: 0.3, wind: 2.2, rho: 1.2 },
+  { name: "측면 각도", d: 20.5, x: -10, wall: 3, keeper: 0.32, wind: 2.5, rho: 1.2 },
+  { name: "도 대회", d: 25, x: 1.5, wall: 5, keeper: 0.36, wind: 3, rho: 1.2 },
+  { name: "고산 경기장 (해발 3600 m)", d: 23, x: 9, wall: 4, keeper: 0.4, wind: 2.5, rho: 0.85 },
+  { name: "바닷가 강풍", d: 26, x: -4, wall: 5, keeper: 0.42, wind: 5, rho: 1.22 },
+  { name: "측면 끝", d: 22, x: 12, wall: 3, keeper: 0.45, wind: 3.5, rho: 1.2 },
+  { name: "준결승", d: 26, x: -4, wall: 4, keeper: 0.5, wind: 4, rho: 1.2 },
+  { name: "결승전", d: 27.5, x: 8, wall: 5, keeper: 0.55, wind: 4.5, rho: 1.2 },
+];
+
+/* =====================================================================
+   렌더러·장면
+   ===================================================================== */
+const view = $("view");
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xBFD6EE, 90, 260);
+const camera = new THREE.PerspectiveCamera(52, 1, .05, 600);
+
+function canvasTex(w, h, draw, opts = {}){
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  draw(c.getContext("2d"), w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = opts.aniso || 4;
+  if (opts.repeat){ t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...opts.repeat); }
+  return t;
+}
+
+/* ---------- 하늘·조명 ---------- */
+{
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), new THREE.MeshBasicMaterial({ side: THREE.BackSide, depthWrite: false, fog: false,
+    map: canvasTex(16, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#2E6FD0"); gr.addColorStop(.45, "#7FB6EE"); gr.addColorStop(.52, "#D9ECFA"); gr.addColorStop(1, "#D9ECFA"); g.fillStyle = gr; g.fillRect(0, 0, w, h); }) }));
+  scene.add(sky);
+  scene.add(new THREE.HemisphereLight(0xDDEBFF, 0x3E6B2F, .9));
+  const sun = new THREE.DirectionalLight(0xFFF3DD, 2.6);
+  sun.position.set(-25, 45, 30); sun.castShadow = true;
+  const small = Math.min(innerWidth, innerHeight) < 700;
+  sun.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
+  Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 36, bottom: -10, near: 1, far: 140 });
+  sun.shadow.bias = -.0004; sun.shadow.normalBias = .03;
+  sun.target.position.set(0, 0, 14); scene.add(sun.target);
+  scene.add(sun);
+}
+
+/* ---------- 잔디·라인 ---------- */
+{
+  const PX = 25.6; // 1 m = 25.6 px
+  const tex = canvasTex(2048, 1792, (g, W, H) => {
+    for (let i = 0; i < 14; i++){ g.fillStyle = i % 2 ? "#3F8E3A" : "#4A9B44"; g.fillRect(0, i * 5 * PX, W, 5 * PX); }
+    for (let i = 0; i < 60000; i++){ g.fillStyle = `rgba(${Math.random() < .5 ? "20,60,20" : "120,180,90"},${rnd(.05, .14)})`; g.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
+    const X = x => (x + 40) * PX, Z = z => (z + 10) * PX;
+    g.strokeStyle = "rgba(255,255,255,.92)"; g.lineWidth = .12 * PX;
+    g.beginPath(); g.moveTo(0, Z(0)); g.lineTo(W, Z(0)); g.stroke();
+    g.strokeRect(X(-20.16), Z(0), 40.32 * PX, 16.5 * PX);
+    g.strokeRect(X(-9.16), Z(0), 18.32 * PX, 5.5 * PX);
+    g.beginPath(); g.arc(X(0), Z(11), .14 * PX, 0, TAU); g.fillStyle = "#fff"; g.fill();
+    const a0 = Math.acos(5.5 / 9.15);
+    g.beginPath(); g.arc(X(0), Z(11), 9.15 * PX, Math.PI / 2 - (Math.PI / 2 - a0), Math.PI / 2 + (Math.PI / 2 - a0)); g.stroke();
+  }, { aniso: 8 });
+  const pitch = new THREE.Mesh(new THREE.PlaneGeometry(80, 70), new THREE.MeshStandardMaterial({ map: tex, roughness: .95 }));
+  pitch.rotation.x = -Math.PI / 2; pitch.position.set(0, 0, 25); pitch.receiveShadow = true; scene.add(pitch);
+  const outer = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x3A7F35, roughness: 1 }));
+  outer.rotation.x = -Math.PI / 2; outer.position.y = -.02; outer.receiveShadow = true; scene.add(outer);
+}
+
+/* ---------- 골대·그물 ---------- */
+const goalGroup = new THREE.Group(); scene.add(goalGroup);
+{
+  const white = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: .35, metalness: .1 });
+  const post = new THREE.CylinderGeometry(POST_R, POST_R, BAR_Y + POST_R, 20);
+  for (const s of [-1, 1]){ const p = new THREE.Mesh(post, white); p.position.set(s * POST_X, (BAR_Y + POST_R) / 2, 0); p.castShadow = true; goalGroup.add(p); }
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(POST_R, POST_R, POST_X * 2 + POST_R * 2, 20), white);
+  bar.rotation.z = Math.PI / 2; bar.position.set(0, BAR_Y, 0); bar.castShadow = true; goalGroup.add(bar);
+  // 뒤쪽 프레임
+  const thin = new THREE.MeshStandardMaterial({ color: 0xDDDDDD, roughness: .5 });
+  for (const s of [-1, 1]){
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, Math.hypot(NET_D, GOAL_H), 8), thin);
+    b.position.set(s * POST_X, GOAL_H / 2, -NET_D / 2); b.rotation.x = Math.atan2(NET_D, GOAL_H); goalGroup.add(b);
+  }
+  const netTex = canvasTex(128, 128, (g, w, h) => { g.clearRect(0, 0, w, h); g.strokeStyle = "rgba(255,255,255,.85)"; g.lineWidth = 3; for (let i = 0; i <= 128; i += 32){ g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.moveTo(0, i); g.lineTo(w, i); g.stroke(); } });
+  netTex.wrapS = netTex.wrapT = THREE.RepeatWrapping;
+  const netMat = (rx, ry) => { const t = netTex.clone(); t.needsUpdate = true; t.repeat.set(rx, ry); return new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .2, side: THREE.DoubleSide, roughness: 1 }); };
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(POST_X * 2, Math.hypot(NET_D, GOAL_H)), netMat(POST_X * 2 / .14, Math.hypot(NET_D, GOAL_H) / .14));
+  back.position.set(0, GOAL_H / 2, -NET_D / 2); back.rotation.x = Math.atan2(NET_D, GOAL_H); goalGroup.add(back);
+  const sideShape = new THREE.Shape(); sideShape.moveTo(0, 0); sideShape.lineTo(-NET_D, 0); sideShape.lineTo(0, GOAL_H); sideShape.lineTo(0, 0);
+  for (const s of [-1, 1]){
+    const geo = new THREE.ShapeGeometry(sideShape); const uv = geo.attributes.uv, pos = geo.attributes.position;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i) / .14, pos.getY(i) / .14);
+    const m = new THREE.Mesh(geo, netMat(1, 1)); m.rotation.y = -Math.PI / 2; m.position.x = s * POST_X; goalGroup.add(m);
+  }
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(POST_X * 2, .25), netMat(POST_X * 2 / .14, .25 / .14)); top.rotation.x = Math.PI / 2; top.position.set(0, GOAL_H, -.12); goalGroup.add(top);
+}
+
+/* ---------- 관중석·광고판·조명탑 ---------- */
+{
+  const crowd = canvasTex(1024, 512, (g, W, H) => {
+    g.fillStyle = "#2B3140"; g.fillRect(0, 0, W, H);
+    const shirts = ["#E63946", "#F1FAEE", "#1D3557", "#FFB703", "#2A9D8F", "#E76F51", "#FFFFFF", "#3A86FF", "#8338EC"];
+    for (let row = 0; row < 16; row++){
+      g.fillStyle = row % 2 ? "#3A4150" : "#343B4A"; g.fillRect(0, row * 32, W, 32);
+      for (let x = 4; x < W; x += rnd(11, 18)){
+        if (Math.random() < .12) continue;
+        const y = row * 32 + 10;
+        g.fillStyle = shirts[Math.random() * shirts.length | 0]; g.fillRect(x - 4, y + 6, 9, 10);
+        g.fillStyle = ["#F2C9A0", "#C68E64", "#8D5A3B", "#F7D9B9"][Math.random() * 4 | 0]; g.beginPath(); g.arc(x, y + 3, 3.6, 0, TAU); g.fill();
+        if (Math.random() < .08){ g.fillStyle = shirts[Math.random() * shirts.length | 0]; g.fillRect(x - 6, y - 8, 12, 7); }
+      }
+    }
+  }, { repeat: [2.6, 1] });
+  const standMat = new THREE.MeshStandardMaterial({ map: crowd, roughness: .9 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0xE9EDF5, roughness: .6 });
+  { const s = new THREE.Mesh(new THREE.PlaneGeometry(110, 26), standMat); s.position.set(0, 8.5, -18); s.rotation.set(-.55, 0, 0, "YXZ"); scene.add(s);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(112, .6, 12), roofMat); roof.position.set(0, 21, -23); scene.add(roof); }
+  for (const sx of [-1, 1]){ const roof = new THREE.Mesh(new THREE.BoxGeometry(12, .6, 92), roofMat); roof.position.set(sx * 56, 21, 25); scene.add(roof); }
+  { const s = new THREE.Mesh(new THREE.PlaneGeometry(90, 26), standMat); s.position.set(-50, 8.5, 25); s.rotation.set(-.55, Math.PI / 2, 0, "YXZ"); scene.add(s); }
+  { const s = new THREE.Mesh(new THREE.PlaneGeometry(90, 26), standMat); s.position.set(50, 8.5, 25); s.rotation.set(-.55, -Math.PI / 2, 0, "YXZ"); scene.add(s); }
+  // 광고판
+  const ads = ["마그누스 FC", "F = ½ρAC_Lv²", "아화중학교 과학", "공기 저항 ↔ 속도²", "BERNOULLI", "회전 = 휘어짐", "ROBERTO CARLOS 1997"];
+  const adTex = canvasTex(2048, 64, (g, W, H) => {
+    let x = 0, i = 0;
+    while (x < W){
+      const t = ads[i % ads.length], col = ["#1D3461", "#C8402E", "#0E7C5A", "#6A3FB8"][i % 4];
+      g.font = "bold 40px Arial, sans-serif"; const w = g.measureText(t).width + 80;
+      g.fillStyle = col; g.fillRect(x, 0, w, H); g.fillStyle = "#fff"; g.fillText(t, x + 40, 46); x += w; i++;
+    }
+  });
+  const adMat = new THREE.MeshStandardMaterial({ map: adTex, emissive: 0xffffff, emissiveMap: adTex, emissiveIntensity: .35, roughness: .6 });
+  const ad1 = new THREE.Mesh(new THREE.BoxGeometry(70, .9, .1), adMat); ad1.position.set(0, .45, -5); scene.add(ad1);
+  for (const s of [-1, 1]){ const a = new THREE.Mesh(new THREE.BoxGeometry(60, .9, .1), adMat); a.rotation.y = Math.PI / 2; a.position.set(s * 38, .45, 25); scene.add(a); }
+  // 조명탑
+  for (const [x, z] of [[-48, -14], [48, -14], [-52, 55], [52, 55]]){
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(.5, .8, 34, 10), new THREE.MeshStandardMaterial({ color: 0x8A93A6 })); pole.position.set(x, 17, z); scene.add(pole);
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(7, 4, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xFFFBE6, emissiveIntensity: 1.2 })); lamp.position.set(x, 35, z); lamp.lookAt(0, 0, 15); scene.add(lamp);
+  }
+}
+
+/* ---------- 코너 깃발 (바람 표시) ---------- */
+const flags = [];
+{
+  for (const [x, z] of [[-30, 0], [30, 0], [-36, 30], [36, 30]]){
+    const g = new THREE.Group(); g.position.set(x, 0, z);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, 1.6, 8), new THREE.MeshStandardMaterial({ color: 0xFFFFFF })); pole.position.y = .8; g.add(pole);
+    const geo = new THREE.PlaneGeometry(.55, .38, 10, 4); geo.translate(.275, 0, 0);
+    const cloth = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xFF4D4D, side: THREE.DoubleSide, roughness: .8 }));
+    cloth.position.y = 1.4; g.add(cloth);
+    cloth.userData.base = Float32Array.from(geo.attributes.position.array);
+    scene.add(g); flags.push({ g, cloth });
+  }
+}
+
+/* ---------- 바람 입자 ---------- */
+const WP = 260;
+const windPts = new Float32Array(WP * 3);
+for (let i = 0; i < WP; i++){ windPts[i * 3] = rnd(-25, 25); windPts[i * 3 + 1] = rnd(.3, 8); windPts[i * 3 + 2] = rnd(-4, 40); }
+const windGeo = new THREE.BufferGeometry(); windGeo.setAttribute("position", new THREE.BufferAttribute(windPts, 3));
+const windMesh = new THREE.Points(windGeo, new THREE.PointsMaterial({ color: 0xFFFFFF, size: .09, transparent: true, opacity: .55, depthWrite: false }));
+scene.add(windMesh);
+
+/* ---------- 사람 모형 ---------- */
+const SKINS = [0xF2C9A0, 0xC68E64, 0x8D5A3B, 0xF7D9B9];
+function makePlayer(jersey, shorts, socks, opts = {}){
+  const g = new THREE.Group();
+  const M = c => new THREE.MeshStandardMaterial({ color: c, roughness: .7 });
+  const skin = M(opts.skin || SKINS[Math.random() * SKINS.length | 0]);
+  const mesh = (geo, mat, x, y, z, parent = g) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
+  const legs = [];
+  for (const s of [-1, 1]){
+    const hip = new THREE.Group(); hip.position.set(s * .11, .9, 0); g.add(hip);
+    mesh(new THREE.CapsuleGeometry(.085, .5, 4, 10), skin, 0, -.36, 0, hip);
+    mesh(new THREE.CapsuleGeometry(.09, .22, 4, 10), M(socks), 0, -.66, 0, hip);
+    mesh(new THREE.BoxGeometry(.13, .08, .26), M(0x111111), 0, -.86, .05, hip);
+    legs.push(hip);
+  }
+  mesh(new THREE.CylinderGeometry(.21, .19, .26, 14), M(shorts), 0, .93, 0);
+  const torso = mesh(new THREE.CapsuleGeometry(.2, .38, 6, 14), M(jersey), 0, 1.3, 0); torso.scale.z = .72;
+  const arms = [];
+  for (const s of [-1, 1]){
+    const sh = new THREE.Group(); sh.position.set(s * .27, 1.5, 0); g.add(sh);
+    mesh(new THREE.CapsuleGeometry(.065, .2, 4, 8), M(jersey), 0, -.12, 0, sh);
+    mesh(new THREE.CapsuleGeometry(.055, .26, 4, 8), opts.gloves ? M(opts.gloves) : skin, 0, -.42, 0, sh);
+    arms.push(sh);
+  }
+  mesh(new THREE.CylinderGeometry(.06, .07, .1, 10), skin, 0, 1.63, 0);
+  const head = mesh(new THREE.SphereGeometry(.13, 18, 14), skin, 0, 1.76, 0);
+  const hair = mesh(new THREE.SphereGeometry(.137, 18, 12, 0, TAU, 0, Math.PI / 2), M(opts.hair || [0x1B1209, 0x3B2A1A, 0x6B4A2A, 0x111111][Math.random() * 4 | 0]), 0, 1.78, -.01);
+  hair.rotation.x = -.25;
+  g.userData = { legs, arms, head };
+  return g;
+}
+
+/* ---------- 공 ---------- */
+const ballTex = canvasTex(512, 256, (g, W, H) => {
+  g.fillStyle = "#F7F7F2"; g.fillRect(0, 0, W, H);
+  const poly = (cx, cy, r, n, rot, fill) => { g.beginPath(); for (let i = 0; i < n; i++){ const a = rot + i * TAU / n; const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a) * .9; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.closePath(); g.fillStyle = fill; g.fill(); };
+  for (let row = 0; row < 4; row++) for (let i = 0; i < 6; i++){
+    const cx = (i + (row % 2) * .5) * W / 6, cy = 28 + row * 66;
+    poly(cx, cy, 22, 5, -Math.PI / 2, "#1B1B1B");
+  }
+  g.strokeStyle = "#E63946"; g.lineWidth = 10; g.beginPath(); for (let x = 0; x <= W; x += 4){ const y = H / 2 + Math.sin(x / W * TAU * 2) * 34; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+  g.strokeStyle = "#1D6FE0"; g.lineWidth = 6; g.beginPath(); for (let x = 0; x <= W; x += 4){ const y = H / 2 + Math.sin(x / W * TAU * 2 + 1) * 34; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+});
+const ball = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 32, 24), new THREE.MeshStandardMaterial({ map: ballTex, roughness: .45 }));
+ball.castShadow = true; scene.add(ball);
+
+/* 궤적 점 */
+const TRAIL = 400;
+const trailPos = new Float32Array(TRAIL * 3), trailCol = new Float32Array(TRAIL * 3);
+const trailGeo = new THREE.BufferGeometry();
+trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
+trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
+trailGeo.setDrawRange(0, 0);
+const dotTex = canvasTex(64, 64, (g) => { const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.5, "rgba(255,255,255,.8)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); });
+const trail = new THREE.Points(trailGeo, new THREE.PointsMaterial({ size: .16, map: dotTex, vertexColors: true, transparent: true, opacity: .95, depthWrite: false }));
+scene.add(trail);
+
+/* 조준 화살표 + 스프레이 표시 */
+const aimArrow = new THREE.Group(); scene.add(aimArrow);
+{
+  const mat = new THREE.MeshBasicMaterial({ color: 0xFFE066, transparent: true, opacity: .85, depthWrite: false });
+  for (let i = 0; i < 8; i++){ const d = new THREE.Mesh(new THREE.CircleGeometry(.07, 12), mat); d.rotation.x = -Math.PI / 2; d.position.set(0, .02, -(.8 + i * .55)); aimArrow.add(d); }
+  const tri = new THREE.Mesh(new THREE.ConeGeometry(.22, .45, 3), mat); tri.rotation.x = -Math.PI / 2; tri.position.set(0, .03, -5.4); aimArrow.add(tri);
+}
+const sprayGroup = new THREE.Group(); scene.add(sprayGroup);
+const goalTargets = new THREE.Group(); scene.add(goalTargets);
+{
+  for (const s of [-1, 1]){
+    const t = canvasTex(128, 128, (g) => { [["#FF3B3B", 60], ["#FFE066", 44], ["#FF3B3B", 28], ["#FFFFFF", 12]].forEach(([c, r]) => { g.beginPath(); g.arc(64, 64, r, 0, TAU); g.fillStyle = c; g.fill(); }); });
+    const m = new THREE.Mesh(new THREE.CircleGeometry(.55, 32), new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: .75, depthWrite: false, side: THREE.DoubleSide }));
+    m.position.set(s * (GOAL_HW - .6), GOAL_H - .6, -.05); goalTargets.add(m);
+  }
+}
+
+/* =====================================================================
+   게임 상태
+   ===================================================================== */
+const S = {
+  phase: "menu", shot: 0, score: 0, goals: 0, streak: 0, results: [],
+  stage: null, ballStart: new THREE.Vector3(), aim: 0, contact: { u: .55, v: -.25 }, power: 0, charging: false, chargeT: 0,
+  wind: new THREE.Vector3(), rho: 1.2,
+  pos: new THREE.Vector3(), vel: new THREE.Vector3(), w: new THREE.Vector3(), t: 0,
+  wall: [], keeper: null, kicker: null, kickT: 0, flight: null, timeScale: 1, resultT: 0, sound: true,
+};
+window.__fk = S;
+
+/* 바닥 방향 벡터들 */
+function baseDir(){ // 공 → 골문 중앙 (수평)
+  const d = new THREE.Vector3(-S.ballStart.x, 0, -S.ballStart.z); return d.normalize();
+}
+function aimDir(){ const d = baseDir(); return d.applyAxisAngle(new THREE.Vector3(0, 1, 0), -S.aim); }
+
+/* ---------- 슛 준비 ---------- */
+function clearPeople(){
+  for (const p of S.wall) scene.remove(p.g);
+  S.wall = [];
+  if (S.keeper) scene.remove(S.keeper.g);
+  if (S.kicker) scene.remove(S.kicker.g);
+}
+function setupShot(){
+  const st = STAGES[S.shot];
+  S.stage = st;
+  const x = st.x + rnd(-1, 1), z = Math.sqrt(Math.max(64, st.d * st.d - x * x)) + rnd(-.6, .6);
+  S.ballStart.set(x, BALL_R, z);
+  S.pos.copy(S.ballStart); S.vel.set(0, 0, 0); S.w.set(0, 0, 0);
+  ball.position.copy(S.pos); ball.rotation.set(0, 0, 0);
+  S.aim = 0; S.power = 0; S.timeScale = 1;
+  const wa = rnd(0, TAU), wv = st.wind ? rnd(st.wind * .45, st.wind) : 0;
+  S.wind.set(Math.cos(wa) * wv, 0, Math.sin(wa) * wv);
+  S.rho = st.rho;
+  clearPeople();
+  // 수비벽: 공에서 9.15 m, 가까운 골대 쪽을 막도록
+  const nearPost = new THREE.Vector3(Math.abs(x) < 2 ? 0 : Math.sign(x) * 1.6, 0, 0);
+  const toGoal = nearPost.clone().sub(new THREE.Vector3(x, 0, z)).normalize();
+  const right = new THREE.Vector3(-toGoal.z, 0, toGoal.x);
+  const center = new THREE.Vector3(x, 0, z).addScaledVector(toGoal, 9.15);
+  const n = st.wall;
+  for (let i = 0; i < n; i++){
+    const off = (i - (n - 1) / 2) * .56;
+    const g = makePlayer(0x1D5FD6, 0x103A8A, 0x1D5FD6);
+    g.position.copy(center).addScaledVector(right, off);
+    g.rotation.y = Math.atan2(-toGoal.x, -toGoal.z);
+    const { arms } = g.userData; arms[0].rotation.z = .5; arms[1].rotation.z = -.5; arms[0].rotation.x = arms[1].rotation.x = -.9;
+    scene.add(g); S.wall.push({ g, base: g.position.clone(), jump: 0, jumpDelay: rnd(.05, .2) });
+  }
+  // 골키퍼
+  const kx = Math.abs(x) < 2 ? 0 : -Math.sign(x) * .9;
+  const kg = makePlayer(0x16A34A, 0x111111, 0x16A34A, { gloves: 0xFFFFFF });
+  kg.position.set(kx, 0, .55); kg.rotation.y = 0;
+  kg.userData.arms[0].rotation.z = .9; kg.userData.arms[1].rotation.z = -.9;
+  scene.add(kg);
+  S.keeper = { g: kg, x: kx, react: lerp(.5, .28, st.keeper), speed: lerp(1.3, 3.4, st.keeper), dive: 0, diveDir: 0, committed: false, saved: false, skill: st.keeper };
+  // 키커
+  const kk = makePlayer(0xF5F5F5, 0xF5F5F5, 0xC8402E, { skin: 0xE8B48A });
+  scene.add(kk); S.kicker = { g: kk };
+  placeKicker(0);
+  // 스프레이 (반원 + 벽 선)
+  sprayGroup.clear();
+  const sm = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: .8, depthWrite: false });
+  const arc = new THREE.Mesh(new THREE.RingGeometry(.48, .55, 32, 1, 0, Math.PI), sm); arc.rotation.x = -Math.PI / 2; arc.rotation.z = Math.atan2(-toGoal.z, toGoal.x) - Math.PI / 2 + Math.PI; arc.position.set(x, .015, z); sprayGroup.add(arc);
+  const line = new THREE.Mesh(new THREE.PlaneGeometry(n * .56 + .6, .07), sm); line.rotation.x = -Math.PI / 2; line.rotation.z = Math.atan2(-right.z, right.x); line.position.copy(center).setY(.015).addScaledVector(toGoal, .3); sprayGroup.add(line);
+  trailGeo.setDrawRange(0, 0); trailN = 0;
+  S.flight = null;
+  updateHUD();
+  drawContact();
+  S.phase = "aim";
+  $("kick-btn").disabled = false;
+}
+
+function placeKicker(runT){ // runT 0 = 도움닫기 시작, 1 = 공 앞
+  const d = aimDir(), R = new THREE.Vector3(-d.z, 0, d.x);
+  const startP = S.ballStart.clone().addScaledVector(d, -2.3).addScaledVector(R, -1.1).setY(0);
+  const endP = S.ballStart.clone().addScaledVector(d, -.42).addScaledVector(R, -.24).setY(0);
+  const g = S.kicker.g;
+  g.position.lerpVectors(startP, endP, runT);
+  const face = runT > 0 && runT < 1 ? endP.clone().sub(startP).normalize() : d;
+  g.rotation.y = Math.atan2(face.x, face.z);
+}
+
+/* ---------- 차는 위치 → 공의 처음 속도·회전 ---------- */
+function kickVectors(){
+  const { u, v } = S.contact, p = S.power;
+  const d = aimDir(), up = new THREE.Vector3(0, 1, 0), R = new THREE.Vector3(-d.z, 0, d.x);
+  const off = Math.hypot(u, v);
+  // 속도: 파워 + 정중앙에 가까울수록 힘이 잘 전달
+  const speed = (15 + 17 * p) * (1 - .22 * off * off);
+  // 발사각: 아래를 찰수록 높이 뜸, 옆을 차면 반대쪽으로 살짝 튐(작용점의 법선 방향)
+  const elev = clamp(23 + (-v) * 5 - p * 8, 6, 34) * DEG;   // 아래를 찰수록 높게, 세게 찰수록 낮고 곧게
+  const side = u * 5 * DEG;   // 오른쪽을 차면 작용점의 법선 방향(왼쪽)으로 살짝 튐
+  const dir = d.clone().applyAxisAngle(up, side);
+  const vel = dir.multiplyScalar(Math.cos(elev) * speed).add(new THREE.Vector3(0, Math.sin(elev) * speed, 0));
+  // 회전: 토크 τ = r × F → ω ∝ (u·위쪽 − v·오른쪽)
+  const spinMag = .34 * speed / BALL_R * clamp(off, 0, 1);
+  const w = up.clone().multiplyScalar(u).addScaledVector(R, -v * .65);   // 발 안쪽으로 감아 차므로 옆 회전이 주로 걸림
+  if (w.lengthSq() > 1e-6) w.normalize().multiplyScalar(spinMag);
+  return { vel, w, speed, elev };
+}
+
+/* ---------- 물리 한 걸음 ---------- */
+const tmp1 = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tmp3 = new THREE.Vector3();
+let knuckle = new THREE.Vector3(), knuckleT = 0;
+function physStep(dt, rec){
+  const vrel = tmp1.copy(S.vel).sub(S.wind);
+  const v = vrel.length();
+  const acc = tmp2.set(0, -G, 0);
+  if (v > .01){
+    const q = .5 * S.rho * BALL_A * v * v;
+    acc.addScaledVector(vrel, -q * CD / v / BALL_M);                  // 공기 저항
+    const wm = S.w.length();
+    if (wm > .5){
+      const cl = Math.min(.3, .85 * BALL_R * wm / v);                  // 양력 계수 C_L (회전 계수 rω/v에 비례)
+      const dirM = tmp3.copy(S.w).cross(vrel);
+      if (dirM.lengthSq() > 1e-8){ dirM.normalize(); acc.addScaledVector(dirM, q * cl / BALL_M); if (rec) rec.mag = dirM.clone().multiplyScalar(q * cl); }
+    }
+    // 무회전 킥: 회전이 거의 없으면 공 주위 공기 흐름이 불안정해 흔들림
+    if (wm < 9 && v > 18){
+      knuckleT -= dt;
+      if (knuckleT <= 0){ knuckleT = rnd(.08, .16); knuckle.set(rnd(-1, 1), rnd(-.6, .6), 0).multiplyScalar(q * .09 / BALL_M); }
+      acc.add(knuckle);
+    }
+  }
+  S.vel.addScaledVector(acc, dt);
+  S.pos.addScaledVector(S.vel, dt);
+  S.w.multiplyScalar(Math.exp(-dt / 7));
+  // 바닥
+  if (S.pos.y < BALL_R){
+    S.pos.y = BALL_R;
+    if (S.vel.y < -1) S.vel.y *= -.55; else S.vel.y = 0;
+    S.vel.x *= .985; S.vel.z *= .985; S.w.multiplyScalar(.9);
+  }
+}
+
+/* =====================================================================
+   슛 진행
+   ===================================================================== */
+let trailN = 0;
+function startKick(){
+  if (S.phase !== "aim" && S.phase !== "charge") return;
+  S.phase = "runup"; S.kickT = 0;
+  $("kick-btn").disabled = true;
+  aimArrow.visible = false;
+  sfx.whistle();
+}
+function launch(){
+  const k = kickVectors();
+  S.vel.copy(k.vel); S.w.copy(k.w);
+  S.t = 0; S.timeScale = 1;
+  S.flight = { start: S.ballStart.clone(), maxH: 0, speed0: k.speed, spin0: k.w.length(), elev: k.elev, path: [], magnus: [], hitPost: false, cross: null, result: null, knuckle: k.w.length() < 9, aimDir: aimDir() };
+  for (const w of S.wall) w.jumpAt = w.jumpDelay;
+  S.keeper.t = 0;
+  sfx.kick(S.power);
+  S.phase = "flight";
+}
+
+function wallCollide(){
+  for (const w of S.wall){
+    const dx = S.pos.x - w.g.position.x, dz = S.pos.z - w.g.position.z;
+    const top = 1.86 + w.g.position.y;
+    if (dx * dx + dz * dz < (.25 + BALL_R) ** 2 && S.pos.y < top && S.pos.y > w.g.position.y + .1){
+      const n = new THREE.Vector3(dx, 0, dz).normalize();
+      S.vel.reflect(n).multiplyScalar(.35); S.vel.y = Math.abs(S.vel.y) * .5 + 1;
+      S.pos.addScaledVector(n, .05);
+      return true;
+    }
+  }
+  return false;
+}
+function postCollide(){
+  let hit = false;
+  // 골대 기둥
+  for (const s of [-1, 1]){
+    if (S.pos.y > BAR_Y + POST_R + BALL_R) continue;
+    const dx = S.pos.x - s * POST_X, dz = S.pos.z, d = Math.hypot(dx, dz);
+    if (d < POST_R + BALL_R){ const n = new THREE.Vector3(dx / d, 0, dz / d); reflectOff(n); S.pos.x = s * POST_X + n.x * (POST_R + BALL_R + .001); S.pos.z = n.z * (POST_R + BALL_R + .001); hit = true; }
+  }
+  // 크로스바
+  if (Math.abs(S.pos.x) < POST_X){
+    const dy = S.pos.y - BAR_Y, dz = S.pos.z, d = Math.hypot(dy, dz);
+    if (d < POST_R + BALL_R){ const n = new THREE.Vector3(0, dy / d, dz / d); reflectOff(n); S.pos.y = BAR_Y + n.y * (POST_R + BALL_R + .001); S.pos.z = n.z * (POST_R + BALL_R + .001); hit = true; }
+  }
+  return hit;
+}
+function reflectOff(n){ const vn = S.vel.dot(n); if (vn < 0){ S.vel.addScaledVector(n, -1.6 * vn); S.vel.multiplyScalar(.85); } }
+
+function keeperUpdate(dt){
+  const K = S.keeper; K.t += dt;
+  const g = K.g;
+  if (K.t < K.react || K.saved) return;
+  // 키퍼는 지금 속도로 '곧게' 날아온다고 예측 (휘어짐은 모름!)
+  let px = K.x, py = 1;
+  if (S.vel.z < -1){
+    const tt = S.pos.z / -S.vel.z;
+    px = S.pos.x + S.vel.x * tt; py = S.pos.y + S.vel.y * tt - .5 * G * tt * tt * .6;
+    // 실력이 좋을수록 휘어짐을 조금 더 읽음
+    if (S.flight && S.flight.path.length > 6){
+      const a = S.flight.path[S.flight.path.length - 1], b = S.flight.path[Math.max(0, S.flight.path.length - 7)];
+      const ax = (a.vx - b.vx) / Math.max(.001, a.t - b.t);
+      px += .5 * ax * tt * tt * K.skill * .6;
+    }
+  }
+  px = clamp(px, -GOAL_HW + .3, GOAL_HW - .3);
+  const timeLeft = S.vel.z < -1 ? S.pos.z / -S.vel.z : 9;
+  if (!K.committed && timeLeft < .42 + (1 - K.skill) * .05 && Math.abs(px - K.x) > .55){
+    K.committed = true; K.diveDir = Math.sign(px - K.x); K.diveH = clamp(py, .3, 2.2);
+  }
+  if (K.committed){
+    K.dive = Math.min(1, K.dive + dt * (2.4 + K.skill * 1.6));
+    K.x += K.diveDir * dt * (1.8 + K.skill * 2) * (1 - K.dive * .4);
+  } else {
+    K.x += clamp(px - K.x, -K.speed * dt, K.speed * dt);
+  }
+  K.x = clamp(K.x, -GOAL_HW + .2, GOAL_HW - .2);
+  g.position.x = K.x;
+  g.rotation.z = -K.diveDir * K.dive * 1.25;
+  g.position.y = K.dive * (K.diveH > 1.2 ? .55 : .2) * Math.sin(K.dive * Math.PI * .9);
+  const arms = g.userData.arms;
+  if (K.dive > 0){ arms[0].rotation.z = lerp(.9, 2.9, K.dive) * (K.diveDir < 0 ? 1 : .6); arms[1].rotation.z = -lerp(.9, 2.9, K.dive) * (K.diveDir > 0 ? 1 : .6); }
+}
+function keeperReach(){
+  const K = S.keeper;
+  // 키퍼 몸통 + 팔이 덮는 범위 (다이빙하면 그쪽으로 길어짐)
+  const reachSide = .38 + K.dive * (.6 + K.skill * .55);
+  const left = K.x - (K.diveDir < 0 ? reachSide : .4), right = K.x + (K.diveDir > 0 ? reachSide : .4);
+  // 멀리 몸을 날릴수록 높은 구석까지는 손이 닿기 어려움
+  const far = Math.abs(S.pos.x - K.x);
+  const topY = K.dive > .3 ? (K.diveH > 1.2 ? 2.25 - Math.max(0, far - .9) * .5 : 1.5) : 2.15;
+  const botY = K.dive > .3 && K.diveH > 1.2 ? .55 : 0;
+  return { left, right, topY, botY };
+}
+
+function flightStep(dt){
+  const F = S.flight;
+  physStep(dt, F);
+  S.t += dt;
+  F.maxH = Math.max(F.maxH, S.pos.y);
+  if (F.path.length === 0 || S.t - F.path[F.path.length - 1].t > .03){
+    F.path.push({ x: S.pos.x, y: S.pos.y, z: S.pos.z, vx: S.vel.x, t: S.t });
+    if (F.mag && F.path.length % 4 === 0) F.magnus.push({ x: S.pos.x, z: S.pos.z, fx: F.mag.x, fz: F.mag.z });
+  }
+  if (F.result) return;
+  if (wallCollide()){ F.result = "wall"; sfx.block(); return; }
+  if (postCollide()){ if (!F.hitPost){ F.hitPost = true; sfx.post(); } }
+  // 골라인 통과
+  if (S.pos.z <= BALL_R * .2 && !F.cross){
+    F.cross = { x: S.pos.x, y: S.pos.y };
+    const inside = Math.abs(S.pos.x) < GOAL_HW - BALL_R * .3 && S.pos.y < GOAL_H - BALL_R * .3;
+    if (inside){
+      const r = keeperReach();
+      if (S.pos.x > r.left - BALL_R && S.pos.x < r.right + BALL_R && S.pos.y < r.topY && S.pos.y > r.botY && S.keeper.t > S.keeper.react){
+        F.result = "save"; S.keeper.saved = true;
+        S.vel.set(-S.vel.x * .3 + rnd(-2, 2), Math.abs(S.vel.y) * .3 + 2, Math.abs(S.vel.z) * .35);
+        sfx.save();
+      } else { F.result = "goal"; sfx.goal(); }
+    } else { F.result = S.pos.y >= GOAL_H ? "over" : "wide"; sfx.miss(); }
+  }
+  if (!F.result && (S.t > 4.5 || (S.vel.length() < 1.5 && S.pos.z > 0))) { F.result = "short"; sfx.miss(); }
+}
+
+/* 골망 안: 그물이 공을 붙잡음 */
+function netHold(){
+  if (S.flight && S.flight.result === "goal" && S.pos.z < -.05){
+    if (S.pos.z < -NET_D * .85){ S.pos.z = -NET_D * .85; S.vel.z *= -.15; }
+    S.vel.x *= .9; S.vel.z *= .9;
+    if (Math.abs(S.pos.x) > GOAL_HW - .1){ S.pos.x = Math.sign(S.pos.x) * (GOAL_HW - .1); S.vel.x *= -.2; }
+    if (S.pos.y > GOAL_H - .15){ S.pos.y = GOAL_H - .15; S.vel.y = -Math.abs(S.vel.y) * .2; }
+  }
+}
+
+/* ---------- 결과·점수 ---------- */
+function finishShot(){
+  const F = S.flight;
+  S.phase = "result";
+  // 휘어진 거리: 차는 순간 방향의 직선에서 최대로 벗어난 거리
+  const d0 = F.aimDir.clone().normalize(), start = F.start;
+  let curve = 0, curveSign = 0;
+  for (const p of F.path){
+    const rx = p.x - start.x, rz = p.z - start.z;
+    const along = rx * d0.x + rz * d0.z, perp = rx * d0.z - rz * d0.x;
+    if (along > 0 && Math.abs(perp) > Math.abs(curve)){ curve = perp; }
+  }
+  curveSign = Math.sign(curve); curve = Math.abs(curve);
+  let pts = 0, title = "", sub = "";
+  const res = F.result;
+  if (res === "goal"){
+    S.goals++; S.streak++;
+    const curveB = Math.min(150, Math.round(curve * 30));
+    const cx = F.cross ? F.cross.x : 0, cy = F.cross ? F.cross.y : 0;
+    const corner = Math.hypot(Math.abs(cx) - (GOAL_HW - .6), cy - (GOAL_H - .6)) < .7;
+    const distB = Math.round(Math.max(0, start.length() - 18) * 6);
+    pts = 100 + curveB + (corner ? 120 : 0) + (F.hitPost ? 50 : 0) + (F.knuckle ? 60 : 0) + distB;
+    pts = Math.round(pts * (1 + (S.streak - 1) * .1));
+    title = corner ? "탑 코너! 🎯" : F.knuckle ? "무회전 골!" : curve > 2 ? "바나나킥 골!" : "GOAL!";
+    sub = `+${pts}점` + (S.streak > 1 ? ` · ${S.streak}연속 골 ×${(1 + (S.streak - 1) * .1).toFixed(1)}` : "");
+    S.results.push(corner ? "🎯" : "⚽");
+  } else {
+    S.streak = 0;
+    title = { save: "선방!", wall: "벽에 막혔어요", over: "크로스바 위로…", wide: "골대를 벗어났어요", short: "힘이 부족했어요" }[res];
+    sub = F.hitPost ? "골대를 맞았어요!" : res === "save" ? "골키퍼가 막았어요 — 더 크게 휘어 보세요" : "";
+    S.results.push({ save: "🧤", wall: "🧱", over: "⬆️", wide: "↔️", short: "💨" }[res]);
+  }
+  S.score += pts;
+  F.points = pts; F.curve = curve; F.curveSign = curveSign;
+  showBanner(title, sub, res === "goal");
+  updateHUD();
+  setTimeout(() => showAnalysis(), 1300);
+}
+
+function showBanner(big, sub, good){
+  $("banner-big").textContent = big; $("banner-sub").textContent = sub;
+  $("banner-big").style.color = good ? "#FFFFFF" : "#FFD0D0";
+  const b = $("banner"); b.classList.remove("hidden"); b.style.animation = "none"; b.offsetWidth; b.style.animation = "";
+  clearTimeout(showBanner.t); showBanner.t = setTimeout(() => b.classList.add("hidden"), 2200);
+}
+
+/* ---------- 분석 카드 (위에서 본 궤적 + 마그누스 힘) ---------- */
+function showAnalysis(){
+  const F = S.flight, cv = $("an-cv"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
+  g.fillStyle = "#2F7D3A"; g.fillRect(0, 0, W, H);
+  for (let i = 0; i < 8; i++){ g.fillStyle = i % 2 ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.04)"; g.fillRect(0, i * H / 8, W, H / 8); }
+  // 범위: 골문~공
+  const xs = F.path.map(p => p.x).concat([F.start.x, -GOAL_HW - 1, GOAL_HW + 1]), zs = F.path.map(p => p.z).concat([F.start.z + 1, -1.5]);
+  const minX = Math.min(...xs) - 2, maxX = Math.max(...xs) + 2, minZ = -2.5, maxZ = Math.max(...zs) + 1.5;
+  const sc = Math.min(W / (maxX - minX), H / (maxZ - minZ));
+  const ox = (W - (maxX - minX) * sc) / 2, oy = (H - (maxZ - minZ) * sc) / 2;
+  const P = (x, z) => [ox + (x - minX) * sc, oy + (z - minZ) * sc];
+  g.strokeStyle = "rgba(255,255,255,.8)"; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(0, P(0, 0)[1]); g.lineTo(W, P(0, 0)[1]); g.stroke();
+  const [g1x, g1y] = P(-GOAL_HW, 0), [g2x] = P(GOAL_HW, 0);
+  g.lineWidth = 6; g.strokeStyle = "#fff"; g.beginPath(); g.moveTo(g1x, g1y); g.lineTo(g2x, g1y); g.stroke();
+  g.fillStyle = "rgba(255,255,255,.2)"; g.fillRect(g1x, g1y - NET_D * sc, g2x - g1x, NET_D * sc);
+  // 직선 방향
+  const d0 = F.aimDir, [sx, sy] = P(F.start.x, F.start.z), [ex, ey] = P(F.start.x + d0.x * 40, F.start.z + d0.z * 40);
+  g.setLineDash([8, 6]); g.strokeStyle = "rgba(255,255,255,.65)"; g.lineWidth = 2; g.beginPath(); g.moveTo(sx, sy); g.lineTo(ex, ey); g.stroke(); g.setLineDash([]);
+  // 벽·키퍼
+  for (const w of S.wall){ const [wx, wy] = P(w.base.x, w.base.z); g.fillStyle = "#1D5FD6"; g.beginPath(); g.arc(wx, wy, Math.max(4, .28 * sc), 0, TAU); g.fill(); }
+  { const [kx, ky] = P(S.keeper.x, .55); g.fillStyle = "#16A34A"; g.beginPath(); g.arc(kx, ky, Math.max(5, .35 * sc), 0, TAU); g.fill(); }
+  // 궤적
+  g.strokeStyle = "#FFE066"; g.lineWidth = 4; g.beginPath();
+  F.path.forEach((p, i) => { const [x, y] = P(p.x, p.z); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+  // 마그누스 힘 화살표
+  const arrows = F.magnus.filter((_, i) => i % 2 === 0).slice(0, 14);
+  for (const m of arrows){
+    const L = Math.hypot(m.fx, m.fz); if (L < .3) continue;
+    const [x, y] = P(m.x, m.z), k = Math.min(26, 6 + L * 3.2);
+    const dx = m.fx / L * k, dy = m.fz / L * k;
+    g.strokeStyle = "#FF5A5A"; g.fillStyle = "#FF5A5A"; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + dx, y + dy); g.stroke();
+    const a = Math.atan2(dy, dx); g.beginPath(); g.moveTo(x + dx, y + dy); g.lineTo(x + dx - 8 * Math.cos(a - .5), y + dy - 8 * Math.sin(a - .5)); g.lineTo(x + dx - 8 * Math.cos(a + .5), y + dy - 8 * Math.sin(a + .5)); g.fill();
+  }
+  // 바람
+  const wl = S.wind.length();
+  if (wl > .1){ const cx = W - 46, cy = 46; g.strokeStyle = "#7FD3FF"; g.lineWidth = 4; g.beginPath(); g.moveTo(cx - S.wind.x / wl * 24, cy - S.wind.z / wl * 24); g.lineTo(cx + S.wind.x / wl * 24, cy + S.wind.z / wl * 24); g.stroke(); g.fillStyle = "#7FD3FF"; g.font = "bold 18px sans-serif"; g.fillText("바람", cx - 18, cy + 46); }
+  g.fillStyle = "#fff"; g.font = "bold 16px sans-serif"; g.fillText("위에서 본 궤적  ━ 공  ··· 처음 방향  → 마그누스 힘", 12, H - 12);
+
+  const rev = F.spin0 / TAU;
+  const dirTxt = F.curveSign > 0 ? "왼쪽" : F.curveSign < 0 ? "오른쪽" : "-";
+  $("an-title").textContent = `슛 ${S.shot + 1} 분석 · ${F.points ? "+" + F.points + "점" : "0점"}`;
+  $("an-stats").innerHTML = `
+    <div>처음 속도 <b>${(F.speed0 * 3.6).toFixed(0)} km/h</b></div><div>회전 <b>${rev.toFixed(1)} 회/초</b></div>
+    <div>휘어진 거리 <b>${F.curve.toFixed(1)} m</b> (${dirTxt})</div><div>최고 높이 <b>${F.maxH.toFixed(1)} m</b></div>
+    <div>발사각 <b>${(F.elev / DEG).toFixed(0)}°</b></div><div>비행 시간 <b>${S.t.toFixed(2)} s</b></div>
+    <div>바람 <b>${S.wind.length().toFixed(1)} m/s</b></div><div>공기 밀도 <b>${S.rho} kg/m³</b></div>`;
+  const { u, v } = S.contact;
+  let tip;
+  if (F.knuckle) tip = "정중앙을 차서 회전이 거의 없었어요. 회전이 없으면 공 뒤쪽 공기 소용돌이가 불규칙해져 공이 <b>흔들리며</b> 날아가요(무회전 킥).";
+  else if (Math.abs(u) > Math.abs(v)) tip = `공의 <b>${u > 0 ? "오른쪽" : "왼쪽"}</b>을 차서 공이 ${u > 0 ? "시계 반대" : "시계"} 방향(위에서 볼 때)으로 돌았어요. 마그누스 힘(빨간 화살표)이 <b>${u > 0 ? "왼쪽" : "오른쪽"}</b>으로 작용해 공이 휘었어요.`;
+  else tip = v < 0 ? "공의 <b>아래</b>를 차서 백스핀이 걸렸어요. 마그누스 힘이 <b>위쪽</b>으로 작용해 공이 더 오래 떠 있어요." : "공의 <b>위</b>를 차서 톱스핀이 걸렸어요. 마그누스 힘이 <b>아래쪽</b>으로 작용해 공이 <b>뚝 떨어져요</b>(드롭슛).";
+  if (S.rho < 1) tip += " 공기가 희박한 고산 경기장이라 공기 저항과 마그누스 힘이 모두 <b>약해졌어요</b>.";
+  $("an-tip").innerHTML = tip;
+  $("an-next").textContent = S.shot + 1 >= STAGES.length ? "최종 결과 보기 ▶" : "다음 슛 ▶";
+  $("analysis").classList.remove("hidden");
+}
+$("an-next").onclick = () => {
+  $("analysis").classList.add("hidden");
+  S.shot++;
+  if (S.shot >= STAGES.length) gameOver();
+  else setupShot();
+};
+
+/* ---------- HUD ---------- */
+function updateHUD(){
+  $("h-shot").textContent = `${Math.min(S.shot + 1, STAGES.length)}/${STAGES.length}`;
+  $("h-score").textContent = S.score;
+  $("h-goals").textContent = S.goals;
+  if (S.stage){
+    $("h-stage").textContent = S.stage.name;
+    $("h-stage-s").textContent = `거리 ${S.ballStart.length().toFixed(1)} m`;
+    $("env-box").innerHTML = `벽 ${S.stage.wall}명 · 키퍼 ${"★".repeat(Math.round(S.stage.keeper * 5))}<br>공기 밀도 ${S.rho} kg/m³`;
+  }
+  $("aim-v").textContent = (S.aim / DEG > 0 ? "→" : S.aim < 0 ? "←" : "") + Math.abs(S.aim / DEG).toFixed(0) + "°";
+}
+function updateWindHUD(){
+  // 화면(카메라) 기준 바람 방향
+  const v = S.wind.length();
+  $("wind-v").textContent = v.toFixed(1);
+  const f = new THREE.Vector3(); camera.getWorldDirection(f); f.y = 0; f.normalize();
+  const r = new THREE.Vector3(-f.z, 0, f.x);
+  const ang = Math.atan2(S.wind.dot(r), S.wind.dot(f));
+  $("wind-arrow").setAttribute("transform", `rotate(${(ang / DEG).toFixed(1)})`);
+  $("wind-arrow").style.opacity = v < .1 ? .15 : 1;
+}
+
+/* ---------- 차는 위치 고르기 (공 그림) ---------- */
+const ccv = $("contact-cv"), cg = ccv.getContext("2d");
+function drawContact(){
+  const W = ccv.width, R = W / 2 - 10, c = W / 2;
+  cg.clearRect(0, 0, W, W);
+  const gr = cg.createRadialGradient(c - R * .35, c - R * .35, R * .1, c, c, R);
+  gr.addColorStop(0, "#FFFFFF"); gr.addColorStop(1, "#C9CED8");
+  cg.fillStyle = gr; cg.beginPath(); cg.arc(c, c, R, 0, TAU); cg.fill();
+  cg.fillStyle = "rgba(20,20,20,.85)";
+  const pent = (x, y, r) => { cg.beginPath(); for (let i = 0; i < 5; i++){ const a = -Math.PI / 2 + i * TAU / 5; i ? cg.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)) : cg.moveTo(x + r * Math.cos(a), y + r * Math.sin(a)); } cg.closePath(); cg.fill(); };
+  pent(c, c, R * .22); [[0, -.68], [.65, -.2], [.4, .58], [-.4, .58], [-.65, -.2]].forEach(([x, y]) => pent(c + x * R, c + y * R, R * .17));
+  cg.strokeStyle = "rgba(29,52,97,.35)"; cg.lineWidth = 2; cg.beginPath(); cg.moveTo(c - R, c); cg.lineTo(c + R, c); cg.moveTo(c, c - R); cg.lineTo(c, c + R); cg.stroke();
+  cg.strokeStyle = "#1B2438"; cg.lineWidth = 3; cg.beginPath(); cg.arc(c, c, R, 0, TAU); cg.stroke();
+  const { u, v } = S.contact, px = c + u * R, py = c - v * R;
+  // 회전 화살표
+  const off = Math.hypot(u, v);
+  if (off > .12){
+    cg.save(); cg.translate(c, c);
+    const ang = Math.atan2(-v, u); // 화면에서 작용점 방향
+    cg.strokeStyle = "#FF8A00"; cg.lineWidth = 6; cg.lineCap = "round";
+    cg.beginPath(); cg.arc(0, 0, R * .78, ang - 1.1, ang + 1.1); cg.stroke();
+    const ea = ang + 1.1, ex = R * .78 * Math.cos(ea), ey = R * .78 * Math.sin(ea);
+    cg.fillStyle = "#FF8A00"; cg.beginPath(); cg.moveTo(ex + 12 * Math.cos(ea + 1.57 - .4), ey + 12 * Math.sin(ea + 1.57 - .4)); cg.lineTo(ex - 9 * Math.cos(ea), ey - 9 * Math.sin(ea)); cg.lineTo(ex + 9 * Math.cos(ea), ey + 9 * Math.sin(ea)); cg.fill();
+    cg.restore();
+  }
+  // 발 + 작용점
+  cg.fillStyle = "rgba(200,64,46,.25)"; cg.beginPath(); cg.arc(px, py, 22, 0, TAU); cg.fill();
+  cg.fillStyle = "#E11D48"; cg.strokeStyle = "#fff"; cg.lineWidth = 4; cg.beginPath(); cg.arc(px, py, 11, 0, TAU); cg.fill(); cg.stroke();
+  // 설명
+  let t;
+  if (off < .15) t = "<b>정중앙 · 무회전</b>회전이 거의 없어 공이 흔들리며 날아가요.";
+  else {
+    const h = Math.abs(u) > .15 ? (u > 0 ? "오른쪽" : "왼쪽") : "", vv = Math.abs(v) > .15 ? (v > 0 ? "위" : "아래") : "";
+    const where = [h, vv].filter(Boolean).join(" ");
+    const eff = [];
+    if (Math.abs(u) > .15) eff.push(`${u > 0 ? "왼쪽" : "오른쪽"}으로 휨`);
+    if (v < -.15) eff.push("높이 뜨고 떠오름(백스핀)");
+    if (v > .15) eff.push("낮게, 뚝 떨어짐(톱스핀)");
+    t = `<b>${where} 차기</b>${eff.join(" · ")}<br><span style="color:#9FB4DA">회전 세기 ${Math.round(off * 100)}%</span>`;
+  }
+  $("contact-txt").innerHTML = t;
+}
+let cDrag = false;
+function setContact(e){
+  const r = ccv.getBoundingClientRect(), R = r.width / 2 - 10 * r.width / ccv.width;
+  let u = (e.clientX - r.left - r.width / 2) / R, v = -(e.clientY - r.top - r.height / 2) / R;
+  const L = Math.hypot(u, v); if (L > .9){ u *= .9 / L; v *= .9 / L; }
+  S.contact.u = u; S.contact.v = v; drawContact();
+}
+ccv.addEventListener("pointerdown", e => { if (S.phase !== "aim") return; cDrag = true; ccv.setPointerCapture(e.pointerId); setContact(e); });
+ccv.addEventListener("pointermove", e => { if (cDrag) setContact(e); });
+ccv.addEventListener("pointerup", () => { cDrag = false; });
+
+/* ---------- 방향 ---------- */
+const AIM_MAX = 22 * DEG;
+function nudgeAim(d){ if (S.phase !== "aim") return; S.aim = clamp(S.aim + d, -AIM_MAX, AIM_MAX); updateHUD(); }
+let aimHold = null;
+for (const [id, d] of [["aim-l", -1], ["aim-r", 1]]){
+  const b = $(id);
+  b.addEventListener("pointerdown", e => { e.preventDefault(); nudgeAim(d * .5 * DEG); clearInterval(aimHold); aimHold = setInterval(() => nudgeAim(d * .5 * DEG), 45); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(t => b.addEventListener(t, () => clearInterval(aimHold)));
+}
+let vDrag = null;
+renderer.domElement.addEventListener("pointerdown", e => { if (S.phase === "aim") vDrag = { x: e.clientX, aim: S.aim }; });
+renderer.domElement.addEventListener("pointermove", e => { if (vDrag && S.phase === "aim"){ S.aim = clamp(vDrag.aim + (e.clientX - vDrag.x) * .0016, -AIM_MAX, AIM_MAX); updateHUD(); } });
+addEventListener("pointerup", () => { vDrag = null; });
+
+/* ---------- 파워 (누르고 있다가 떼기) ---------- */
+const kickBtn = $("kick-btn");
+function chargeStart(e){ if (e) e.preventDefault(); if (S.phase !== "aim") return; S.phase = "charge"; S.chargeStart = performance.now(); kickBtn.classList.add("on"); }
+function chargeEnd(){ if (S.phase !== "charge") return; kickBtn.classList.remove("on"); startKick(); }
+kickBtn.addEventListener("pointerdown", chargeStart);
+kickBtn.addEventListener("pointerup", chargeEnd);
+kickBtn.addEventListener("pointerleave", chargeEnd);
+addEventListener("keydown", e => {
+  if (e.code === "Space" && !e.repeat){ e.preventDefault(); chargeStart(); }
+  if (e.code === "ArrowLeft") nudgeAim(-.6 * DEG);
+  if (e.code === "ArrowRight") nudgeAim(.6 * DEG);
+});
+addEventListener("keyup", e => { if (e.code === "Space") chargeEnd(); });
+
+/* ---------- 소리 ---------- */
+let actx = null;
+function ac(){ if (!S.sound) return null; try{ actx = actx || new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} return actx; }
+function tone(f, d, type = "sine", v = .15, f2){ const a = ac(); if (!a) return; const o = a.createOscillator(), g = a.createGain(), t = a.currentTime; o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .02); }
+function noise(d, v = .2, freq = 800, q = .7){ const a = ac(); if (!a) return; const len = a.sampleRate * d, buf = a.createBuffer(1, len, a.sampleRate), ch = buf.getChannelData(0); for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len); const s = a.createBufferSource(); s.buffer = buf; const f = a.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = freq; f.Q.value = q; const g = a.createGain(); g.gain.value = v; s.connect(f); f.connect(g); g.connect(a.destination); s.start(); }
+const sfx = {
+  whistle(){ tone(2600, .25, "sine", .06, 2900); },
+  kick(p){ tone(140, .12, "sine", .5, 60); noise(.08, .25 + p * .2, 1200); },
+  post(){ tone(1400, .5, "triangle", .15, 1300); tone(2100, .4, "sine", .08); },
+  block(){ tone(160, .15, "square", .1, 80); noise(.1, .2, 500); },
+  save(){ noise(.12, .3, 900); setTimeout(() => noise(1.2, .12, 600, .4), 120); },
+  goal(){ noise(2.2, .22, 700, .3); [523, 659, 784].forEach((f, i) => setTimeout(() => tone(f, .3, "triangle", .1), 200 + i * 110)); },
+  miss(){ noise(1, .1, 400, .4); tone(300, .4, "sine", .06, 200); },
+};
+$("sound-btn").onclick = () => { S.sound = !S.sound; $("sound-btn").textContent = S.sound ? "🔊" : "🔇"; };
+
+/* =====================================================================
+   메인 루프
+   ===================================================================== */
+const camPos = new THREE.Vector3(0, 3, 30), camLook = new THREE.Vector3(0, 1, 0);
+let last = performance.now();
+function frame(now){
+  requestAnimationFrame(frame);
+  const rdt = Math.min(.05, (now - last) / 1000); last = now;
+  const t = now / 1000;
+
+  // 바람: 깃발·입자
+  const wl = S.wind.length();
+  for (const f of flags){
+    f.g.rotation.y = Math.atan2(-S.wind.z, S.wind.x) || 0;
+    const pos = f.cloth.geometry.attributes.position, b = f.cloth.userData.base;
+    for (let i = 0; i < pos.count; i++){ const x = b[i * 3]; pos.setZ(i, Math.sin(x * 9 - t * (4 + wl * 2)) * x * (.12 + .05 * wl) * (wl > .1 ? 1 : .25)); pos.setY(i, b[i * 3 + 1] - x * (wl > .1 ? Math.max(0, .5 - wl * .1) : .6)); }
+    pos.needsUpdate = true;
+  }
+  for (let i = 0; i < WP; i++){
+    windPts[i * 3] += (S.wind.x + Math.sin(t + i) * .3) * rdt; windPts[i * 3 + 2] += (S.wind.z + Math.cos(t * .7 + i) * .3) * rdt; windPts[i * 3 + 1] += Math.sin(t * 1.3 + i) * .1 * rdt;
+    if (windPts[i * 3] > 25) windPts[i * 3] = -25; if (windPts[i * 3] < -25) windPts[i * 3] = 25;
+    if (windPts[i * 3 + 2] > 40) windPts[i * 3 + 2] = -4; if (windPts[i * 3 + 2] < -4) windPts[i * 3 + 2] = 40;
+  }
+  windGeo.attributes.position.needsUpdate = true;
+  windMesh.material.opacity = wl < .1 ? 0 : Math.min(.6, .15 + wl * .1);
+
+  if (S.phase === "aim" || S.phase === "charge"){
+    const d = aimDir();
+    aimArrow.visible = true; aimArrow.position.copy(S.ballStart).setY(0); aimArrow.rotation.y = Math.atan2(-d.x, -d.z);
+    placeKicker(0);
+    const R = new THREE.Vector3(-d.z, 0, d.x);
+    const portrait = innerWidth < innerHeight;
+    camPos.lerp(S.ballStart.clone().addScaledVector(d, portrait ? -7.6 : -5.6).addScaledVector(R, portrait ? .5 : .9).setY(portrait ? 3.1 : 2.2), Math.min(1, rdt * 4));
+    camLook.lerp(S.ballStart.clone().addScaledVector(d, 18).setY(1.6), Math.min(1, rdt * 4));
+    if (S.phase === "charge"){ S.chargeT = (now - S.chargeStart) / 1000; S.power = .5 - .5 * Math.cos(S.chargeT * Math.PI / .85); }   // 실제 시간 기준 (느린 기기에서도 같게)
+    $("power-fill").style.height = (S.power * 100) + "%";
+    // 키커 숨쉬기
+    const lg = S.kicker.g.userData.legs; lg[0].rotation.x = lg[1].rotation.x = 0;
+  } else if (S.phase === "runup"){
+    S.kickT += rdt;
+    const T = .62, k = Math.min(1, S.kickT / T);
+    placeKicker(k);
+    const lg = S.kicker.g.userData.legs, ar = S.kicker.g.userData.arms;
+    lg[0].rotation.x = Math.sin(k * Math.PI * 3) * .7; lg[1].rotation.x = -Math.sin(k * Math.PI * 3) * .7;
+    ar[0].rotation.x = -lg[0].rotation.x * .6; ar[1].rotation.x = -lg[1].rotation.x * .6;
+    if (k >= 1){
+      const s = (S.kickT - T) / .16;
+      lg[0].rotation.x = lerp(.9, -1.3, Math.min(1, s)); lg[1].rotation.x = -.2;   // 오른발(legs[0])로 차기
+      ar[0].rotation.z = .9; ar[1].rotation.z = -.4;
+      if (s >= .55 && !S.flight) launch();
+    }
+  }
+  if (S.phase === "flight" || (S.phase === "result" && S.flight)){
+    // 슬로 모션: 골문 가까이
+    const near = S.phase === "flight" && S.pos.z < 7 && S.pos.z > -1 && S.vel.z < 0;
+    S.timeScale = lerp(S.timeScale, near ? .32 : 1, Math.min(1, rdt * 6));
+    let sim = rdt * S.timeScale;
+    const h = 1 / 240;
+    while (sim > 0){
+      const dt = Math.min(h, sim); sim -= dt;
+      if (S.phase === "flight"){ flightStep(dt); keeperUpdate(dt); }
+      else { physStep(dt); postCollide(); }
+      netHold();
+    }
+    ball.position.copy(S.pos);
+    const wm = S.w.length();
+    if (wm > .01) ball.rotateOnWorldAxis(tmp1.copy(S.w).normalize(), wm * rdt * S.timeScale);
+    else if (S.vel.length() > .2) ball.rotateOnWorldAxis(tmp1.set(-S.vel.z, 0, S.vel.x).normalize(), S.vel.length() / BALL_R * rdt * S.timeScale * .2);
+    // 궤적
+    if (S.phase === "flight" && trailN < TRAIL && (trailN === 0 || S.pos.distanceTo(new THREE.Vector3(trailPos[(trailN - 1) * 3], trailPos[(trailN - 1) * 3 + 1], trailPos[(trailN - 1) * 3 + 2])) > .25)){
+      trailPos.set([S.pos.x, S.pos.y, S.pos.z], trailN * 3);
+      const c = new THREE.Color().setHSL(.12 - Math.min(.12, S.w.length() / 600), 1, .6);
+      trailCol.set([c.r, c.g, c.b], trailN * 3); trailN++;
+      trailGeo.setDrawRange(0, trailN); trailGeo.attributes.position.needsUpdate = trailGeo.attributes.color.needsUpdate = true;
+    }
+    // 벽 점프
+    for (const w of S.wall){
+      if (w.jumpAt !== undefined){ w.jumpAt -= rdt * S.timeScale; if (w.jumpAt < 0 && w.jumpAt > -.6){ const k = -w.jumpAt / .6; w.g.position.y = Math.sin(k * Math.PI) * .38; } else if (w.jumpAt <= -.6) w.g.position.y = 0; }
+    }
+    // 카메라: 공 뒤를 따라감
+    const fwd = tmp2.set(S.vel.x, 0, S.vel.z); if (fwd.lengthSq() < .01) fwd.set(0, 0, -1); fwd.normalize();
+    if (S.phase === "flight"){
+      const target = S.pos.clone().addScaledVector(fwd, -4.5).setY(Math.max(1.8, S.pos.y + 1.1));
+      camPos.lerp(target, Math.min(1, rdt * (S.pos.z < 6 ? 1.2 : 3)));
+      camLook.lerp(S.pos.clone().setY(Math.max(.8, S.pos.y)), Math.min(1, rdt * 6));
+    } else {
+      // 결과: 공과 골문이 함께 보이는 중계 화면 각도
+      camPos.lerp(S.pos.clone().add(new THREE.Vector3(S.pos.x > 0 ? -2.5 : 2.5, 3.2, 7.5)), Math.min(1, rdt * 1.6));
+      camLook.lerp(S.pos.clone().setY(Math.max(1, S.pos.y)), Math.min(1, rdt * 3));
+    }
+    if (S.phase === "flight" && S.flight.result){
+      S.resultT = (S.resultT || 0) + rdt;
+      if (S.resultT > .25){ S.resultT = 0; finishShot(); }
+    }
+  }
+  camera.position.copy(camPos); camera.lookAt(camLook);
+  updateWindHUD();
+  renderer.render(scene, camera);
+}
+function resize(){
+  const w = innerWidth, h = innerHeight; renderer.setSize(w, h);
+  camera.aspect = w / h; camera.fov = w < h ? 84 : 50;
+  // 아래쪽 조작 패널에 공이 가리지 않도록 화면을 위로 이동(렌즈 시프트)
+  const shift = w < h ? .4 : .14;
+  camera.setViewOffset(w, h * (1 + shift), 0, h * shift, w, h);
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize); resize();
+requestAnimationFrame(frame);
+
+/* =====================================================================
+   게임 시작·끝, 랭킹
+   ===================================================================== */
+function startGame(){
+  S.shot = 0; S.score = 0; S.goals = 0; S.streak = 0; S.results = [];
+  $("menu").classList.add("hidden"); $("result").classList.add("hidden"); $("analysis").classList.add("hidden");
+  setupShot();
+  camPos.copy(S.ballStart).add(new THREE.Vector3(0, 6, 12));
+}
+$("start-btn").onclick = startGame;
+$("again-btn").onclick = startGame;
+
+function gameOver(){
+  S.phase = "over";
+  $("final-score").textContent = S.score + "점";
+  $("final-sub").textContent = `10번 중 ${S.goals}골 성공`;
+  $("shots-row").innerHTML = S.results.map(r => `<span>${r}</span>`).join("");
+  $("name-form").classList.remove("hidden");
+  $("result").classList.remove("hidden");
+  renderAllLeaderboards(null);
+}
+
+const LEADERBOARD_KEY = "science-freekick-leaderboard";
+const LEADERBOARD_WORKSHEET = "프리킥_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+function loadLeaderboard(){ try{ const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]"); if (Array.isArray(raw)) return raw; }catch(e){} return []; }
+function saveLeaderboard(list){ try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){} }
+async function fetchSharedLeaderboard(){
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if (!res.ok) throw new Error("status " + res.status);
+    const rows = await res.json();
+    return rows.map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), date: r.date || r.timestamp })).filter(r => r.name && !Number.isNaN(r.score));
+  }catch(err){ console.warn("공유 랭킹을 불러오지 못했습니다:", err); return null; }
+}
+async function submitToSharedLeaderboard(entry){
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: entry.name, score: String(entry.score), goals: String(entry.goals), date: entry.date }) });
+  }catch(err){ console.warn("공유 랭킹 전송에 실패했습니다:", err); }
+}
+function localDateStr(){ const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function fmtDate(v){ if (!v) return ""; const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${Number(m[2])}.${Number(m[3])}`; const t = new Date(v); return isNaN(t) ? "" : `${t.getMonth() + 1}.${t.getDate()}`; }
+function renderLeaderboardInto(el, board, n, me){
+  el.innerHTML = "";
+  for (let i = 0; i < n; i++){
+    const e = board[i], li = document.createElement("li");
+    if (!e){ li.className = "board-row empty"; li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname">—</span><span class="bdate"></span><span class="bscore"></span>`; el.appendChild(li); continue; }
+    const isMe = me && e.name === me.name && e.score === me.score;
+    li.className = "board-row" + (isMe ? " me" : "");
+    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bdate">${fmtDate(e.date)}</span><span class="bscore">${e.score}점</span>`;
+    li.querySelector(".bname").textContent = e.name;
+    el.appendChild(li);
+  }
+}
+function renderHallOfFame(board){
+  const el = $("hof-list"); el.innerHTML = "";
+  if (!board.length){ el.innerHTML = '<li class="hof-empty">아직 기록이 없어요. 첫 주인공이 되어 보세요!</li>'; return; }
+  ["🥇", "🥈", "🥉"].forEach((m, i) => {
+    const e = board[i], li = document.createElement("li"); li.className = "hof-row";
+    li.innerHTML = `<span>${m}</span><span class="hof-name"></span><span class="hof-date">${e ? fmtDate(e.date) : ""}</span><span class="hof-score">${e ? e.score + "점" : ""}</span>`;
+    li.querySelector(".hof-name").textContent = e ? e.name : "—"; el.appendChild(li);
+  });
+}
+async function renderAllLeaderboards(me){
+  const local = loadLeaderboard().sort((a, b) => b.score - a.score);
+  renderLeaderboardInto($("leader-list"), local, 10, me); renderHallOfFame(local);
+  $("board-source-note").textContent = "🌐 반 전체 랭킹을 불러오는 중...";
+  const shared = await fetchSharedLeaderboard();
+  if (shared){
+    if (me && !shared.some(e => e.name === me.name && e.score === me.score)) shared.push(me);
+    shared.sort((a, b) => b.score - a.score);
+    renderLeaderboardInto($("leader-list"), shared, 10, me); renderHallOfFame(shared);
+    $("board-source-note").textContent = "🌐 반 전체가 함께 보는 공유 랭킹 TOP 10";
+  } else $("board-source-note").textContent = "📱 이 기기에 저장된 기록 TOP 10 (공유 랭킹 연결 안 됨)";
+}
+$("name-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("name-input").value.trim().slice(0, 12); if (!name) return;
+  const entry = { name, score: S.score, goals: S.goals, date: localDateStr() };
+  const list = loadLeaderboard(); list.push(entry); list.sort((a, b) => b.score - a.score); saveLeaderboard(list.slice(0, 50));
+  submitToSharedLeaderboard(entry);
+  $("name-form").classList.add("hidden");
+  renderAllLeaderboards(entry);
+});
+renderAllLeaderboards(null);
+
+/* 메뉴 배경: 골대 쪽을 비추며 천천히 */
+S.ballStart.set(0, BALL_R, 22); ball.position.copy(S.ballStart);
+camPos.set(6, 4, 30); camLook.set(0, 1.2, 0);
+
+/* 테스트용 */
+window.__fkApi = { S, camera, ball, kickVectors, physStep, setupShot, launch, startGame, STAGES,
+  // 테스트: 화면 없이 한 번 슛을 끝까지 계산
+  trial(aim, u, v, power){
+    const K = S.keeper, k0 = S.__k0 || (S.__k0 = { x: K.x });
+    Object.assign(K, { x: k0.x, dive: 0, diveDir: 0, committed: false, saved: false, t: 0 }); K.g.position.set(k0.x, 0, .55); K.g.rotation.z = 0;
+    for (const w of S.wall){ w.jumpAt = undefined; w.g.position.y = 0; }
+    S.aim = aim; S.contact.u = u; S.contact.v = v; S.power = power; S.pos.copy(S.ballStart);
+    launch(); S.phase = "test";
+    for (const w of S.wall) w.jumpAt = w.jumpDelay;
+    for (let i = 0; i < 240 * 5 && !S.flight.result; i++){ flightStep(1 / 240); keeperUpdate(1 / 240); for (const w of S.wall){ w.jumpAt -= 1 / 240; w.g.position.y = (w.jumpAt < 0 && w.jumpAt > -.6) ? Math.sin(-w.jumpAt / .6 * Math.PI) * .38 : 0; } }
+    return { r: S.flight.result, cross: S.flight.cross };
+  } };
+</script>
+</body>
+</html>
