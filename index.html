@@ -1673,6 +1673,7 @@ const SUBMIT_ROOM_URL = "assignment-submit.html";
 const ROCK_DODGE_URL = "rock-dodge-seismo.html";
 const CHESS_BOT_URL = "chess-bot.html";
 const FREEKICK_URL = "freekick-magnus.html";
+const SKATE_URL = "skate-energy.html";
 
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
@@ -1787,6 +1788,12 @@ const topicsData = {
         title: "⚽ 마그누스 프리킥 — 바나나킥 챌린지",
         desc: "공의 어느 부분을 차느냐(힘의 작용점)에 따라 회전과 발사각이 바뀌고, 회전하는 공은 마그누스 효과로 휘어집니다. 수비벽·골키퍼·바람·고산 경기장(공기 밀도)을 이겨내고 10번의 프리킥으로 반 전체 랭킹에 도전하세요! 슛마다 궤적과 마그누스 힘을 분석해 줘요.",
         url: FREEKICK_URL,
+        ready: true
+      },
+      {
+        title: "🛹 에너지 스케이트 — 하프파이프 트릭 챌린지",
+        desc: "하프파이프를 오르내리며 운동에너지 ↔ 위치에너지 전환을 실시간 에너지 막대로 확인하고, 펌핑(근육 에너지)으로 속도를 올려 공중에서 킥플립·360 스핀·백플립을 성공시키는 3D 게임입니다. 마찰로 생기는 열에너지, h = v²/2g, 각운동량 보존까지! 화성·달 중력 체험 모드와 반 전체 랭킹 포함.",
+        url: SKATE_URL,
         ready: true
       }
     ]
@@ -2573,7 +2580,18 @@ const topicsData = {
       }
     ]
   },
-  "undong-energy": { title: "③ 운동과 에너지", posts: [ { title: "운동과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false } ] },
+  "undong-energy": {
+    title: "③ 운동과 에너지",
+    posts: [
+      {
+        title: "🛹 에너지 스케이트 — 하프파이프 트릭 챌린지",
+        desc: "하프파이프를 오르내리며 운동에너지 ↔ 위치에너지 전환을 실시간 에너지 막대로 확인하고, 펌핑(근육 에너지)으로 속도를 올려 공중에서 킥플립·360 스핀·백플립을 성공시키는 3D 게임입니다. 마찰로 생기는 열에너지, h = v²/2g, 각운동량 보존까지! 화성·달 중력 체험 모드와 반 전체 랭킹 포함.",
+        url: SKATE_URL,
+        ready: true
+      },
+      { title: "운동과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false }
+    ]
+  },
   "jageuk-banung": {
     title: "④ 자극과 반응",
     posts: [
