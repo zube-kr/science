@@ -89,6 +89,11 @@
   .pc.anim{transition:transform .2s cubic-bezier(.3,.7,.4,1)}
   .pc.drag{z-index:20;transition:none}
   .pc.drag svg{filter:drop-shadow(0 calc(var(--bs)*.02) calc(var(--bs)*.012) rgba(0,0,0,.4))}
+  .three-canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block;z-index:4;touch-action:none;cursor:pointer}
+  .board:not(.is3d) .three-canvas{display:none!important}
+  .board.is3d{background:#05040F}
+  .board.is3d .squares,.board.is3d .pieces,.board.is3d .arrows{display:none}
+  .view-tip{font-size:11.5px;color:var(--ink-soft);margin-top:6px}
   .arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:15}
   .promo{position:absolute;z-index:30;width:12.5%;background:#fff;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
   .promo button{aspect-ratio:1;background:#fff;padding:6%}
@@ -201,6 +206,7 @@
       <button data-t="wood">🪵 나무</button>
       <button data-t="space">🌌 우주</button>
     </div>
+    <label class="chk"><input type="checkbox" id="opt-3d" checked> 🌌 3D 우주 보드</label>
     <label class="chk"><input type="checkbox" id="opt-help" checked> 힌트·무르기 허용</label>
     <label class="chk"><input type="checkbox" id="opt-dots" checked> 갈 수 있는 칸 표시</label>
   </div>
@@ -248,10 +254,12 @@
         <button id="b-menu" type="button"><span>🏠</span>봇 바꾸기</button>
       </div>
       <div class="toggles">
-        <label class="chk">말 모양 <select id="t-set"></select></label>
+        <label class="chk"><input type="checkbox" id="t-3d"> 🌌 3D</label>
+        <label class="chk" id="t-set-wrap">말 모양 <select id="t-set"></select></label>
         <label class="chk"><input type="checkbox" id="t-sound" checked> 🔊 소리</label>
         <label class="chk"><input type="checkbox" id="t-eval" checked> 📊 평가 막대</label>
       </div>
+      <div class="view-tip" id="view-tip">3D: 말을 눌러 고르고 칸을 눌러 이동 · 빈 곳을 끌면 시점 회전 · 휠로 확대</div>
     </div>
     <details class="card legend-card" id="legend-card">
       <summary>📖 말 도감</summary>
@@ -954,7 +962,7 @@ const BOTS = [
 const LS_STATS = "science-chess-stats", LS_SET = "science-chess-settings";
 function loadJSON(k, d){ try{ return JSON.parse(localStorage.getItem(k)) || d; }catch(e){ return d; } }
 function saveJSON(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-const settings = Object.assign({ bot: "explorer", color: "w", theme: "lab", pieceSet: "scientist", help: true, dots: true, sound: true, eval: true }, loadJSON(LS_SET, {}));
+const settings = Object.assign({ bot: "explorer", color: "w", theme: "lab", pieceSet: "scientist", view3d: true, help: true, dots: true, sound: true, eval: true }, loadJSON(LS_SET, {}));
 const stats = loadJSON(LS_STATS, {});
 
 /* ---------- 말 그림 (SVG) ---------- */
@@ -1190,8 +1198,8 @@ function startGame(){
   $("top-name").textContent = bot.name; $("side-name").textContent = bot.name;
   $("side-lv").textContent = "★".repeat(bot.level) + "☆".repeat(6 - bot.level) + " " + bot.lvName;
   $("t-sound").checked = settings.sound; $("t-eval").checked = settings.eval;
-  $("t-set").value = settings.pieceSet; $("game-legend").innerHTML = legendHTML(settings.pieceSet, G.me);
-  $("legend-card").open = settings.pieceSet !== "classic" && window.innerWidth > 900;
+  $("t-set").value = settings.pieceSet; apply3D();
+  $("legend-card").open = (is3D() || settings.pieceSet !== "classic") && window.innerWidth > 900;
   layout(); buildSquares(); render(); renderMoves(); updateEval(); clearArrows();
   say("start", true);
   updateStatus();
@@ -1225,6 +1233,10 @@ function buildSquares(){
 function sqEl(sq){ return squaresEl.querySelector(`[data-sq="${sq}"]`); }
 
 function render(anim){
+  if (is3D()){
+    if (window.Board3D.sync(anim)){ renderCaps(); return; }
+    settings.view3d = false; apply3D();
+  }
   // 칸 강조
   squaresEl.querySelectorAll(".sq").forEach(el => { el.classList.remove("last", "sel", "check", "hover"); el.querySelectorAll(".dot,.ring").forEach(x => x.remove()); });
   if (G.last){ sqEl(G.last[0])?.classList.add("last"); sqEl(G.last[1])?.classList.add("last"); }
@@ -1294,7 +1306,7 @@ function select(sq){
 function deselect(){ G.sel = -1; G.targets = []; render(); }
 
 board.addEventListener("pointerdown", e => {
-  if (!canMove()) return;
+  if (is3D() || !canMove()) return;
   e.preventDefault();
   const sq = pointSq(e);
   if (sq < 0) return;
@@ -1322,6 +1334,7 @@ board.addEventListener("pointermove", e => {
   if (sq >= 0 && G.targets.includes(sq)) sqEl(sq)?.classList.add("hover");
 });
 function endDrag(e){
+  if (is3D()) return;
   if (!drag || e.pointerId !== drag.id) return;
   const d = drag; drag = null;
   if (!d.moved){ if (d.reselect) deselect(); return; }
@@ -1345,8 +1358,9 @@ function showPromo(from, to, cands, animate){
   const shade = document.createElement("div"); shade.className = "promo-shade";
   const box = document.createElement("div"); box.className = "promo";
   box.style.left = (vc * 12.5) + "%";
-  const fromTop = vr === 0;
-  box.style[fromTop ? "top" : "bottom"] = "0";
+  const fromTop = vr === 0 || is3D();
+  if (is3D()){ box.style.left = "43.75%"; box.style.top = "8%"; }
+  else box.style[fromTop ? "top" : "bottom"] = "0";
   const order = [C.QUEEN, C.KNIGHT, C.ROOK, C.BISHOP];
   (fromTop ? order : order.slice().reverse()).forEach(t => {
     const b = document.createElement("button"); b.type = "button"; b.innerHTML = pieceSVG(t | G.me);
@@ -1463,8 +1477,9 @@ function updateEval(){
 
 /* ---------- 힌트 화살표 ---------- */
 const arrows = $("arrows");
-function clearArrows(){ arrows.innerHTML = ""; }
+function clearArrows(){ arrows.innerHTML = ""; if (window.Board3D) window.Board3D.setHint(null); }
 function drawArrow(from, to){
+  if (is3D()) window.Board3D.setHint(from, to);
   const [fr, fc] = sq2view(from), [tr, tc] = sq2view(to);
   const x1 = fc + .5, y1 = fr + .5, x2 = tc + .5, y2 = tr + .5;
   const len = Math.hypot(x2 - x1, y2 - y1), k = (len - .32) / len;
@@ -1583,6 +1598,38 @@ function segInit(id, key, attr){
     b.onclick = () => { settings[key] = b.dataset[attr]; saveJSON(LS_SET, settings); seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); if (key === "theme") document.body.dataset.theme = settings.theme; };
   });
 }
+/* ---------- 3D 보기 ---------- */
+function is3D(){ return settings.view3d && !!window.Board3D && window.Board3D.ok; }
+const LEGEND3D = [
+  ["⚛️", "킹 · <b>원자 모형</b> — 머리 위를 도는 세 개의 전자 궤도(보어의 원자 모형)."],
+  ["💫", "퀸 · <b>전자 구슬 왕관</b> — 왕관 끝에서 빛나는 8개의 전자. 가장 강한 말!"],
+  ["🌀", "룩 · <b>입자 가속기 고리</b> — 빛나는 고리 속에서 입자를 빛의 속도 가까이 가속해요."],
+  ["🧬", "비숍 · <b>DNA 이중 나선</b> — 왓슨과 크릭이 밝힌 유전 정보의 구조."],
+  ["🐴", "나이트 · <b>빛나는 눈의 탐험가</b> — 상상력처럼 다른 말을 뛰어넘어요."],
+  ["🔵", "폰 · <b>수소처럼</b> 가장 많고 가벼운 말. 끝까지 가면 승격!"],
+];
+function legend3DHTML(){ return LEGEND3D.map(([ic, t], i) => `<div class="lg-row"><div class="lg-ic" style="font-size:30px;display:grid;place-items:center">${ic}</div><div><div class="lg-t">${t}</div><div class="lg-m">${MOVE_TXT[6 - i]}</div></div></div>`).join("") +
+  '<div class="lg-row"><div class="lg-ic" style="font-size:30px;display:grid;place-items:center">📐</div><div><div class="lg-t">보드 · <b>과학 공식 낙서</b> — E=mc², F=ma, PV=nRT… 칸마다 숨은 공식을 찾아보세요.</div></div></div>'; }
+function refreshLegend(){
+  $("game-legend").innerHTML = is3D() ? legend3DHTML() : legendHTML(settings.pieceSet, G.me);
+}
+function apply3D(){
+  board.classList.toggle("is3d", is3D());
+  $("t-3d").checked = !!settings.view3d; $("opt-3d").checked = !!settings.view3d;
+  $("t-set-wrap").style.display = is3D() ? "none" : "";
+  $("view-tip").style.display = is3D() ? "" : "none";
+  refreshLegend();
+}
+window.chessTap = sq => {
+  if (!canMove()) return;
+  if (G.sel >= 0 && G.targets.includes(sq)){ tryMove(G.sel, sq, true); return; }
+  const p = C.board[sq];
+  if (p && (p & 24) === G.me){ if (G.sel === sq) deselect(); else select(sq); }
+  else deselect();
+};
+$("t-3d").onchange = e => { settings.view3d = e.target.checked; saveJSON(LS_SET, settings); apply3D(); clearArrows(); render(); };
+$("opt-3d").onchange = e => { settings.view3d = e.target.checked; saveJSON(LS_SET, settings); };
+window.addEventListener("board3d-ready", () => { apply3D(); if (!$("game").classList.contains("hidden")) render(); });
 segInit("color-seg", "color", "c");
 segInit("theme-seg", "theme", "t");
 function renderSetSeg(){
@@ -1595,7 +1642,7 @@ function setPieceSet(k){
   settings.pieceSet = k; saveJSON(LS_SET, settings);
   renderSetSeg();
   $("t-set").value = k;
-  $("game-legend").innerHTML = legendHTML(k, G.me);
+  refreshLegend();
   if (!$("game").classList.contains("hidden")) render();
 }
 $("t-set").innerHTML = Object.entries(PIECE_SETS).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("");
@@ -1613,5 +1660,526 @@ startWorker();
 /* 테스트용 */
 window.__chess = { C, G, BOTS, chessModule, startGame, settings };
 </script>
+<script type="module">
+/* =====================================================================
+   3D 보드 (three.js) — 크롬/흑요석 말, 공식이 새겨진 보드, 우주 배경
+   메인 스크립트의 C(규칙), G(게임 상태)를 읽어서 그린다.
+   ===================================================================== */
+import * as THREE from "./lib/three-0.160.0.module.min.js";
+
+const TAU = Math.PI * 2;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const sqX = sq => (sq & 7) - 3.5, sqZ = sq => (sq >> 4) - 3.5;
+
+let renderer, scene, camera, container, sky, boardGroup, pieceGroup, hlGroup, hintGroup, raycaster, pickPlane;
+let ok = false, inited = false, running = false;
+const cam = { az: 0, azT: 0, el: 0.6, r: 17, look: 2.2, ly: 0.3 };
+const tweens = [];
+const spinners = [];        // 행성 (계속 유지)
+let pieceSpinners = [];     // 킹의 전자 궤도 (말을 다시 그릴 때마다 새로)
+let pieceMeshes = new Map();
+let lastKey = "";
+
+/* ---------- 캔버스 텍스처 ---------- */
+function canvasTex(w, h, draw, srgb = true){
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  draw(c.getContext("2d"), w, h);
+  const t = new THREE.CanvasTexture(c);
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+function nebulaTexture(){
+  const big = Math.min(window.innerWidth, window.innerHeight) * (window.devicePixelRatio || 1) >= 640;
+  return canvasTex(big ? 4096 : 2048, big ? 2048 : 1024, (g, W, H) => {
+    const S = W / 2048;
+    const bg = g.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, "#04030C"); bg.addColorStop(.45, "#0B0920"); bg.addColorStop(.55, "#140C2A"); bg.addColorStop(1, "#03020A");
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    // 은하수 띠 + 성운 구름
+    const cols = ["rgba(122,70,190,", "rgba(214,80,140,", "rgba(250,150,80,", "rgba(60,110,220,", "rgba(255,200,140,"];
+    for (let i = 0; i < 230; i++){
+      const t = Math.random();
+      const x = t * W, y = H * (.62 + .07 * Math.sin(t * TAU * 2)) + rnd(-80, 80) * S;
+      const r = rnd(40, 200) * S, c = cols[Math.random() * cols.length | 0];
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, c + rnd(.03, .11) + ")"); gr.addColorStop(1, c + "0)");
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    // 밝은 성운 중심부
+    for (let i = 0; i < 14; i++){
+      const x = rnd(0, W), y = H * rnd(.55, .7), r = rnd(80, 160) * S, c = cols[i % cols.length];
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, c + ".28)"); gr.addColorStop(.4, c + ".1)"); gr.addColorStop(1, c + "0)");
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    // 먼지
+    for (let i = 0; i < 9000; i++){
+      const t = Math.random(), x = t * W, y = H * (.62 + .07 * Math.sin(t * TAU * 2)) + rnd(-130, 130) * S * Math.random();
+      g.fillStyle = `rgba(255,${200 + Math.random() * 55 | 0},${180 + Math.random() * 75 | 0},${rnd(.03, .14)})`;
+      g.beginPath(); g.arc(x, y, rnd(.4, 1) * S, 0, TAU); g.fill();
+    }
+    // 별
+    for (let i = 0; i < 2600; i++){
+      const x = Math.random() * W, y = Math.random() * H, s = (Math.random() < .03 ? rnd(1.4, 2.2) : rnd(.35, .9)) * S;
+      g.fillStyle = `rgba(255,255,255,${rnd(.35, 1)})`;
+      g.beginPath(); g.arc(x, y, s, 0, TAU); g.fill();
+      if (s > 1.4 * S){ const gr = g.createRadialGradient(x, y, 0, x, y, s * 6); gr.addColorStop(0, "rgba(190,215,255,.45)"); gr.addColorStop(1, "rgba(190,215,255,0)"); g.fillStyle = gr; g.fillRect(x - s * 6, y - s * 6, s * 12, s * 12); }
+    }
+    // 별자리·기하 도형 (과학 노트 느낌)
+    g.strokeStyle = "rgba(220,230,255,.32)"; g.lineWidth = 1.2 * S;
+    for (let k = 0; k < 7; k++){
+      const cx = rnd(100, W - 100), cy = rnd(H * .52, H * .74), R = rnd(30, 60) * S, n = [5, 6, 7, 8][k % 4];
+      g.beginPath();
+      for (let i = 0; i <= n; i++){ const a = i * TAU * 2 / n; const x = cx + R * Math.cos(a), y = cy + R * Math.sin(a); i ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.stroke();
+      g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.stroke();
+    }
+    g.font = `italic ${26 * S | 0}px Georgia, serif`; g.fillStyle = "rgba(220,230,255,.22)";
+    ["E = mc²", "F = G m₁m₂/r²", "PV = nRT", "λ = c / f", "ΔS ≥ 0", "∇·E = ρ/ε₀", "a = F/m", "H₂O", "6CO₂ + 6H₂O"].forEach(s => g.fillText(s, rnd(60, W - 200), rnd(H * .52, H * .76)));
+  });
+}
+
+function planetTexture(kind){
+  return canvasTex(512, 256, (g, W, H) => {
+    const pal = {
+      gas: ["#F3C38A", "#E59A5B", "#F6DDB4", "#C9733F", "#F0B070"],
+      ring: ["#E9B7D9", "#C58FC8", "#F4D9EE", "#A87AB8", "#DDB0E0"],
+      red: ["#C4552F", "#A13F25", "#D87A4E", "#8A3420", "#B54A2C"],
+      ice: ["#9FD3F2", "#7BB6E6", "#C9EAFB", "#5E95CF", "#A8D9F5"],
+      moon: ["#B9B6B0", "#9D9A94", "#CFCBC4", "#86837E", "#AAA7A1"],
+    }[kind];
+    for (let y = 0; y < H; y += 4){
+      g.fillStyle = pal[(Math.sin(y * .07 + Math.random()) * 2.5 + 2.5) | 0];
+      g.fillRect(0, y, W, 4);
+    }
+    for (let i = 0; i < 900; i++){
+      g.fillStyle = pal[Math.random() * 5 | 0] + "88";
+      const y = Math.random() * H;
+      g.fillRect(Math.random() * W, y, rnd(10, 60), rnd(1, 3));
+    }
+    if (kind === "red" || kind === "moon"){
+      for (let i = 0; i < 40; i++){ const x = Math.random() * W, y = Math.random() * H, r = rnd(3, 14); g.fillStyle = "rgba(0,0,0,.18)"; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+    }
+    if (kind === "gas"){ g.fillStyle = "rgba(190,90,50,.7)"; g.beginPath(); g.ellipse(W * .62, H * .62, 26, 14, 0, 0, TAU); g.fill(); }
+  });
+}
+
+function glowTex(color){
+  return canvasTex(128, 128, (g, W) => {
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, W, W);
+  });
+}
+
+const FORMULAS = ["E=mc²", "F=ma", "PV=nRT", "v=fλ", "H₂O", "CO₂", "Fe", "NaCl", "O₂", "Δt", "p=mv", "W=Fs", "V=IR", "ρ=m/V", "DNA", "C₆H₁₂O₆", "a=Δv/t", "Ek=½mv²", "N₂", "He"];
+function boardTexture(){
+  const PX = 1024, U = PX / 8.8, M = .4 * U;
+  return canvasTex(PX, PX, (g) => {
+    // 테두리
+    const fr = g.createLinearGradient(0, 0, PX, PX);
+    fr.addColorStop(0, "#1A1F3D"); fr.addColorStop(1, "#0E1228");
+    g.fillStyle = fr; g.fillRect(0, 0, PX, PX);
+    g.strokeStyle = "#D9A94B"; g.lineWidth = 3; g.strokeRect(6, 6, PX - 12, PX - 12);
+    g.strokeStyle = "rgba(217,169,75,.55)"; g.lineWidth = 2; g.strokeRect(M - 6, M - 6, PX - 2 * M + 12, PX - 2 * M + 12);
+    g.fillStyle = "#E8C77A"; g.font = `700 ${U * .22}px Arial, sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+    for (let i = 0; i < 8; i++){
+      g.fillText("abcdefgh"[i], M + (i + .5) * U, PX - M / 2);
+      g.fillText("abcdefgh"[i], M + (i + .5) * U, M / 2);
+      g.fillText(String(8 - i), M / 2, M + (i + .5) * U);
+      g.fillText(String(8 - i), PX - M / 2, M + (i + .5) * U);
+    }
+    // 칸
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++){
+      const x = M + c * U, y = M + r * U, light = (r + c) % 2 === 0;
+      const gr = g.createLinearGradient(x, y, x + U, y + U);
+      if (light){ gr.addColorStop(0, "#BCCBF2"); gr.addColorStop(1, "#8FA4DE"); }
+      else { gr.addColorStop(0, "#2B3F80"); gr.addColorStop(1, "#18245A"); }
+      g.fillStyle = gr; g.fillRect(x, y, U, U);
+      // 과학 낙서
+      g.save();
+      g.beginPath(); g.rect(x, y, U, U); g.clip();
+      const ink = light ? "rgba(30,48,110,.38)" : "rgba(150,200,255,.32)";
+      g.strokeStyle = ink; g.fillStyle = ink; g.lineWidth = 1.6;
+      g.font = `italic 600 ${U * rnd(.13, .17)}px Georgia, serif`; g.textAlign = "left";
+      g.fillText(FORMULAS[Math.random() * FORMULAS.length | 0], x + U * rnd(.08, .35), y + U * rnd(.22, .4));
+      const kind = Math.random() * 6 | 0, cx = x + U * rnd(.35, .65), cy = y + U * rnd(.6, .75);
+      g.beginPath();
+      if (kind === 0){ g.ellipse(cx, cy, U * .22, U * .08, .3, 0, TAU); g.moveTo(cx + 4, cy); g.arc(cx, cy, 4, 0, TAU); }
+      else if (kind === 1){ for (let i = 0; i <= 30; i++){ const px = x + U * (.1 + i * .027), py = cy + Math.sin(i * .45) * U * .07; i ? g.lineTo(px, py) : g.moveTo(px, py); } }
+      else if (kind === 2){ for (let i = 0; i <= 6; i++){ const a = i * TAU / 6; const px = cx + U * .12 * Math.cos(a), py = cy + U * .12 * Math.sin(a); i ? g.lineTo(px, py) : g.moveTo(px, py); } }
+      else if (kind === 3){ g.moveTo(x + U * .15, cy); g.lineTo(x + U * .8, cy); g.lineTo(x + U * .72, cy - U * .05); g.moveTo(x + U * .8, cy); g.lineTo(x + U * .72, cy + U * .05); }
+      else if (kind === 4){ g.moveTo(cx - U * .15, cy + U * .1); g.lineTo(cx, cy - U * .12); g.lineTo(cx + U * .15, cy + U * .1); g.closePath(); }
+      else { g.arc(cx, cy, U * .1, 0, TAU); g.moveTo(cx + U * .2, cy); g.arc(cx, cy, U * .2, 0, TAU); }
+      g.stroke();
+      g.restore();
+      g.strokeStyle = "rgba(255,255,255,.12)"; g.lineWidth = 1; g.strokeRect(x + .5, y + .5, U - 1, U - 1);
+    }
+  });
+}
+
+/* ---------- 말 모형 ---------- */
+const BASE = [[0, 0], [.40, 0], [.40, .05], [.38, .08], [.38, .11], [.33, .14], [.30, .17]];
+function arc(cx, cy, r, a0, a1, n = 10){ const out = []; for (let i = 0; i <= n; i++){ const a = a0 + (a1 - a0) * i / n; out.push([Math.max(0, r * Math.cos(a)), cy + r * Math.sin(a)]); } return out; }
+const PROFILES = {
+  1: [...BASE, [.24, .21], [.18, .28], [.14, .38], [.12, .46], [.2, .49], [.2, .52], [.12, .54], ...arc(0, .67, .15, -1.0, Math.PI / 2, 12)],
+  3: [...BASE, [.25, .2], [.18, .27], [.14, .4], [.12, .56], [.2, .58], [.2, .62], [.12, .64], [.16, .7], [.19, .79], [.18, .88], [.13, .96], [.06, 1.01], [0, 1.02]],
+  4: [...BASE, [.27, .2], [.24, .26], [.22, .55], [.26, .6], [.3, .62], [.3, .8], [.22, .8], [.22, .74], [0, .74]],
+  5: [...BASE, [.26, .2], [.19, .28], [.15, .42], [.12, .62], [.11, .74], [.2, .77], [.2, .8], [.13, .82], [.16, .9], [.24, .99], [.25, 1.01], [.18, 1.0], [.1, 1.03], [0, 1.05]],
+  6: [...BASE, [.27, .2], [.2, .28], [.16, .42], [.13, .66], [.12, .8], [.21, .83], [.21, .86], [.14, .88], [.18, .96], [.22, 1.04], [.2, 1.08], [.12, 1.12], [0, 1.13]],
+  2: [...BASE, [.28, .2], [.27, .24], [0, .24]],
+};
+const geoCache = {};
+function lathe(t){
+  if (!geoCache[t]) geoCache[t] = new THREE.LatheGeometry(PROFILES[t].map(([r, y]) => new THREE.Vector2(r, y)), 48);
+  return geoCache[t];
+}
+function knightHeadGeo(){
+  if (geoCache.kh) return geoCache.kh;
+  const s = new THREE.Shape();
+  s.moveTo(-.2, 0); s.quadraticCurveTo(-.22, .18, -.12, .3);
+  s.quadraticCurveTo(-.24, .33, -.36, .36); s.quadraticCurveTo(-.44, .38, -.42, .46);
+  s.quadraticCurveTo(-.40, .53, -.30, .6); s.quadraticCurveTo(-.2, .7, -.09, .76);
+  s.lineTo(-.05, .9); s.lineTo(.03, .77);
+  s.quadraticCurveTo(.21, .72, .26, .5); s.quadraticCurveTo(.31, .25, .24, 0); s.lineTo(-.2, 0);
+  const g = new THREE.ExtrudeGeometry(s, { depth: .2, bevelEnabled: true, bevelThickness: .07, bevelSize: .05, bevelSegments: 5, curveSegments: 20 });
+  g.translate(0, 0, -.1);
+  geoCache.kh = g;
+  return g;
+}
+
+let MAT = null;
+function materials(){
+  if (MAT) return MAT;
+  MAT = {
+    w: new THREE.MeshPhysicalMaterial({ color: 0xF2F5FB, metalness: .35, roughness: .16, clearcoat: 1, clearcoatRoughness: .05, envMapIntensity: 1.6, sheen: .3, sheenColor: new THREE.Color(0xBFD8FF) }),
+    b: new THREE.MeshPhysicalMaterial({ color: 0x15171F, metalness: .55, roughness: .2, clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: 1.1 }),
+    wGlow: new THREE.MeshStandardMaterial({ color: 0x9BEFFF, emissive: 0x3FD8FF, emissiveIntensity: 1.6, roughness: .3 }),
+    bGlow: new THREE.MeshStandardMaterial({ color: 0xFFD08A, emissive: 0xFF9F2E, emissiveIntensity: 1.5, roughness: .3 }),
+    wGlow2: new THREE.MeshStandardMaterial({ color: 0xFFB3E6, emissive: 0xFF5FC0, emissiveIntensity: 1.3, roughness: .3 }),
+    bGlow2: new THREE.MeshStandardMaterial({ color: 0x9FFFD6, emissive: 0x2EE6A0, emissiveIntensity: 1.3, roughness: .3 }),
+    eye: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .2 }),
+  };
+  return MAT;
+}
+
+function helixGeo(phase){
+  const key = "hx" + phase;
+  if (geoCache[key]) return geoCache[key];
+  const pts = [];
+  for (let i = 0; i <= 80; i++){ const t = i / 80, a = t * TAU * 1.5 + phase, y = .24 + t * .62, r = .215 - .04 * Math.sin(t * Math.PI); pts.push(new THREE.Vector3(r * Math.cos(a), y, r * Math.sin(a))); }
+  return geoCache[key] = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 120, .013, 8, false);
+}
+
+function makePiece(p){
+  const white = (p & 8) !== 0, t = p & 7, M = materials();
+  const body = white ? M.w : M.b, glow = white ? M.wGlow : M.bGlow, glow2 = white ? M.wGlow2 : M.bGlow2;
+  const g = new THREE.Group();
+  const add = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
+  add(lathe(t), body);
+  if (t === 2){
+    const h = add(knightHeadGeo(), body, 0, .22, 0);
+    const e1 = add(new THREE.SphereGeometry(.03, 12, 8), glow, -.21, .84, .17), e2 = add(new THREE.SphereGeometry(.03, 12, 8), glow, -.21, .84, -.17);
+    const mane = add(new THREE.TorusGeometry(.3, .035, 10, 24, 1.5), glow2, -.02, .5, 0); mane.rotation.z = -.2; mane.castShadow = false;
+    const kg = new THREE.Group(); [h, e1, e2].forEach(m => kg.add(m)); g.add(kg);
+    kg.rotation.y = white ? -.35 : .35;
+  } else if (t === 4){
+    for (let i = 0; i < 6; i++){
+      const a = i * TAU / 6, m = add(new THREE.BoxGeometry(.13, .1, .09), body, .26 * Math.cos(a), .85, .26 * Math.sin(a));
+      m.rotation.y = -a + Math.PI / 2;
+    }
+    const ring = add(new THREE.TorusGeometry(.245, .022, 12, 48), glow, 0, .42, 0); ring.rotation.x = Math.PI / 2; ring.castShadow = false;
+  } else if (t === 3){
+    add(new THREE.SphereGeometry(.05, 16, 12), body, 0, 1.06, 0);
+    const h1 = add(helixGeo(0), glow), h2 = add(helixGeo(Math.PI), glow2);
+    h1.castShadow = h2.castShadow = false;
+    for (let i = 0; i < 7; i++){
+      const tt = (i + .5) / 7, a = tt * TAU * 1.5, y = .24 + tt * .62, r = .215 - .04 * Math.sin(tt * Math.PI);
+      const rung = add(new THREE.CylinderGeometry(.008, .008, r * 2, 6), body, 0, y, 0);
+      rung.rotation.z = Math.PI / 2; rung.rotation.y = -a; rung.castShadow = false;
+    }
+  } else if (t === 5){
+    for (let i = 0; i < 8; i++){ const a = i * TAU / 8; add(new THREE.SphereGeometry(.042, 14, 10), glow, .24 * Math.cos(a), 1.04, .24 * Math.sin(a)).castShadow = false; }
+    add(new THREE.SphereGeometry(.058, 16, 12), body, 0, 1.1, 0);
+  } else if (t === 6){
+    add(new THREE.BoxGeometry(.06, .24, .06), body, 0, 1.24, 0);
+    add(new THREE.BoxGeometry(.18, .06, .06), body, 0, 1.27, 0);
+    // 원자 모형: 세 개의 전자 궤도
+    const atom = new THREE.Group(); atom.position.y = 1.0;
+    for (let k = 0; k < 3; k++){
+      const orbit = new THREE.Group(); orbit.rotation.set(Math.PI / 2 + (k - 1) * .9, k * 1.05, 0);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(.36, .006, 6, 64), glow); orbit.add(ring);
+      const el = new THREE.Mesh(new THREE.SphereGeometry(.032, 12, 8), k === 1 ? glow2 : glow); el.position.x = .36; orbit.add(el);
+      orbit.userData.spin = 1.6 + k * .5; orbit.userData.axis = "z";
+      atom.add(orbit); pieceSpinners.push(orbit);
+    }
+    g.add(atom);
+  }
+  g.scale.setScalar(1.12);
+  g.userData.piece = p;
+  return g;
+}
+
+/* ---------- 장면 ---------- */
+function buildScene(){
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(36, 1, .1, 400);
+  const nebula = nebulaTexture();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envTex = nebula.clone(); envTex.mapping = THREE.EquirectangularReflectionMapping; envTex.needsUpdate = true;
+  scene.environment = pmrem.fromEquirectangular(envTex).texture;
+
+  sky = new THREE.Group(); scene.add(sky);
+  const skyMap = nebula.clone(); skyMap.wrapS = THREE.RepeatWrapping; skyMap.repeat.x = -1; skyMap.needsUpdate = true;   // 구 안쪽에서 보면 좌우가 뒤집히므로 되돌림
+  const skyMesh = new THREE.Mesh(new THREE.SphereGeometry(150, 64, 32), new THREE.MeshBasicMaterial({ map: skyMap, side: THREE.BackSide, depthWrite: false }));
+  skyMesh.rotation.y = Math.PI / 2;   // 텍스처 이음매를 카메라 뒤쪽으로
+  sky.add(skyMesh);
+  // 별 입자
+  const N = 1400, pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++){ const u = Math.random() * 2 - 1, a = Math.random() * TAU, r = rnd(70, 120), s = Math.sqrt(1 - u * u); pos[i * 3] = r * s * Math.cos(a); pos[i * 3 + 1] = r * u; pos[i * 3 + 2] = r * s * Math.sin(a); }
+  const sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  sky.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, map: glowTex("rgba(255,255,255,1)"), size: .55, sizeAttenuation: true, transparent: true, opacity: .9, depthWrite: false, blending: THREE.AdditiveBlending })));
+  // 행성
+  // 기본 카메라 위치에서 본 방향(좌우 각, 아래 각, 거리)으로 행성을 둔다 → 보드 너머 하늘에 보이게
+  const eye = new THREE.Vector3(0, 17 * Math.sin(.6), 17 * Math.cos(.6));
+  const at = (yaw, pitch, D) => { const y = yaw * Math.PI / 180, p = pitch * Math.PI / 180; return [eye.x + D * Math.cos(p) * Math.sin(y), eye.y + D * Math.sin(p), eye.z - D * Math.cos(p) * Math.cos(y)]; };
+  const planets = [
+    { k: "gas", r: 7, p: at(21, -15, 80), glow: "rgba(255,170,90,.55)" },
+    { k: "ring", r: 3.4, p: at(-13, -13.5, 86), glow: "rgba(230,150,220,.5)", ring: true },
+    { k: "red", r: 1.3, p: at(9, -19, 48), glow: "rgba(255,110,70,.5)" },
+    { k: "ice", r: 1.5, p: at(-6, -21.5, 52), glow: "rgba(120,190,255,.55)" },
+    { k: "moon", r: .9, p: at(30, -22, 44), glow: "rgba(220,220,220,.3)" },
+    { k: "ice", r: 1.3, p: at(-33, -20, 56), glow: "rgba(120,190,255,.45)" },
+    { k: "red", r: .7, p: at(2, -13, 70), glow: "rgba(255,160,120,.4)" },
+  ];
+  for (const pl of planets){
+    const m = new THREE.Mesh(new THREE.SphereGeometry(pl.r, 48, 32), new THREE.MeshStandardMaterial({ map: planetTexture(pl.k), roughness: .85, metalness: 0 }));
+    m.position.set(...pl.p); m.rotation.z = .3; sky.add(m);
+    m.userData.spin = rnd(.02, .08); spinners.push(m);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(pl.glow), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+    sp.scale.setScalar(pl.r * 3.6); sp.position.set(...pl.p); sp.position.z -= .5; sky.add(sp);
+    if (pl.ring){
+      const rt = canvasTex(256, 8, (g, W, H) => { for (let x = 0; x < W; x++){ g.fillStyle = `rgba(240,${200 + Math.random() * 40 | 0},230,${(.25 + .5 * Math.random()) * Math.sin(x / W * Math.PI)})`; g.fillRect(x, 0, 1, H); } });
+      const rg = new THREE.RingGeometry(pl.r * 1.35, pl.r * 2.3, 96, 1);
+      const uv = rg.attributes.uv, v3 = new THREE.Vector3();
+      for (let i = 0; i < uv.count; i++){ v3.fromBufferAttribute(rg.attributes.position, i); uv.setXY(i, (v3.length() - pl.r * 1.35) / (pl.r * .95), .5); }
+      const ring = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map: rt, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
+      ring.position.set(...pl.p); ring.rotation.set(Math.PI / 2.4, .3, .2); sky.add(ring);
+    }
+  }
+
+  // 조명
+  scene.add(new THREE.HemisphereLight(0xB9A8FF, 0x101830, .55));
+  const key = new THREE.DirectionalLight(0xFFF2E0, 2.4);
+  key.position.set(-5, 13, 7); key.castShadow = true;
+  const small = Math.min(window.innerWidth, window.innerHeight) < 700;
+  key.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
+  Object.assign(key.shadow.camera, { left: -6.5, right: 6.5, top: 6.5, bottom: -6.5, near: 1, far: 40 });
+  key.shadow.bias = -.0006; key.shadow.normalBias = .02; key.shadow.radius = 3;
+  scene.add(key);
+  const rimA = new THREE.PointLight(0xFF8A4C, 18, 30); rimA.position.set(7, 4, -7); scene.add(rimA);
+  const rimB = new THREE.PointLight(0x5CA8FF, 16, 30); rimB.position.set(-7, 4, 6); scene.add(rimB);
+
+  // 보드
+  boardGroup = new THREE.Group(); scene.add(boardGroup);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(9.0, .36, 9.0), new THREE.MeshStandardMaterial({ color: 0x0C1026, metalness: .6, roughness: .35 }));
+  base.position.y = -.19; base.receiveShadow = true; boardGroup.add(base);
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(9.06, .06, 9.06), new THREE.MeshStandardMaterial({ color: 0xD9A94B, metalness: 1, roughness: .25 }));
+  edge.position.y = -.02; boardGroup.add(edge);
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(8.8, 8.8), new THREE.MeshPhysicalMaterial({ map: boardTexture(), roughness: .32, metalness: .15, clearcoat: .8, clearcoatRoughness: .12, envMapIntensity: .55 }));
+  top.rotation.x = -Math.PI / 2; top.position.y = .012; top.receiveShadow = true; boardGroup.add(top);
+  pickPlane = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshBasicMaterial({ visible: false }));
+  pickPlane.rotation.x = -Math.PI / 2; pickPlane.position.y = .02; scene.add(pickPlane);
+
+  hlGroup = new THREE.Group(); scene.add(hlGroup);
+  hintGroup = new THREE.Group(); scene.add(hintGroup);
+  pieceGroup = new THREE.Group(); scene.add(pieceGroup);
+  raycaster = new THREE.Raycaster();
+}
+
+/* ---------- 강조 표시 ---------- */
+const HL = {};
+function hlMat(color, opacity){ return new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false }); }
+function sqPlane(sq, mat, y = .03){ const m = new THREE.Mesh(new THREE.PlaneGeometry(.98, .98), mat); m.rotation.x = -Math.PI / 2; m.position.set(sqX(sq), y, sqZ(sq)); return m; }
+function rebuildHighlights(){
+  hlGroup.clear();
+  HL.last = HL.last || hlMat(0xFFD65A, .38);
+  HL.sel = HL.sel || hlMat(0xFFB020, .6);
+  HL.dot = HL.dot || new THREE.MeshBasicMaterial({ color: 0x8FF0FF, transparent: true, opacity: .85, depthWrite: false });
+  HL.ring = HL.ring || new THREE.MeshBasicMaterial({ color: 0xFF7A7A, transparent: true, opacity: .85, depthWrite: false, side: THREE.DoubleSide });
+  HL.check = HL.check || new THREE.MeshBasicMaterial({ map: glowTex("rgba(255,40,40,.95)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const G = window.__chess.G, C = window.__chess.C;
+  if (G.last){ hlGroup.add(sqPlane(G.last[0], HL.last)); hlGroup.add(sqPlane(G.last[1], HL.last)); }
+  if (G.sel >= 0){
+    hlGroup.add(sqPlane(G.sel, HL.sel, .032));
+    if (window.__chess.settings.dots) for (const t of G.targets){
+      if (C.board[t] || ((C.board[G.sel] & 7) === 1 && (t & 7) !== (G.sel & 7))){
+        const r = new THREE.Mesh(new THREE.RingGeometry(.36, .44, 40), HL.ring); r.rotation.x = -Math.PI / 2; r.position.set(sqX(t), .035, sqZ(t)); hlGroup.add(r);
+      } else {
+        const d = new THREE.Mesh(new THREE.CircleGeometry(.13, 28), HL.dot); d.rotation.x = -Math.PI / 2; d.position.set(sqX(t), .035, sqZ(t)); hlGroup.add(d);
+      }
+    }
+  }
+  if (C.inCheck()){
+    for (let sq = 0; sq < 128; sq++){ if (sq & 0x88){ sq += 7; continue; } if (C.board[sq] === (6 | C.side)){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), HL.check); m.rotation.x = -Math.PI / 2; m.position.set(sqX(sq), .04, sqZ(sq)); hlGroup.add(m); } }
+  }
+}
+
+function setHint(from, to){
+  hintGroup.clear();
+  if (from == null) return;
+  const a = new THREE.Vector3(sqX(from), .08, sqZ(from)), b = new THREE.Vector3(sqX(to), .08, sqZ(to));
+  const mid = a.clone().lerp(b, .5); mid.y = .9 + a.distanceTo(b) * .12;
+  const curve = new THREE.QuadraticBezierCurve3(a, mid, b.clone().setY(.3));
+  const mat = new THREE.MeshStandardMaterial({ color: 0xFFB347, emissive: 0xFF8A00, emissiveIntensity: 1.6, transparent: true, opacity: .9 });
+  hintGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 40, .05, 10, false), mat));
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(.14, .3, 18), mat);
+  const end = curve.getPoint(1), dir = curve.getTangent(1);
+  cone.position.copy(end); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize()); hintGroup.add(cone);
+  hintGroup.add(sqPlane(to, hlMat(0xFF9A2E, .45), .036));
+  hintGroup.add(sqPlane(from, hlMat(0xFF9A2E, .3), .036));
+}
+
+/* ---------- 말 배치 ---------- */
+function sync(anim){
+  if (!init()) return false;
+  const C = window.__chess.C, G = window.__chess.G;
+  // 카메라 방향
+  cam.azT = G.flipped ? Math.PI : 0;
+  // 말 다시 배치
+  pieceGroup.clear(); pieceSpinners = [];
+  pieceMeshes = new Map();
+  for (let sq = 0; sq < 128; sq++){
+    if (sq & 0x88){ sq += 7; continue; }
+    const p = C.board[sq];
+    if (!p) continue;
+    const m = makePiece(p);
+    m.position.set(sqX(sq), 0, sqZ(sq));
+    pieceGroup.add(m); pieceMeshes.set(sq, m);
+  }
+  if (anim){
+    const m = pieceMeshes.get(anim[1]);
+    if (m){
+      const from = new THREE.Vector3(sqX(anim[0]), 0, sqZ(anim[0])), to = m.position.clone();
+      const knight = (m.userData.piece & 7) === 2, dist = from.distanceTo(to);
+      m.position.copy(from);
+      tweens.push({ m, from, to, t: 0, dur: .28 + Math.min(.25, dist * .04), h: knight ? .9 : Math.min(.35, dist * .06) });
+    }
+  }
+  rebuildHighlights();
+  if (anim) hintGroup.clear();
+  start();
+  return true;
+}
+
+/* ---------- 입력 ---------- */
+let down = null;
+function onDown(e){
+  down = { x: e.clientX, y: e.clientY, az: cam.az, el: cam.el, moved: false, id: e.pointerId };
+  try{ renderer.domElement.setPointerCapture(e.pointerId); }catch(_){}
+}
+function onMove(e){
+  if (!down || e.pointerId !== down.id) return;
+  const dx = e.clientX - down.x, dy = e.clientY - down.y;
+  if (!down.moved && Math.hypot(dx, dy) < 8) return;
+  down.moved = true;
+  cam.az = cam.azT = down.az - dx * .008;
+  cam.el = Math.max(.42, Math.min(1.42, down.el + dy * .006));
+}
+function onUp(e){
+  if (!down || e.pointerId !== down.id) return;
+  const d = down; down = null;
+  if (d.moved) return;
+  const rect = renderer.domElement.getBoundingClientRect();
+  const v = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(v, camera);
+  // 바닥 칸(손가락 아래 칸)과 눈에 맞은 말을 둘 다 구한 뒤, 의도에 맞는 쪽을 고른다
+  let planeSq = -1, meshSq = -1;
+  const h = raycaster.intersectObject(pickPlane);
+  if (h.length){ const c = Math.floor(h[0].point.x + 4), r = Math.floor(h[0].point.z + 4); if (c >= 0 && c < 8 && r >= 0 && r < 8) planeSq = r * 16 + c; }
+  const hits = raycaster.intersectObjects(pieceGroup.children, true);
+  if (hits.length){ let o = hits[0].object; while (o && o.parent !== pieceGroup) o = o.parent; if (o) for (const [s, m] of pieceMeshes) if (m === o){ meshSq = s; break; } }
+  const G = window.__chess.G, C = window.__chess.C;
+  let sq;
+  if (planeSq >= 0 && G.sel >= 0 && G.targets.includes(planeSq)) sq = planeSq;
+  else if (planeSq >= 0 && C.board[planeSq] && (C.board[planeSq] & 24) === G.me) sq = planeSq;
+  else if (meshSq >= 0 && G.sel >= 0 && G.targets.includes(meshSq)) sq = meshSq;
+  else if (meshSq >= 0 && (C.board[meshSq] & 24) === G.me) sq = meshSq;
+  else sq = planeSq >= 0 ? planeSq : meshSq;
+  if (sq >= 0 && window.chessTap) window.chessTap(sq);
+}
+
+/* ---------- 루프 ---------- */
+let lastT = 0;
+function frame(t){
+  if (!running) return;
+  requestAnimationFrame(frame);
+  if (!container || container.offsetParent === null || document.hidden) return;
+  const busy = tweens.length || down || Math.abs(cam.azT - cam.az) > .001;
+  if (!busy && t - lastT < 30) return;          // 가만히 있을 때는 약 30fps로 아껴서 그리기
+  const dt = Math.min(.05, (t - lastT) / 1000 || 0); lastT = t;
+  // 카메라
+  let d = cam.azT - cam.az; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
+  cam.az += d * Math.min(1, dt * 4);
+  const ce = Math.cos(cam.el);
+  camera.position.set(Math.sin(cam.az) * cam.r * ce, Math.sin(cam.el) * cam.r, Math.cos(cam.az) * cam.r * ce);
+  camera.lookAt(-Math.sin(cam.az) * cam.look, cam.ly, -Math.cos(cam.az) * cam.look);
+  sky.rotation.y = cam.az;
+  for (const s of spinners) s.rotation.y += s.userData.spin * dt;
+  for (const s of pieceSpinners) s.rotation.z += s.userData.spin * dt;
+  for (let i = tweens.length - 1; i >= 0; i--){
+    const tw = tweens[i]; tw.t += dt / tw.dur;
+    const k = Math.min(1, tw.t), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    tw.m.position.lerpVectors(tw.from, tw.to, e); tw.m.position.y = Math.sin(k * Math.PI) * tw.h;
+    if (k >= 1){ tw.m.position.copy(tw.to); tweens.splice(i, 1); }
+  }
+  for (const c of hintGroup.children) if (c.material && c.material.emissiveIntensity) c.material.emissiveIntensity = 1.2 + .6 * Math.sin(t / 200);
+  renderer.render(scene, camera);
+}
+function start(){ if (!running){ running = true; requestAnimationFrame(frame); } }
+
+function resize(){
+  if (!renderer || !container) return;
+  const w = container.clientWidth, h = container.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+
+function init(){
+  if (inited) return ok;
+  inited = true;
+  container = document.getElementById("board");
+  try{
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+  }catch(e){ ok = false; return false; }
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const el = renderer.domElement; el.className = "three-canvas";
+  container.appendChild(el);
+  buildScene();
+  el.addEventListener("pointerdown", onDown);
+  el.addEventListener("pointermove", onMove);
+  el.addEventListener("pointerup", onUp);
+  el.addEventListener("pointercancel", () => { down = null; });
+  el.addEventListener("wheel", e => { e.preventDefault(); cam.r = Math.max(9, Math.min(19, cam.r + e.deltaY * .01)); }, { passive: false });
+  new ResizeObserver(resize).observe(container);
+  resize();
+  ok = true;
+  return true;
+}
+
+window.Board3D = {
+  get ok(){ return !inited || ok; },
+  sync, setHint: (a, b) => { if (inited && ok) setHint(a, b); },
+  resetView(){ cam.el = .6; cam.r = 17; cam.az = cam.azT; },
+  debug: () => ({ camera, scene, cam }),
+};
+window.dispatchEvent(new Event("board3d-ready"));
+</script>
+
 </body>
 </html>
