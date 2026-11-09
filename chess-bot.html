@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>♞ 과학 체스 — 봇과 대결</title>
+<style>
+  :root{
+    --bg1:#1B2132; --bg2:#2A2142; --panel:rgba(255,255,255,.07); --panel-line:rgba(255,255,255,.12);
+    --ink:#F2F4FA; --ink-soft:#AEB6CC; --accent:#7CD3A8; --accent2:#FFD166; --danger:#FF7A7A;
+    --light:#EEF1E4; --dark:#7FA68F; --coord-l:#5E8A73; --coord-d:#EEF1E4;
+    --bs:560px;
+  }
+  body[data-theme="wood"]{ --light:#EDD6B0; --dark:#B4875F; --coord-l:#9C7049; --coord-d:#F3E2C5; }
+  body[data-theme="space"]{ --light:#DCE3F2; --dark:#5B6FA8; --coord-l:#5B6FA8; --coord-d:#E4E9F6; }
+  body[data-theme="lab"]{ --light:#EEF1E4; --dark:#7FA68F; --coord-l:#5E8A73; --coord-d:#EEF1E4; }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{background:radial-gradient(1200px 700px at 20% 0%,#2C3656 0%,transparent 60%),linear-gradient(160deg,var(--bg1),var(--bg2));
+    color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+  button{font:inherit;cursor:pointer;border:0;color:inherit}
+  .hidden{display:none!important}
+
+  /* ---------- 메뉴 ---------- */
+  #menu{max-width:980px;margin:0 auto;padding:22px 16px 40px}
+  .title{display:flex;align-items:center;gap:12px;margin:0 0 4px}
+  .title .logo{width:46px;height:46px;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4))}
+  .title h1{margin:0;font-size:28px;letter-spacing:-.5px}
+  .subtitle{color:var(--ink-soft);margin:0 0 20px;font-size:14px}
+  .sec-h{font-size:15px;font-weight:700;margin:20px 0 10px;color:#DDE3F3}
+  .bots{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+  .bot{display:flex;gap:12px;align-items:center;text-align:left;background:var(--panel);border:1.5px solid var(--panel-line);border-radius:16px;padding:12px;transition:transform .12s,border-color .12s,background .12s}
+  .bot:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+  .bot.sel{border-color:var(--accent);background:rgba(124,211,168,.14);box-shadow:0 0 0 2px rgba(124,211,168,.25)}
+  .ava{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:30px;flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18),0 3px 8px rgba(0,0,0,.3)}
+  .bot .nm{font-weight:800;font-size:16px}
+  .bot .lv{font-size:12px;color:var(--accent2);letter-spacing:1px}
+  .bot .ds{font-size:12.5px;color:var(--ink-soft);line-height:1.4;margin-top:2px}
+  .bot .rec{font-size:11.5px;color:#9FE3C1;margin-top:3px}
+  .opt-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .seg{display:inline-flex;background:rgba(0,0,0,.25);border-radius:12px;padding:4px;gap:4px}
+  .seg button{padding:9px 14px;border-radius:9px;font-weight:700;font-size:14px;color:var(--ink-soft);background:transparent}
+  .seg button.on{background:#F2F4FA;color:#1B2132}
+  .chk{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#DDE3F3;background:rgba(0,0,0,.2);padding:8px 12px;border-radius:10px;cursor:pointer;user-select:none}
+  .chk input{width:18px;height:18px;accent-color:var(--accent)}
+  .play-btn{margin-top:22px;width:100%;padding:16px;border-radius:16px;font-size:20px;font-weight:900;color:#103322;
+    background:linear-gradient(180deg,#9BE7BF,#5CC28E);box-shadow:0 5px 0 #3E9467,0 10px 24px rgba(0,0,0,.35);transition:transform .08s}
+  .play-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #3E9467}
+
+  /* ---------- 게임 ---------- */
+  #game{display:flex;gap:20px;justify-content:center;align-items:flex-start;padding:14px 16px 30px;max-width:1200px;margin:0 auto}
+  .board-col{display:flex;flex-direction:column;gap:8px;flex:none}
+  .pbar{display:flex;align-items:center;gap:10px;min-height:52px;position:relative}
+  .pbar .ava{width:44px;height:44px;font-size:24px}
+  .pbar .who{display:flex;flex-direction:column;min-width:0;flex:none}
+  .pbar .who b{font-size:15px;white-space:nowrap}
+  .pbar .caps{font-size:15px;line-height:1;min-height:18px;color:#C9D0E2;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+  .pbar .caps .adv{font-size:12px;color:var(--ink-soft);font-weight:700;margin-left:2px}
+  .pbar .caps svg{width:18px;height:18px;margin-right:-5px}
+  .speech{position:relative;margin-left:6px;flex:0 1 auto;min-width:0;background:#fff;color:#1F2433;border-radius:14px;padding:8px 12px;font-size:13.5px;line-height:1.35;max-width:min(360px,52vw);box-shadow:0 4px 14px rgba(0,0,0,.3);animation:pop .25s ease}
+  .speech::before{content:"";position:absolute;left:-7px;top:14px;border:7px solid transparent;border-right-color:#fff;border-left:0}
+  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .thinking{display:inline-flex;gap:3px;margin-left:6px}
+  .thinking i{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:blink 1s infinite}
+  .thinking i:nth-child(2){animation-delay:.15s}.thinking i:nth-child(3){animation-delay:.3s}
+  @keyframes blink{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+  .board-wrap{display:flex;gap:8px}
+  .evalbar{width:14px;height:var(--bs);border-radius:7px;overflow:hidden;background:#2E3240;position:relative;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .evalbar .fill{position:absolute;left:0;right:0;bottom:0;height:50%;background:#F4F4F0;transition:height .5s ease}
+  .evalbar.flip .fill{top:0;bottom:auto}
+  .evalbar span{position:absolute;left:50%;transform:translateX(-50%) rotate(-90deg);transform-origin:center;font-size:9px;font-weight:800;color:#888;white-space:nowrap;top:50%}
+  .board{width:var(--bs);height:var(--bs);position:relative;border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 4px rgba(255,255,255,.06);touch-action:none;user-select:none;-webkit-user-select:none}
+  .squares{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr)}
+  .sq{position:relative}
+  .sq.l{background:var(--light)} .sq.d{background:var(--dark)}
+  .sq.last::after{content:"";position:absolute;inset:0;background:rgba(255,214,90,.42)}
+  .sq.sel::after{content:"";position:absolute;inset:0;background:rgba(255,196,40,.62)}
+  .sq.check{background-image:radial-gradient(circle,rgba(255,40,40,.95) 0%,rgba(255,40,40,.55) 35%,rgba(255,40,40,0) 72%)}
+  .sq .dot{position:absolute;left:50%;top:50%;width:30%;height:30%;margin:-15% 0 0 -15%;border-radius:50%;background:rgba(20,30,40,.22);z-index:2;pointer-events:none}
+  .sq .ring{position:absolute;inset:4%;border-radius:50%;border:calc(var(--bs)*.009) solid rgba(20,30,40,.25);z-index:2;pointer-events:none}
+  .sq.hover{box-shadow:inset 0 0 0 calc(var(--bs)*.006) rgba(255,255,255,.75)}
+  .coord{position:absolute;font-size:calc(var(--bs)*.022);font-weight:800;z-index:1;pointer-events:none}
+  .coord.rk{left:4%;top:3%} .coord.fl{right:5%;bottom:2%}
+  .sq.l .coord{color:var(--coord-l)} .sq.d .coord{color:var(--coord-d)}
+  .pieces{position:absolute;inset:0;pointer-events:none}
+  .pc{position:absolute;left:0;top:0;width:12.5%;height:12.5%;will-change:transform;z-index:3}
+  .pc svg{width:100%;height:100%;display:block;filter:drop-shadow(0 calc(var(--bs)*.004) calc(var(--bs)*.003) rgba(0,0,0,.35))}
+  .pc.anim{transition:transform .2s cubic-bezier(.3,.7,.4,1)}
+  .pc.drag{z-index:20;transition:none}
+  .pc.drag svg{filter:drop-shadow(0 calc(var(--bs)*.02) calc(var(--bs)*.012) rgba(0,0,0,.4))}
+  .arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:15}
+  .promo{position:absolute;z-index:30;width:12.5%;background:#fff;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+  .promo button{aspect-ratio:1;background:#fff;padding:6%}
+  .promo button:hover{background:#E8F6EE}
+  .promo-shade{position:absolute;inset:0;background:rgba(10,14,24,.45);z-index:29}
+
+  aside.side{width:340px;flex:none;display:flex;flex-direction:column;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--panel-line);border-radius:16px;padding:14px}
+  .match{display:flex;align-items:center;gap:10px}
+  .match .vs{font-size:12px;color:var(--ink-soft)}
+  .match b{font-size:16px}
+  .status{font-size:14px;color:var(--ink-soft);margin-top:8px;min-height:20px}
+  .status.turn-me{color:var(--accent)}
+  .moves{height:min(330px,calc(var(--bs) - 250px));min-height:150px;overflow:auto;font-size:14px;font-variant-numeric:tabular-nums;padding:6px 4px}
+  .moves table{width:100%;border-collapse:collapse}
+  .moves td{padding:4px 6px}
+  .moves td.n{color:var(--ink-soft);width:34px;text-align:right}
+  .moves td.mv{font-weight:600;border-radius:6px}
+  .moves td.cur{background:rgba(124,211,168,.22)}
+  .mi svg{width:17px;height:17px;vertical-align:-3px;margin-right:1px}
+  .status .mi svg{width:16px;height:16px}
+  .moves .empty{color:var(--ink-soft);font-size:13px;text-align:center;padding:24px 0}
+  .ctrls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .ctrls button{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 4px;font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .ctrls button span{font-size:19px}
+  .ctrls button:hover:not(:disabled){background:rgba(255,255,255,.18)}
+  .ctrls button:disabled{opacity:.35;cursor:not-allowed}
+  .toggles{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .toggles .chk{font-size:12.5px;padding:6px 10px}
+  .toggles .chk input{width:15px;height:15px}
+
+  /* ---------- 결과 ---------- */
+  .modal{position:fixed;inset:0;background:rgba(8,10,20,.6);display:grid;place-items:center;z-index:100;padding:16px;animation:fade .25s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .end-card{background:#FFFDF7;color:#1F2433;border-radius:22px;padding:24px 22px;width:min(380px,100%);text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.5);animation:pop .3s ease}
+  .end-card .big{font-size:52px;line-height:1}
+  .end-card h2{margin:8px 0 2px;font-size:26px}
+  .end-card .why{color:#6A7184;font-size:14px;margin-bottom:12px}
+  .end-card .say{background:#F1F4FB;border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
+  .end-card .stats{display:flex;justify-content:center;gap:14px;font-size:13px;color:#4C5468;margin:8px 0 14px}
+  .end-card .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .end-card .btns button{padding:12px;border-radius:12px;font-weight:800;font-size:15px;background:#E9ECF4;color:#1F2433}
+  .end-card .btns button.pri{background:#5CC28E;color:#fff}
+  .end-card .btns button.wide{grid-column:span 2;background:transparent;color:#6A7184;font-size:13px;padding:6px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:#1F2433;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:120;animation:pop .2s}
+
+  @media (max-width:900px){
+    #game{flex-direction:column;align-items:center;gap:10px;padding:8px 10px 24px}
+    aside.side{width:100%;max-width:calc(var(--bs) + 22px)}
+    .moves{height:150px}
+    .speech{max-width:none;font-size:12.5px;padding:7px 10px}
+    .pbar .who b{font-size:14px}
+  }
+</style>
+</head>
+<body data-theme="lab">
+
+<!-- 말 그림용 그라데이션 (모든 말이 공유) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gW" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E3DED2"/></linearGradient>
+    <linearGradient id="gB" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#5A6172"/><stop offset="1" stop-color="#20242E"/></linearGradient>
+    <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="2.6" markerHeight="2.6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="rgba(255,150,30,.9)"/></marker>
+  </defs>
+</svg>
+
+<!-- ===== 메뉴 ===== -->
+<section id="menu">
+  <div class="title"><span class="logo" id="logo"></span><h1>과학 체스 — 봇과 대결</h1></div>
+  <p class="subtitle">상대할 과학자 봇을 고르고 체스 한 판! 봇은 이 페이지 안에서 직접 수를 계산해요(인터넷 연결 없이도 동작).</p>
+
+  <div class="sec-h">🤖 상대 고르기</div>
+  <div class="bots" id="bot-list"></div>
+
+  <div class="sec-h">♟️ 내 말 색깔</div>
+  <div class="opt-row">
+    <div class="seg" id="color-seg">
+      <button data-c="w" class="on">⚪ 백 (먼저)</button>
+      <button data-c="r">🎲 무작위</button>
+      <button data-c="b">⚫ 흑 (나중)</button>
+    </div>
+  </div>
+
+  <div class="sec-h">⚙️ 옵션</div>
+  <div class="opt-row">
+    <div class="seg" id="theme-seg">
+      <button data-t="lab" class="on">🧪 실험실</button>
+      <button data-t="wood">🪵 나무</button>
+      <button data-t="space">🌌 우주</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="opt-help" checked> 힌트·무르기 허용</label>
+    <label class="chk"><input type="checkbox" id="opt-dots" checked> 갈 수 있는 칸 표시</label>
+  </div>
+
+  <button class="play-btn" id="play-btn">게임 시작 ▶</button>
+</section>
+
+<!-- ===== 게임 ===== -->
+<section id="game" class="hidden">
+  <div class="board-col">
+    <div class="pbar" id="bar-top">
+      <div class="ava" id="top-ava"></div>
+      <div class="who"><b id="top-name"></b><div class="caps" id="top-caps"></div></div>
+      <div class="speech hidden" id="speech"></div>
+      <span class="thinking hidden" id="thinking"><i></i><i></i><i></i></span>
+    </div>
+    <div class="board-wrap">
+      <div class="evalbar" id="evalbar"><div class="fill"></div><span id="eval-txt"></span></div>
+      <div class="board" id="board">
+        <div class="squares" id="squares"></div>
+        <div class="pieces" id="pieces"></div>
+        <svg class="arrows" id="arrows" viewBox="0 0 8 8"></svg>
+      </div>
+    </div>
+    <div class="pbar" id="bar-bottom">
+      <div class="ava" style="background:linear-gradient(135deg,#7CD3A8,#3E9467)">🧒</div>
+      <div class="who"><b>나</b><div class="caps" id="bot-caps"></div></div>
+    </div>
+  </div>
+
+  <aside class="side">
+    <div class="card">
+      <div class="match"><div class="ava" id="side-ava" style="width:40px;height:40px;font-size:22px"></div>
+        <div><div class="vs">상대</div><b id="side-name"></b> <span id="side-lv" style="font-size:12px;color:var(--accent2)"></span></div></div>
+      <div class="status" id="status"></div>
+    </div>
+    <div class="card" style="padding:8px 10px"><div class="moves" id="moves"></div></div>
+    <div class="card">
+      <div class="ctrls">
+        <button id="b-undo" type="button"><span>↶</span>무르기</button>
+        <button id="b-hint" type="button"><span>💡</span>힌트</button>
+        <button id="b-flip" type="button"><span>⇅</span>뒤집기</button>
+        <button id="b-resign" type="button"><span>🏳️</span>기권</button>
+        <button id="b-pgn" type="button"><span>📋</span>기보 복사</button>
+        <button id="b-menu" type="button"><span>🏠</span>봇 바꾸기</button>
+      </div>
+      <div class="toggles">
+        <label class="chk"><input type="checkbox" id="t-sound" checked> 🔊 소리</label>
+        <label class="chk"><input type="checkbox" id="t-eval" checked> 📊 평가 막대</label>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div class="modal hidden" id="end">
+  <div class="end-card">
+    <div class="big" id="end-big"></div>
+    <h2 id="end-title"></h2>
+    <div class="why" id="end-why"></div>
+    <div class="say" id="end-say"></div>
+    <div class="stats" id="end-stats"></div>
+    <div class="btns">
+      <button class="pri" id="end-again" type="button">한 판 더</button>
+      <button id="end-menu" type="button">다른 봇</button>
+      <button class="wide" id="end-review" type="button">보드 다시 보기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   체스 규칙 + 엔진 (0x88 보드, 알파-베타 탐색)
+   같은 코드를 메인 화면(규칙 판정)과 Web Worker(봇 생각)에서 함께 쓴다.
+   ===================================================================== */
+function chessModule(IS_WORKER){
+  "use strict";
+  const WHITE = 8, BLACK = 16, PAWN = 1, KNIGHT = 2, BISHOP = 3, ROOK = 4, QUEEN = 5, KING = 6;
+  const CAP = 1, EP = 2, CASTLE = 4, DOUBLE = 8;
+  const VAL = [0, 100, 320, 330, 500, 900, 0];
+  const PHASE = [0, 0, 1, 1, 2, 4, 0];
+  const KN = [-33, -31, -18, -14, 14, 18, 31, 33], KG = [-17, -16, -15, -1, 1, 15, 16, 17];
+  const DI = [-17, -15, 15, 17], OR = [-16, -1, 1, 16];
+
+  const board = new Int8Array(128);
+  let side = WHITE, castle = 0, ep = -1, half = 0, full = 1;
+  const kingSq = [0, 0];
+  let hLo = 0, hHi = 0;
+  const U = new Int32Array(7 * 4096); let up = 0;
+  const HL = new Int32Array(4096), HH = new Int32Array(4096); let hp = 0;
+
+  let seed = 0x2545F491;
+  function rnd(){ seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return seed | 0; }
+  const zLo = new Int32Array(12 * 128), zHi = new Int32Array(12 * 128);
+  for (let i = 0; i < zLo.length; i++){ zLo[i] = rnd(); zHi[i] = rnd(); }
+  const zcLo = new Int32Array(16), zcHi = new Int32Array(16), zeLo = new Int32Array(8), zeHi = new Int32Array(8);
+  for (let i = 0; i < 16; i++){ zcLo[i] = rnd(); zcHi[i] = rnd(); }
+  for (let i = 0; i < 8; i++){ zeLo[i] = rnd(); zeHi[i] = rnd(); }
+  const zsLo = rnd(), zsHi = rnd();
+  const zi = (p, sq) => (((p & 7) - 1) + ((p & BLACK) ? 6 : 0)) * 128 + sq;
+
+  const CMASK = new Int8Array(128).fill(15);
+  CMASK[0x74] = 12; CMASK[0x70] = 13; CMASK[0x77] = 14; CMASK[0x04] = 3; CMASK[0x00] = 7; CMASK[0x07] = 11;
+
+  const ci = c => c === WHITE ? 0 : 1;
+  const sqName = sq => "abcdefgh"[sq & 7] + (8 - (sq >> 4));
+  const sqFrom = s => (8 - +s[1]) * 16 + (s.charCodeAt(0) - 97);
+  const FROM = m => m & 127, TO = m => (m >> 7) & 127, PROMO = m => (m >> 14) & 7, FL = m => m >> 17;
+
+  function computeHash(){
+    hLo = 0; hHi = 0;
+    for (let sq = 0; sq < 128; sq++){ if (sq & 0x88){ sq += 7; continue; } const p = board[sq]; if (p){ hLo ^= zLo[zi(p, sq)]; hHi ^= zHi[zi(p, sq)]; } }
+    if (side === BLACK){ hLo ^= zsLo; hHi ^= zsHi; }
+    hLo ^= zcLo[castle]; hHi ^= zcHi[castle];
+    if (ep !== -1){ hLo ^= zeLo[ep & 7]; hHi ^= zeHi[ep & 7]; }
+  }
+
+  const START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  function loadFen(fen){
+    const f = (fen || START).trim().split(/\s+/);
+    board.fill(0);
+    let r = 0, c = 0;
+    for (const ch of f[0]){
+      if (ch === "/"){ r++; c = 0; continue; }
+      if (ch >= "1" && ch <= "8"){ c += +ch; continue; }
+      const lower = ch.toLowerCase(), color = ch === lower ? BLACK : WHITE;
+      const t = "pnbrqk".indexOf(lower) + 1;
+      const sq = r * 16 + c;
+      board[sq] = t | color;
+      if (t === KING) kingSq[ci(color)] = sq;
+      c++;
+    }
+    side = f[1] === "b" ? BLACK : WHITE;
+    castle = 0;
+    const cs = f[2] || "-";
+    if (cs.includes("K")) castle |= 1; if (cs.includes("Q")) castle |= 2;
+    if (cs.includes("k")) castle |= 4; if (cs.includes("q")) castle |= 8;
+    ep = (!f[3] || f[3] === "-") ? -1 : sqFrom(f[3]);
+    half = +f[4] || 0; full = +f[5] || 1;
+    up = 0; computeHash(); hp = 0; HL[hp] = hLo; HH[hp] = hHi; hp++;
+  }
+
+  function fen(){
+    let s = "";
+    for (let r = 0; r < 8; r++){
+      let e = 0;
+      for (let c = 0; c < 8; c++){
+        const p = board[r * 16 + c];
+        if (!p){ e++; continue; }
+        if (e){ s += e; e = 0; }
+        const ch = " pnbrqk"[p & 7];
+        s += (p & WHITE) ? ch.toUpperCase() : ch;
+      }
+      if (e) s += e;
+      if (r < 7) s += "/";
+    }
+    let cs = (castle & 1 ? "K" : "") + (castle & 2 ? "Q" : "") + (castle & 4 ? "k" : "") + (castle & 8 ? "q" : "");
+    return `${s} ${side === WHITE ? "w" : "b"} ${cs || "-"} ${ep === -1 ? "-" : sqName(ep)} ${half} ${full}`;
+  }
+
+  function attacked(sq, by){
+    let s;
+    if (by === WHITE){
+      s = sq + 15; if (!(s & 0x88) && board[s] === (PAWN | WHITE)) return true;
+      s = sq + 17; if (!(s & 0x88) && board[s] === (PAWN | WHITE)) return true;
+    } else {
+      s = sq - 15; if (!(s & 0x88) && board[s] === (PAWN | BLACK)) return true;
+      s = sq - 17; if (!(s & 0x88) && board[s] === (PAWN | BLACK)) return true;
+    }
+    const n = KNIGHT | by, k = KING | by, b = BISHOP | by, r = ROOK | by, q = QUEEN | by;
+    for (let i = 0; i < 8; i++){
+      s = sq + KN[i]; if (!(s & 0x88) && board[s] === n) return true;
+      s = sq + KG[i]; if (!(s & 0x88) && board[s] === k) return true;
+    }
+    for (let i = 0; i < 4; i++){
+      let d = DI[i]; s = sq + d;
+      while (!(s & 0x88)){ const p = board[s]; if (p){ if (p === b || p === q) return true; break; } s += d; }
+      d = OR[i]; s = sq + d;
+      while (!(s & 0x88)){ const p = board[s]; if (p){ if (p === r || p === q) return true; break; } s += d; }
+    }
+    return false;
+  }
+  const inCheck = () => attacked(kingSq[ci(side)], side ^ 24);
+
+  function addPromos(list, from, to, fl, capOnly){
+    list.push(from | to << 7 | QUEEN << 14 | fl << 17);
+    if (capOnly && !fl) return;
+    list.push(from | to << 7 | KNIGHT << 14 | fl << 17, from | to << 7 | ROOK << 14 | fl << 17, from | to << 7 | BISHOP << 14 | fl << 17);
+  }
+
+  function gen(list, capOnly){
+    const us = side, them = side ^ 24;
+    for (let sq = 0; sq < 128; sq++){
+      if (sq & 0x88){ sq += 7; continue; }
+      const p = board[sq];
+      if (!p || (p & 24) !== us) continue;
+      const t = p & 7;
+      if (t === PAWN){
+        const dir = us === WHITE ? -16 : 16, startRow = us === WHITE ? 6 : 1, lastRow = us === WHITE ? 0 : 7;
+        let to = sq + dir;
+        if (!(to & 0x88) && !board[to]){
+          if ((to >> 4) === lastRow) addPromos(list, sq, to, 0, capOnly);
+          else if (!capOnly){
+            list.push(sq | to << 7);
+            const to2 = to + dir;
+            if ((sq >> 4) === startRow && !board[to2]) list.push(sq | to2 << 7 | DOUBLE << 17);
+          }
+        }
+        for (let k = 0; k < 2; k++){
+          to = sq + dir + (k ? 1 : -1);
+          if (to & 0x88) continue;
+          const q = board[to];
+          if (q && (q & 24) === them){
+            if ((to >> 4) === lastRow) addPromos(list, sq, to, CAP, capOnly);
+            else list.push(sq | to << 7 | CAP << 17);
+          } else if (to === ep && !q) list.push(sq | to << 7 | (CAP | EP) << 17);
+        }
+      } else if (t === KNIGHT || t === KING){
+        const offs = t === KNIGHT ? KN : KG;
+        for (let i = 0; i < 8; i++){
+          const to = sq + offs[i];
+          if (to & 0x88) continue;
+          const q = board[to];
+          if (!q){ if (!capOnly) list.push(sq | to << 7); }
+          else if ((q & 24) === them) list.push(sq | to << 7 | CAP << 17);
+        }
+      } else {
+        const dirs = t === BISHOP ? DI : t === ROOK ? OR : KG;
+        for (let i = 0; i < dirs.length; i++){
+          const d = dirs[i];
+          let to = sq + d;
+          while (!(to & 0x88)){
+            const q = board[to];
+            if (!q){ if (!capOnly) list.push(sq | to << 7); }
+            else { if ((q & 24) === them) list.push(sq | to << 7 | CAP << 17); break; }
+            to += d;
+          }
+        }
+      }
+    }
+    if (!capOnly){
+      if (us === WHITE && board[0x74] === (KING | WHITE)){
+        if ((castle & 1) && board[0x77] === (ROOK | WHITE) && !board[0x75] && !board[0x76] &&
+            !attacked(0x74, BLACK) && !attacked(0x75, BLACK) && !attacked(0x76, BLACK)) list.push(0x74 | 0x76 << 7 | CASTLE << 17);
+        if ((castle & 2) && board[0x70] === (ROOK | WHITE) && !board[0x73] && !board[0x72] && !board[0x71] &&
+            !attacked(0x74, BLACK) && !attacked(0x73, BLACK) && !attacked(0x72, BLACK)) list.push(0x74 | 0x72 << 7 | CASTLE << 17);
+      } else if (us === BLACK && board[0x04] === (KING | BLACK)){
+        if ((castle & 4) && board[0x07] === (ROOK | BLACK) && !board[0x05] && !board[0x06] &&
+            !attacked(0x04, WHITE) && !attacked(0x05, WHITE) && !attacked(0x06, WHITE)) list.push(0x04 | 0x06 << 7 | CASTLE << 17);
+        if ((castle & 8) && board[0x00] === (ROOK | BLACK) && !board[0x03] && !board[0x02] && !board[0x01] &&
+            !attacked(0x04, WHITE) && !attacked(0x03, WHITE) && !attacked(0x02, WHITE)) list.push(0x04 | 0x02 << 7 | CASTLE << 17);
+      }
+    }
+  }
+
+  function makeMove(m){
+    const from = FROM(m), to = TO(m), fl = FL(m), pr = PROMO(m);
+    const p = board[from];
+    const capSq = (fl & EP) ? to + (side === WHITE ? 16 : -16) : to;
+    const cap = (fl & CAP) ? board[capSq] : 0;
+    let u = up * 7;
+    U[u] = m; U[u + 1] = cap; U[u + 2] = castle; U[u + 3] = ep; U[u + 4] = half; U[u + 5] = hLo; U[u + 6] = hHi; up++;
+    let k = zi(p, from); hLo ^= zLo[k]; hHi ^= zHi[k]; board[from] = 0;
+    if (cap){ k = zi(cap, capSq); hLo ^= zLo[k]; hHi ^= zHi[k]; board[capSq] = 0; }
+    const placed = pr ? (pr | side) : p;
+    board[to] = placed; k = zi(placed, to); hLo ^= zLo[k]; hHi ^= zHi[k];
+    if ((p & 7) === KING) kingSq[ci(side)] = to;
+    if (fl & CASTLE){
+      const rf = to > from ? from + 3 : from - 4, rt = to > from ? from + 1 : from - 1;
+      const r = board[rf]; board[rf] = 0; board[rt] = r;
+      k = zi(r, rf); hLo ^= zLo[k]; hHi ^= zHi[k]; k = zi(r, rt); hLo ^= zLo[k]; hHi ^= zHi[k];
+    }
+    hLo ^= zcLo[castle]; hHi ^= zcHi[castle];
+    castle &= CMASK[from] & CMASK[to];
+    hLo ^= zcLo[castle]; hHi ^= zcHi[castle];
+    if (ep !== -1){ hLo ^= zeLo[ep & 7]; hHi ^= zeHi[ep & 7]; }
+    ep = (fl & DOUBLE) ? (from + to) >> 1 : -1;
+    if (ep !== -1){ hLo ^= zeLo[ep & 7]; hHi ^= zeHi[ep & 7]; }
+    half = ((p & 7) === PAWN || cap) ? 0 : half + 1;
+    if (side === BLACK) full++;
+    side ^= 24; hLo ^= zsLo; hHi ^= zsHi;
+    HL[hp] = hLo; HH[hp] = hHi; hp++;
+    if (attacked(kingSq[ci(side ^ 24)], side)){ unmake(); return false; }
+    return true;
+  }
+
+  function unmake(){
+    up--; hp--;
+    const u = up * 7, m = U[u];
+    side ^= 24;
+    if (side === BLACK) full--;
+    castle = U[u + 2]; ep = U[u + 3]; half = U[u + 4]; hLo = U[u + 5]; hHi = U[u + 6];
+    if (m === 0) return; // null move
+    const from = FROM(m), to = TO(m), fl = FL(m), pr = PROMO(m), cap = U[u + 1];
+    const moved = pr ? (PAWN | side) : board[to];
+    board[from] = moved; board[to] = 0;
+    if ((moved & 7) === KING) kingSq[ci(side)] = from;
+    if (cap){ const capSq = (fl & EP) ? to + (side === WHITE ? 16 : -16) : to; board[capSq] = cap; }
+    if (fl & CASTLE){
+      const rf = to > from ? from + 3 : from - 4, rt = to > from ? from + 1 : from - 1;
+      board[rf] = board[rt]; board[rt] = 0;
+    }
+  }
+
+  function makeNull(){
+    const u = up * 7;
+    U[u] = 0; U[u + 1] = 0; U[u + 2] = castle; U[u + 3] = ep; U[u + 4] = half; U[u + 5] = hLo; U[u + 6] = hHi; up++;
+    if (ep !== -1){ hLo ^= zeLo[ep & 7]; hHi ^= zeHi[ep & 7]; ep = -1; }
+    if (side === BLACK) full++;
+    side ^= 24; hLo ^= zsLo; hHi ^= zsHi;
+    HL[hp] = hLo; HH[hp] = hHi; hp++;
+  }
+
+  function legalMoves(){
+    const list = [], out = [];
+    gen(list, false);
+    for (const m of list){ if (makeMove(m)){ unmake(); out.push(m); } }
+    return out;
+  }
+
+  function isRep(){
+    for (let i = hp - 3; i >= 0 && i >= hp - 1 - half; i -= 2) if (HL[i] === hLo && HH[i] === hHi) return true;
+    return false;
+  }
+  function repCount(){
+    let n = 0;
+    for (let i = hp - 1; i >= 0 && i >= hp - 1 - half; i -= 2) if (HL[i] === hLo && HH[i] === hHi) n++;
+    return n;
+  }
+  function insufficient(){
+    let minors = 0, bishopsLight = 0, bishopsDark = 0, knights = 0;
+    for (let sq = 0; sq < 128; sq++){
+      if (sq & 0x88){ sq += 7; continue; }
+      const t = board[sq] & 7;
+      if (!t || t === KING) continue;
+      if (t === PAWN || t === ROOK || t === QUEEN) return false;
+      minors++;
+      if (t === KNIGHT) knights++;
+      else if (((sq >> 4) + (sq & 7)) & 1) bishopsDark++; else bishopsLight++;
+    }
+    if (minors <= 1) return true;
+    if (knights === 0 && (bishopsLight === 0 || bishopsDark === 0)) return true;
+    return false;
+  }
+
+  function status(){
+    const moves = legalMoves(), chk = inCheck();
+    if (!moves.length) return chk ? { over: true, result: side === WHITE ? "0-1" : "1-0", reason: "checkmate" } : { over: true, result: "1/2-1/2", reason: "stalemate" };
+    if (half >= 100) return { over: true, result: "1/2-1/2", reason: "fifty" };
+    if (repCount() >= 3) return { over: true, result: "1/2-1/2", reason: "repetition" };
+    if (insufficient()) return { over: true, result: "1/2-1/2", reason: "material" };
+    return { over: false, check: chk };
+  }
+
+  const toUci = m => sqName(FROM(m)) + sqName(TO(m)) + (PROMO(m) ? " nbrq"[PROMO(m) - 1] : "");
+  function fromUci(u){
+    const ms = legalMoves();
+    for (const m of ms) if (toUci(m) === u) return m;
+    return 0;
+  }
+
+  function san(m){
+    const from = FROM(m), to = TO(m), fl = FL(m), pr = PROMO(m), p = board[from], t = p & 7;
+    let s;
+    if (fl & CASTLE) s = to > from ? "O-O" : "O-O-O";
+    else if (t === PAWN){
+      s = (fl & CAP ? "abcdefgh"[from & 7] + "x" : "") + sqName(to) + (pr ? "=" + " NBRQ"[pr - 1] : "");
+    } else {
+      s = " PNBRQK"[t];
+      const others = legalMoves().filter(o => o !== m && TO(o) === to && (board[FROM(o)] & 7) === t);
+      if (others.length){
+        const sameFile = others.some(o => (FROM(o) & 7) === (from & 7));
+        const sameRank = others.some(o => (FROM(o) >> 4) === (from >> 4));
+        if (!sameFile) s += "abcdefgh"[from & 7];
+        else if (!sameRank) s += 8 - (from >> 4);
+        else s += sqName(from);
+      }
+      s += (fl & CAP ? "x" : "") + sqName(to);
+    }
+    if (makeMove(m)){
+      if (inCheck()) s += legalMoves().length ? "+" : "#";
+      unmake();
+    }
+    return s;
+  }
+
+  /* ---------- 평가 함수 ---------- */
+  const PST = [null,
+    [0,0,0,0,0,0,0,0, 50,50,50,50,50,50,50,50, 10,10,20,30,30,20,10,10, 5,5,10,25,25,10,5,5, 0,0,0,20,20,0,0,0, 5,-5,-10,0,0,-10,-5,5, 5,10,10,-20,-20,10,10,5, 0,0,0,0,0,0,0,0],
+    [-50,-40,-30,-30,-30,-30,-40,-50, -40,-20,0,0,0,0,-20,-40, -30,0,10,15,15,10,0,-30, -30,5,15,20,20,15,5,-30, -30,0,15,20,20,15,0,-30, -30,5,10,15,15,10,5,-30, -40,-20,0,5,5,0,-20,-40, -50,-40,-30,-30,-30,-30,-40,-50],
+    [-20,-10,-10,-10,-10,-10,-10,-20, -10,0,0,0,0,0,0,-10, -10,0,5,10,10,5,0,-10, -10,5,5,10,10,5,5,-10, -10,0,10,10,10,10,0,-10, -10,10,10,10,10,10,10,-10, -10,5,0,0,0,0,5,-10, -20,-10,-10,-10,-10,-10,-10,-20],
+    [0,0,0,0,0,0,0,0, 5,10,10,10,10,10,10,5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, 0,0,0,5,5,0,0,0],
+    [-20,-10,-10,-5,-5,-10,-10,-20, -10,0,0,0,0,0,0,-10, -10,0,5,5,5,5,0,-10, -5,0,5,5,5,5,0,-5, 0,0,5,5,5,5,0,-5, -10,5,5,5,5,5,0,-10, -10,0,5,0,0,0,0,-10, -20,-10,-10,-5,-5,-10,-10,-20],
+  ];
+  const KMID = [-30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -20,-30,-30,-40,-40,-30,-30,-20, -10,-20,-20,-20,-20,-20,-20,-10, 20,20,0,0,0,0,20,20, 20,30,10,0,0,10,30,20];
+  const KEND = [-50,-40,-30,-20,-20,-30,-40,-50, -30,-20,-10,0,0,-10,-20,-30, -30,-10,20,30,30,20,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,20,30,30,20,-10,-30, -30,-30,0,0,0,0,-30,-30, -50,-30,-30,-30,-30,-30,-30,-50];
+  const PASS_MG = [0, 5, 10, 15, 25, 40, 60, 0], PASS_EG = [0, 10, 20, 35, 55, 85, 120, 0];
+  const wPawnF = new Int8Array(8), bPawnF = new Int8Array(8), wMaxRow = new Int8Array(8), bMinRow = new Int8Array(8);
+
+  function evaluate(){
+    wPawnF.fill(0); bPawnF.fill(0); wMaxRow.fill(-1); bMinRow.fill(8);
+    for (let sq = 0; sq < 128; sq++){
+      if (sq & 0x88){ sq += 7; continue; }
+      const p = board[sq];
+      if ((p & 7) !== PAWN) continue;
+      const f = sq & 7, r = sq >> 4;
+      if (p & WHITE){ wPawnF[f]++; if (r > wMaxRow[f]) wMaxRow[f] = r; }
+      else { bPawnF[f]++; if (r < bMinRow[f]) bMinRow[f] = r; }
+    }
+    let base = 0, mg = 0, eg = 0, phase = 0, wB = 0, bB = 0, wMat = 0, bMat = 0;
+    for (let sq = 0; sq < 128; sq++){
+      if (sq & 0x88){ sq += 7; continue; }
+      const p = board[sq];
+      if (!p) continue;
+      const t = p & 7, white = (p & WHITE) !== 0, r = sq >> 4, f = sq & 7;
+      const idx = white ? r * 8 + f : (7 - r) * 8 + f;
+      const sgn = white ? 1 : -1;
+      phase += PHASE[t];
+      if (t === KING){ mg += sgn * KMID[idx]; eg += sgn * KEND[idx]; continue; }
+      base += sgn * (VAL[t] + PST[t][idx]);
+      if (white) wMat += VAL[t]; else bMat += VAL[t];
+      if (t === PAWN){
+        const own = white ? wPawnF : bPawnF;
+        if ((f === 0 || !own[f - 1]) && (f === 7 || !own[f + 1])) base -= sgn * 10;
+        let passed = true;
+        for (let ff = Math.max(0, f - 1); ff <= Math.min(7, f + 1); ff++){
+          if (white ? bMinRow[ff] < r : wMaxRow[ff] > r){ passed = false; break; }
+        }
+        if (passed){ const adv = white ? 6 - r : r - 1; mg += sgn * PASS_MG[adv]; eg += sgn * PASS_EG[adv]; }
+      } else if (t === BISHOP){ if (white) wB++; else bB++; }
+      else if (t === ROOK){
+        const own = white ? wPawnF : bPawnF, opp = white ? bPawnF : wPawnF;
+        if (!own[f]) base += sgn * (opp[f] ? 8 : 18);
+      }
+    }
+    for (let f = 0; f < 8; f++){
+      if (wPawnF[f] > 1) base -= 12 * (wPawnF[f] - 1);
+      if (bPawnF[f] > 1) base += 12 * (bPawnF[f] - 1);
+    }
+    if (wB >= 2) base += 30; if (bB >= 2) base -= 30;
+    if (phase > 24) phase = 24;
+    let score = base + ((mg * phase + eg * (24 - phase)) / 24 | 0);
+    // 끝내기: 이기는 쪽이 상대 왕을 구석으로 몰도록
+    if (phase <= 6){
+      const diff = wMat - bMat;
+      if (Math.abs(diff) >= 300){
+        const lose = diff > 0 ? kingSq[1] : kingSq[0], win = diff > 0 ? kingSq[0] : kingSq[1];
+        const lf = lose & 7, lr = lose >> 4;
+        const cmd = (lf < 4 ? 3 - lf : lf - 4) + (lr < 4 ? 3 - lr : lr - 4);
+        const dist = Math.abs((win & 7) - lf) + Math.abs((win >> 4) - lr);
+        const bonus = cmd * 12 + (14 - dist) * 5;
+        score += diff > 0 ? bonus : -bonus;
+      }
+    }
+    return (side === WHITE ? score : -score) + 10;
+  }
+
+  /* ---------- 탐색 ---------- */
+  const MATE = 30000, INF = 32000;
+  const TT_SIZE = 1 << 19, TT_MASK = TT_SIZE - 1;
+  const ttKey = new Int32Array(TT_SIZE), ttMove = new Int32Array(TT_SIZE), ttScore = new Int16Array(TT_SIZE),
+        ttDepth = new Int8Array(TT_SIZE), ttFlag = new Int8Array(TT_SIZE);
+  const killers = new Int32Array(256), hist = new Int32Array(128 * 128);
+  let nodes = 0, stopTime = 0, stopped = false, rootBest = 0;
+
+  function hasPieces(c){
+    for (let sq = 0; sq < 128; sq++){
+      if (sq & 0x88){ sq += 7; continue; }
+      const p = board[sq];
+      if (p && (p & 24) === c){ const t = p & 7; if (t !== PAWN && t !== KING) return true; }
+    }
+    return false;
+  }
+
+  function scoreMoves(list, ttm, ply){
+    const sc = new Int32Array(list.length);
+    for (let i = 0; i < list.length; i++){
+      const m = list[i], fl = FL(m);
+      if (m === ttm) sc[i] = 2000000;
+      else if (fl & CAP){
+        const victim = (fl & EP) ? PAWN : board[TO(m)] & 7;
+        sc[i] = 1000000 + VAL[victim] * 10 - (VAL[board[FROM(m)] & 7] / 10 | 0);
+      } else if (PROMO(m)) sc[i] = 900000 + PROMO(m);
+      else if (m === killers[ply * 2]) sc[i] = 800000;
+      else if (m === killers[ply * 2 + 1]) sc[i] = 790000;
+      else sc[i] = hist[FROM(m) * 128 + TO(m)];
+    }
+    return sc;
+  }
+  function pick(list, sc, i){
+    let b = i;
+    for (let j = i + 1; j < list.length; j++) if (sc[j] > sc[b]) b = j;
+    if (b !== i){ let t = list[i]; list[i] = list[b]; list[b] = t; t = sc[i]; sc[i] = sc[b]; sc[b] = t; }
+  }
+
+  function qs(alpha, beta, ply){
+    if ((++nodes & 2047) === 0 && Date.now() > stopTime) stopped = true;
+    if (stopped) return 0;
+    const stand = evaluate();
+    if (stand >= beta) return stand;
+    if (stand > alpha) alpha = stand;
+    if (ply > 40) return stand;
+    const list = []; gen(list, true);
+    const sc = scoreMoves(list, 0, Math.min(ply, 127));
+    for (let i = 0; i < list.length; i++){
+      pick(list, sc, i);
+      const m = list[i];
+      if (!PROMO(m)){
+        const victim = (FL(m) & EP) ? PAWN : board[TO(m)] & 7;
+        if (stand + VAL[victim] + 200 < alpha) continue;
+      }
+      if (!makeMove(m)) continue;
+      const s = -qs(-beta, -alpha, ply + 1);
+      unmake();
+      if (stopped) return 0;
+      if (s >= beta) return s;
+      if (s > alpha) alpha = s;
+    }
+    return alpha;
+  }
+
+  function negamax(depth, alpha, beta, ply, nullOk){
+    if ((++nodes & 2047) === 0 && Date.now() > stopTime) stopped = true;
+    if (stopped) return 0;
+    if (ply > 0){
+      if (half >= 100 || isRep()) return 0;
+      if (ply >= 100) return evaluate();
+    }
+    const chk = inCheck();
+    if (chk) depth++;
+    if (depth <= 0) return qs(alpha, beta, ply);
+    const idx = hLo & TT_MASK;
+    let ttm = 0;
+    if (ttKey[idx] === hHi){
+      ttm = ttMove[idx];
+      if (ply > 0 && ttDepth[idx] >= depth){
+        let s = ttScore[idx];
+        if (s > MATE - 500) s -= ply; else if (s < -MATE + 500) s += ply;
+        const f = ttFlag[idx];
+        if (f === 0 || (f === 1 && s >= beta) || (f === 2 && s <= alpha)) return s;
+      }
+    }
+    const pv = beta - alpha > 1;
+    if (nullOk && !chk && !pv && depth >= 3 && hasPieces(side) && evaluate() >= beta){
+      makeNull();
+      const s = -negamax(depth - 3, -beta, -beta + 1, ply + 1, false);
+      unmake();
+      if (stopped) return 0;
+      if (s >= beta) return beta;
+    }
+    const list = []; gen(list, false);
+    const sc = scoreMoves(list, ttm, Math.min(ply, 127));
+    let best = -INF, bestM = 0, legal = 0;
+    const a0 = alpha;
+    for (let i = 0; i < list.length; i++){
+      pick(list, sc, i);
+      const m = list[i];
+      if (!makeMove(m)) continue;
+      legal++;
+      const quiet = !(FL(m) & CAP) && !PROMO(m);
+      let s;
+      if (legal === 1) s = -negamax(depth - 1, -beta, -alpha, ply + 1, true);
+      else {
+        let red = 0;
+        if (depth >= 3 && legal > 3 && quiet && !chk) red = legal > 10 ? 2 : 1;
+        s = -negamax(depth - 1 - red, -alpha - 1, -alpha, ply + 1, true);
+        if (!stopped && s > alpha && red) s = -negamax(depth - 1, -alpha - 1, -alpha, ply + 1, true);
+        if (!stopped && s > alpha && s < beta) s = -negamax(depth - 1, -beta, -alpha, ply + 1, true);
+      }
+      unmake();
+      if (stopped) return 0;
+      if (s > best){
+        best = s; bestM = m;
+        if (s > alpha){
+          alpha = s;
+          if (ply === 0) rootBest = m;
+          if (s >= beta){
+            if (quiet){
+              const kp = Math.min(ply, 127) * 2;
+              if (killers[kp] !== m){ killers[kp + 1] = killers[kp]; killers[kp] = m; }
+              hist[FROM(m) * 128 + TO(m)] += depth * depth;
+            }
+            break;
+          }
+        }
+      }
+    }
+    if (!legal) return chk ? -MATE + ply : 0;
+    let st = best;
+    if (st > MATE - 500) st += ply; else if (st < -MATE + 500) st -= ply;
+    ttKey[idx] = hHi; ttMove[idx] = bestM; ttScore[idx] = st; ttDepth[idx] = depth;
+    ttFlag[idx] = best <= a0 ? 2 : best >= beta ? 1 : 0;
+    return best;
+  }
+
+  function search(timeMs, maxDepth){
+    const t0 = Date.now();
+    stopTime = t0 + timeMs; stopped = false; nodes = 0;
+    killers.fill(0);
+    for (let i = 0; i < hist.length; i++) hist[i] >>= 2;
+    let best = 0, bestScore = 0, depthDone = 0;
+    for (let d = 1; d <= maxDepth; d++){
+      rootBest = 0;
+      const s = negamax(d, -INF, INF, 0, false);
+      if (stopped){ if (rootBest) best = rootBest; break; }
+      best = rootBest || best; bestScore = s; depthDone = d;
+      if (Math.abs(s) > MATE - 100) break;
+      if (Date.now() - t0 > timeMs * 0.5) break;
+    }
+    if (!best){ const ms = legalMoves(); best = ms[0] || 0; }
+    return { move: best, score: bestScore, depth: depthDone, nodes };
+  }
+
+  function rootScores(depth){
+    stopTime = Date.now() + 8000; stopped = false;
+    const out = [];
+    for (const m of legalMoves()){
+      makeMove(m);
+      const s = depth > 1 ? -negamax(depth - 1, -INF, INF, 1, false) : -qs(-INF, INF, 1);
+      unmake();
+      out.push({ m, s });
+    }
+    return out;
+  }
+
+  /* ---------- 여러 갈래의 첫수(오프닝) ---------- */
+  const BOOK = [
+    "e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1 f8e7",
+    "e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 c2c3 g8f6 d2d3 d7d6",
+    "e2e4 e7e5 g1f3 b8c6 d2d4 e5d4 f3d4 g8f6 b1c3 f8b4",
+    "e2e4 e7e5 g1f3 g8f6 f3e5 d7d6 e5f3 f6e4 d2d4 d6d5",
+    "e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4 g8f6 b1c3 a7a6",
+    "e2e4 c7c5 g1f3 b8c6 d2d4 c5d4 f3d4 g8f6 b1c3 e7e5",
+    "e2e4 c7c5 b1c3 b8c6 g2g3 g7g6 f1g2 f8g7 d2d3 d7d6",
+    "e2e4 e7e6 d2d4 d7d5 b1c3 g8f6 c1g5 f8e7 e4e5 f6d7",
+    "e2e4 c7c6 d2d4 d7d5 b1c3 d5e4 c3e4 c8f5 e4g3 f5g6",
+    "e2e4 d7d5 e4d5 d8d5 b1c3 d5a5 d2d4 g8f6 g1f3 c8f5",
+    "d2d4 d7d5 c2c4 e7e6 b1c3 g8f6 c1g5 f8e7 e2e3 e8g8",
+    "d2d4 d7d5 c2c4 c7c6 g1f3 g8f6 b1c3 d5c4 a2a4 c8f5",
+    "d2d4 g8f6 c2c4 g7g6 b1c3 f8g7 e2e4 d7d6 g1f3 e8g8",
+    "d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 e2e3 e8g8 f1d3 d7d5",
+    "d2d4 g8f6 c2c4 e7e6 g1f3 b7b6 g2g3 c8b7 f1g2 f8e7",
+    "d2d4 d7d5 g1f3 g8f6 c1f4 e7e6 e2e3 c7c5 c2c3 b8c6",
+    "c2c4 e7e5 b1c3 g8f6 g1f3 b8c6 g2g3 d7d5 c4d5 f6d5",
+    "c2c4 g8f6 b1c3 e7e6 e2e4 d7d5 e4e5 d5d4 e5f6 d4c3",
+    "g1f3 d7d5 g2g3 g8f6 f1g2 e7e6 e1g1 f8e7 d2d3 e8g8",
+    "g1f3 g8f6 c2c4 c7c5 b1c3 b8c6 g2g3 d7d5 c4d5 f6d5",
+  ].map(s => s.split(" "));
+  function bookMove(played){
+    if (played.length >= 10) return null;
+    const cands = [];
+    for (const line of BOOK){
+      if (line.length <= played.length) continue;
+      let ok = true;
+      for (let i = 0; i < played.length; i++) if (line[i] !== played[i]){ ok = false; break; }
+      if (ok) cands.push(line[played.length]);
+    }
+    if (!cands.length) return null;
+    const u = cands[Math.random() * cands.length | 0];
+    return fromUci(u) ? u : null;
+  }
+
+  function softPick(arr, T){
+    let mx = -Infinity;
+    for (const x of arr) if (x.s > mx) mx = x.s;
+    let sum = 0;
+    const w = arr.map(x => { const v = Math.exp((x.s - mx) / T); sum += v; return v; });
+    let r = Math.random() * sum;
+    for (let i = 0; i < arr.length; i++){ r -= w[i]; if (r <= 0) return arr[i]; }
+    return arr[arr.length - 1];
+  }
+
+  // level 1~6, played = 지금까지 둔 수(UCI 목록, 표준 시작일 때만 오프닝 사용)
+  function chooseMove(level, played){
+    const legal = legalMoves();
+    if (!legal.length) return { move: 0, score: 0, depth: 0 };
+    if (played && level >= 3 && Math.random() < 0.92){
+      const b = bookMove(played);
+      if (b){ const r = search(150, 3); return { move: fromUci(b), score: r.score, depth: r.depth, book: true }; }
+    }
+    const cfg = [null,
+      { rand: .35, depth: 1, T: 160 },
+      { rand: .10, depth: 2, T: 70 },
+      { rand: .03, depth: 3, T: 28 },
+      { time: 450, max: 4 },
+      { time: 1300, max: 64 },
+      { time: 2800, max: 64 }][level] || { time: 1300, max: 64 };
+    if (cfg.depth){
+      if (Math.random() < cfg.rand){ const m = legal[Math.random() * legal.length | 0]; return { move: m, score: 0, depth: 0, random: true }; }
+      const sc = rootScores(cfg.depth);
+      const ch = softPick(sc, cfg.T);
+      let mx = -INF; for (const x of sc) if (x.s > mx) mx = x.s;
+      return { move: ch.m, score: mx, depth: cfg.depth };
+    }
+    return search(cfg.time, cfg.max);
+  }
+
+  const api = { WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, CAP, EP, CASTLE, MATE, START,
+    board, loadFen, fen, legalMoves, makeMove, unmake, inCheck, status, san, toUci, fromUci, sqName, sqFrom,
+    FROM, TO, PROMO, FL, evaluate, search, chooseMove,
+    get side(){ return side; }, get ply(){ return up; },
+    perft(d){ if (!d) return 1; const l = []; gen(l, false); let n = 0; for (const m of l){ if (makeMove(m)){ n += this.perft(d - 1); unmake(); } } return n; } };
+
+  if (IS_WORKER){
+    self.onmessage = e => {
+      const d = e.data;
+      loadFen(d.fen);
+      for (const u of d.moves){ const m = fromUci(u); if (m) makeMove(m); }
+      let r;
+      if (d.cmd === "hint") r = search(d.timeMs || 1000, 64);
+      else r = chooseMove(d.level, d.standard ? d.moves : null);
+      self.postMessage({ id: d.id, uci: r.move ? toUci(r.move) : null, score: r.score, depth: r.depth, book: !!r.book });
+    };
+  }
+  return api;
+}
+</script>
+
+<script>
+/* =====================================================================
+   화면 / 게임 진행
+   ===================================================================== */
+const C = chessModule(false);
+const $ = id => document.getElementById(id);
+
+/* ---------- 봇 ---------- */
+const BOTS = [
+  { id: "chick", name: "삐약이", emoji: "🐣", bg: "linear-gradient(135deg,#FFE58A,#FFC23D)", level: 1, lvName: "입문",
+    desc: "체스를 막 배운 병아리. 말을 아무 데나 둘 때가 많아요.",
+    say: { start: ["삐약! 체스는 처음이에요~ 살살 해 주세요!", "말이 다 귀엽게 생겼어요! 삐약!"], cap: ["앗, 그거 먹어도 되는 거였어요?", "냠냠! 하나 잡았다 삐약!"], lost: ["삐약… 내 말이 사라졌어요 ㅠㅠ", "어디 갔지? 방금 거기 있었는데!"], check: ["체크! 맞죠? 이렇게 하는 거 맞죠?"], losing: ["삐약삐약… 너무 어려워요!"], winning: ["어? 제가 이기고 있어요?!"], win: ["와아! 제가 이겼어요! 삐약삐약!"], lose: ["역시 형아/누나는 잘하네요! 삐약!"], draw: ["비겼어요! 사이좋게~"] } },
+  { id: "sprout", name: "연두", emoji: "🌱", bg: "linear-gradient(135deg,#B8F2A0,#5BBF62)", level: 2, lvName: "초급",
+    desc: "광합성처럼 천천히 자라는 새싹 봇. 가끔 큰 실수를 해요.",
+    say: { start: ["햇빛 충분, 물 충분! 체스 준비 완료!", "오늘은 저도 좀 자라 볼게요!"], cap: ["영양분 흡수 완료!", "이 말은 제 거름으로 쓸게요~"], lost: ["앗, 잎 하나가 떨어졌어요…", "흐음, 그건 못 봤네요."], check: ["체크! 뿌리까지 흔들어 볼까요?"], losing: ["물이 부족해요… 시들시들…"], winning: ["쑥쑥 자라는 중이에요!"], win: ["새싹이 나무를 이겼어요!"], lose: ["다음엔 더 자라서 올게요!"], draw: ["무승부! 둘 다 쑥쑥!"] } },
+  { id: "explorer", name: "탐구자 모아", emoji: "🔬", bg: "linear-gradient(135deg,#A8D8FF,#4C8FD6)", level: 3, lvName: "초중급",
+    desc: "관찰을 좋아하는 탐구자. 눈앞의 수는 꽤 잘 봐요.",
+    say: { start: ["가설: 오늘은 내가 이긴다. 실험 시작!", "현미경으로 네 수를 관찰할게!"], cap: ["관찰 결과: 그 말은 무방비였어!", "데이터 수집 완료!"], lost: ["예상과 다른 결과네… 기록해 둬야지.", "변인 통제에 실패했다!"], check: ["체크! 이건 관찰로 예측 가능했지?"], losing: ["가설을 수정해야 할 것 같아…"], winning: ["실험이 가설대로 진행되고 있어!"], win: ["가설 검증 완료! 내가 이겼다!"], lose: ["좋은 반례였어. 다음 실험에 반영할게!"], draw: ["결과: 무승부. 재현 실험이 필요해!"] } },
+  { id: "researcher", name: "연구원 하늘", emoji: "⚗️", bg: "linear-gradient(135deg,#E2B8FF,#9B5DE5)", level: 4, lvName: "중급",
+    desc: "실험실의 연구원. 몇 수 앞을 계산하고 함정도 알아채요.",
+    say: { start: ["시약 준비 끝. 반응 속도를 지켜보자고.", "정확한 계산이 승리의 촉매지."], cap: ["반응 완료. 생성물 하나 획득!", "그 말은 이미 계산에 있었어."], lost: ["흠, 부반응이 일어났군.", "예상 밖의 침전물이네."], check: ["체크. 산화 반응 시작이야!"], losing: ["실험이 폭주하고 있어… 침착하자."], winning: ["반응이 거의 끝나 가네."], win: ["완벽한 실험이었어. 내가 이겼어!"], lose: ["놀라운 결과야! 논문으로 써야겠어."], draw: ["평형 상태! 무승부야."] } },
+  { id: "doctor", name: "별빛 박사", emoji: "🧑‍🔬", bg: "linear-gradient(135deg,#FFC6A8,#F07B4F)", level: 5, lvName: "고급",
+    desc: "수많은 기보를 연구한 박사. 작은 실수도 놓치지 않아요.",
+    say: { start: ["좋아, 우주의 법칙처럼 정확하게 두어 볼까?", "준비됐나? 박사의 체스는 냉정하다네."], cap: ["질량 보존의 법칙은 여기선 안 통하지.", "잘 받겠네."], lost: ["오호, 제법인걸?", "그 수는 미처 계산하지 못했군."], check: ["체크. 중력에서 벗어날 수 있겠나?"], losing: ["이런, 내 이론에 오류가 있었나…"], winning: ["이제 결론이 보이는군."], win: ["좋은 대국이었네. 더 연구해 오게!"], lose: ["대단하군! 박사 학위를 줘야겠어!"], draw: ["무승부라… 아주 흥미로운 결과야."] } },
+  { id: "nobel", name: "노벨 로봇 AX-9", emoji: "🤖", bg: "linear-gradient(135deg,#9FF0F0,#2E9BB0)", level: 6, lvName: "최강",
+    desc: "이 페이지에서 가장 깊이 계산하는 봇. 이기면 진짜 실력자!",
+    say: { start: ["시스템 가동. 승률 계산을 시작합니다.", "AX-9 온라인. 최선의 수를 탐색합니다."], cap: ["기물 획득. 평가값 갱신.", "예측 범위 안의 교환입니다."], lost: ["경고: 예상치 못한 손실.", "흥미로운 수입니다. 기록합니다."], check: ["체크. 탈출 경로를 계산해 보십시오."], losing: ["오류… 오류… 재계산 중…"], winning: ["승리 확률 상승 중."], win: ["게임 종료. 다음엔 더 깊이 생각해 보십시오."], lose: ["믿을 수 없습니다! 당신은 인간 챔피언입니다!"], draw: ["무승부. 균형 상태를 확인했습니다."] } },
+];
+const LS_STATS = "science-chess-stats", LS_SET = "science-chess-settings";
+function loadJSON(k, d){ try{ return JSON.parse(localStorage.getItem(k)) || d; }catch(e){ return d; } }
+function saveJSON(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+const settings = Object.assign({ bot: "explorer", color: "w", theme: "lab", help: true, dots: true, sound: true, eval: true }, loadJSON(LS_SET, {}));
+const stats = loadJSON(LS_STATS, {});
+
+/* ---------- 말 그림 (SVG) ---------- */
+const PIECE_PATHS = {
+  base: '<path d="M10 38.5h25a1.5 1.5 0 0 0 1.5-1.5v-1.3a2 2 0 0 0-2-2h-24a2 2 0 0 0-2 2V37a1.5 1.5 0 0 0 1.5 1.5z"/>',
+  1: '<circle cx="22.5" cy="12" r="5"/><path d="M16 33.5c0-6.5 3-10.5 4.4-12.7h4.2c1.4 2.2 4.4 6.2 4.4 12.7z"/><rect x="17" y="17.6" width="11" height="3.4" rx="1.7"/>',
+  2: '<path d="M16.5 33.5c-.6-4.6 1.4-7.3 4.2-9.6-2.6 1.5-5.6 2.4-7.9 2.2-2.2-.2-3.4-1.9-2.8-3.8 1-3.4 3.6-6.8 6.4-8.7 1.2-1 2.4-1.8 3.6-2.3l-.4-4.2 3.2 2.9c6.6.2 10.8 4.8 11.3 12.4.4 5.6-.6 8.8-.6 11.1z"/>',
+  2.1: '<circle cx="18.6" cy="15.6" r="1.25"/><circle cx="12.6" cy="23.2" r=".8"/><path d="M23.6 10.9c4 1.3 6.5 4.6 7.2 9.3" fill="none" stroke-width="1.3"/>',
+  3: '<circle cx="22.5" cy="8.3" r="2.6"/><path d="M22.5 11.2c-5.4 3.8-8 9-7 14 .5 2.7 2.3 4.4 3.7 5.3h6.6c1.4-.9 3.2-2.6 3.7-5.3 1-5-1.6-10.2-7-14z"/><rect x="15.5" y="29.8" width="14" height="3.8" rx="1.9"/>',
+  3.1: '<path d="M25.4 16.6 20.6 22" fill="none" stroke-width="1.6" stroke-linecap="round"/>',
+  4: '<path d="M12.8 33.5 14.6 30H30.4l1.8 3.5z"/><path d="M15.8 30l1-12h11.4l1 12z"/><path d="M13.6 18V9.6h4v3.2h3V9.6h3.8v3.2h3V9.6h4V18z"/>',
+  4.1: '<path d="M16.8 18h11.4M15.8 30h13.4" fill="none" stroke-width="1.2"/>',
+  5: '<path d="M12.6 31.5 9.3 14.3l6 8.4.4-11.6 4.6 10.6 2.2-12.2 2.2 12.2 4.6-10.6.4 11.6 6-8.4-3.3 17.2z"/><circle cx="9.3" cy="13" r="2"/><circle cx="15.7" cy="10" r="2"/><circle cx="22.5" cy="8.2" r="2"/><circle cx="29.3" cy="10" r="2"/><circle cx="35.7" cy="13" r="2"/><rect x="12" y="30.3" width="21" height="3.6" rx="1.8"/>',
+  6: '<path d="M21.3 4.2h2.4v3.1h3v2.4h-3v3.6h-2.4V9.7h-3V7.3h3z"/><path d="M12.3 31.5c-2.6-5.4-2.4-10.6 1.6-12.2 3.6-1.4 6.6.6 8.6 3.6 2-3 5-5 8.6-3.6 4 1.6 4.2 6.8 1.6 12.2z"/><path d="M22.5 23c-1.6-3.6-2-7.2 0-9.4 2 2.2 1.6 5.8 0 9.4z"/><rect x="12" y="30.3" width="21" height="3.6" rx="1.8"/>',
+};
+function pieceSVG(p){
+  const white = (p & C.WHITE) !== 0, t = p & 7;
+  const fill = white ? "url(#gW)" : "url(#gB)", stroke = white ? "#262A33" : "#0B0D12", detail = white ? "#262A33" : "#DADDE6";
+  let d = `<g fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round">${PIECE_PATHS.base}${PIECE_PATHS[t]}</g>`;
+  if (PIECE_PATHS[t + .1]) d += `<g fill="${detail}" stroke="${detail}">${PIECE_PATHS[t + .1]}</g>`;
+  return `<svg viewBox="0 0 45 45">${d}</svg>`;
+}
+
+/* ---------- 소리 ---------- */
+let actx = null;
+function tone(f, d, type = "sine", v = .12, f2){
+  if (!settings.sound) return;
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + .02);
+  }catch(e){}
+}
+const sfx = {
+  move(){ tone(520, .07, "triangle", .14, 300); },
+  cap(){ tone(240, .14, "square", .07, 110); tone(700, .05, "triangle", .08); },
+  check(){ tone(880, .12, "sine", .1); setTimeout(() => tone(1100, .14, "sine", .1), 90); },
+  castle(){ tone(500, .06, "triangle", .12); setTimeout(() => tone(620, .07, "triangle", .12), 70); },
+  win(){ [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .25, "triangle", .12), i * 120)); },
+  lose(){ [440, 370, 311, 262].forEach((f, i) => setTimeout(() => tone(f, .28, "sine", .1), i * 140)); },
+};
+
+/* ---------- 엔진 Worker ---------- */
+let worker = null, reqId = 0;
+const pending = new Map();
+function startWorker(){
+  try{
+    const src = "(" + chessModule.toString() + ")(true);";
+    worker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" })));
+    worker.onmessage = e => { const cb = pending.get(e.data.id); if (cb){ pending.delete(e.data.id); cb(e.data); } };
+    worker.onerror = () => { worker = null; };
+  }catch(e){ worker = null; }
+}
+const workerEngine = chessModule(false);
+function askEngine(msg){
+  return new Promise(res => {
+    const id = ++reqId;
+    msg.id = id;
+    if (worker){ pending.set(id, res); worker.postMessage(msg); return; }
+    setTimeout(() => {   // Worker를 못 쓰는 환경: 화면 스레드에서 계산
+      const E = workerEngine;
+      E.loadFen(msg.fen);
+      for (const u of msg.moves){ const m = E.fromUci(u); if (m) E.makeMove(m); }
+      const r = msg.cmd === "hint" ? E.search(msg.timeMs || 1000, 64) : E.chooseMove(msg.level, msg.standard ? msg.moves : null);
+      res({ id, uci: r.move ? E.toUci(r.move) : null, score: r.score, depth: r.depth });
+    }, 30);
+  });
+}
+function restartWorker(){ if (worker) worker.terminate(); pending.clear(); startWorker(); }
+
+/* ---------- 게임 상태 ---------- */
+const G = { bot: null, me: C.WHITE, moves: [], sans: [], last: null, over: false, result: null, reason: "",
+  flipped: false, sel: -1, targets: [], thinking: false, token: 0, hints: 0, undos: 0, evalW: 0, lastSaid: 0, review: false };
+
+function startGame(){
+  const bot = BOTS.find(b => b.id === settings.bot) || BOTS[2];
+  G.bot = bot;
+  G.me = settings.color === "w" ? C.WHITE : settings.color === "b" ? C.BLACK : (Math.random() < .5 ? C.WHITE : C.BLACK);
+  G.flipped = G.me === C.BLACK;
+  G.moves = []; G.sans = []; G.last = null; G.over = false; G.result = null; G.reason = "";
+  G.sel = -1; G.targets = []; G.thinking = false; G.token++; G.hints = 0; G.undos = 0; G.evalW = 0; G.review = false;
+  C.loadFen(C.START);
+  restartWorker();
+  document.body.dataset.theme = settings.theme;
+  $("menu").classList.add("hidden"); $("game").classList.remove("hidden"); $("end").classList.add("hidden");
+  $("top-ava").textContent = bot.emoji; $("top-ava").style.background = bot.bg;
+  $("side-ava").textContent = bot.emoji; $("side-ava").style.background = bot.bg;
+  $("top-name").textContent = bot.name; $("side-name").textContent = bot.name;
+  $("side-lv").textContent = "★".repeat(bot.level) + "☆".repeat(6 - bot.level) + " " + bot.lvName;
+  $("t-sound").checked = settings.sound; $("t-eval").checked = settings.eval;
+  layout(); buildSquares(); render(); renderMoves(); updateEval(); clearArrows();
+  say("start", true);
+  updateStatus();
+  if (C.side !== G.me) setTimeout(botMove, 600);
+}
+
+/* ---------- 보드 ---------- */
+const board = $("board"), squaresEl = $("squares"), piecesEl = $("pieces");
+function layout(){
+  const wide = window.innerWidth > 900;
+  const bs = wide ? Math.min(window.innerWidth - 340 - 90, window.innerHeight - 150, 760)
+                  : Math.min(window.innerWidth - 42, 620);
+  document.documentElement.style.setProperty("--bs", Math.max(260, Math.floor(bs / 8) * 8) + "px");
+}
+window.addEventListener("resize", () => { layout(); });
+
+const view2sq = (vr, vc) => G.flipped ? (7 - vr) * 16 + (7 - vc) : vr * 16 + vc;
+const sq2view = sq => G.flipped ? [7 - (sq >> 4), 7 - (sq & 7)] : [sq >> 4, sq & 7];
+
+function buildSquares(){
+  let h = "";
+  for (let vr = 0; vr < 8; vr++) for (let vc = 0; vc < 8; vc++){
+    const sq = view2sq(vr, vc), light = ((sq >> 4) + (sq & 7)) % 2 === 0;
+    let co = "";
+    if (vc === 0) co += `<span class="coord rk">${8 - (sq >> 4)}</span>`;
+    if (vr === 7) co += `<span class="coord fl">${"abcdefgh"[sq & 7]}</span>`;
+    h += `<div class="sq ${light ? "l" : "d"}" data-sq="${sq}">${co}</div>`;
+  }
+  squaresEl.innerHTML = h;
+}
+function sqEl(sq){ return squaresEl.querySelector(`[data-sq="${sq}"]`); }
+
+function render(anim){
+  // 칸 강조
+  squaresEl.querySelectorAll(".sq").forEach(el => { el.classList.remove("last", "sel", "check", "hover"); el.querySelectorAll(".dot,.ring").forEach(x => x.remove()); });
+  if (G.last){ sqEl(G.last[0])?.classList.add("last"); sqEl(G.last[1])?.classList.add("last"); }
+  if (C.inCheck()){
+    for (let sq = 0; sq < 128; sq++){ if (sq & 0x88){ sq += 7; continue; } if (C.board[sq] === (C.KING | C.side)) sqEl(sq)?.classList.add("check"); }
+  }
+  if (G.sel >= 0){
+    sqEl(G.sel)?.classList.add("sel");
+    if (settings.dots) for (const t of G.targets){ const el = sqEl(t); if (!el) continue; const d = document.createElement("div"); d.className = C.board[t] || isEpTarget(t) ? "ring" : "dot"; el.appendChild(d); }
+  }
+  // 말
+  let h = "";
+  for (let sq = 0; sq < 128; sq++){
+    if (sq & 0x88){ sq += 7; continue; }
+    const p = C.board[sq];
+    if (!p) continue;
+    const [vr, vc] = sq2view(sq);
+    h += `<div class="pc" data-sq="${sq}" style="transform:translate(${vc * 100}%,${vr * 100}%)">${pieceSVG(p)}</div>`;
+  }
+  piecesEl.innerHTML = h;
+  if (anim){
+    const el = piecesEl.querySelector(`[data-sq="${anim[1]}"]`);
+    if (el){
+      const [fr, fc] = sq2view(anim[0]), [tr, tc] = sq2view(anim[1]);
+      el.style.transform = `translate(${fc * 100}%,${fr * 100}%)`;
+      el.getBoundingClientRect();
+      el.classList.add("anim");
+      el.style.transform = `translate(${tc * 100}%,${tr * 100}%)`;
+    }
+  }
+  renderCaps();
+}
+function isEpTarget(t){ return G.targets.includes(t) && (C.board[G.sel] & 7) === C.PAWN && (t & 7) !== (G.sel & 7) && !C.board[t]; }
+
+/* 잡은 말 표시 */
+function renderCaps(){
+  const start = { 1: 8, 2: 2, 3: 2, 4: 2, 5: 1 };
+  const cnt = { [C.WHITE]: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, [C.BLACK]: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } };
+  for (let sq = 0; sq < 128; sq++){ if (sq & 0x88){ sq += 7; continue; } const p = C.board[sq]; if (p && (p & 7) !== C.KING) cnt[p & 24][p & 7]++; }
+  const val = { 1: 1, 2: 3, 3: 3, 4: 5, 5: 9 };
+  const matW = Object.keys(val).reduce((s, k) => s + cnt[C.WHITE][k] * val[k], 0), matB = Object.keys(val).reduce((s, k) => s + cnt[C.BLACK][k] * val[k], 0);
+  const capsOf = color => { // color 쪽이 잡은 상대 말들
+    const opp = color ^ 24; let h = "";
+    for (const t of [5, 4, 3, 2, 1]){ const n = Math.max(0, start[t] - cnt[opp][t]); for (let i = 0; i < n; i++) h += pieceSVG(t | opp); }
+    return h;
+  };
+  const bot = G.me ^ 24;
+  const advMe = (G.me === C.WHITE ? matW - matB : matB - matW);
+  $("top-caps").innerHTML = capsOf(bot) + (advMe < 0 ? `<span class="adv">+${-advMe}</span>` : "");
+  $("bot-caps").innerHTML = capsOf(G.me) + (advMe > 0 ? `<span class="adv">+${advMe}</span>` : "");
+}
+
+/* ---------- 입력: 클릭 + 끌어놓기 ---------- */
+let drag = null;
+function pointSq(e){
+  const r = board.getBoundingClientRect();
+  const vc = Math.floor((e.clientX - r.left) / r.width * 8), vr = Math.floor((e.clientY - r.top) / r.height * 8);
+  if (vc < 0 || vc > 7 || vr < 0 || vr > 7) return -1;
+  return view2sq(vr, vc);
+}
+function canMove(){ return !G.over && !G.thinking && !G.review && C.side === G.me; }
+function select(sq){
+  G.sel = sq;
+  G.targets = C.legalMoves().filter(m => C.FROM(m) === sq).map(m => C.TO(m));
+  render();
+}
+function deselect(){ G.sel = -1; G.targets = []; render(); }
+
+board.addEventListener("pointerdown", e => {
+  if (!canMove()) return;
+  e.preventDefault();
+  const sq = pointSq(e);
+  if (sq < 0) return;
+  const p = C.board[sq];
+  if (G.sel >= 0 && G.targets.includes(sq)){ tryMove(G.sel, sq, true); return; }
+  if (p && (p & 24) === G.me){
+    const reselect = G.sel === sq;
+    select(sq);
+    const el = piecesEl.querySelector(`[data-sq="${sq}"]`);
+    drag = { sq, el, x0: e.clientX, y0: e.clientY, moved: false, reselect, id: e.pointerId };
+    try{ board.setPointerCapture(e.pointerId); }catch(_){}
+  } else deselect();
+});
+board.addEventListener("pointermove", e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 5) return;
+  drag.moved = true;
+  const r = board.getBoundingClientRect(), s = r.width / 8;
+  if (drag.el){
+    drag.el.classList.add("drag"); drag.el.classList.remove("anim");
+    drag.el.style.transform = `translate(${e.clientX - r.left - s / 2}px,${e.clientY - r.top - s / 2}px) scale(1.12)`;
+  }
+  squaresEl.querySelectorAll(".hover").forEach(x => x.classList.remove("hover"));
+  const sq = pointSq(e);
+  if (sq >= 0 && G.targets.includes(sq)) sqEl(sq)?.classList.add("hover");
+});
+function endDrag(e){
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  if (!d.moved){ if (d.reselect) deselect(); return; }
+  const sq = pointSq(e);
+  if (sq >= 0 && G.targets.includes(sq)) tryMove(d.sq, sq, false);
+  else render();
+}
+board.addEventListener("pointerup", endDrag);
+board.addEventListener("pointercancel", e => { if (drag && e.pointerId === drag.id){ drag = null; render(); } });
+
+function tryMove(from, to, animate){
+  const cands = C.legalMoves().filter(m => C.FROM(m) === from && C.TO(m) === to);
+  if (!cands.length){ deselect(); return; }
+  if (cands.length > 1 && C.PROMO(cands[0])){ showPromo(from, to, cands, animate); return; }
+  doMove(cands[0], animate);
+  afterPlayerMove();
+}
+
+function showPromo(from, to, cands, animate){
+  const [vr, vc] = sq2view(to);
+  const shade = document.createElement("div"); shade.className = "promo-shade";
+  const box = document.createElement("div"); box.className = "promo";
+  box.style.left = (vc * 12.5) + "%";
+  const fromTop = vr === 0;
+  box.style[fromTop ? "top" : "bottom"] = "0";
+  const order = [C.QUEEN, C.KNIGHT, C.ROOK, C.BISHOP];
+  (fromTop ? order : order.slice().reverse()).forEach(t => {
+    const b = document.createElement("button"); b.type = "button"; b.innerHTML = pieceSVG(t | G.me);
+    b.onclick = ev => { ev.stopPropagation(); shade.remove(); box.remove(); doMove(cands.find(m => C.PROMO(m) === t), animate); afterPlayerMove(); };
+    box.appendChild(b);
+  });
+  shade.onclick = ev => { ev.stopPropagation(); shade.remove(); box.remove(); deselect(); };
+  shade.addEventListener("pointerdown", ev => ev.stopPropagation());
+  box.addEventListener("pointerdown", ev => ev.stopPropagation());
+  board.appendChild(shade); board.appendChild(box);
+}
+
+/* ---------- 수 두기 ---------- */
+function doMove(m, animate){
+  const from = C.FROM(m), to = C.TO(m), fl = C.FL(m);
+  const san = C.san(m), uci = C.toUci(m);
+  const moverIsMe = C.side === G.me;
+  const captured = (fl & C.CAP) !== 0;
+  C.makeMove(m);
+  G.moves.push(uci); G.sans.push(san); G.last = [from, to];
+  G.sel = -1; G.targets = [];
+  clearArrows();
+  render(animate ? [from, to] : null);
+  renderMoves();
+  const st = C.status();
+  if (st.over) sfx[(st.reason === "checkmate") ? "check" : "move"]();
+  else if (st.check) sfx.check(); else if (fl & C.CASTLE) sfx.castle(); else if (captured) sfx.cap(); else sfx.move();
+  if (captured) say(moverIsMe ? "lost" : "cap");
+  else if (st.check && !moverIsMe) say("check");
+  if (st.over){ finish(st.result, st.reason); return; }
+  updateStatus();
+}
+function afterPlayerMove(){ if (!G.over) setTimeout(botMove, 120); }
+
+function botMove(){
+  if (G.over || G.review || C.side === G.me) return;
+  G.thinking = true; updateStatus();
+  $("thinking").classList.remove("hidden");
+  const token = ++G.token, t0 = performance.now();
+  const minDelay = [0, 700, 700, 650, 500, 400, 300][G.bot.level];
+  askEngine({ cmd: "go", fen: C.START, moves: G.moves.slice(), level: G.bot.level, standard: true }).then(r => {
+    if (token !== G.token) return;
+    const wait = Math.max(0, minDelay - (performance.now() - t0));
+    setTimeout(() => {
+      if (token !== G.token) return;
+      G.thinking = false; $("thinking").classList.add("hidden");
+      const m = r.uci ? C.fromUci(r.uci) : 0;
+      if (!m){ updateStatus(); return; }
+      if (typeof r.score === "number" && !r.book){
+        const prevBotView = G.evalW * (G.me === C.WHITE ? -1 : 1);
+        G.evalW = r.score * (C.side === C.WHITE ? 1 : -1);
+        const botView = r.score;
+        if (botView > prevBotView + 250 && botView > 150 && G.bot.level >= 3) say("winning");
+        else if (botView < -350 && Math.random() < .3) say("losing");
+        updateEval();
+      }
+      doMove(m, true);
+    }, wait);
+  });
+}
+
+/* ---------- 말풍선 ---------- */
+let speechTimer = 0;
+function say(kind, force){
+  const lines = G.bot && G.bot.say[kind];
+  if (!lines) return;
+  const now = Date.now();
+  if (!force && now - G.lastSaid < 2500 && kind !== "check") return;
+  if (!force && (kind === "cap" || kind === "lost") && Math.random() < .45) return;
+  G.lastSaid = now;
+  const el = $("speech");
+  el.textContent = lines[Math.random() * lines.length | 0];
+  el.classList.remove("hidden"); el.style.animation = "none"; el.offsetWidth; el.style.animation = "";
+  clearTimeout(speechTimer);
+  speechTimer = setTimeout(() => el.classList.add("hidden"), 5200);
+}
+
+/* ---------- 상태 / 기보 / 평가 막대 ---------- */
+function updateStatus(){
+  const el = $("status");
+  if (G.over){ el.className = "status"; el.textContent = "대국 종료 · " + resultText(); }
+  else if (G.thinking){ el.className = "status"; el.textContent = `${G.bot.name}이(가) 생각 중…`; }
+  else if (C.side === G.me){ el.className = "status turn-me"; el.textContent = (C.inCheck() ? "⚠️ 체크! 왕을 지키세요 — " : "") + "내 차례예요"; }
+  else { el.className = "status"; el.textContent = "상대 차례"; }
+  const help = settings.help && !G.over && !G.review;
+  $("b-undo").disabled = !help || G.thinking || G.moves.length === 0 || !G.moves.some((_, i) => (i % 2 === 0) === (G.me === C.WHITE));
+  $("b-hint").disabled = !help || G.thinking || C.side !== G.me;
+  $("b-resign").disabled = G.over || G.moves.length < 1;
+}
+function renderMoves(){
+  const el = $("moves");
+  if (!G.sans.length){ el.innerHTML = '<div class="empty">첫 수를 기다리는 중…<br>말을 클릭하거나 끌어서 옮겨요</div>'; return; }
+  let h = "<table>";
+  for (let i = 0; i < G.sans.length; i += 2){
+    const cur1 = i === G.sans.length - 1 ? " cur" : "", cur2 = i + 1 === G.sans.length - 1 ? " cur" : "";
+    h += `<tr><td class="n">${i / 2 + 1}.</td><td class="mv${cur1}">${pretty(G.sans[i], false)}</td><td class="mv${cur2}">${G.sans[i + 1] ? pretty(G.sans[i + 1], true) : ""}</td></tr>`;
+  }
+  el.innerHTML = h + "</table>";
+  el.scrollTop = el.scrollHeight;
+}
+const PIECE_LETTER = { K: 6, Q: 5, R: 4, B: 3, N: 2 };
+function pretty(s, black){ const t = PIECE_LETTER[s[0]]; return t ? `<span class="mi">${pieceSVG(t | (black ? C.BLACK : C.WHITE))}</span>${s.slice(1)}` : s; }
+function updateEval(){
+  const bar = $("evalbar");
+  bar.classList.toggle("hidden", !settings.eval);
+  bar.classList.toggle("flip", G.flipped);
+  const cp = G.evalW;
+  let pct, txt;
+  if (Math.abs(cp) > C.MATE - 200){ pct = cp > 0 ? 100 : 0; txt = "M" + Math.ceil((C.MATE - Math.abs(cp)) / 2); }
+  else { pct = 50 + 50 * (2 / (1 + Math.exp(-cp / 260)) - 1); txt = (cp >= 0 ? "+" : "") + (cp / 100).toFixed(1); }
+  bar.querySelector(".fill").style.height = pct + "%";
+  $("eval-txt").textContent = txt;
+}
+
+/* ---------- 힌트 화살표 ---------- */
+const arrows = $("arrows");
+function clearArrows(){ arrows.innerHTML = ""; }
+function drawArrow(from, to){
+  const [fr, fc] = sq2view(from), [tr, tc] = sq2view(to);
+  const x1 = fc + .5, y1 = fr + .5, x2 = tc + .5, y2 = tr + .5;
+  const len = Math.hypot(x2 - x1, y2 - y1), k = (len - .32) / len;
+  arrows.innerHTML = `<line x1="${x1}" y1="${y1}" x2="${x1 + (x2 - x1) * k}" y2="${y1 + (y2 - y1) * k}" stroke="rgba(255,150,30,.85)" stroke-width=".17" stroke-linecap="round" marker-end="url(#ah)"/>`;
+}
+
+/* ---------- 버튼 ---------- */
+$("b-hint").onclick = () => {
+  if ($("b-hint").disabled) return;
+  $("b-hint").disabled = true;
+  const token = G.token;
+  $("status").textContent = "💡 좋은 수를 찾는 중…";
+  askEngine({ cmd: "hint", fen: C.START, moves: G.moves.slice(), timeMs: 1000 }).then(r => {
+    if (token !== G.token || !r.uci) { updateStatus(); return; }
+    G.hints++;
+    const m = C.fromUci(r.uci);
+    if (m){ drawArrow(C.FROM(m), C.TO(m)); G.evalW = r.score * (C.side === C.WHITE ? 1 : -1); updateEval(); }
+    updateStatus();
+    $("status").innerHTML = `💡 추천 수: <b>${pretty(C.san(m), C.side === C.BLACK)}</b> (화살표를 확인해요)`;
+  });
+};
+$("b-undo").onclick = () => {
+  if ($("b-undo").disabled) return;
+  G.token++; G.thinking = false; $("thinking").classList.add("hidden");
+  let removedMine = false;
+  while (G.moves.length && (!removedMine || C.side !== G.me)){
+    const wasMine = (G.moves.length - 1) % 2 === (G.me === C.WHITE ? 0 : 1);
+    C.unmake(); G.moves.pop(); G.sans.pop();
+    if (wasMine) removedMine = true;
+  }
+  G.undos++;
+  G.last = null; G.sel = -1; G.targets = [];
+  clearArrows(); render(); renderMoves(); updateStatus();
+  if (C.side !== G.me) setTimeout(botMove, 400);
+};
+$("b-flip").onclick = () => { G.flipped = !G.flipped; buildSquares(); render(); updateEval(); clearArrows(); };
+$("b-resign").onclick = () => {
+  if (G.over) return;
+  if (!confirm("정말 기권할까요?")) return;
+  G.token++; G.thinking = false; $("thinking").classList.add("hidden");
+  finish(G.me === C.WHITE ? "0-1" : "1-0", "resign");
+};
+$("b-pgn").onclick = () => {
+  const white = G.me === C.WHITE ? "나" : G.bot.name, black = G.me === C.WHITE ? G.bot.name : "나";
+  const d = new Date(), date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+  let body = "";
+  G.sans.forEach((s, i) => { if (i % 2 === 0) body += `${i / 2 + 1}. `; body += s + " "; });
+  const res = G.result || "*";
+  const pgn = `[Event "아화중 과학 체스"]\n[Date "${date}"]\n[White "${white}"]\n[Black "${black}"]\n[Result "${res}"]\n\n${body}${res}\n`;
+  const ok = () => toast("📋 기보(PGN)를 복사했어요");
+  if (navigator.clipboard) navigator.clipboard.writeText(pgn).then(ok, () => { prompt("아래 기보를 복사하세요", pgn); });
+  else prompt("아래 기보를 복사하세요", pgn);
+};
+$("b-menu").onclick = () => { if (!G.over && G.moves.length > 2 && !confirm("지금 대국을 그만두고 봇을 바꿀까요?")) return; showMenu(); };
+$("t-sound").onchange = e => { settings.sound = e.target.checked; saveJSON(LS_SET, settings); };
+$("t-eval").onchange = e => { settings.eval = e.target.checked; saveJSON(LS_SET, settings); updateEval(); };
+
+function toast(t){
+  const el = document.createElement("div"); el.className = "toast"; el.textContent = t;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 2200);
+}
+
+/* ---------- 대국 끝 ---------- */
+const REASON = { checkmate: "체크메이트", stalemate: "스테일메이트 (둘 곳이 없음)", fifty: "50수 규칙", repetition: "같은 국면 3회 반복", material: "기물 부족 (메이트 불가)", resign: "기권" };
+function resultText(){
+  if (!G.result) return "";
+  if (G.result === "1/2-1/2") return "무승부";
+  const iWon = (G.result === "1-0") === (G.me === C.WHITE);
+  return iWon ? "내가 이겼어요!" : `${G.bot.name} 승리`;
+}
+function finish(result, reason){
+  G.over = true; G.result = result; G.reason = reason; G.thinking = false;
+  $("thinking").classList.add("hidden");
+  updateStatus();
+  const draw = result === "1/2-1/2", iWon = !draw && ((result === "1-0") === (G.me === C.WHITE));
+  const s = stats[G.bot.id] || { w: 0, d: 0, l: 0 };
+  if (draw) s.d++; else if (iWon) s.w++; else s.l++;
+  stats[G.bot.id] = s; saveJSON(LS_STATS, stats);
+  setTimeout(() => {
+    $("end-big").textContent = draw ? "🤝" : iWon ? "🏆" : "🤖";
+    $("end-title").textContent = draw ? "무승부" : iWon ? "승리!" : "패배";
+    $("end-why").textContent = REASON[reason] || "";
+    const lines = G.bot.say[draw ? "draw" : iWon ? "lose" : "win"];
+    $("end-say").innerHTML = `<b>${G.bot.emoji} ${G.bot.name}</b> : ${lines[Math.random() * lines.length | 0]}`;
+    $("end-stats").innerHTML = `<span>수: ${Math.ceil(G.moves.length / 2)}</span><span>힌트: ${G.hints}</span><span>무르기: ${G.undos}</span><span>이 봇 전적: ${s.w}승 ${s.d}무 ${s.l}패</span>`;
+    $("end").classList.remove("hidden");
+    if (iWon) sfx.win(); else if (!draw) sfx.lose();
+  }, reason === "resign" ? 100 : 700);
+}
+$("end-again").onclick = () => startGame();
+$("end-menu").onclick = () => showMenu();
+$("end-review").onclick = () => { $("end").classList.add("hidden"); G.review = true; updateStatus(); };
+
+/* ---------- 메뉴 ---------- */
+function showMenu(){
+  G.token++;
+  if (worker) restartWorker();
+  $("game").classList.add("hidden"); $("end").classList.add("hidden"); $("menu").classList.remove("hidden");
+  renderBots();
+  window.scrollTo(0, 0);
+}
+function renderBots(){
+  $("bot-list").innerHTML = BOTS.map(b => {
+    const s = stats[b.id];
+    const rec = s ? `<div class="rec">🏅 전적 ${s.w}승 ${s.d}무 ${s.l}패${s.w ? " · 승리 경험 있음!" : ""}</div>` : "";
+    return `<button type="button" class="bot ${settings.bot === b.id ? "sel" : ""}" data-id="${b.id}">
+      <div class="ava" style="background:${b.bg}">${b.emoji}</div>
+      <div><div class="nm">${b.name}</div><div class="lv">${"★".repeat(b.level)}${"☆".repeat(6 - b.level)} ${b.lvName}</div><div class="ds">${b.desc}</div>${rec}</div></button>`;
+  }).join("");
+  $("bot-list").querySelectorAll(".bot").forEach(el => el.onclick = () => { settings.bot = el.dataset.id; saveJSON(LS_SET, settings); renderBots(); });
+}
+function segInit(id, key, attr){
+  const seg = $(id);
+  seg.querySelectorAll("button").forEach(b => {
+    b.classList.toggle("on", b.dataset[attr] === settings[key]);
+    b.onclick = () => { settings[key] = b.dataset[attr]; saveJSON(LS_SET, settings); seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); if (key === "theme") document.body.dataset.theme = settings.theme; };
+  });
+}
+segInit("color-seg", "color", "c");
+segInit("theme-seg", "theme", "t");
+$("opt-help").checked = settings.help; $("opt-dots").checked = settings.dots;
+$("opt-help").onchange = e => { settings.help = e.target.checked; saveJSON(LS_SET, settings); };
+$("opt-dots").onchange = e => { settings.dots = e.target.checked; saveJSON(LS_SET, settings); };
+$("play-btn").onclick = startGame;
+document.body.dataset.theme = settings.theme;
+$("logo").innerHTML = pieceSVG(C.KNIGHT | C.WHITE);
+renderBots();
+startWorker();
+
+/* 테스트용 */
+window.__chess = { C, G, BOTS, chessModule, startGame, settings };
+</script>
+</body>
+</html>
