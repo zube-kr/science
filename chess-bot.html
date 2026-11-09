@@ -120,6 +120,19 @@
   .toggles .chk{font-size:12.5px;padding:6px 10px}
   .toggles .chk input{width:15px;height:15px}
 
+  .legend-box{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-top:10px}
+  .lg-row{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:8px 10px}
+  .lg-ic{width:46px;height:46px;flex:none}
+  .lg-ic svg{width:100%;height:100%}
+  .lg-t{font-size:13.5px;line-height:1.4}
+  .lg-t b{color:#FFE7A3}
+  .lg-m{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .legend-card summary{cursor:pointer;font-weight:700;font-size:14px}
+  .legend-card .legend-box{grid-template-columns:1fr}
+  #t-set{font:inherit;font-size:12.5px;border-radius:6px;border:0;padding:2px 4px;background:#F2F4FA;color:#1B2132}
+  .seg-prev{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle}
+  .seg-prev svg{width:22px;height:22px}
+
   /* ---------- 결과 ---------- */
   .modal{position:fixed;inset:0;background:rgba(8,10,20,.6);display:grid;place-items:center;z-index:100;padding:16px;animation:fade .25s}
   @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -151,6 +164,11 @@
   <defs>
     <linearGradient id="gW" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E3DED2"/></linearGradient>
     <linearGradient id="gB" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#5A6172"/><stop offset="1" stop-color="#20242E"/></linearGradient>
+    <radialGradient id="tkW" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DCE4F0"/></radialGradient>
+    <radialGradient id="tkB" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#4A5370"/><stop offset="1" stop-color="#1D2233"/></radialGradient>
+    <radialGradient id="skW" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D6E2F5"/></radialGradient>
+    <radialGradient id="skB" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#3B3F7A"/><stop offset="1" stop-color="#11132B"/></radialGradient>
+    <clipPath id="tokClip"><circle cx="22.5" cy="22.5" r="19.8"/></clipPath>
     <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="2.6" markerHeight="2.6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="rgba(255,150,30,.9)"/></marker>
   </defs>
 </svg>
@@ -171,6 +189,10 @@
       <button data-c="b">⚫ 흑 (나중)</button>
     </div>
   </div>
+
+  <div class="sec-h">🧪 말 모양 <small style="font-weight:500;color:var(--ink-soft)">— 오른쪽 위 작은 표시로 어떤 말인지 알 수 있어요</small></div>
+  <div class="opt-row"><div class="seg" id="set-seg"></div></div>
+  <div class="legend-box" id="menu-legend"></div>
 
   <div class="sec-h">⚙️ 옵션</div>
   <div class="opt-row">
@@ -226,10 +248,15 @@
         <button id="b-menu" type="button"><span>🏠</span>봇 바꾸기</button>
       </div>
       <div class="toggles">
+        <label class="chk">말 모양 <select id="t-set"></select></label>
         <label class="chk"><input type="checkbox" id="t-sound" checked> 🔊 소리</label>
         <label class="chk"><input type="checkbox" id="t-eval" checked> 📊 평가 막대</label>
       </div>
     </div>
+    <details class="card legend-card" id="legend-card">
+      <summary>📖 말 도감</summary>
+      <div class="legend-box" id="game-legend"></div>
+    </details>
   </aside>
 </section>
 
@@ -927,7 +954,7 @@ const BOTS = [
 const LS_STATS = "science-chess-stats", LS_SET = "science-chess-settings";
 function loadJSON(k, d){ try{ return JSON.parse(localStorage.getItem(k)) || d; }catch(e){ return d; } }
 function saveJSON(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-const settings = Object.assign({ bot: "explorer", color: "w", theme: "lab", help: true, dots: true, sound: true, eval: true }, loadJSON(LS_SET, {}));
+const settings = Object.assign({ bot: "explorer", color: "w", theme: "lab", pieceSet: "scientist", help: true, dots: true, sound: true, eval: true }, loadJSON(LS_SET, {}));
 const stats = loadJSON(LS_STATS, {});
 
 /* ---------- 말 그림 (SVG) ---------- */
@@ -943,12 +970,154 @@ const PIECE_PATHS = {
   5: '<path d="M12.6 31.5 9.3 14.3l6 8.4.4-11.6 4.6 10.6 2.2-12.2 2.2 12.2 4.6-10.6.4 11.6 6-8.4-3.3 17.2z"/><circle cx="9.3" cy="13" r="2"/><circle cx="15.7" cy="10" r="2"/><circle cx="22.5" cy="8.2" r="2"/><circle cx="29.3" cy="10" r="2"/><circle cx="35.7" cy="13" r="2"/><rect x="12" y="30.3" width="21" height="3.6" rx="1.8"/>',
   6: '<path d="M21.3 4.2h2.4v3.1h3v2.4h-3v3.6h-2.4V9.7h-3V7.3h3z"/><path d="M12.3 31.5c-2.6-5.4-2.4-10.6 1.6-12.2 3.6-1.4 6.6.6 8.6 3.6 2-3 5-5 8.6-3.6 4 1.6 4.2 6.8 1.6 12.2z"/><path d="M22.5 23c-1.6-3.6-2-7.2 0-9.4 2 2.2 1.6 5.8 0 9.4z"/><rect x="12" y="30.3" width="21" height="3.6" rx="1.8"/>',
 };
-function pieceSVG(p){
+function classicSVG(p, inner){
   const white = (p & C.WHITE) !== 0, t = p & 7;
   const fill = white ? "url(#gW)" : "url(#gB)", stroke = white ? "#262A33" : "#0B0D12", detail = white ? "#262A33" : "#DADDE6";
   let d = `<g fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round">${PIECE_PATHS.base}${PIECE_PATHS[t]}</g>`;
   if (PIECE_PATHS[t + .1]) d += `<g fill="${detail}" stroke="${detail}">${PIECE_PATHS[t + .1]}</g>`;
-  return `<svg viewBox="0 0 45 45">${d}</svg>`;
+  return inner ? d : `<svg viewBox="0 0 45 45">${d}</svg>`;
+}
+
+/* ---------- 과학 말 세트 ---------- */
+// 귀퉁이 배지: 어떤 체스 말인지 작게 표시
+function badge(p){
+  const white = (p & C.WHITE) !== 0;
+  return `<circle cx="37" cy="8" r="7" fill="${white ? "#FFFFFF" : "#1A1E29"}" stroke="${white ? "#2A2E38" : "#E3B341"}" stroke-width="1.1"/>` +
+         `<g transform="translate(30.4 1.6) scale(.29)">${classicSVG(p, true)}</g>`;
+}
+function token(white, inner){
+  return `<circle cx="22.5" cy="22.5" r="20.6" fill="${white ? "url(#tkW)" : "url(#tkB)"}"/>` +
+    `<g clip-path="url(#tokClip)">${inner}</g>` +
+    `<circle cx="22.5" cy="22.5" r="20.6" fill="none" stroke="${white ? "#2A2E38" : "#0A0C12"}" stroke-width="1.6"/>` +
+    `<circle cx="22.5" cy="22.5" r="18.8" fill="none" stroke="${white ? "#B9C2D3" : "#E3B341"}" stroke-width=".9"/>`;
+}
+const SKIN = '#F4CFA8', SKL = '#7A5236';
+const face = (cy = 21, ry = 8.4) =>
+  `<ellipse cx="22.5" cy="${cy}" rx="7.4" ry="${ry}" fill="${SKIN}" stroke="${SKL}" stroke-width=".8"/>` +
+  `<circle cx="19.7" cy="${cy}" r=".95" fill="#2A1E16"/><circle cx="25.3" cy="${cy}" r=".95" fill="#2A1E16"/>` +
+  `<path d="M22.5 ${cy + .6} l-.9 2.4h1.6" fill="none" stroke="${SKL}" stroke-width=".6" stroke-linecap="round"/>`;
+const smile = (y = 26) => `<path d="M20.4 ${y}q2.1 1.6 4.2 0" fill="none" stroke="#9A4A3A" stroke-width=".8" stroke-linecap="round"/>`;
+const coat = white => `<path d="M5 46c1-9 8-13.6 17.5-13.6S39 37 40 46z" fill="${white ? "#FFFFFF" : "#46516F"}" stroke="${white ? "#9AA3B5" : "#1C2233"}" stroke-width=".9"/>` +
+  `<path d="M18.5 32.6 22.5 39l4-6.4" fill="none" stroke="${white ? "#9AA3B5" : "#1C2233"}" stroke-width=".9"/>`;
+
+const SCI = {
+  6: w => // 뉴턴: 긴 곱슬 가발 + 사과
+    coat(w) +
+    `<path d="M12.6 31c-3.4-6-2.6-18 3.6-21 4-2.2 8.6-2.2 12.6 0 6.2 3 7 15 3.6 21-2 1.6-4.4.6-4.4-1.6H17c0 2.2-2.4 3.2-4.4 1.6z" fill="#D9CDBD" stroke="#8C7B66" stroke-width=".8"/>` +
+    [[13.2,16],[12.4,21],[12.9,26],[31.8,16],[32.6,21],[32.1,26]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="2.7" fill="#D9CDBD" stroke="#8C7B66" stroke-width=".7"/>`).join("") +
+    face(21.5) + smile(26.4) +
+    `<path d="M15.4 16.4c1.2-5 13-5 14.2 0-3.6-2-10.6-2-14.2 0z" fill="#D9CDBD" stroke="#8C7B66" stroke-width=".7"/>` +
+    `<circle cx="34.6" cy="34.4" r="3.6" fill="#E63946" stroke="#8E1B24" stroke-width=".7"/><path d="M34.6 30.9c.2-1.2.9-2 1.9-2.3" fill="none" stroke="#5B3A1E" stroke-width=".8"/><ellipse cx="36.6" cy="29.6" rx="1.4" ry=".7" fill="#4CAF50" transform="rotate(-25 36.6 29.6)"/>`,
+  5: w => // 퀴리: 올림머리 + 빛나는 시약병
+    coat(w) +
+    `<circle cx="22.5" cy="9.6" r="3.6" fill="#6B4E3D" stroke="#3E2A1F" stroke-width=".7"/>` +
+    `<path d="M14.2 24c-1.2-9 3.2-12.6 8.3-12.6s9.5 3.6 8.3 12.6c-1-4.6-2.6-7.4-8.3-7.6-5.7.2-7.3 3-8.3 7.6z" fill="#6B4E3D" stroke="#3E2A1F" stroke-width=".7"/>` +
+    face(21.6) + smile(26.4) +
+    `<path d="M15.2 17.6c1.8-4.2 5-5.4 7.3-5.4M29.8 17.6c-1.8-4.2-5-5.4-7.3-5.4" fill="none" stroke="#3E2A1F" stroke-width=".6"/>` +
+    `<circle cx="34.4" cy="34" r="5" fill="rgba(124,255,178,.45)"/><path d="M33.2 29.6h2.4v2.2l2.2 4.6a1 1 0 0 1-.9 1.4h-5a1 1 0 0 1-.9-1.4l2.2-4.6z" fill="#7CFFB2" stroke="#1F7A4D" stroke-width=".7"/>`,
+  4: w => // 갈릴레이: 붉은 수염 + 망원경
+    coat(w) +
+    `<path d="M14.4 20.6c-.6-6.6 3.4-10 8.1-10s8.7 3.4 8.1 10c-.8-3-2.3-4.8-3.4-5.4-2.6.6-6.8.6-9.4 0-1.1.6-2.6 2.4-3.4 5.4z" fill="#8A5A3B" stroke="#4E3020" stroke-width=".7"/>` +
+    face(21) +
+    `<path d="M15 22.6c0 8.6 4 12.4 7.5 12.4s7.5-3.8 7.5-12.4c-1.8 4-4.4 5.4-7.5 5.4s-5.7-1.4-7.5-5.4z" fill="#9A6240" stroke="#4E3020" stroke-width=".7"/>` +
+    `<path d="M18.8 25.2c1.6-1.4 6-1.4 7.6 0-1.6.8-6 .8-7.6 0z" fill="#7A4A2E"/>` +
+    `<g transform="rotate(-38 33 33)"><rect x="27.5" y="31" width="12" height="3.6" rx="1" fill="#D4A541" stroke="#7A5A14" stroke-width=".7"/><rect x="38.6" y="30.3" width="2.6" height="5" rx=".8" fill="#B8862B" stroke="#7A5A14" stroke-width=".6"/></g>`,
+  3: w => // 다윈: 대머리 + 긴 흰 수염
+    coat(w) +
+    `<path d="M14.6 21.2c-1.6-1-1.6-4.6.4-5.8M30.4 21.2c1.6-1 1.6-4.6-.4-5.8" fill="none" stroke="#C9CDD4" stroke-width="2.2" stroke-linecap="round"/>` +
+    face(20.4, 9.2) +
+    `<path d="M14.8 21.6c-.8 11.4 3.4 17 7.7 17.4 4.3-.4 8.5-6 7.7-17.4-1.6 5-4.2 6.6-7.7 6.6s-6.1-1.6-7.7-6.6z" fill="#F2F2F2" stroke="#9CA3AF" stroke-width=".7"/>` +
+    `<path d="M18.4 24.8c1.8-1.6 6.4-1.6 8.2 0" fill="none" stroke="#C4C9D1" stroke-width="1.2" stroke-linecap="round"/>` +
+    `<path d="M18 18.2l3-.8M27 18.2l-3-.8" stroke="#BFC4CC" stroke-width="1.5" stroke-linecap="round"/>`,
+  2: w => // 아인슈타인: 부스스한 흰 머리 + 콧수염
+    coat(w) +
+    `<path d="M12.4 21.4 8.8 18.6l3.6-1.4-2.6-4.4 4.8.8-.6-4.6 4.2 2.6 1.8-4.6 2.6 3.8 3-3.4 1 4.4 4.2-2.2-.8 4.4 4.6-.4-3 3.8 3.8 2.4-3.8 2z" fill="#F7F7F7" stroke="#9CA3AF" stroke-width=".7" stroke-linejoin="round"/>` +
+    face(21.6) +
+    `<path d="M17.6 25c1.4-2.2 8.4-2.2 9.8 0-1.6 1.4-8.2 1.4-9.8 0z" fill="#EDEDED" stroke="#9CA3AF" stroke-width=".6"/>` +
+    `<path d="M17.8 18.6l3.2-.6M27.2 18.6l-3.2-.6" stroke="#D5D9DF" stroke-width="1.5" stroke-linecap="round"/>` +
+    `<text x="22.5" y="41" font-size="4.6" font-weight="900" text-anchor="middle" fill="${w ? "#2F6FDB" : "#FFD166"}" font-family="Arial,sans-serif">E=mc²</text>`,
+  1: w => // 학생 과학자: 보안경
+    coat(w) +
+    `<path d="M14.6 21c-.6-7 3.4-10.4 7.9-10.4s8.5 3.4 7.9 10.4c-1.2-3.2-3.4-5.4-7.9-5.6-4.5.2-6.7 2.4-7.9 5.6z" fill="#3A2A22"/>` +
+    face(21.8) + smile(26.6) +
+    `<path d="M14.6 20.8h15.8" stroke="#2F6FDB" stroke-width="1.4"/>` +
+    `<rect x="16.4" y="18.8" width="5.6" height="4.2" rx="1.8" fill="rgba(158,216,245,.75)" stroke="#2F6FDB" stroke-width=".9"/><rect x="23" y="18.8" width="5.6" height="4.2" rx="1.8" fill="rgba(158,216,245,.75)" stroke="#2F6FDB" stroke-width=".9"/>`,
+};
+function scientistSVG(p){
+  const white = (p & C.WHITE) !== 0;
+  return `<svg viewBox="0 0 45 45">${token(white, SCI[p & 7](white))}${badge(p)}</svg>`;
+}
+
+const ELEM = {
+  6: { sym: "K", num: 19, ko: "칼륨", c: "#FFD9A8", t: "#E8890C" },
+  5: { sym: "Ra", num: 88, ko: "라듐", c: "#FFD0D6", t: "#E04A63" },
+  4: { sym: "Fe", num: 26, ko: "철", c: "#D7E3F6", t: "#4A78C8" },
+  3: { sym: "B", num: 5, ko: "붕소", c: "#DDF1CC", t: "#4E9A2E" },
+  2: { sym: "N", num: 7, ko: "질소", c: "#CFEFF5", t: "#1C93AA" },
+  1: { sym: "H", num: 1, ko: "수소", c: "#EADCFF", t: "#8A5CD6" },
+};
+function elementSVG(p){
+  const white = (p & C.WHITE) !== 0, e = ELEM[p & 7];
+  const bg = white ? e.c : "#232937", ink = white ? "#1F2433" : e.c, sub = white ? "#4A5266" : "#AEB6CC";
+  const fs = e.sym.length > 1 ? 17 : 20;
+  return `<svg viewBox="0 0 45 45"><rect x="3.4" y="3.4" width="38.2" height="38.2" rx="6" fill="${bg}" stroke="${white ? "#2A2E38" : e.t}" stroke-width="1.6"/>` +
+    `<text x="8" y="12.4" font-size="6.6" font-weight="800" fill="${sub}" font-family="Arial,sans-serif">${e.num}</text>` +
+    `<text x="22.5" y="${e.sym.length > 1 ? 30 : 31}" font-size="${fs}" font-weight="900" text-anchor="middle" fill="${ink}" font-family="Arial,sans-serif">${e.sym}</text>` +
+    `<text x="22.5" y="38.6" font-size="5.6" font-weight="700" text-anchor="middle" fill="${sub}" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif">${e.ko}</text>` +
+    badge(p) + `</svg>`;
+}
+
+const SPACE = { 6: "☀️", 5: "🪐", 4: "🚀", 3: "🛰️", 2: "☄️", 1: "🛸" };
+function spaceSVG(p){
+  const white = (p & C.WHITE) !== 0;
+  return `<svg viewBox="0 0 45 45"><circle cx="22.5" cy="22.5" r="20.6" fill="${white ? "url(#skW)" : "url(#skB)"}" stroke="${white ? "#2A2E38" : "#0A0C12"}" stroke-width="1.6"/>` +
+    `<circle cx="22.5" cy="22.5" r="18.8" fill="none" stroke="${white ? "#B9C2D3" : "#E3B341"}" stroke-width=".9"/>` +
+    (white ? "" : `<circle cx="11" cy="13" r=".7" fill="#fff"/><circle cx="33" cy="31" r=".6" fill="#fff"/><circle cx="12" cy="31" r=".5" fill="#fff"/>`) +
+    `<text x="22.5" y="31.5" font-size="23" text-anchor="middle" font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif">${SPACE[p & 7]}</text>` +
+    badge(p) + `</svg>`;
+}
+
+const PIECE_SETS = {
+  classic: { name: "♟️ 클래식", svg: p => classicSVG(p) },
+  scientist: { name: "🧑‍🔬 과학자", svg: scientistSVG },
+  element: { name: "⚗️ 원소", svg: elementSVG },
+  space: { name: "🌌 우주", svg: spaceSVG },
+};
+function pieceSVG(p, set){ const s = PIECE_SETS[set || settings.pieceSet] || PIECE_SETS.classic; return s.svg(p); }
+
+/* 말 도감: 세트별 설명 */
+const KO_PIECE = { 6: "킹", 5: "퀸", 4: "룩", 3: "비숍", 2: "나이트", 1: "폰" };
+const MOVE_TXT = { 6: "모든 방향으로 한 칸. 잡히면(체크메이트) 게임 끝!", 5: "가로·세로·대각선으로 원하는 만큼.", 4: "가로·세로로 원하는 만큼.", 3: "대각선으로 원하는 만큼.", 2: "L자로 뛰어넘어 이동.", 1: "앞으로 한 칸(처음엔 두 칸), 잡을 땐 대각선. 끝까지 가면 승격!" };
+const LEGEND = {
+  classic: { 6: "", 5: "", 4: "", 3: "", 2: "", 1: "" },
+  scientist: {
+    6: "<b>아이작 뉴턴</b> — 만유인력과 운동 법칙. 모든 말이 왕을 중심으로 움직이죠.",
+    5: "<b>마리 퀴리</b> — 방사능 연구로 노벨 물리학상·화학상을 모두 받은 과학자.",
+    4: "<b>갈릴레오 갈릴레이</b> — 망원경으로 목성의 위성을 발견. 곧게 멀리 보는 룩!",
+    3: "<b>찰스 다윈</b> — 『종의 기원』, 자연 선택에 의한 진화론.",
+    2: "<b>알베르트 아인슈타인</b> — 상대성 이론. 남들이 못 하는 생각으로 뛰어넘는 나이트!",
+    1: "<b>학생 과학자</b> — 끝까지 탐구하면(승격) 위대한 과학자가 될 수 있어요.",
+  },
+  element: {
+    6: "<b>K 칼륨(19)</b> — 킹(King)의 K! 우리 몸 신경 신호에 꼭 필요한 원소.",
+    5: "<b>Ra 라듐(88)</b> — 마리 퀴리가 발견한 방사성 원소. 가장 강한 말에게!",
+    4: "<b>Fe 철(26)</b> — 단단한 성벽 같은 룩. 혈액 속 헤모글로빈에도 들어 있어요.",
+    3: "<b>B 붕소(5)</b> — 비숍(Bishop)의 B! 내열 유리(실험 기구)에 쓰여요.",
+    2: "<b>N 질소(7)</b> — 기보에서 나이트는 N! 공기의 약 78%가 질소.",
+    1: "<b>H 수소(1)</b> — 우주에서 가장 많고 가벼운 원소. 폰도 가장 많고 가벼운 말!",
+  },
+  space: {
+    6: "<b>☀️ 태양</b> — 태양계의 중심. 태양을 잃으면 끝!",
+    5: "<b>🪐 토성</b> — 아름다운 고리를 가진 거대 행성. 가장 강한 말.",
+    4: "<b>🚀 로켓</b> — 작용·반작용으로 곧게 날아가요.",
+    3: "<b>🛰️ 인공위성</b> — 비스듬한 궤도로 지구를 돌아요.",
+    2: "<b>☄️ 혜성</b> — 길쭉한 타원 궤도로 불쑥 나타나요.",
+    1: "<b>🛸 탐사선</b> — 끝까지 가면 큰 천체로 승격!",
+  },
+};
+function legendHTML(set, color){
+  const c = color || C.WHITE;
+  return [6, 5, 4, 3, 2, 1].map(t => `<div class="lg-row"><div class="lg-ic">${pieceSVG(t | c, set)}</div><div><div class="lg-t">${KO_PIECE[t]}${LEGEND[set][t] ? " · " + LEGEND[set][t] : ""}</div><div class="lg-m">${MOVE_TXT[t]}</div></div></div>`).join("");
 }
 
 /* ---------- 소리 ---------- */
@@ -1021,6 +1190,8 @@ function startGame(){
   $("top-name").textContent = bot.name; $("side-name").textContent = bot.name;
   $("side-lv").textContent = "★".repeat(bot.level) + "☆".repeat(6 - bot.level) + " " + bot.lvName;
   $("t-sound").checked = settings.sound; $("t-eval").checked = settings.eval;
+  $("t-set").value = settings.pieceSet; $("game-legend").innerHTML = legendHTML(settings.pieceSet, G.me);
+  $("legend-card").open = settings.pieceSet !== "classic" && window.innerWidth > 900;
   layout(); buildSquares(); render(); renderMoves(); updateEval(); clearArrows();
   say("start", true);
   updateStatus();
@@ -1097,7 +1268,7 @@ function renderCaps(){
   const matW = Object.keys(val).reduce((s, k) => s + cnt[C.WHITE][k] * val[k], 0), matB = Object.keys(val).reduce((s, k) => s + cnt[C.BLACK][k] * val[k], 0);
   const capsOf = color => { // color 쪽이 잡은 상대 말들
     const opp = color ^ 24; let h = "";
-    for (const t of [5, 4, 3, 2, 1]){ const n = Math.max(0, start[t] - cnt[opp][t]); for (let i = 0; i < n; i++) h += pieceSVG(t | opp); }
+    for (const t of [5, 4, 3, 2, 1]){ const n = Math.max(0, start[t] - cnt[opp][t]); for (let i = 0; i < n; i++) h += classicSVG(t | opp); }
     return h;
   };
   const bot = G.me ^ 24;
@@ -1277,7 +1448,7 @@ function renderMoves(){
   el.scrollTop = el.scrollHeight;
 }
 const PIECE_LETTER = { K: 6, Q: 5, R: 4, B: 3, N: 2 };
-function pretty(s, black){ const t = PIECE_LETTER[s[0]]; return t ? `<span class="mi">${pieceSVG(t | (black ? C.BLACK : C.WHITE))}</span>${s.slice(1)}` : s; }
+function pretty(s, black){ const t = PIECE_LETTER[s[0]]; return t ? `<span class="mi">${classicSVG(t | (black ? C.BLACK : C.WHITE))}</span>${s.slice(1)}` : s; }
 function updateEval(){
   const bar = $("evalbar");
   bar.classList.toggle("hidden", !settings.eval);
@@ -1414,12 +1585,28 @@ function segInit(id, key, attr){
 }
 segInit("color-seg", "color", "c");
 segInit("theme-seg", "theme", "t");
+function renderSetSeg(){
+  $("set-seg").innerHTML = Object.entries(PIECE_SETS).map(([k, v]) =>
+    `<button type="button" data-s="${k}" class="${settings.pieceSet === k ? "on" : ""}">${v.name}<span class="seg-prev">${pieceSVG(C.QUEEN | C.WHITE, k)}${pieceSVG(C.KNIGHT | C.BLACK, k)}</span></button>`).join("");
+  $("set-seg").querySelectorAll("button").forEach(btn => btn.onclick = () => setPieceSet(btn.dataset.s));
+  $("menu-legend").innerHTML = legendHTML(settings.pieceSet);
+}
+function setPieceSet(k){
+  settings.pieceSet = k; saveJSON(LS_SET, settings);
+  renderSetSeg();
+  $("t-set").value = k;
+  $("game-legend").innerHTML = legendHTML(k, G.me);
+  if (!$("game").classList.contains("hidden")) render();
+}
+$("t-set").innerHTML = Object.entries(PIECE_SETS).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("");
+$("t-set").onchange = e => setPieceSet(e.target.value);
+renderSetSeg();
 $("opt-help").checked = settings.help; $("opt-dots").checked = settings.dots;
 $("opt-help").onchange = e => { settings.help = e.target.checked; saveJSON(LS_SET, settings); };
 $("opt-dots").onchange = e => { settings.dots = e.target.checked; saveJSON(LS_SET, settings); };
 $("play-btn").onclick = startGame;
 document.body.dataset.theme = settings.theme;
-$("logo").innerHTML = pieceSVG(C.KNIGHT | C.WHITE);
+$("logo").innerHTML = classicSVG(C.KNIGHT | C.WHITE);
 renderBots();
 startWorker();
 
