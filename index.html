@@ -1304,6 +1304,7 @@ body.frame-mode .frameview-header{
           <div class="chip-row">
             <button type="button" class="chip" onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</button>
             <button type="button" class="chip" onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험</button>
+            <button type="button" class="chip" onclick="openQuickLink('teacher-tools', {title:'🛒 아화중 상점마켓', url: SANGJEOM_MARKET_URL, ready:true})"><svg class="ico" viewBox="0 0 24 24"><path d="M3 4h2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.1L21 8H6.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>상점마켓</button>
             <button type="button" class="chip gb-entry" onclick="openChat()"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>방명록</button>
           </div>
         </div>
@@ -1707,6 +1708,7 @@ const SPACE_ASTRONAUT_URL = "space-astronaut-game.html";
 
 // 개발자료 · 선생님 도구
 const HWP_TO_PDF_URL = "hwp-to-pdf.html";
+const SANGJEOM_MARKET_URL = "sangjeom-market.html";
 
 const topicsData = {
   "swieo-game": {
@@ -1816,6 +1818,12 @@ const topicsData = {
         title: "📄 HWP → PDF 변환기",
         desc: "한글 문서(.hwp, .hwpx)를 끌어다 놓으면 PDF로 바꿔 줍니다. 파일은 서버로 올라가지 않고 이 컴퓨터의 브라우저 안에서만 변환돼요.",
         url: HWP_TO_PDF_URL,
+        ready: true
+      },
+      {
+        title: "🛒 아화중 상점마켓 운영 현황",
+        desc: "2026. 11. 13. ~ 12. 31. 상점마켓 운영 페이지입니다. 학생은 4자리 코드로 받은 상점·사용한 상점·잔여 상점을 조회하고, 관리자는 6자리 코드로 스쿨라이프 엑셀(상점·벌점)을 올리고 상품 교환에 쓴 상점을 기록해요.",
+        url: SANGJEOM_MARKET_URL,
         ready: true
       }
     ]
