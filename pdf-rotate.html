@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 회전 & 저장</title>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+:root{
+  --ink:#1b1f3b; --sub:#565d78; --muted:#8c92aa; --line:#e4e6f0;
+  --brand:#4f46e5; --brand-dark:#3730a3; --brand-soft:#eef0ff;
+  --accent:#f0743a; --ok:#16a34a; --err:#dc2626;
+  --font:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+}
+html,body{ min-height:100%; }
+body{ font-family:var(--font); color:var(--ink); background:linear-gradient(135deg,#f1f0ff 0%,#f7f5ff 50%,#eef4ff 100%); padding:28px 20px 48px; }
+.wrap{ max-width:1100px; margin:0 auto; }
+button{ font:inherit; cursor:pointer; }
+.hidden{ display:none !important; }
+
+.head{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.logo{ width:54px; height:54px; border-radius:16px; flex-shrink:0; background:linear-gradient(135deg,#f0743a,#f5b70a); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 10px 24px rgba(240,116,58,.3); }
+.logo svg{ width:30px; height:30px; }
+.head h1{ font-size:26px; font-weight:800; letter-spacing:-.5px; }
+.head h1 em{ font-style:normal; background:linear-gradient(100deg,#f0743a,#4f46e5); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.head p{ font-size:14px; color:var(--sub); margin-top:4px; }
+
+.notice{ display:flex; align-items:flex-start; gap:10px; background:#ecfdf5; border:1px solid #bbf7d0; color:#166534; border-radius:14px; padding:12px 16px; font-size:13.5px; line-height:1.6; margin-bottom:16px; }
+.notice svg{ width:18px; height:18px; flex-shrink:0; margin-top:2px; }
+
+.card{ background:#fff; border:1px solid var(--line); border-radius:22px; box-shadow:0 10px 30px rgba(79,70,229,.07); margin-bottom:16px; overflow:hidden; }
+.drop{ margin:22px; border:2.5px dashed #c7c3f5; border-radius:18px; background:#faf9ff; padding:42px 20px; text-align:center; cursor:pointer; transition:.2s; }
+.drop:hover, .drop.over{ border-color:var(--brand); background:var(--brand-soft); }
+.drop .big{ width:58px; height:58px; margin:0 auto 12px; color:var(--brand); }
+body.has-files .drop{ padding:16px 20px; } body.has-files .drop .big{ width:30px; height:30px; margin-bottom:4px; }
+.drop b{ font-size:17px; display:block; margin-bottom:6px; }
+.drop span{ font-size:13.5px; color:var(--muted); }
+
+/* 도구 막대 */
+.bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 22px; background:#eeeaff; border-bottom:1px solid var(--line); }
+.bar .count{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; margin-right:auto; }
+.bar .count svg{ width:20px; height:20px; color:var(--accent); }
+.bar .count small{ font-weight:400; color:var(--sub); font-size:14px; }
+.btn{ display:inline-flex; align-items:center; gap:7px; padding:10px 16px; border-radius:12px; border:1.5px solid #3b3f5c; background:#fff; color:var(--ink); font-size:14px; font-weight:600; transition:.15s; white-space:nowrap; }
+.btn:hover{ background:#f6f5ff; }
+.btn svg{ width:17px; height:17px; }
+.btn.pri{ background:var(--brand); border-color:var(--brand); color:#fff; }
+.btn.pri:hover{ background:var(--brand-dark); }
+.btn.orange{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.btn.orange:hover{ filter:brightness(.95); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.sub-bar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:10px 22px; border-bottom:1px solid var(--line); font-size:14px; color:var(--sub); }
+.sub-bar b{ color:var(--accent); }
+.sub-bar .sp{ margin-left:auto; }
+.mini{ padding:6px 11px; border-radius:10px; border:1px solid #cfd2e3; background:#fff; font-size:13px; color:var(--ink); display:inline-flex; align-items:center; gap:5px; }
+.mini:hover{ background:#f3f3fb; }
+.mini:disabled{ opacity:.45; cursor:not-allowed; }
+.files{ padding:14px 22px 16px; border-bottom:1px solid var(--line); }
+.files h3{ font-size:14.5px; margin-bottom:10px; }
+.chips{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:12px; background:#fdf4ee; border:1px solid #f6dcc9; font-size:13.5px; max-width:100%; }
+.chip .dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.chip .nm{ font-weight:700; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip .pg{ color:var(--sub); white-space:nowrap; }
+.chip button{ border:0; background:none; color:var(--muted); font-size:16px; line-height:1; padding:0 2px; }
+.chip button:hover{ color:var(--err); }
+.chip .dl{ font-size:12px; color:var(--brand); border:1px solid #c9c6f3; border-radius:8px; padding:3px 7px; }
+.chip .dl:hover{ background:var(--brand-soft); color:var(--brand); }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:18px; padding:22px; background:#f8f8fc; min-height:120px; }
+.page{ position:relative; background:#eef0f5; border-radius:14px; border:2px solid transparent; padding:46px 12px 40px; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+.page:hover{ box-shadow:0 8px 22px rgba(30,30,80,.1); }
+.page.sel{ border-color:var(--accent); background:#fff4ec; }
+.page.deleted{ opacity:.35; }
+.page .thumb{ position:relative; width:100%; aspect-ratio:1/1; }
+.page canvas{ position:absolute; left:50%; top:50%; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.15); transition:transform .3s ease, width .3s, height .3s; }
+.page .num{ position:absolute; left:50%; bottom:9px; transform:translateX(-50%); background:#3b3f4f; color:#fff; font-size:12px; font-weight:700; padding:3px 9px; border-radius:7px; }
+.page .fdot{ position:absolute; left:10px; bottom:13px; width:9px; height:9px; border-radius:50%; }
+.page .deg{ position:absolute; right:10px; bottom:11px; font-size:11.5px; font-weight:700; color:var(--accent); }
+.page .chk{ position:absolute; left:8px; top:8px; width:22px; height:22px; border-radius:7px; border:2px solid #b8bccd; background:#fff; display:grid; place-items:center; z-index:2; }
+.page.sel .chk{ background:var(--accent); border-color:var(--accent); }
+.page.sel .chk::after{ content:""; width:10px; height:6px; border-left:2.5px solid #fff; border-bottom:2.5px solid #fff; transform:rotate(-45deg) translate(1px,-1px); }
+.page .x{ position:absolute; right:-9px; top:-9px; width:26px; height:26px; border-radius:50%; border:1px solid #cfd2e3; background:#fff; color:#555; font-size:15px; line-height:1; display:grid; place-items:center; z-index:3; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+.page .x:hover{ color:#fff; background:var(--err); border-color:var(--err); }
+.page.deleted .x{ background:var(--ok); color:#fff; border-color:var(--ok); }
+.page .tools{ position:absolute; left:50%; top:6px; transform:translateX(-50%); display:flex; gap:6px; opacity:0; transition:opacity .15s; z-index:2; }
+.page:hover .tools, .page:focus-within .tools{ opacity:1; }
+@media (hover:none){ .page .tools{ opacity:1; } }
+.page .tools button{ width:36px; height:36px; border-radius:50%; border:0; color:#fff; display:grid; place-items:center; box-shadow:0 4px 12px rgba(0,0,0,.25); }
+.page .tools button svg{ width:18px; height:18px; }
+.page .tools .r{ background:var(--accent); }
+.page .tools .l{ background:#3b3f4f; }
+.page .tools .z{ background:#3b3f4f; }
+.page .loading{ position:absolute; inset:0; display:grid; place-items:center; color:var(--muted); font-size:12px; }
+.empty-grid{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:14px; padding:30px; }
+
+.opts{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:14px 22px; border-top:1px solid var(--line); font-size:14px; }
+.opts label{ display:inline-flex; align-items:center; gap:7px; cursor:pointer; }
+.opts input{ width:17px; height:17px; accent-color:var(--brand); }
+.opts .sp{ margin-left:auto; }
+.status{ padding:0 22px 16px; font-size:13.5px; color:var(--sub); min-height:20px; }
+.status.ok{ color:var(--ok); } .status.err{ color:var(--err); }
+
+.tips{ padding:18px 22px; font-size:13.5px; line-height:1.75; color:var(--sub); }
+.tips h3{ font-size:15px; color:var(--ink); margin-bottom:6px; }
+.tips ul{ padding-left:18px; }
+
+/* 크게 보기 */
+.modal{ position:fixed; inset:0; background:rgba(15,18,40,.72); z-index:50; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:12px; }
+.modal canvas{ max-width:min(92vw,900px); max-height:78vh; background:#fff; box-shadow:0 20px 50px rgba(0,0,0,.5); border-radius:4px; }
+.modal .mbar{ display:flex; gap:8px; }
+.modal .mbar button{ padding:9px 14px; border-radius:11px; border:0; background:#fff; font-weight:700; font-size:14px; }
+.modal .mbar .r{ background:var(--accent); color:#fff; }
+.modal .cap{ color:#e6e8f5; font-size:14px; }
+.spin{ display:inline-block; width:14px; height:14px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:sp .8s linear infinite; vertical-align:-2px; }
+@keyframes sp{ to{ transform:rotate(360deg); } }
+
+@media (max-width:640px){
+  body{ padding:16px 12px 40px; }
+  .bar{ padding:12px 14px; } .bar .count{ width:100%; }
+  .btn{ padding:9px 12px; font-size:13px; }
+  .grid{ grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; padding:14px; }
+  .page .tools{ left:auto; right:22px; transform:none; gap:4px; }
+  .page .tools button{ width:30px; height:30px; }
+  .page .tools button svg{ width:15px; height:15px; }
+  .sub-bar,.files,.opts{ padding-left:14px; padding-right:14px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M15.5 14.5a3.5 3.5 0 1 1-1-2.5"/><path d="M15 10.5v2h-2"/></svg></div>
+    <div>
+      <h1>PDF <em>회전 & 저장</em></h1>
+      <p>옆으로 누운 스캔 문서, 거꾸로 된 페이지를 바로 세워서 새 PDF로 저장해요.</p>
+    </div>
+  </header>
+
+  <div class="notice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+    <div>파일은 서버로 올라가지 않아요. 이 컴퓨터의 브라우저 안에서만 회전하고 저장합니다. (학생 개인정보가 담긴 문서도 안심하고 쓸 수 있어요)</div>
+  </div>
+
+  <section class="card" id="upload-card">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="PDF 파일 선택">
+      <svg class="big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
+      <b>PDF 파일을 여기에 끌어다 놓거나 눌러서 선택하세요</b>
+      <span>여러 파일을 한꺼번에 올릴 수 있어요</span>
+    </div>
+    <input type="file" id="file-input" accept="application/pdf,.pdf" multiple hidden>
+  </section>
+
+  <section class="card hidden" id="work">
+    <div class="bar">
+      <div class="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span id="file-count">0 파일</span><small id="page-count">(0 페이지)</small></div>
+      <button class="btn" id="add-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M12 11v6M9 14h6"/></svg>파일 추가</button>
+      <button class="btn" id="clear-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>모두 지우기</button>
+      <button class="btn orange" id="save-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span id="save-label">회전 & 다운로드</span></button>
+    </div>
+    <div class="sub-bar">
+      <span>전체 페이지: <b id="n-total">0</b></span>
+      <span>선택됨: <b id="n-sel">0</b></span>
+      <span>회전함: <b id="n-rot">0</b></span>
+      <span class="sp"></span>
+      <button class="mini" id="sel-all" type="button">전체 선택</button>
+      <button class="mini" id="sel-none" type="button">선택 해제</button>
+      <button class="mini" id="rot-left" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>왼쪽 90°</button>
+      <button class="mini" id="rot-right" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>오른쪽 90°</button>
+      <button class="mini" id="rot-180" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M12 9v6"/></svg>180°</button>
+      <button class="mini" id="auto-portrait" type="button" title="가로로 누운 페이지를 세로로 세워요">📄 가로 → 세로</button>
+      <button class="mini" id="reset-rot" type="button">원래대로</button>
+    </div>
+    <div class="files">
+      <h3>업로드된 파일</h3>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="opts">
+      <label id="merge-wrap"><input type="checkbox" id="merge"> 여러 파일을 <b>한 PDF로 합쳐서</b> 저장</label>
+      <span class="sp" style="color:var(--muted);font-size:12.5px">페이지를 눌러 선택 · 위쪽 버튼으로 한 장씩 회전 · ✕로 빼기</span>
+    </div>
+    <div class="status" id="status"></div>
+  </section>
+
+  <section class="card tips">
+    <h3>💡 사용 방법</h3>
+    <ul>
+      <li>페이지 위에 마우스를 올리면 위쪽에 <b>왼쪽 회전 · 오른쪽 회전 · 🔍 크게 보기</b> 버튼이 나와요. (휴대폰에서는 항상 보여요) 페이지를 누르면 선택돼요.</li>
+      <li>여러 페이지를 고른 뒤 위쪽의 <b>왼쪽 90° · 오른쪽 90° · 180°</b>로 한꺼번에 돌릴 수 있어요. 아무것도 고르지 않으면 <b>모든 페이지</b>가 돌아가요.</li>
+      <li><b>📄 가로 → 세로</b>는 옆으로 누운 스캔 페이지를 한 번에 세워 줘요.</li>
+      <li>✕를 누른 페이지는 저장할 때 빠져요. (다시 누르면 되살아나요)</li>
+      <li>원본 화질 그대로 회전 정보만 바꿔 저장하므로 글자가 흐려지지 않아요. 저장 파일 이름은 <b>원래이름_회전.pdf</b>예요.</li>
+    </ul>
+  </section>
+</div>
+
+<div class="modal hidden" id="modal">
+  <canvas id="m-canvas"></canvas>
+  <div class="cap" id="m-cap"></div>
+  <div class="mbar">
+    <button type="button" id="m-left">왼쪽 90°</button>
+    <button type="button" class="r" id="m-right">오른쪽 90°</button>
+    <button type="button" id="m-prev">◀ 이전</button>
+    <button type="button" id="m-next">다음 ▶</button>
+    <button type="button" id="m-close">닫기 ✕</button>
+  </div>
+</div>
+
+<script src="lib/pdfjs-3.11.174.min.js"></script>
+<script src="lib/pdf-lib-1.17.1.min.js"></script>
+<script>
+"use strict";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "lib/pdfjs-3.11.174.worker.min.js";
+const $ = id => document.getElementById(id);
+const COLORS = ["#f0743a", "#4f46e5", "#16a34a", "#db2777", "#0891b2", "#ca8a04", "#7c3aed", "#dc2626"];
+const ICON_R = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>';
+const ICON_L = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>';
+const ICON_Z = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M11 8v6M8 11h6"/></svg>';
+
+let fileSeq = 0;
+const files = [];   // { id, name, bytes, pdfjs, color, pageCount }
+const pages = [];   // { id, fileId, index, baseRot, rot, deleted, sel, w, h, canvas, el }
+
+/* ---------- 파일 읽기 ---------- */
+const drop = $("drop"), input = $("file-input");
+drop.onclick = () => input.click();
+drop.onkeydown = e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); input.click(); } };
+$("add-btn").onclick = () => input.click();
+input.onchange = () => { addFiles([...input.files]); input.value = ""; };
+["dragenter", "dragover"].forEach(t => document.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => document.addEventListener(t, e => { e.preventDefault(); if (t === "drop" || e.target === document.documentElement) drop.classList.remove("over"); }));
+document.addEventListener("drop", e => { const fs = [...(e.dataTransfer?.files || [])]; if (fs.length) addFiles(fs); });
+
+function setStatus(msg, cls = ""){ const s = $("status"); s.className = "status " + cls; s.innerHTML = msg; }
+
+async function addFiles(list){
+  const pdfs = list.filter(f => /\.pdf$/i.test(f.name) || f.type === "application/pdf");
+  if (!pdfs.length){ alert("PDF 파일만 올릴 수 있어요."); return; }
+  $("work").classList.remove("hidden");
+  for (const f of pdfs){
+    setStatus(`<span class="spin"></span> ${esc(f.name)} 여는 중…`);
+    try{
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      // pdf.js는 넘겨준 버퍼를 가져가므로 복사본을 넘긴다
+      const doc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+      const file = { id: ++fileSeq, name: f.name, bytes, pdfjs: doc, color: COLORS[(fileSeq - 1) % COLORS.length], pageCount: doc.numPages };
+      files.push(file);
+      for (let i = 0; i < doc.numPages; i++){
+        const pg = await doc.getPage(i + 1);
+        const vp = pg.getViewport({ scale: 1 });
+        pages.push({ id: file.id + ":" + i, fileId: file.id, index: i, baseRot: pg.rotate || 0, rot: 0, deleted: false, sel: false, w: vp.width, h: vp.height, el: null, canvas: null });
+      }
+      setStatus("");
+    }catch(err){
+      console.error(err);
+      const pw = err && (err.name === "PasswordException");
+      setStatus(`⚠️ <b>${esc(f.name)}</b>을(를) 열 수 없어요. ${pw ? "암호가 걸린 PDF는 암호를 풀고 올려 주세요." : "손상되었거나 PDF가 아닌 파일일 수 있어요."}`, "err");
+    }
+  }
+  renderAll();
+  renderThumbs();
+}
+
+/* ---------- 그리기 ---------- */
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+const fileOf = p => files.find(f => f.id === p.fileId);
+
+function renderAll(){
+  const grid = $("grid");
+  if (!pages.length){
+    grid.innerHTML = '<div class="empty-grid">파일을 추가해 주세요.</div>';
+  }
+  // 새 페이지 카드만 만들고 기존 카드는 유지(이미 그린 썸네일 재사용)
+  const existing = new Set([...grid.querySelectorAll(".page")].map(e => e.dataset.id));
+  grid.querySelectorAll(".empty-grid").forEach(e => { if (pages.length) e.remove(); });
+  let n = 0;
+  for (const p of pages){
+    n++;
+    if (!existing.has(p.id)){
+      const el = document.createElement("div");
+      el.className = "page"; el.dataset.id = p.id; el.tabIndex = 0;
+      el.innerHTML = `<span class="chk"></span><button type="button" class="x" title="이 페이지 빼기">✕</button>
+        <div class="thumb"><div class="loading"><span class="spin"></span></div></div>
+        <div class="tools"><button type="button" class="l" title="왼쪽으로 90°">${ICON_L}</button><button type="button" class="r" title="오른쪽으로 90°">${ICON_R}</button><button type="button" class="z" title="크게 보기">${ICON_Z}</button></div>
+        <span class="fdot"></span><span class="num"></span><span class="deg"></span>`;
+      el.querySelector(".r").onclick = e => { e.stopPropagation(); rotatePages([p], 90); };
+      el.querySelector(".l").onclick = e => { e.stopPropagation(); rotatePages([p], -90); };
+      el.querySelector(".z").onclick = e => { e.stopPropagation(); openModal(p); };
+      el.querySelector(".x").onclick = e => { e.stopPropagation(); p.deleted = !p.deleted; p.sel = false; updateCard(p); updateCounts(); };
+      el.onclick = () => { if (p.deleted) return; p.sel = !p.sel; updateCard(p); updateCounts(); };
+      el.onkeydown = e => { if (e.key === "r" || e.key === "R"){ rotatePages([p], e.shiftKey ? -90 : 90); } };
+      grid.appendChild(el); p.el = el;
+    }
+    p.el.querySelector(".num").textContent = n;
+    updateCard(p);
+  }
+  renderChips(); updateCounts();
+}
+
+function updateCard(p){
+  const el = p.el; if (!el) return;
+  const f = fileOf(p);
+  el.classList.toggle("sel", p.sel); el.classList.toggle("deleted", p.deleted);
+  el.querySelector(".fdot").style.background = f ? f.color : "#999";
+  el.querySelector(".deg").textContent = p.rot ? (p.rot > 0 ? "+" : "") + p.rot + "°" : "";
+  el.querySelector(".x").textContent = p.deleted ? "↩" : "✕";
+  el.querySelector(".x").title = p.deleted ? "다시 넣기" : "이 페이지 빼기";
+  placeCanvas(p);
+}
+
+// 회전한 모습이 칸 안에 꽉 차도록 크기를 계산해서 CSS로 돌린다
+function placeCanvas(p){
+  const c = p.canvas; if (!c) return;
+  const box = p.el.querySelector(".thumb");
+  const B = box.clientWidth || 160;
+  const turned = Math.abs(p.rot) % 180 === 90;
+  const W = turned ? p.dispH : p.dispW, H = turned ? p.dispW : p.dispH;
+  const k = Math.min(B / W, B / H) * .94;
+  c.style.width = p.dispW * k + "px"; c.style.height = p.dispH * k + "px";
+  c.style.transform = `translate(-50%,-50%) rotate(${p.rot}deg)`;
+}
+
+let rendering = false;
+async function renderThumbs(){
+  if (rendering) return; rendering = true;
+  try{
+    for (const p of pages){
+      if (p.canvas || !p.el) continue;
+      const f = fileOf(p); if (!f) continue;
+      const pg = await f.pdfjs.getPage(p.index + 1);
+      const vp0 = pg.getViewport({ scale: 1 });          // 원래 /Rotate 가 적용된 모습
+      const scale = 360 / Math.max(vp0.width, vp0.height);
+      const vp = pg.getViewport({ scale });
+      const c = document.createElement("canvas");
+      c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+      await pg.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+      p.canvas = c; p.dispW = vp.width; p.dispH = vp.height;
+      const box = p.el.querySelector(".thumb"); box.innerHTML = ""; box.appendChild(c);
+      placeCanvas(p);
+    }
+  } finally { rendering = false; }
+  if (pages.some(p => !p.canvas && p.el)) renderThumbs();
+}
+window.addEventListener("resize", () => pages.forEach(placeCanvas));
+
+function renderChips(){
+  const chips = $("chips");
+  chips.innerHTML = files.map(f => `<span class="chip" data-id="${f.id}"><span class="dot" style="background:${f.color}"></span><span class="nm" title="${esc(f.name)}">${esc(f.name)}</span><span class="pg">(${f.pageCount} 쪽)</span><button type="button" class="dl" data-act="dl" title="이 파일만 저장">저장</button><button type="button" data-act="rm" title="파일 빼기">✕</button></span>`).join("");
+  chips.querySelectorAll(".chip").forEach(ch => {
+    const id = +ch.dataset.id;
+    ch.querySelector('[data-act="rm"]').onclick = () => removeFile(id);
+    ch.querySelector('[data-act="dl"]').onclick = () => saveFiles([files.find(f => f.id === id)], false);
+  });
+}
+function removeFile(id){
+  const f = files.find(x => x.id === id); if (!f) return;
+  f.pdfjs.destroy();
+  files.splice(files.indexOf(f), 1);
+  for (let i = pages.length - 1; i >= 0; i--) if (pages[i].fileId === id){ pages[i].el?.remove(); pages.splice(i, 1); }
+  if (!files.length) clearAll(); else renderAll();
+}
+function clearAll(){
+  files.forEach(f => f.pdfjs.destroy());
+  files.length = 0; pages.length = 0;
+  $("grid").innerHTML = ""; $("work").classList.add("hidden"); setStatus("");
+}
+$("clear-btn").onclick = () => { if (!files.length || confirm("올린 파일을 모두 지울까요?")) clearAll(); };
+
+function updateCounts(){
+  const live = pages.filter(p => !p.deleted);
+  $("file-count").textContent = files.length + " 파일";
+  $("page-count").textContent = `(${pages.length} 페이지)`;
+  $("n-total").textContent = live.length;
+  $("n-sel").textContent = live.filter(p => p.sel).length;
+  $("n-rot").textContent = live.filter(p => p.rot % 360 !== 0).length;
+  $("merge-wrap").classList.toggle("hidden", files.length < 2);
+  document.body.classList.toggle("has-files", files.length > 0);
+  const merge = files.length > 1 && $("merge").checked;
+  $("save-label").textContent = files.length > 1 && !merge ? `회전 & 다운로드 (파일 ${files.length}개)` : "회전 & 다운로드";
+  $("save-btn").disabled = !live.length;
+}
+$("merge").onchange = updateCounts;
+
+/* ---------- 회전 ---------- */
+function norm(d){ return ((d % 360) + 360) % 360; }
+function rotatePages(list, delta){
+  for (const p of list){
+    if (p.deleted) continue;
+    p.rot += delta;               // 화면 애니메이션이 자연스럽도록 누적(-90, 450 등)
+    updateCard(p);
+  }
+  updateCounts();
+}
+function targetPages(){ const s = pages.filter(p => p.sel && !p.deleted); return s.length ? s : pages.filter(p => !p.deleted); }
+$("rot-right").onclick = () => rotatePages(targetPages(), 90);
+$("rot-left").onclick = () => rotatePages(targetPages(), -90);
+$("rot-180").onclick = () => rotatePages(targetPages(), 180);
+$("reset-rot").onclick = () => { for (const p of targetPages()){ p.rot = 0; updateCard(p); } updateCounts(); };
+$("auto-portrait").onclick = () => {
+  let n = 0;
+  for (const p of targetPages()){
+    if (norm(p.rot) !== 0) continue;        // 이미 직접 돌린 페이지는 그대로 둠
+    // p.w, p.h = 원본의 /Rotate 까지 적용된 화면 크기 → 여기에 사용자 회전을 더한 모습
+    const shown = norm(p.rot) % 180 === 90 ? [p.h, p.w] : [p.w, p.h];
+    if (shown[0] > shown[1] * 1.02){ p.rot += 90; n++; updateCard(p); }
+  }
+  updateCounts();
+  setStatus(n ? `가로로 누운 ${n}쪽을 세로로 세웠어요. 방향이 거꾸로면 180°로 한 번 더 돌려 주세요.` : "가로로 누운 페이지가 없어요.", n ? "ok" : "");
+};
+$("sel-all").onclick = () => { pages.forEach(p => { if (!p.deleted){ p.sel = true; updateCard(p); } }); updateCounts(); };
+$("sel-none").onclick = () => { pages.forEach(p => { p.sel = false; updateCard(p); }); updateCounts(); };
+
+/* ---------- 크게 보기 ---------- */
+let modalPage = null;
+async function openModal(p){
+  modalPage = p;
+  $("modal").classList.remove("hidden");
+  const f = fileOf(p), pg = await f.pdfjs.getPage(p.index + 1);
+  const rot = norm(pg.rotate + p.rot);
+  const vp1 = pg.getViewport({ scale: 1, rotation: rot });
+  const scale = Math.min(2, 1400 / Math.max(vp1.width, vp1.height));
+  const vp = pg.getViewport({ scale, rotation: rot });
+  const c = $("m-canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+  await pg.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+  const live = pages.filter(x => !x.deleted);
+  $("m-cap").textContent = `${f.name} · ${p.index + 1}쪽 (${live.indexOf(p) + 1}/${live.length})${p.rot % 360 ? " · " + (p.rot > 0 ? "+" : "") + p.rot + "° 회전" : ""}`;
+}
+function closeModal(){ $("modal").classList.add("hidden"); modalPage = null; }
+$("m-close").onclick = closeModal;
+$("modal").onclick = e => { if (e.target.id === "modal") closeModal(); };
+$("m-right").onclick = () => { rotatePages([modalPage], 90); openModal(modalPage); };
+$("m-left").onclick = () => { rotatePages([modalPage], -90); openModal(modalPage); };
+const step = d => { const live = pages.filter(x => !x.deleted); const i = live.indexOf(modalPage); const n = live[i + d]; if (n) openModal(n); };
+$("m-prev").onclick = () => step(-1); $("m-next").onclick = () => step(1);
+document.addEventListener("keydown", e => { if (!modalPage) return; if (e.key === "Escape") closeModal(); if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); if (e.key === "r") $("m-right").click(); });
+
+/* ---------- 저장 (pdf-lib: 페이지의 /Rotate 값만 바꿈 → 화질 그대로) ---------- */
+const { PDFDocument, degrees } = PDFLib;
+function outName(name){ return name.replace(/\.pdf$/i, "") + "_회전.pdf"; }
+function download(bytes, name){
+  const blob = new Blob([bytes], { type: "application/pdf" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function buildDoc(pageList, srcCache){
+  const out = await PDFDocument.create();
+  for (const f of [...new Set(pageList.map(p => p.fileId))]){
+    if (!srcCache[f]) srcCache[f] = await PDFDocument.load(files.find(x => x.id === f).bytes, { ignoreEncryption: true, updateMetadata: false });
+  }
+  // 페이지 순서를 지키며, 같은 파일의 연속 페이지는 한 번에 복사
+  for (const p of pageList){
+    const [copied] = await out.copyPages(srcCache[p.fileId], [p.index]);
+    copied.setRotation(degrees(norm(copied.getRotation().angle + p.rot)));
+    out.addPage(copied);
+  }
+  return out.save();
+}
+async function saveFiles(fileList, merge){
+  const btn = $("save-btn"); btn.disabled = true;
+  try{
+    const cache = {};
+    if (merge){
+      const list = pages.filter(p => !p.deleted);
+      setStatus(`<span class="spin"></span> ${list.length}쪽을 한 PDF로 합치는 중…`);
+      const bytes = await buildDoc(list, cache);
+      download(bytes, outName(files[0].name.replace(/\.pdf$/i, "") + "_외" + (files.length - 1) + "개_합본.pdf"));
+      setStatus(`✅ ${list.length}쪽을 한 파일로 저장했어요.`, "ok");
+    } else {
+      let saved = 0;
+      for (const f of fileList){
+        const list = pages.filter(p => p.fileId === f.id && !p.deleted);
+        if (!list.length) continue;
+        setStatus(`<span class="spin"></span> ${esc(f.name)} 저장 중…`);
+        const bytes = await buildDoc(list, cache);
+        download(bytes, outName(f.name)); saved++;
+        await new Promise(r => setTimeout(r, 350));     // 여러 파일 연속 다운로드 간격
+      }
+      setStatus(saved ? `✅ ${saved}개 파일을 저장했어요. (다운로드 폴더를 확인하세요)` : "저장할 페이지가 없어요.", saved ? "ok" : "err");
+    }
+  }catch(err){
+    console.error(err);
+    setStatus("⚠️ 저장하지 못했어요. 암호가 걸렸거나 손상된 PDF일 수 있어요. (" + esc(err.message || err) + ")", "err");
+  }finally{ updateCounts(); }
+}
+$("save-btn").onclick = () => saveFiles(files, files.length > 1 && $("merge").checked);
+
+// 테스트용
+window.__pdfr = { files, pages, buildDoc, rotatePages };
+</script>
+</body>
+</html>
