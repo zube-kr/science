@@ -27,6 +27,14 @@
  *      const MARKET_API = "";
  *    에 넣습니다.
  *
+ * ▣ 보안 (코드 맞히기 막기) — 모두 서버(구글)에서 세기 때문에
+ *   브라우저를 바꾸거나 저장소를 지워도 피할 수 없어요.
+ *   - 학생은 "학번(5자리) + 코드(4자리)"가 둘 다 맞아야 조회돼요.
+ *   - 같은 학번으로 3번 틀리면 그 학번은 3분 동안 조회가 막혀요.
+ *   - 모든 학번을 합쳐 10분 안에 20번 틀리면 학생 조회 전체가 10분 동안 막혀요.
+ *   - 관리자 코드는 30분 안에 5번 틀리면 30분 동안 막혀요.
+ *   - 틀린 시도는 "접속실패" 탭에 기록돼요(관리자 화면에서도 볼 수 있어요).
+ *
  * ▣ 학생 코드
  *   엑셀을 처음 반영할 때 학생마다 겹치지 않는 4자리 코드(1000~9999)가
  *   자동으로 만들어져 "학생" 탭의 코드 칸에 저장됩니다.
@@ -43,7 +51,8 @@ var SHEETS = {
   students: { name: "학생",       head: ["키", "학년", "반", "번호", "이름", "코드", "상점", "벌점", "마지막반영"] },
   uses:     { name: "사용기록",   head: ["ID", "일시", "키", "이름", "사용점수", "내용"] },
   products: { name: "상품",       head: ["상품명", "필요점수", "비고"] },
-  uploads:  { name: "업로드기록", head: ["일시", "파일명", "기간", "학생수", "새학생", "변경"] }
+  uploads:  { name: "업로드기록", head: ["일시", "파일명", "기간", "학생수", "새학생", "변경"] },
+  fails:    { name: "접속실패",   head: ["일시", "종류", "입력한 학번"] }
 };
 
 /* ---------------- 진입점 ---------------- */
@@ -106,20 +115,33 @@ function locked_(fn) {
   try { return fn(); } finally { lock.releaseLock(); }
 }
 
-// 코드를 마구 눌러 맞히는 것을 막기 위한 간단한 제한 (10분 동안 실패 횟수)
-function tooMany_(kind, limit) {
-  var c = CacheService.getScriptCache(), n = Number(c.get("fail_" + kind) || 0);
-  return n >= limit;
+// 코드를 마구 눌러 맞히는 것을 막는 제한 — 실패 횟수를 서버(CacheService)에서 센다.
+// 마지막 실패로부터 seconds 초가 지나면 횟수가 저절로 사라진다.
+var LIMITS = {
+  stuOne: { max: 3,  seconds: 180 },   // 같은 학번 3번 틀리면 3분 잠금
+  stuAll: { max: 20, seconds: 600 },   // 학생 조회 전체 10분 안에 20번 틀리면 10분 잠금
+  admin:  { max: 5,  seconds: 1800 }   // 관리자 코드 5번 틀리면 30분 잠금
+};
+function fails_(key) { return Number(CacheService.getScriptCache().get("f_" + key) || 0); }
+function addFail_(key, sec) {
+  var c = CacheService.getScriptCache(), n = fails_(key) + 1;
+  c.put("f_" + key, String(n), sec);
+  return n;
 }
-function failed_(kind) {
-  var c = CacheService.getScriptCache(), k = "fail_" + kind, n = Number(c.get(k) || 0) + 1;
-  c.put(k, String(n), 600);
+function clearFail_(key) { CacheService.getScriptCache().remove("f_" + key); }
+function logFail_(kind, who) {
+  try { sheet_("fails").appendRow([now_(), kind, who || ""]); } catch (e) {}
 }
 
 function admin_(req) {
   if (!/^\d{6}$/.test(ADMIN_CODE)) throw new Error("Apps Script의 ADMIN_CODE를 숫자 6자리로 먼저 정해 주세요.");
-  if (tooMany_("admin", 15)) throw new Error("관리자 코드가 여러 번 틀려서 10분 동안 잠겼어요. 잠시 후 다시 해 주세요.");
-  if (String(req.adminCode || "") !== ADMIN_CODE) { failed_("admin"); throw new Error("관리자 코드가 맞지 않아요."); }
+  if (fails_("admin") >= LIMITS.admin.max) throw new Error("관리자 코드가 여러 번 틀려서 30분 동안 잠겼어요. 잠시 후 다시 해 주세요.");
+  if (String(req.adminCode || "") !== ADMIN_CODE) {
+    addFail_("admin", LIMITS.admin.seconds);
+    logFail_("관리자", "");
+    throw new Error("관리자 코드가 맞지 않아요.");
+  }
+  clearFail_("admin");
 }
 
 /* ---------------- 자료 읽기 ---------------- */
@@ -161,10 +183,20 @@ function lastUpload_() {
 /* ---------------- 학생 조회 ---------------- */
 function student_(req) {
   var code = String(req.code || "").trim();
-  if (!/^\d{4}$/.test(code)) return { ok: false, error: "코드는 숫자 4자리예요." };
-  if (tooMany_("student", 80)) return { ok: false, error: "잘못된 코드 입력이 너무 많아요. 10분 뒤에 다시 해 주세요." };
-  var s = students_().filter(function (x) { return x.code === code; })[0];
-  if (!s) { failed_("student"); return { ok: false, error: "등록되지 않은 코드예요. 코드를 다시 확인해 주세요." }; }
+  var grade = int_(req.grade), cls = int_(req.cls), num = int_(req.num);
+  if (!/^\d{4}$/.test(code) || !grade || !num) return { ok: false, error: "학번과 코드를 확인해 주세요." };
+  var who = grade + "-" + cls + "-" + num;
+  if (fails_("stuAll") >= LIMITS.stuAll.max) return { ok: false, error: "틀린 입력이 너무 많아서 10분 동안 조회를 막았어요. 잠시 후 다시 해 주세요." };
+  if (fails_("stu_" + who) >= LIMITS.stuOne.max) return { ok: false, error: "이 학번은 3번 틀려서 3분 동안 조회할 수 없어요." };
+  // 학번과 코드가 둘 다 맞아야 한다 (어느 쪽이 틀렸는지는 알려 주지 않는다)
+  var s = students_().filter(function (x) { return x.code === code && x.grade === grade && x.cls === cls && x.num === num; })[0];
+  if (!s) {
+    var n = addFail_("stu_" + who, LIMITS.stuOne.seconds);
+    addFail_("stuAll", LIMITS.stuAll.seconds);
+    logFail_("학생", who);
+    return { ok: false, error: "학번 또는 코드가 맞지 않아요.", left: Math.max(0, LIMITS.stuOne.max - n) };
+  }
+  clearFail_("stu_" + who);
   var mine = uses_().filter(function (u) { return u.key === s.key; });
   var used = mine.reduce(function (a, u) { return a + u.points; }, 0);
   var me = withTotals_(s, used);
@@ -187,7 +219,8 @@ function adminData_() {
   return {
     ok: true, students: list,
     uses: uses.map(function (u) { return { id: u.id, date: u.date, key: u.key, name: u.name, points: u.points, memo: u.memo }; }).reverse(),
-    products: products_(), uploads: up
+    products: products_(), uploads: up,
+    fails: rows_("fails").slice(-30).reverse().map(function (x) { return { date: str_(x[0]), kind: str_(x[1]), who: str_(x[2]) }; })
   };
 }
 
