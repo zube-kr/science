@@ -1262,7 +1262,8 @@ body.frame-mode .frameview-header{
       <li onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</li>
       <li onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험 모음</li>
       <li onclick="openSubject('student-dev')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"/><path d="m17.5 3.5 1 2 2 .4-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.4z"/></svg>학생개발자료</li>
-      <li onclick="openSubject('teacher-tools')"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>HWP → PDF 변환기</li>
+      <li onclick="openSubject('teacher-tools')"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>각종문서변환기</li>
+      <li onclick="openSubject('event-ops')"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9.5 14.5 2 2 3.5-3.5"/></svg>각종행사운영</li>
     </ul>
   </details>
 
@@ -1812,7 +1813,7 @@ const topicsData = {
     ]
   },
   "teacher-tools": {
-    title: "🛠️ 선생님 도구",
+    title: "📄 각종문서변환기",
     posts: [
       {
         title: "📄 HWP → PDF 변환기",
@@ -1825,7 +1826,12 @@ const topicsData = {
         desc: "옆으로 눕거나 거꾸로 된 PDF 페이지를 한 장씩 또는 한꺼번에 돌려서 새 PDF로 저장합니다. 가로 페이지 자동 세우기, 페이지 빼기, 여러 파일 합치기도 돼요. 파일은 서버로 올라가지 않고 브라우저 안에서만 처리돼요.",
         url: PDF_ROTATE_URL,
         ready: true
-      },
+      }
+    ]
+  },
+  "event-ops": {
+    title: "🎉 각종행사운영",
+    posts: [
       {
         title: "🛒 아화중 상점마켓 운영 현황",
         desc: "2026. 11. 13. ~ 12. 31. 상점마켓 운영 페이지입니다. 학생은 4자리 코드로 받은 상점·사용한 상점·잔여 상점을 조회하고, 관리자는 6자리 코드로 스쿨라이프 엑셀(상점·벌점)을 올리고 상품 교환에 쓴 상점을 기록해요.",
