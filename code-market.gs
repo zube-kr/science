@@ -27,6 +27,12 @@
  *      const MARKET_API = "";
  *    에 넣습니다.
  *
+ * ▣ 엑셀을 다시 올릴 때
+ *   - 상점·벌점은 새 엑셀의 누적 숫자로 바뀌고, "사용기록" 탭은 절대 건드리지 않아요.
+ *     그래서 상품으로 바꾼(차감한) 점수는 엑셀을 몇 번 올려도 계속 남아 있어요.
+ *   - 점수가 바뀐 학생은 바뀌기 전 점수를 "이전상점·이전벌점"에, 바뀐 때를
+ *     "변경일시"에 적어 두어서 학생 화면에 "10점 → 12점"처럼 보여 줘요.
+ *
  * ▣ 학생 코드
  *   엑셀을 처음 반영할 때 학생마다 겹치지 않는 4자리 코드(1000~9999)가
  *   자동으로 만들어져 "학생" 탭의 코드 칸에 저장됩니다.
@@ -40,7 +46,7 @@ var ADMIN_CODE = "여기에_관리자코드_6자리";   // 예: "123456" (숫자
 
 var TZ = "Asia/Seoul";
 var SHEETS = {
-  students: { name: "학생",       head: ["키", "학년", "반", "번호", "이름", "코드", "상점", "벌점", "마지막반영"] },
+  students: { name: "학생",       head: ["키", "학년", "반", "번호", "이름", "코드", "상점", "벌점", "마지막반영", "이전상점", "이전벌점", "변경일시"] },
   uses:     { name: "사용기록",   head: ["ID", "일시", "키", "이름", "사용점수", "내용"] },
   products: { name: "상품",       head: ["상품명", "필요점수", "비고"] },
   uploads:  { name: "업로드기록", head: ["일시", "파일명", "기간", "학생수", "새학생", "변경"] }
@@ -93,6 +99,10 @@ function sheet_(key) {
     sh = ss.insertSheet(def.name);
     sh.getRange(1, 1, 1, def.head.length).setValues([def.head]);
     sh.setFrozenRows(1);
+  } else {
+    // 예전 버전으로 만든 탭이면 새로 생긴 열의 머리글을 채운다
+    var cur = sh.getRange(1, 1, 1, def.head.length).getValues()[0];
+    if (cur.some(function (v, i) { return String(v) !== def.head[i]; })) sh.getRange(1, 1, 1, def.head.length).setValues([def.head]);
   }
   return sh;
 }
@@ -127,7 +137,8 @@ function students_() {
   return rows_("students").map(function (r, i) {
     return {
       row: i + 2, key: str_(r[0]), grade: int_(r[1]), cls: int_(r[2]), num: int_(r[3]), name: str_(r[4]),
-      code: str_(r[5]), plus: int_(r[6]), minus: int_(r[7]), updated: str_(r[8])
+      code: str_(r[5]), plus: int_(r[6]), minus: int_(r[7]), updated: str_(r[8]),
+      hasPrev: r[9] !== "" && r[9] !== null, prevPlus: int_(r[9]), prevMinus: int_(r[10]), changedAt: str_(r[11])
     };
   }).filter(function (s) { return s.key; });
 }
@@ -149,7 +160,8 @@ function usedMap_(uses) {
 function withTotals_(s, used) {
   var score = s.plus - s.minus;
   return { key: s.key, grade: s.grade, cls: s.cls, num: s.num, name: s.name, code: s.code,
-           plus: s.plus, minus: s.minus, score: score, used: used || 0, remain: score - (used || 0), updated: s.updated };
+           plus: s.plus, minus: s.minus, score: score, used: used || 0, remain: score - (used || 0), updated: s.updated,
+           prev: s.hasPrev ? { plus: s.prevPlus, minus: s.prevMinus, at: s.changedAt } : null };
 }
 function lastUpload_() {
   var r = rows_("uploads");
@@ -215,8 +227,13 @@ function upload_(req) {
     var plus = Math.abs(int_(r.plus)), minus = Math.abs(int_(r.minus));
     var s = byKey[key];
     if (s) {
-      if (s.plus !== plus || s.minus !== minus) changed++;
-      sh.getRange(s.row, 7, 1, 3).setValues([[plus, minus, stamp]]);
+      if (s.plus !== plus || s.minus !== minus) {
+        // 바뀌기 전 점수를 남겨 두고 새 누적 점수로 바꾼다 (사용기록은 그대로)
+        changed++;
+        sh.getRange(s.row, 7, 1, 6).setValues([[plus, minus, stamp, s.plus, s.minus, stamp]]);
+      } else {
+        sh.getRange(s.row, 9).setValue(stamp);
+      }
     } else {
       sh.appendRow([key, grade, cls, num, name, newUniqueCode_(taken), plus, minus, stamp]);
       added++;
