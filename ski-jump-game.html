@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>과학 스키점프 — 아화 힐 K120</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16233A; --soft:#5B6880; --line:#DCE3EE; --brand:#1E6FD9; --brand2:#3D9BFF;
+    --ok:#1E9E62; --bad:#D8463B; --warn:#E58A1F; --gold:#F2B705; --panel:#fff;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  [hidden]{ display:none !important; }
+  body{ font-family:'Noto Sans KR', sans-serif; color:var(--ink); background:linear-gradient(170deg,#E3EEFB,#F5F8FC 55%); min-height:100vh; }
+  button{ font:inherit; }
+  .wrap{ max-width:1240px; margin:0 auto; padding:16px 14px 50px; }
+  header{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  header h1{ font-size:clamp(22px,3vw,30px); font-weight:900; letter-spacing:-.5px; }
+  header h1 em{ font-style:normal; color:var(--brand); }
+  header p{ font-size:13.5px; color:var(--soft); margin-top:2px; }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{ background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13.5px; font-weight:800; }
+
+  .game{ display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:14px; align-items:start; }
+  .stage{ position:relative; border-radius:18px; overflow:hidden; border:3px solid #1E6FD9; background:#BFD9F2; box-shadow:0 12px 30px rgba(22,35,58,.14); }
+  #view{ display:block; width:100%; height:auto; aspect-ratio:16 / 9; touch-action:none; }
+
+  /* 조작 막대 */
+  .controls{ display:grid; grid-template-columns:1fr 1.3fr 1fr; gap:8px; margin-top:10px; }
+  .cbtn{ border:none; border-radius:14px; padding:14px 8px; font-size:15.5px; font-weight:900; cursor:pointer; color:#fff; background:#5B6880; user-select:none; -webkit-user-select:none; touch-action:none; min-height:58px; line-height:1.25; }
+  .cbtn small{ display:block; font-size:11px; font-weight:700; opacity:.85; }
+  .cbtn.main{ background:linear-gradient(135deg,#FF7A45,#E8457A); font-size:17px; }
+  .cbtn.blue{ background:linear-gradient(135deg,#3D9BFF,#1E6FD9); }
+  .cbtn:disabled{ opacity:.35; cursor:default; }
+  .cbtn.held{ filter:brightness(1.2); transform:scale(.98); }
+  .keys{ font-size:12px; color:var(--soft); margin-top:6px; text-align:center; }
+  .keys kbd{ background:#EEF2F8; border:1px solid #D5DCE8; border-radius:5px; padding:0 5px; font-family:inherit; font-weight:700; }
+
+  /* 오버레이 */
+  .overlay{ position:absolute; inset:0; background:rgba(10,22,44,.55); display:flex; align-items:center; justify-content:center; padding:14px; z-index:5; }
+  .dialog{ background:#fff; border-radius:18px; padding:20px 22px; width:100%; max-width:620px; max-height:100%; overflow:auto; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .dialog h2{ font-size:22px; font-weight:900; margin-bottom:6px; }
+  .dialog p, .dialog li{ font-size:14px; line-height:1.7; color:#2E3A4F; }
+  .dialog ul{ margin:6px 0 8px 18px; }
+  .tip{ background:#EEF4FF; border-radius:12px; padding:10px 12px; margin:10px 0; font-size:13.5px; line-height:1.65; }
+  .tip b{ color:var(--brand); }
+  .btn{ border:none; border-radius:12px; padding:11px 18px; font-size:15px; font-weight:800; cursor:pointer; background:var(--brand); color:#fff; }
+  .btn.ghost{ background:#EEF2F8; color:var(--ink); }
+  .btn.pink{ background:#E8457A; }
+  .btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+
+  .gate-row{ display:flex; align-items:center; gap:10px; margin:10px 0; }
+  .gate-row .gbtn{ width:48px; height:48px; border-radius:12px; border:none; background:#EEF2F8; font-size:22px; font-weight:900; cursor:pointer; }
+  .gate-num{ font-size:34px; font-weight:900; color:var(--brand); min-width:110px; text-align:center; }
+  .gate-num small{ display:block; font-size:12px; color:var(--soft); font-weight:700; }
+  .gate-info{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:4px; }
+  .gate-info div{ background:#F3F6FB; border-radius:12px; padding:8px 10px; font-size:12px; color:var(--soft); font-weight:700; }
+  .gate-info b{ display:block; font-size:18px; color:var(--ink); }
+  .wind-box{ display:flex; align-items:center; gap:10px; background:#F3F6FB; border-radius:12px; padding:10px 12px; margin-top:8px; font-size:13.5px; }
+  .wind-box .arrow{ font-size:26px; }
+
+  .score-tbl{ width:100%; border-collapse:collapse; margin-top:8px; font-size:14px; }
+  .score-tbl td{ padding:6px 8px; border-bottom:1px dashed var(--line); }
+  .score-tbl td:last-child{ text-align:right; font-weight:900; }
+  .score-tbl tr.total td{ border-bottom:none; font-size:17px; color:var(--brand); }
+  .judges{ display:flex; gap:6px; margin-top:4px; }
+  .judges span{ flex:1; text-align:center; background:#F3F6FB; border-radius:8px; padding:4px 0; font-weight:800; font-size:13px; }
+  .judges span.cut{ text-decoration:line-through; color:#A0A9B8; }
+  .res-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  #trajCanvas{ width:100%; height:auto; border-radius:12px; background:#EAF3FC; display:block; }
+  .sci{ font-size:13px; line-height:1.7; }
+  .sci b{ color:var(--brand); }
+  .big-dist{ font-size:40px; font-weight:900; color:#E8457A; letter-spacing:-1px; }
+  .big-dist small{ font-size:16px; color:var(--soft); margin-left:6px; }
+
+  .name-row{ display:flex; gap:8px; margin-top:10px; }
+  .name-row input{ flex:1; min-width:0; font:inherit; font-size:15px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; }
+  .board{ list-style:none; margin-top:8px; }
+  .board li{ display:grid; grid-template-columns:34px 1fr 70px 56px; gap:6px; padding:6px 8px; border-radius:8px; font-size:14px; align-items:center; }
+  .board li:nth-child(odd){ background:#F4F6FA; }
+  .board li.me{ background:#FFF1C9; font-weight:800; }
+  .board .rk{ font-weight:900; color:var(--brand); }
+  .board .sc{ text-align:right; font-weight:900; }
+  .board .dt{ text-align:right; color:var(--soft); font-size:12px; }
+  .board li.empty{ display:block; color:var(--soft); text-align:center; }
+
+  /* 옆 패널 */
+  .panel{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:0 8px 24px rgba(22,35,58,.06); }
+  .panel + .panel{ margin-top:12px; }
+  .panel h3{ font-size:15px; font-weight:900; margin-bottom:6px; }
+  .panel p, .panel li{ font-size:12.8px; line-height:1.65; color:#36435A; }
+  .panel ul{ margin-left:16px; }
+  .rounds{ list-style:none; margin:0; }
+  .rounds li{ display:flex; justify-content:space-between; padding:6px 2px; border-bottom:1px dashed var(--line); font-size:13.5px; }
+  .rounds li b{ color:var(--brand); }
+  .toggle{ display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; margin-top:6px; cursor:pointer; }
+  .formula{ background:#F3F6FB; border-radius:10px; padding:8px 10px; font-size:12.5px; margin:6px 0; line-height:1.7; }
+
+  @media (max-width:1000px){
+    .game{ grid-template-columns:1fr; }
+    .side{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .panel + .panel{ margin-top:0; }
+  }
+  @media (max-width:700px){
+    .overlay{ position:fixed; z-index:50; }
+    .side{ grid-template-columns:1fr; }
+    .res-grid{ grid-template-columns:1fr; }
+    .gate-info{ grid-template-columns:1fr 1fr 1fr; }
+    .cbtn{ font-size:14px; min-height:62px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🎿 과학 스키점프 <em>아화 힐 K120</em></h1>
+      <p>출발 높이 → 속도 → 점프 타이밍 → 양력과 공기저항 → 착지까지, 실제 물리 법칙으로 날아가는 스키점프!</p>
+    </div>
+    <div class="chips">
+      <span class="chip" id="chipRound">1라운드 / 2</span>
+      <span class="chip" id="chipTotal">합계 0.0점</span>
+    </div>
+  </header>
+
+  <div class="game">
+    <div>
+      <div class="stage">
+        <canvas id="view" width="960" height="540"></canvas>
+
+        <!-- 시작 -->
+        <div class="overlay" id="ovStart">
+          <div class="dialog">
+            <h2>🎿 과학 스키점프 — 아화 힐 K120</h2>
+            <p>2라운드 점프의 <b>합계 점수</b>로 반 전체 랭킹에 도전해요. 점수는 실제 스키점프처럼 <b>비거리 점수 + 자세 점수 + 바람·게이트 보정</b>으로 계산해요.</p>
+            <ul>
+              <li><b>① 게이트 고르기</b> — 높은 곳에서 출발할수록 위치에너지가 커서 빨라지지만, 너무 멀리 날면 착지가 위험하고 게이트 보정 점수가 깎여요.</li>
+              <li><b>② 도움닫기</b> — 바람에 흔들리는 자세 바늘을 <b>← →</b>로 가운데에 붙잡아요. 자세가 흐트러질수록 공기저항이 커져 속도가 줄어요.</li>
+              <li><b>③ 점프</b> — 도약대 끝 직전(노란 구간)에서 <b>스페이스</b>! 늦거나 너무 이르면 위로 차고 오르는 힘이 약해요.</li>
+              <li><b>④ 비행</b> — <b>↑ ↓</b>로 받음각(공기를 받는 각도)을 30~38°(초록 구간)에 맞춰요. 작으면 양력이 부족하고, 크면 실속(stall)해서 떨어져요.</li>
+              <li><b>⑤ 착지</b> — 땅에 닿기 직전(높이 0.3~3 m)에 다시 <b>스페이스</b>로 텔레마크 착지! 너무 먼 곳(HS 137 m 넘어)은 비탈이 완만해 충격이 커져 넘어질 수 있어요.</li>
+            </ul>
+            <div class="tip">휴대폰·태블릿은 화면 아래 큰 버튼으로 조작해요. 버튼 이름은 단계마다 바뀌어요.</div>
+            <div class="btns"><button type="button" class="btn" id="btnStart">대회 시작 ▶</button><button type="button" class="btn ghost" id="btnRank">🏆 랭킹 보기</button></div>
+          </div>
+        </div>
+
+        <!-- 게이트 선택 -->
+        <div class="overlay" id="ovGate" hidden>
+          <div class="dialog">
+            <h2 id="gateTitle">1라운드 · 출발 게이트 고르기</h2>
+            <div class="gate-row">
+              <button type="button" class="gbtn" id="gateDown" aria-label="게이트 내리기">−</button>
+              <div class="gate-num"><span id="gateNum">8</span><small>게이트 (1~15)</small></div>
+              <button type="button" class="gbtn" id="gateUp" aria-label="게이트 올리기">＋</button>
+            </div>
+            <div class="gate-info">
+              <div>출발 높이<b id="giH">–</b></div>
+              <div>도움닫기 길이<b id="giL">–</b></div>
+              <div>이론 속도 √(2gh)<b id="giV">–</b></div>
+            </div>
+            <div class="wind-box"><span class="arrow" id="giWindArrow">💨</span><span id="giWind"></span></div>
+            <div class="tip" id="gateTip"></div>
+            <div class="btns"><button type="button" class="btn" id="btnGo">출발! (Enter)</button></div>
+          </div>
+        </div>
+
+        <!-- 점프 결과 -->
+        <div class="overlay" id="ovResult" hidden>
+          <div class="dialog" style="max-width:760px">
+            <h2 id="resTitle"></h2>
+            <div class="res-grid">
+              <div>
+                <div class="big-dist" id="resDist"></div>
+                <table class="score-tbl" id="resTable"></table>
+                <div style="font-size:12px;color:var(--soft);margin-top:8px;font-weight:700">자세 점수 심판 5명 (가장 높은·낮은 점수는 빼요)</div>
+                <div class="judges" id="resJudges"></div>
+              </div>
+              <div>
+                <canvas id="trajCanvas" width="600" height="300"></canvas>
+                <div class="sci" id="resSci" style="margin-top:8px"></div>
+              </div>
+            </div>
+            <div class="tip" id="resTip"></div>
+            <div class="btns"><button type="button" class="btn" id="btnNext">다음 ▶</button></div>
+          </div>
+        </div>
+
+        <!-- 최종 -->
+        <div class="overlay" id="ovFinal" hidden>
+          <div class="dialog">
+            <h2 id="finTitle">🏆 대회 결과</h2>
+            <div class="big-dist" id="finScore"></div>
+            <p id="finText"></p>
+            <div class="name-row" id="nameRow"><input type="text" id="nameInput" maxlength="12" placeholder="이름(별명)을 입력하세요" autocomplete="off"><button type="button" class="btn pink" id="btnSave">기록 올리기</button></div>
+            <ol class="board" id="board"></ol>
+            <p id="boardNote" style="font-size:12px;color:var(--soft);margin-top:6px"></p>
+            <div class="btns"><button type="button" class="btn" id="btnAgain">다시 도전 ↺</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls" id="controls">
+        <button type="button" class="cbtn blue" id="cLeft"></button>
+        <button type="button" class="cbtn main" id="cMain"></button>
+        <button type="button" class="cbtn blue" id="cRight"></button>
+      </div>
+      <div class="keys" id="keysHelp"></div>
+    </div>
+
+    <aside class="side">
+      <div class="panel">
+        <h3>📋 라운드 기록</h3>
+        <ul class="rounds" id="roundList"><li><span>아직 점프하지 않았어요</span></li></ul>
+        <label class="toggle"><input type="checkbox" id="showForces" checked> 힘 화살표 보기 (중력·양력·공기저항)</label>
+      </div>
+      <div class="panel">
+        <h3>🔬 스키점프 속 과학</h3>
+        <div class="formula">위치에너지 <b>mgh</b> → 운동에너지 <b>½mv²</b><br>이론 속도 v = √(2gh) (마찰·공기저항만큼 손실)</div>
+        <div class="formula">양력 L = ½ρv²·C<sub>L</sub>A &nbsp; 공기저항 D = ½ρv²·C<sub>D</sub>A</div>
+        <ul>
+          <li><b>받음각</b>이 커지면 양력이 커지다가 40°를 넘으면 공기 흐름이 떨어져 나가 <b>실속</b>해요.</li>
+          <li><b>맞바람</b>은 공기에 대한 상대 속도를 키워 양력이 커져요. 그래서 맞바람이면 점수를 빼고, 뒷바람이면 더해 줘요.</li>
+          <li>착지 비탈이 비행 궤적과 비슷한 각도면 충격이 작아요. 비탈이 완만해지는 곳에 떨어지면 수직 충격 속도가 커져요.</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const D2R = Math.PI / 180;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const sm = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+const randn = () => { let u = 0, v = 0; while(!u) u = Math.random(); while(!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+
+/* =================================================================
+   물리 상수 · 경기장
+================================================================= */
+const G = 9.81, RHO = 1.2, MASS = 70;          // 중력가속도, 공기 밀도(kg/m³), 선수+스키 질량(kg)
+const KA = 0.5 * RHO / MASS;                    // ½ρ/m
+const MU = 0.03;                                // 도움닫기 얼음 홈의 마찰 계수
+const K_POINT = 120, HS = 137, METER_VALUE = 1.8;
+const BASE_GATE = 8, GATE_POINTS = 7.5;         // 게이트 1칸 = 7.5점 보정
+const WIND_HEAD = 11, WIND_TAIL = 8.5;          // 바람 1 m/s 당 보정 점수 (맞바람은 빼고 뒷바람은 더함)
+const ROUNDS = 2;
+const TABLE_ANGLE = 11, INRUN_ANGLE = 35, TABLE_LEN = 6.5, TRANS_LEN = 25;
+const gateLength = g => 71 + g;                 // 게이트 g의 도움닫기 경로 길이(m)
+
+// 양력 면적 C_L·A(m²) / 공기저항 면적 C_D·A(m²) — 받음각 α(도)의 함수
+function CLA(a){
+  if(a < -15) return -0.25;
+  let base = 0.78 * Math.sin(2 * a * D2R);
+  if(a > 42) base *= Math.max(0.3, 1 - (a - 42) / 22);   // 실속
+  return base;
+}
+function CDA(a){ return 0.20 + 0.8 * Math.pow(Math.sin(a * D2R), 2); }
+
+// 착지 비탈: 수평거리 x(m)에서 내려가는 각도(도)
+function slopeDeg(x){
+  if(x < 0) return 0;
+  if(x < 50) return 8 + 28 * sm(x / 50);
+  if(x < 118) return 36;
+  if(x < 180) return 36 * (1 - sm((x - 118) / 62));
+  return 0;
+}
+const HILL = []; // {x, y, s}
+(function buildHill(){
+  let y = -3, s = 0;
+  for(let x = 0; x <= 340; x += 0.25){
+    HILL.push({ x, y, s });
+    const a = slopeDeg(x + 0.125) * D2R;
+    y -= Math.tan(a) * 0.25; s += 0.25 / Math.cos(a);
+  }
+})();
+function hillAt(x){
+  if(x <= 0) return { y: -3, s: 0, ang: 0 };
+  const i = clamp(Math.floor(x / 0.25), 0, HILL.length - 2), p = HILL[i], q = HILL[i + 1], t = (x - p.x) / 0.25;
+  return { y: p.y + (q.y - p.y) * t, s: p.s + (q.s - p.s) * t, ang: slopeDeg(x) };
+}
+function xAtDist(s){ for(const p of HILL) if(p.s >= s) return p.x; return 340; }
+const K_X = xAtDist(K_POINT), HS_X = xAtDist(HS);
+
+// 도움닫기: 도약대 끝에서 거꾸로 rem(m) 떨어진 곳의 경사각과 위치
+function inrunAngle(rem){ return rem <= TABLE_LEN ? TABLE_ANGLE : rem <= TABLE_LEN + TRANS_LEN ? TABLE_ANGLE + (INRUN_ANGLE - TABLE_ANGLE) * (rem - TABLE_LEN) / TRANS_LEN : INRUN_ANGLE; }
+const INRUN = []; // rem 0.1m 간격 위치
+(function buildInrun(){
+  let x = 0, y = 0;
+  for(let i = 0; i <= 1000; i++){
+    INRUN.push({ x, y });
+    const a = inrunAngle(i * 0.1 + 0.05) * D2R;
+    x -= Math.cos(a) * 0.1; y += Math.sin(a) * 0.1;
+  }
+})();
+function inrunPos(rem){ const i = clamp(Math.round(rem * 10), 0, INRUN.length - 1); return INRUN[i]; }
+
+// 도움닫기 탑이 서 있는 산비탈 (x<0), 도약대 아래 (0,-3)에서 착지 비탈과 이어짐
+function groundY(x){ return x >= 0 ? hillAt(x).y : -3 + (-x) * 0.45 - 6 * sm(-x / 20); }
+
+/* =================================================================
+   게임 상태
+================================================================= */
+const cv = $('view'), ctx = cv.getContext('2d');
+let VW = 960, VH = 540, narrow = false;
+let dpr = 1;
+function resizeCanvas(){
+  const w = cv.parentElement.clientWidth || 960;
+  narrow = w < 640;
+  VW = narrow ? 640 : 960; VH = narrow ? 560 : 540;
+  cv.style.aspectRatio = `${VW} / ${VH}`;
+  dpr = Math.min(2, window.devicePixelRatio || 1) * Math.max(1, w / VW);
+  dpr = Math.min(dpr, 2.5);
+  cv.width = Math.round(VW * dpr); cv.height = Math.round(VH * dpr);
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+let game = null;      // 대회 전체
+let J = null;         // 지금 점프 중인 선수 상태
+let phase = 'menu';   // menu | gate | inrun | flight | slide | result | final
+const input = { left:false, right:false, up:false, down:false };
+let camera = { x: -60, y: 30, scale: 4.2 };
+let particles = [];
+let bestDistLine = 0;
+
+function newGame(){
+  game = { round: 1, gate: BASE_GATE, jumps: [], total: 0 };
+  newWind();
+  updateSide();
+  openGate();
+}
+function newWind(){
+  // 맞바람(+)·뒷바람(−) 평균과 돌풍
+  game.wind = { base: Math.round((Math.random() * 4 - 1.5) * 10) / 10, amp: 0.3 + Math.random() * 0.5, p1: Math.random() * 6, p2: Math.random() * 6 };
+}
+function windAt(t){
+  const w = game.wind;
+  return w.base + w.amp * (0.6 * Math.sin(t * 0.9 + w.p1) + 0.4 * Math.sin(t * 2.3 + w.p2));
+}
+
+/* ---------- 게이트 선택 ---------- */
+function gateHeight(g){ const p = inrunPos(gateLength(g)); return p.y; }
+function openGate(){
+  phase = 'gate';
+  $('gateTitle').textContent = `${game.round}라운드 · 출발 게이트 고르기`;
+  renderGateInfo();
+  $('ovGate').hidden = false;
+  setControls();
+}
+function renderGateInfo(){
+  const g = game.gate, h = gateHeight(g), L = gateLength(g);
+  $('gateNum').textContent = g;
+  $('giH').textContent = `${h.toFixed(1)} m`;
+  $('giL').textContent = `${L} m`;
+  $('giV').textContent = `${(Math.sqrt(2 * G * h) * 3.6).toFixed(0)} km/h`;
+  const w = game.wind.base;
+  $('giWindArrow').textContent = w >= 0 ? '⬅️' : '➡️';
+  $('giWind').innerHTML = w >= 0
+    ? `<b>맞바람 ${w.toFixed(1)} m/s</b> (선수 앞쪽에서 불어와요) — 양력이 커져 멀리 날지만, 바람 보정 점수가 <b>${(-w * WIND_HEAD).toFixed(1)}점</b> 정도예요.`
+    : `<b>뒷바람 ${(-w).toFixed(1)} m/s</b> (등 뒤에서 불어와요) — 양력이 줄어 덜 날지만, 바람 보정 점수 <b>+${(-w * WIND_TAIL).toFixed(1)}점</b> 정도를 받아요.`;
+  const gp = (BASE_GATE - g) * GATE_POINTS;
+  $('gateTip').innerHTML = `기준 게이트는 <b>${BASE_GATE}번</b>이에요. 지금 게이트 보정 점수: <b>${gp >= 0 ? '+' : ''}${gp.toFixed(1)}점</b><br>
+    실제 속도는 마찰과 공기저항 때문에 이론 속도보다 느려요. 게이트를 올리면 더 멀리 날지만, <b>HS ${HS} m</b>를 넘으면 착지가 위험해요.`;
+}
+$('gateDown').addEventListener('click', () => { game.gate = Math.max(1, game.gate - 1); renderGateInfo(); });
+$('gateUp').addEventListener('click', () => { game.gate = Math.min(15, game.gate + 1); renderGateInfo(); });
+$('btnGo').addEventListener('click', () => startJump());
+
+/* ---------- 점프 시작 ---------- */
+function startJump(){
+  $('ovGate').hidden = true;
+  const L = gateLength(game.gate);
+  J = {
+    gate: game.gate, L, u: 0, v: 0, t: 0, h0: gateHeight(game.gate),
+    needle: 0, drift: 0, postureSum: 0, postureN: 0,
+    pressRem: null, q: 0, jumpV: 0, takeoffText: '',
+    x: 0, y: 0, vx: 0, vy: 0, pitch: 0, dist: 0, flightT: 0, maxH: 0,
+    windSum: 0, windN: 0, alphaErrSum: 0, alphaN: 0, wobbleSum: 0, ldSum: 0,
+    landPress: null, landing: false, path: [], forces: null,
+    result: null, slideT: 0, fallen: false, impact: 0, vTake: 0
+  };
+  const p = inrunPos(L); J.x = p.x; J.y = p.y;
+  camera.x = J.x; camera.y = J.y; camera.scale = 5.2;
+  phase = 'inrun';
+  setControls();
+}
+
+/* =================================================================
+   물리 한 걸음 (dt = 1/120 s)
+================================================================= */
+const DT = 1 / 120;
+function stepPhysics(){
+  if(phase === 'inrun') stepInrun();
+  else if(phase === 'flight') stepFlight();
+  else if(phase === 'slide') stepSlide();
+  // 입자
+  particles.forEach(p => { p.x += p.vx * DT; p.y += p.vy * DT; p.vy -= 6 * DT; p.life -= DT; });
+  particles = particles.filter(p => p.life > 0);
+}
+
+function stepInrun(){
+  J.t += DT;
+  const rem = J.L - J.u, ang = inrunAngle(rem);
+  // 자세 바늘: 바람이 흔드는 힘(drift) vs 내 입력
+  J.drift += (-J.drift * 0.8 + randn() * 1.6) * DT;
+  const inp = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+  J.needle = clamp(J.needle + (J.drift * 0.9 + inp * 1.5) * DT, -1, 1);
+  let posture = Math.abs(J.needle);
+  if(J.pressRem !== null && J.pressRem > 6.5) posture = 1;   // 너무 일찍 일어선 자세
+  J.postureSum += posture; J.postureN++;
+  const w = windAt(J.t);
+  const vr = J.v + w * Math.cos(ang * D2R);                    // 공기에 대한 상대 속도
+  const cda = 0.25 + 0.25 * posture;                           // 웅크린 자세 C_D·A
+  const a = G * Math.sin(ang * D2R) - MU * G * Math.cos(ang * D2R) - KA * cda * vr * Math.abs(vr);
+  J.v = Math.max(0, J.v + a * DT);
+  J.u += J.v * DT;
+  J.inrunForces = { ang, gPar: G * Math.sin(ang * D2R), fric: MU * G * Math.cos(ang * D2R), drag: KA * cda * vr * Math.abs(vr) };
+  const p = inrunPos(J.L - J.u); J.x = p.x; J.y = p.y;
+  if(J.u >= J.L) takeoff();
+}
+
+function takeoff(){
+  // 점프 타이밍 → 위로 차는 속도
+  const r = J.pressRem;
+  let q, text;
+  if(r === null){ q = 0.1; text = '점프를 못 했어요 (늦음)'; }
+  else if(r < 0.2){ q = 0.8; text = '아슬아슬! 조금 늦은 점프'; }
+  else if(r <= 2.2){ q = 1; text = '완벽한 타이밍!'; }
+  else if(r <= 6.5){ q = 1 - (r - 2.2) / 5.5; text = r < 4 ? '조금 이른 점프' : '이른 점프'; }
+  else { q = 0.15; text = '너무 일찍 일어났어요'; }
+  J.q = q; J.takeoffText = text;
+  J.jumpV = 1.2 + 1.3 * q;
+  J.vTake = J.v;
+  const a = -TABLE_ANGLE * D2R;
+  J.x = 0; J.y = 0;
+  J.vx = J.v * Math.cos(a) - J.jumpV * Math.sin(a);
+  J.vy = J.v * Math.sin(a) + J.jumpV * Math.cos(a);
+  J.pitch = -TABLE_ANGLE + 8 + 6 * q;
+  J.dist_ = 0; J.wob = 0; J.flightT = 0;
+  J.path = [[0, 0, 0]];
+  phase = 'flight';
+  setControls();
+  popText(text, q >= 0.9 ? '#1E9E62' : q >= 0.5 ? '#E58A1F' : '#D8463B');
+}
+
+function stepFlight(){
+  J.t += DT; J.flightT += DT;
+  const w = windAt(J.t);
+  J.windSum += w; J.windN++;
+  // 자세(피치) 조절 + 바람이 만드는 흔들림
+  J.wob += (-J.wob * 1.2 + randn() * (26 + 14 * game.wind.amp)) * DT;
+  const inp = (input.up ? 1 : 0) - (input.down ? 1 : 0);
+  // 바람은 비탈을 따라 분다: 맞바람은 비탈을 타고 위로 올라오는 바람(위쪽 성분이 있음)
+  const wb = Math.max(12, slopeDeg(J.x)) * D2R;
+  const ax_ = J.vx + w * Math.cos(wb), ay_ = J.vy - w * Math.sin(wb);   // 공기에 대한 상대 속도
+  const V = Math.hypot(ax_, ay_), gam = Math.atan2(ay_, ax_) / D2R;
+  if(J.landing){
+    // 착지 자세: 몸을 세워 스키를 비탈과 나란히 → 받음각이 줄어든다
+    J.pitch += ((gam + 16) - J.pitch) * Math.min(1, 4 * DT);
+  }else{
+    J.pitch += (inp * 50 + J.wob) * DT;
+  }
+  const alpha = J.pitch - gam;
+  const cl = CLA(alpha), cd = CDA(alpha);
+  const Lacc = KA * cl * V * V, Dacc = KA * cd * V * V;
+  const fx = (-Dacc * ax_ + Lacc * (-ay_)) / V;
+  const fy = (-Dacc * ay_ + Lacc * ax_) / V - G;
+  J.vx += fx * DT; J.vy += fy * DT;
+  J.x += J.vx * DT; J.y += J.vy * DT;
+  J.alpha = alpha; J.V = V; J.gam = gam;
+  J.forces = { L: Lacc * MASS, D: Dacc * MASS, W: MASS * G, ux: ax_ / V, uy: ay_ / V };
+  if(J.flightT > 0.5 && !J.landing){
+    J.alphaErrSum += Math.abs(alpha - 34); J.alphaN++;
+    J.wobbleSum += Math.abs(J.wob);
+    if(cd > 0) J.ldSum += cl / cd;
+  }
+  const h = hillAt(J.x);
+  J.hAbove = J.y - h.y; J.dist = h.s;
+  J.maxH = Math.max(J.maxH, J.hAbove);
+  if(J.path.length === 0 || J.flightT - J.path[J.path.length - 1][2] > 0.05) J.path.push([J.x, J.y, J.flightT, alpha]);
+  if(J.y <= h.y || J.flightT > 12) touchdown(h);
+}
+
+function touchdown(h){
+  const b = h.ang * D2R;
+  const vn = J.vx * Math.sin(b) + J.vy * Math.cos(b);   // 비탈에 수직인 속도(아래쪽이면 음수)
+  const impact = Math.max(0, -vn);
+  J.impact = impact; J.dist = h.s; J.y = h.y;
+  J.avgWind = J.windN ? J.windSum / J.windN : 0;
+  let kind;
+  const lp = J.landPress;
+  if(impact > 7.2 || (J.alpha > 55 && !J.landing)) kind = 'fall';
+  else if(lp !== null && lp >= 0.3 && lp <= 3) kind = 'telemark';
+  else if(lp !== null && lp > 3) kind = impact > 6.2 ? 'hand' : 'early';
+  else kind = impact > 5.8 ? 'hand' : 'twofoot';
+  J.kind = kind; J.fallen = kind === 'fall';
+  // 비탈을 따라 미끄러지는 속도 (수직 성분은 충격으로 사라짐)
+  J.vs = J.vx * Math.cos(b) - J.vy * Math.sin(b);
+  if(kind === 'fall') J.vs *= 0.6;
+  // 눈보라
+  for(let i = 0; i < (kind === 'fall' ? 60 : 28); i++){
+    particles.push({ x: J.x, y: J.y + 0.3, vx: J.vx * 0.3 + randn() * 4, vy: Math.abs(randn()) * 5 + 2, life: 0.6 + Math.random() * 0.7, r: 1 + Math.random() * 2.2 });
+  }
+  const msg = { telemark:'텔레마크 착지!', early:'착지 자세가 너무 일렀어요', twofoot:'두 발 착지', hand:'손을 짚었어요!', fall:'넘어졌어요!' }[kind];
+  popText(`${J.dist.toFixed(1)} m · ${msg}`, kind === 'telemark' ? '#1E9E62' : kind === 'fall' || kind === 'hand' ? '#D8463B' : '#E58A1F');
+  phase = 'slide'; J.slideT = 0;
+  setControls();
+}
+
+function stepSlide(){
+  J.slideT += DT;
+  const h = hillAt(J.x), b = h.ang * D2R;
+  let a = G * Math.sin(b) - (J.fallen ? 0.35 : 0.06) * G * Math.cos(b) - KA * 0.5 * J.vs * J.vs;
+  if(J.x > 200) a -= 4.5;                                      // 브레이크 구간
+  J.vs = Math.max(0, J.vs + a * DT);
+  J.x += J.vs * Math.cos(b) * DT;
+  J.y = hillAt(J.x).y;
+  J.spin = (J.spin || 0) + (J.fallen ? J.vs * 0.6 * DT : 0);
+  if((J.vs < 1.5 && J.slideT > 1) || J.slideT > 7 || J.x > 330) finishJump();
+}
+
+/* =================================================================
+   점수 계산
+================================================================= */
+function finishJump(){
+  phase = 'result';
+  const d = Math.round(J.dist * 2) / 2;                        // 0.5 m 단위
+  const distPts = Math.max(0, 60 + (d - K_POINT) * METER_VALUE);
+  // 자세 점수: 심판 5명
+  let ded = 0;
+  ded += J.q < 0.9 ? (0.9 - J.q) * 2.5 : 0;
+  const aErr = J.alphaN ? J.alphaErrSum / J.alphaN : 20;
+  ded += clamp((aErr - 4) * 0.15, 0, 3);
+  const wob = J.alphaN ? J.wobbleSum / J.alphaN : 0;
+  ded += clamp((wob - 10) / 25, 0, 1.5);
+  ded += { telemark: 0, early: 1, twofoot: 2, hand: 5, fall: 9 }[J.kind];
+  const judges = [];
+  for(let i = 0; i < 5; i++){
+    let s = 20 - ded + (Math.random() - 0.5) * 1.2;
+    s = clamp(Math.round(s * 2) / 2, 0, J.kind === 'fall' ? 11 : 20);
+    judges.push(s);
+  }
+  const sorted = judges.map((s, i) => [s, i]).sort((a, b) => a[0] - b[0]);
+  const cut = new Set([sorted[0][1], sorted[4][1]]);
+  const stylePts = judges.reduce((a, s, i) => a + (cut.has(i) ? 0 : s), 0);
+  const w = J.avgWind;
+  const windPts = w >= 0 ? -w * WIND_HEAD : -w * WIND_TAIL;
+  const gatePts = (BASE_GATE - J.gate) * GATE_POINTS;
+  const total = Math.max(0, distPts + stylePts + windPts + gatePts);
+  J.result = { d, distPts, stylePts, windPts, gatePts, total, judges, cut, aErr };
+  game.jumps.push({ ...J.result, kind: J.kind, gate: J.gate });
+  game.total = game.jumps.reduce((a, j) => a + j.total, 0);
+  bestDistLine = Math.max(bestDistLine, d);
+  updateSide();
+  setTimeout(showResult, 700);
+}
+
+const r1 = v => (Math.round(v * 10) / 10).toFixed(1);
+const sign = v => (v >= 0 ? '+' : '') + r1(v);
+function showResult(){
+  const R = J.result;
+  $('resTitle').textContent = `${game.round}라운드 결과 · ${{ telemark:'텔레마크 착지 🎉', early:'이른 착지 자세', twofoot:'두 발 착지', hand:'손 짚음 😣', fall:'넘어짐 💥' }[J.kind]}`;
+  $('resDist').innerHTML = `${R.d.toFixed(1)} m<small>K점 ${K_POINT} m · HS ${HS} m</small>`;
+  $('resTable').innerHTML = `
+    <tr><td>비거리 점수 <small>60 + (${R.d.toFixed(1)} − ${K_POINT}) × ${METER_VALUE}</small></td><td>${r1(R.distPts)}</td></tr>
+    <tr><td>자세 점수 <small>(심판 3명 합)</small></td><td>${r1(R.stylePts)}</td></tr>
+    <tr><td>바람 보정 <small>평균 ${J.avgWind >= 0 ? '맞바람' : '뒷바람'} ${Math.abs(J.avgWind).toFixed(1)} m/s</small></td><td>${sign(R.windPts)}</td></tr>
+    <tr><td>게이트 보정 <small>${J.gate}번 (기준 ${BASE_GATE}번)</small></td><td>${sign(R.gatePts)}</td></tr>
+    <tr class="total"><td>이번 점프</td><td>${r1(R.total)}점</td></tr>`;
+  $('resJudges').innerHTML = R.judges.map((s, i) => `<span class="${R.cut.has(i) ? 'cut' : ''}">${s.toFixed(1)}</span>`).join('');
+  // 과학 분석
+  const vTheory = Math.sqrt(2 * G * J.h0);
+  const loss = 1 - (J.vTake * J.vTake) / (2 * G * J.h0);
+  const posture = J.postureN ? 1 - J.postureSum / J.postureN : 0;
+  const ld = J.alphaN ? J.ldSum / J.alphaN : 0;
+  $('resSci').innerHTML = `
+    🏔️ 출발 높이 <b>${J.h0.toFixed(1)} m</b> → 이론 속도 <b>${(vTheory * 3.6).toFixed(1)}</b> km/h, 실제 도약 속도 <b>${(J.vTake * 3.6).toFixed(1)}</b> km/h<br>
+    🔥 마찰·공기저항으로 잃은 에너지 <b>${(loss * 100).toFixed(0)}%</b> · 도움닫기 자세 안정도 <b>${(posture * 100).toFixed(0)}%</b><br>
+    🦵 점프: ${J.takeoffText} (위로 차는 속도 ${J.jumpV.toFixed(1)} m/s)<br>
+    🪂 비행 ${J.flightT.toFixed(2)}초 · 최고 높이(지면 위) ${J.maxH.toFixed(1)} m · 받음각 오차 평균 ${R.aErr.toFixed(1)}° · 양력/저항 비 ${ld.toFixed(2)}<br>
+    🛬 착지 수직 충격 속도 <b>${J.impact.toFixed(1)} m/s</b> ${J.impact > 6 ? '(너무 셈!)' : '(안전)'}`;
+  $('resTip').innerHTML = '💡 ' + adviceFor();
+  drawTrajectory();
+  const last = game.round >= ROUNDS;
+  $('btnNext').textContent = last ? '최종 결과 보기 🏆' : `${game.round + 1}라운드로 ▶`;
+  $('ovResult').hidden = false;
+  setControls();
+}
+function adviceFor(){
+  const R = J.result;
+  if(J.kind === 'fall') return J.impact > 7.2 ? `비탈이 완만해지는 곳(HS ${HS} m 너머)에 떨어져서 <b>비탈에 수직인 속도</b>가 너무 컸어요. 게이트를 낮추거나 받음각을 조금 줄여 보세요.` : '받음각이 너무 커서 실속한 채 착지했어요. 착지 직전에 스페이스로 착지 자세를 잡아요.';
+  if(J.q < 0.7) return '점프 타이밍이 아쉬웠어요. 도약대 끝의 <b>노란 구간</b>에 들어서면 바로 점프! 위로 차는 속도가 클수록 공중에 오래 떠 있어요.';
+  if(R.aErr > 9) return `받음각이 평균 ${R.aErr.toFixed(0)}°나 벗어났어요. 비행하면서 궤적이 점점 아래로 꺾이니까, 받음각이 커지지 않도록 <b>↓</b>로 조금씩 숙여 주세요.`;
+  if(J.postureN && J.postureSum / J.postureN > 0.35) return '도움닫기 자세가 많이 흔들렸어요. 자세가 펴지면 공기저항(C_D·A)이 커져서 속도를 잃어요.';
+  if(J.kind !== 'telemark') return '착지 직전(높이 0.3~3 m)에 <b>스페이스</b>를 누르면 텔레마크 착지로 자세 점수를 지킬 수 있어요.';
+  return R.d > HS - 5 ? '아주 멀리 날았어요! 하지만 HS를 넘으면 착지 충격이 커지니 게이트 선택에 주의하세요.' : '좋은 점프! 맞바람이 부는 라운드에는 게이트를 한 칸 낮춰도 충분히 멀리 날 수 있어요.';
+}
+$('btnNext').addEventListener('click', () => {
+  $('ovResult').hidden = true;
+  if(game.round >= ROUNDS) return showFinal();
+  game.round++; newWind(); updateSide(); openGate();
+});
+
+function updateSide(){
+  if(!game) return;
+  $('chipRound').textContent = `${Math.min(game.round, ROUNDS)}라운드 / ${ROUNDS}`;
+  $('chipTotal').textContent = `합계 ${r1(game.total)}점`;
+  $('roundList').innerHTML = game.jumps.length ? game.jumps.map((j, i) =>
+    `<li><span>${i + 1}라운드 · 게이트 ${j.gate} · ${j.d.toFixed(1)} m</span><b>${r1(j.total)}점</b></li>`).join('') +
+    `<li><span><b>합계</b></span><b>${r1(game.total)}점</b></li>` : '<li><span>아직 점프하지 않았어요</span></li>';
+}
+
+/* 궤적 그래프 */
+function drawTrajectory(){
+  const c = $('trajCanvas'), g = c.getContext('2d'), W = c.width, H = c.height;
+  g.clearRect(0, 0, W, H);
+  const x0 = -10, x1 = 190, y0 = -110, y1 = 10;
+  const sx = W / (x1 - x0), sy = H / (y1 - y0), s = Math.min(sx, sy);
+  const X = x => (x - x0) * s + 10, Y = y => (y1 - y) * s + 10;
+  g.fillStyle = '#EAF3FC'; g.fillRect(0, 0, W, H);
+  g.beginPath(); g.moveTo(X(0), Y(-3));
+  HILL.forEach(p => { if(p.x <= x1) g.lineTo(X(p.x), Y(p.y)); });
+  g.lineTo(X(x1), H); g.lineTo(X(0), H); g.closePath(); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = '#8FB3D9'; g.lineWidth = 2; g.stroke();
+  // K·HS 점
+  [[K_X, '#D8463B', 'K'], [HS_X, '#E58A1F', 'HS']].forEach(([x, col, t]) => { const y = hillAt(x).y; g.fillStyle = col; g.beginPath(); g.arc(X(x), Y(y), 4, 0, 7); g.fill(); g.font = '700 12px "Noto Sans KR", sans-serif'; g.fillText(t, X(x) + 5, Y(y) + 14); });
+  // 궤적 (받음각 색)
+  for(let i = 1; i < J.path.length; i++){
+    const [xa, ya] = J.path[i - 1], [xb, yb, , al] = J.path[i];
+    const err = Math.abs((al ?? 34) - 34);
+    g.strokeStyle = err < 5 ? '#1E9E62' : err < 12 ? '#E58A1F' : '#D8463B';
+    g.lineWidth = 3; g.beginPath(); g.moveTo(X(xa), Y(ya)); g.lineTo(X(xb), Y(yb)); g.stroke();
+  }
+  g.fillStyle = '#16233A'; g.font = '700 12px "Noto Sans KR", sans-serif';
+  g.fillText('비행 궤적 (초록: 받음각 좋음 · 주황 · 빨강: 많이 벗어남)', 14, 22);
+}
+
+/* =================================================================
+   대회 끝 · 랭킹
+================================================================= */
+const LEADERBOARD_KEY = "science-skijump-leaderboard";
+const LEADERBOARD_WORKSHEET = "스키점프_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+let lastEntry = null;
+function loadLocal(){ try{ const r = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]'); return Array.isArray(r) ? r : []; }catch(e){ return []; } }
+function saveLocal(list){ try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list.slice(0, 100))); }catch(e){} }
+async function fetchShared(){
+  try{
+    const res = await fetch(LEADERBOARD_WEBHOOK_URL + '?worksheet=' + encodeURIComponent(LEADERBOARD_WORKSHEET));
+    if(!res.ok) throw new Error(res.status);
+    const rows = await res.json();
+    if(!Array.isArray(rows)) throw new Error('bad data');
+    return rows.map(r => ({ name: String(r.name || '').slice(0, 12), score: Number(r.score), distance: Number(r.distance) || 0, date: r.date || r.timestamp }))
+               .filter(r => r.name && !Number.isNaN(r.score));
+  }catch(e){ console.warn('공유 랭킹을 불러오지 못했습니다:', e); return null; }
+}
+async function submitShared(e){
+  try{
+    await fetch(LEADERBOARD_WEBHOOK_URL, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: e.name, score: e.score.toFixed(1), distance: e.distance.toFixed(1), date: e.date }) });
+  }catch(err){ console.warn('공유 랭킹 전송 실패:', err); }
+}
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const fmtDate = v => { const m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return `${+m[2]}.${+m[3]}`; const t = new Date(v); return isNaN(t) ? '' : `${t.getMonth() + 1}.${t.getDate()}`; };
+async function showBoard(){
+  const list = $('board');
+  list.innerHTML = '<li class="empty">불러오는 중…</li>';
+  const shared = await fetchShared();
+  let rows = shared || loadLocal();
+  if(shared && lastEntry && !shared.some(r => r.name === lastEntry.name && Math.abs(r.score - lastEntry.score) < 0.05)) rows = rows.concat([lastEntry]);
+  rows.sort((a, b) => b.score - a.score);
+  $('boardNote').textContent = shared ? '반 전체 친구들의 기록이에요. (2라운드 합계 점수)' : '공유 랭킹에 연결하지 못해서 이 기기의 기록만 보여요.';
+  list.innerHTML = '';
+  if(!rows.length){ list.innerHTML = '<li class="empty">아직 기록이 없어요. 첫 주인공이 되어 보세요!</li>'; return; }
+  rows.slice(0, 10).forEach((r, i) => {
+    const li = document.createElement('li');
+    if(lastEntry && r.name === lastEntry.name && Math.abs(r.score - lastEntry.score) < 0.05) li.className = 'me';
+    li.innerHTML = `<span class="rk">${['🥇','🥈','🥉'][i] || i + 1}</span><span></span><span class="sc">${r.score.toFixed(1)}</span><span class="dt">${fmtDate(r.date)}</span>`;
+    li.children[1].textContent = `${r.name}${r.distance ? ` · ${r.distance.toFixed(1)}m` : ''}`;
+    list.appendChild(li);
+  });
+}
+function showFinal(){
+  phase = 'final';
+  const best = Math.max(...game.jumps.map(j => j.d));
+  $('finTitle').textContent = '🏆 대회 결과';
+  $('finScore').innerHTML = `${r1(game.total)}<small>점 · 최고 비거리 ${best.toFixed(1)} m</small>`;
+  $('finText').textContent = game.jumps.map((j, i) => `${i + 1}라운드 ${j.d.toFixed(1)} m (${r1(j.total)}점)`).join(' · ');
+  $('nameRow').style.display = game.total > 0 ? '' : 'none';
+  $('btnSave').disabled = false; $('btnSave').textContent = '기록 올리기';
+  lastEntry = null;
+  $('ovFinal').hidden = false;
+  setControls();
+  showBoard();
+}
+async function saveRecord(){
+  const name = $('nameInput').value.trim().slice(0, 12);
+  if(!name){ $('nameInput').focus(); $('boardNote').textContent = '이름(별명)을 입력해 주세요.'; return; }
+  const best = Math.max(...game.jumps.map(j => j.d));
+  lastEntry = { name, score: Math.round(game.total * 10) / 10, distance: best, date: today() };
+  const local = loadLocal(); local.push(lastEntry); local.sort((a, b) => b.score - a.score); saveLocal(local);
+  $('btnSave').disabled = true; $('btnSave').textContent = '올렸어요 ✓';
+  await submitShared(lastEntry);
+  showBoard();
+}
+$('btnSave').addEventListener('click', saveRecord);
+$('nameInput').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); if(!$('btnSave').disabled) saveRecord(); } });
+$('btnAgain').addEventListener('click', () => { $('ovFinal').hidden = true; newGame(); });
+$('btnStart').addEventListener('click', () => { $('ovStart').hidden = true; newGame(); });
+$('btnRank').addEventListener('click', () => {
+  $('ovStart').hidden = true;
+  $('finTitle').textContent = '🏆 반 전체 랭킹'; $('finScore').textContent = ''; $('finText').textContent = '';
+  $('nameRow').style.display = 'none'; lastEntry = null;
+  $('btnAgain').textContent = '대회 시작 ▶';
+  phase = 'final'; $('ovFinal').hidden = false; showBoard();
+});
+
+/* =================================================================
+   조작
+================================================================= */
+function pressMain(){
+  if(phase === 'gate'){ startJump(); return; }
+  if(phase === 'inrun' && J.pressRem === null){ J.pressRem = J.L - J.u; return; }
+  if(phase === 'flight' && !J.landing && J.flightT > 0.3){ J.landing = true; J.landPress = J.hAbove; return; }
+}
+function setControls(){
+  const L = $('cLeft'), M = $('cMain'), Rt = $('cRight');
+  const set = (b, html, on) => { b.innerHTML = html; b.disabled = !on; };
+  if(phase === 'inrun'){
+    set(L, '◀ 왼쪽<small>자세 바늘 잡기</small>', true);
+    set(M, '점프!<small>노란 구간에서</small>', J.pressRem === null);
+    set(Rt, '오른쪽 ▶<small>자세 바늘 잡기</small>', true);
+    $('keysHelp').innerHTML = '<kbd>←</kbd><kbd>→</kbd> 자세 균형 · <kbd>Space</kbd> 점프';
+  }else if(phase === 'flight'){
+    set(L, '▼ 숙이기<small>받음각 줄이기</small>', !J.landing);
+    set(M, '착지!<small>텔레마크 (땅 0.3~3 m)</small>', !J.landing);
+    set(Rt, '▲ 세우기<small>받음각 키우기</small>', !J.landing);
+    $('keysHelp').innerHTML = '<kbd>↓</kbd> 받음각 줄이기 · <kbd>↑</kbd> 받음각 키우기 · <kbd>Space</kbd> 착지';
+  }else if(phase === 'gate'){
+    set(L, '− 게이트', true); set(M, '출발!', true); set(Rt, '＋ 게이트', true);
+    $('keysHelp').innerHTML = '<kbd>←</kbd><kbd>→</kbd> 게이트 · <kbd>Enter</kbd>/<kbd>Space</kbd> 출발';
+  }else{
+    set(L, '&nbsp;', false); set(M, phase === 'slide' ? '착지 중…' : '&nbsp;', false); set(Rt, '&nbsp;', false);
+    $('keysHelp').innerHTML = '';
+  }
+}
+// 버튼 누르고 있기
+function holdButton(btn, onDown, onUp){
+  const down = e => { e.preventDefault(); if(btn.disabled) return; btn.classList.add('held'); onDown(); };
+  const up = () => { btn.classList.remove('held'); onUp(); };
+  btn.addEventListener('pointerdown', down);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, up));
+}
+holdButton($('cLeft'),
+  () => { if(phase === 'gate'){ $('gateDown').click(); } else if(phase === 'inrun') input.left = true; else if(phase === 'flight') input.down = true; },
+  () => { input.left = false; input.down = false; });
+holdButton($('cRight'),
+  () => { if(phase === 'gate'){ $('gateUp').click(); } else if(phase === 'inrun') input.right = true; else if(phase === 'flight') input.up = true; },
+  () => { input.right = false; input.up = false; });
+$('cMain').addEventListener('pointerdown', e => { e.preventDefault(); if(!$('cMain').disabled){ pressMain(); setControls(); } });
+
+const KEYMAP = { ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right', ArrowUp:'up', KeyW:'up', ArrowDown:'down', KeyS:'down' };
+document.addEventListener('keydown', e => {
+  if(e.target && e.target.closest && e.target.closest('input, textarea')) return;
+  const k = KEYMAP[e.code];
+  if(phase === 'gate'){
+    if(k === 'left' || k === 'down'){ e.preventDefault(); $('gateDown').click(); }
+    if(k === 'right' || k === 'up'){ e.preventDefault(); $('gateUp').click(); }
+    if(e.code === 'Enter' || e.code === 'Space'){ e.preventDefault(); startJump(); }
+    return;
+  }
+  if(k && (phase === 'inrun' || phase === 'flight')){ e.preventDefault(); input[k] = true; }
+  if(e.code === 'Space'){ e.preventDefault(); if(!e.repeat){ pressMain(); setControls(); } }
+});
+document.addEventListener('keyup', e => { const k = KEYMAP[e.code]; if(k) input[k] = false; });
+
+/* =================================================================
+   그리기
+================================================================= */
+let popMsg = null;
+function popText(text, color){ popMsg = { text, color, t: 0 }; }
+
+function W2S(x, y){ return [(x - camera.x) * camera.scale + VW * 0.42, (camera.y - y) * camera.scale + VH * 0.45]; }
+
+function updateCamera(){
+  let tx, ty, ts;
+  if(phase === 'menu' || !J){ tx = 40; ty = -30; ts = 3.0; }
+  else if(phase === 'inrun'){ tx = J.x + 12; ty = J.y - 4; ts = 5.0; }
+  else if(phase === 'flight'){ tx = J.x + 14 + J.vx * 0.4; ty = J.y - 8; ts = 4.0; }
+  else { tx = J.x + 8; ty = J.y - 2; ts = 4.2; }
+  if(narrow) ts *= 0.8;
+  const k = phase === 'menu' ? 0.02 : 0.12;
+  camera.x += (tx - camera.x) * k; camera.y += (ty - camera.y) * k; camera.scale += (ts - camera.scale) * 0.05;
+}
+
+const TREES = []; (function(){ for(let i = 0; i < 70; i++){ const x = -120 + i * 6.3 + Math.random() * 4; TREES.push({ x, off: 6 + Math.random() * 14, h: 6 + Math.random() * 6, layer: Math.random() < 0.5 }); } })();
+const MOUNTS = [[0, .55], [.12, .3], [.22, .45], [.35, .18], [.5, .4], [.62, .22], [.75, .38], [.88, .2], [1, .42]];
+
+function drawBackground(){
+  const sky = ctx.createLinearGradient(0, 0, 0, VH);
+  sky.addColorStop(0, '#5DA4EA'); sky.addColorStop(0.55, '#BFDDF7'); sky.addColorStop(1, '#EAF4FC');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, VW, VH);
+  // 해
+  ctx.fillStyle = 'rgba(255,248,214,.9)'; ctx.beginPath(); ctx.arc(VW * (narrow ? 0.5 : 0.64), narrow ? 200 : 90, 26, 0, 7); ctx.fill();
+  // 먼 산 (시차)
+  const px = -camera.x * 0.15;
+  [[0.62, '#9EBFDF', 0.06], [0.7, '#C6DCF0', 0.1]].forEach(([base, col, par], li) => {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, VH);
+    for(let k = -1; k <= 3; k++){
+      MOUNTS.forEach(([fx, fh]) => {
+        const x = ((fx + k) * 520 + px * (li + 1) * 2) % (520 * 4) - 520;
+        ctx.lineTo(x, VH * base - fh * 200 * (1 - li * 0.3) + camera.y * par);
+      });
+    }
+    ctx.lineTo(VW, VH); ctx.closePath(); ctx.fill();
+    // 눈 덮인 꼭대기
+  });
+}
+
+function drawWorld(t){
+  // 도움닫기 탑 아래 산비탈
+  const snowGrad = ctx.createLinearGradient(0, 0, 0, VH); snowGrad.addColorStop(0, '#FFFFFF'); snowGrad.addColorStop(1, '#E3EEF9');
+  ctx.fillStyle = snowGrad;
+  ctx.beginPath();
+  let [sx, sy] = W2S(-160, groundY(-160)); ctx.moveTo(sx, sy);
+  for(let x = -160; x <= 30; x += 2){ const [a, b] = W2S(x, groundY(x)); ctx.lineTo(a, b); }
+  const [bx, by] = W2S(30, -400); ctx.lineTo(bx, by); [sx, sy] = W2S(-160, -400); ctx.lineTo(sx, sy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#C3D6EA'; ctx.lineWidth = 2; ctx.beginPath();
+  for(let x = -160; x <= 0; x += 2){ const [a, b] = W2S(x, groundY(x)); x === -160 ? ctx.moveTo(a, b) : ctx.lineTo(a, b); } ctx.stroke();
+
+  // 나무 (뒤쪽)
+  TREES.forEach(tr => {
+    const base = groundY(tr.x);
+    const [x, y] = W2S(tr.x, base + tr.off * 0.2 + (tr.layer ? 4 : 1));
+    if(x < -40 || x > VW + 40) return;
+    const hh = tr.h * camera.scale;
+    ctx.fillStyle = tr.layer ? '#2F6B52' : '#3E7F60';
+    ctx.beginPath(); ctx.moveTo(x, y - hh); ctx.lineTo(x - hh * 0.32, y); ctx.lineTo(x + hh * 0.32, y); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.moveTo(x, y - hh); ctx.lineTo(x - hh * 0.12, y - hh * 0.62); ctx.lineTo(x + hh * 0.12, y - hh * 0.62); ctx.closePath(); ctx.fill();
+  });
+
+  // 착지 비탈 (눈)
+  ctx.beginPath();
+  [sx, sy] = W2S(0, -3); ctx.moveTo(sx, sy);
+  for(const p of HILL){ if(p.x % 1 !== 0) continue; const [a, b] = W2S(p.x, p.y); ctx.lineTo(a, b); }
+  const [ex, ey] = W2S(340, -400); ctx.lineTo(ex, ey); [sx, sy] = W2S(0, -400); ctx.lineTo(sx, sy); ctx.closePath();
+  ctx.fillStyle = snowGrad; ctx.fill();
+  ctx.strokeStyle = '#A9C3DE'; ctx.lineWidth = 2;
+  ctx.beginPath(); [sx, sy] = W2S(0, -3); ctx.moveTo(sx, sy); for(const p of HILL){ if(p.x % 1 !== 0) continue; const [a, b] = W2S(p.x, p.y); ctx.lineTo(a, b); } ctx.stroke();
+
+  // 거리 표시선
+  for(let d = 60; d <= 160; d += 10){
+    const x = xAtDist(d), y = hillAt(x).y;
+    const [a, b] = W2S(x, y);
+    if(a < -20 || a > VW + 20) continue;
+    const col = d === K_POINT ? '#D8463B' : '#4E7FC4';
+    ctx.strokeStyle = col; ctx.lineWidth = d === K_POINT ? 4 : 2;
+    ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a - 4, b + 10); ctx.stroke();
+    ctx.fillStyle = col; ctx.font = `900 ${d === K_POINT ? 15 : 12}px Noto Sans KR`; ctx.textAlign = 'center';
+    ctx.fillText(d === K_POINT ? `K ${d}` : d, a - 6, b + 26);
+  }
+  // HS 표시
+  { const [a, b] = W2S(HS_X, hillAt(HS_X).y); ctx.fillStyle = '#E58A1F'; ctx.font = '900 13px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`HS ${HS}`, a - 6, b + 42); ctx.strokeStyle = '#E58A1F'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a - 5, b + 12); ctx.stroke(); }
+  // 최고 기록 선
+  if(bestDistLine > 0){
+    const x = xAtDist(bestDistLine), [a, b] = W2S(x, hillAt(x).y);
+    ctx.strokeStyle = '#1E9E62'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(a, b - 30); ctx.lineTo(a, b + 4); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#1E9E62'; ctx.font = '800 11px "Noto Sans KR", sans-serif'; ctx.fillText(`최고 ${bestDistLine.toFixed(1)}`, a, b - 34);
+  }
+
+  // 도움닫기 구조물
+  const top = J ? J.L : gateLength(15);
+  ctx.strokeStyle = '#7B5A3A'; ctx.lineWidth = 2;
+  for(let r = 4; r < 92; r += 6){
+    const p = inrunPos(r);
+    const [a, b] = W2S(p.x, p.y), [c, d] = W2S(p.x, groundY(p.x));
+    ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke();
+  }
+  ctx.strokeStyle = '#8C6A46'; ctx.lineWidth = Math.max(4, camera.scale * 1.4);
+  ctx.beginPath(); for(let r = 0; r <= 92; r += 0.5){ const p = inrunPos(r); const [a, b] = W2S(p.x, p.y - 0.6); r ? ctx.lineTo(a, b) : ctx.moveTo(a, b); } ctx.stroke();
+  ctx.strokeStyle = '#EAF2FA'; ctx.lineWidth = Math.max(2, camera.scale * 0.5);
+  ctx.beginPath(); for(let r = 0; r <= 92; r += 0.5){ const p = inrunPos(r); const [a, b] = W2S(p.x, p.y); r ? ctx.lineTo(a, b) : ctx.moveTo(a, b); } ctx.stroke();
+  // 게이트 눈금
+  for(let g = 1; g <= 15; g++){
+    const p = inrunPos(gateLength(g)), [a, b] = W2S(p.x, p.y);
+    ctx.strokeStyle = J && g === J.gate ? '#E8457A' : '#555'; ctx.lineWidth = J && g === J.gate ? 3 : 1;
+    ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a, b - 10); ctx.stroke();
+    if(g % 5 === 0 || (J && g === J.gate)){ ctx.fillStyle = '#333'; ctx.font = '700 10px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(g, a, b - 13); }
+  }
+  // 점프 구간 (노란색)
+  ctx.strokeStyle = 'rgba(255,200,0,.95)'; ctx.lineWidth = Math.max(4, camera.scale * 0.9);
+  ctx.beginPath(); for(let r = 0.2; r <= 2.2; r += 0.2){ const p = inrunPos(r); const [a, b] = W2S(p.x, p.y + 0.1); r === 0.2 ? ctx.moveTo(a, b) : ctx.lineTo(a, b); } ctx.stroke();
+  // 바람 깃발 (비탈 옆)
+  [40, 80, 115].forEach(d => {
+    const x = xAtDist(d), y = hillAt(x).y + 4;
+    const [a, b] = W2S(x, y);
+    const w = game ? windAt(J ? J.t : t / 1000) : 0;
+    const len = 10 + Math.abs(w) * 8, dir = w >= 0 ? -1 : 1;
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a, b + 22); ctx.stroke();
+    ctx.fillStyle = w >= 0 ? '#E8457A' : '#3D9BFF';
+    const flap = Math.sin(t / 120 + d) * 2;
+    ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a + dir * len, b + 3 + flap); ctx.lineTo(a, b + 7); ctx.closePath(); ctx.fill();
+  });
+}
+
+function drawJumper(t){
+  if(!J) return;
+  const [x, y] = W2S(J.x, J.y);
+  const s = camera.scale / 4.2;
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  const suit = '#E8457A', suit2 = '#1E6FD9';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if(phase === 'inrun' || phase === 'gate'){
+    const ang = inrunAngle(J.L - J.u);
+    ctx.rotate(ang * D2R);
+    // 스키
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-16, 0); ctx.lineTo(18, 0); ctx.lineTo(21, -3); ctx.stroke();
+    // 웅크린 자세 (바늘만큼 기울어짐)
+    ctx.rotate(-J.needle * 0.35);
+    ctx.strokeStyle = suit; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(-2, -2); ctx.lineTo(4, -9); ctx.lineTo(-6, -14 - Math.abs(J.needle) * 6); ctx.stroke();       // 다리·몸
+    ctx.beginPath(); ctx.moveTo(-6, -14 - Math.abs(J.needle) * 6); ctx.lineTo(10, -16 - Math.abs(J.needle) * 6); ctx.stroke();   // 상체
+    ctx.strokeStyle = suit2; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(4, -15); ctx.lineTo(-12, -10); ctx.stroke();        // 팔(뒤로)
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(14, -19 - Math.abs(J.needle) * 6, 4.5, 0, 7); ctx.fill(); ctx.stroke();
+  }else if(phase === 'flight'){
+    // 몸 각도 = 피치
+    ctx.rotate(-J.pitch * D2R);
+    // V자 스키 (옆에서 보면 몸보다 조금 위로)
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(-14, 3); ctx.lineTo(22, -6); ctx.stroke();
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-14, 4); ctx.lineTo(22, -1); ctx.stroke();
+    // 몸 (스키 위로 길게 누운 자세)
+    ctx.strokeStyle = suit; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(16, -7); ctx.stroke();
+    ctx.strokeStyle = suit2; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(12, -6); ctx.lineTo(-2, -2); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(21, -9, 4.5, 0, 7); ctx.fill(); ctx.stroke();
+    if(J.landing){ ctx.strokeStyle = suit2; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(12, -6); ctx.lineTo(18, 4); ctx.moveTo(12, -6); ctx.lineTo(6, -16); ctx.stroke(); }
+  }else{
+    const h = hillAt(J.x);
+    ctx.rotate(h.ang * D2R);
+    if(J.fallen){
+      ctx.rotate(J.spin || 0);
+      ctx.strokeStyle = suit; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(-10, -3); ctx.lineTo(10, -3); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(14, -4, 4.5, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#222'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-18, 6); ctx.lineTo(6, -10); ctx.moveTo(-6, 8); ctx.lineTo(16, 2); ctx.stroke();
+    }else{
+      ctx.strokeStyle = '#222'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(18, 0); ctx.lineTo(21, -3); ctx.stroke();
+      ctx.strokeStyle = suit; ctx.lineWidth = 6;
+      if(J.kind === 'telemark' || J.kind === 'early'){
+        ctx.beginPath(); ctx.moveTo(-8, -1); ctx.lineTo(-3, -9); ctx.lineTo(2, -18); ctx.moveTo(8, -1); ctx.lineTo(5, -9); ctx.lineTo(2, -18); ctx.stroke();
+      }else{
+        ctx.beginPath(); ctx.moveTo(0, -1); ctx.lineTo(3, -9); ctx.lineTo(0, -18); ctx.stroke();
+      }
+      ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, -28); ctx.stroke();
+      ctx.strokeStyle = suit2; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(-12, -20); ctx.moveTo(0, -25); ctx.lineTo(12, -20); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(1, -33, 4.5, 0, 7); ctx.fill(); ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  // 힘 화살표
+  if($('showForces').checked && phase === 'flight' && J.forces){
+    const F = J.forces, k = 0.11;                               // N → px (1 N = 0.11 px)
+    const arrow = (dx, dy, col, label, leftLabel) => {
+      const ex = x + dx, ey = y + dy;
+      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+      const a = Math.atan2(dy, dx);
+      ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex - 9 * Math.cos(a - 0.45), ey - 9 * Math.sin(a - 0.45)); ctx.lineTo(ex - 9 * Math.cos(a + 0.45), ey - 9 * Math.sin(a + 0.45)); ctx.closePath(); ctx.fill();
+      ctx.font = '800 12px "Noto Sans KR", sans-serif'; ctx.textAlign = leftLabel ? 'right' : 'left';
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.85)';
+      ctx.strokeText(label, ex + (leftLabel ? -6 : 6), ey + 4); ctx.fillText(label, ex + (leftLabel ? -6 : 6), ey + 4);
+      ctx.textAlign = 'left';
+    };
+    arrow(0, F.W * k, '#6B4FD8', `중력 ${F.W.toFixed(0)} N`);
+    arrow(-F.uy * F.L * k, -F.ux * F.L * k, '#1E9E62', `양력 ${F.L.toFixed(0)} N`);
+    arrow(-F.ux * F.D * k, F.uy * F.D * k, '#D8463B', `공기저항 ${F.D.toFixed(0)} N`, true);
+  }
+}
+
+function drawParticles(){
+  ctx.fillStyle = 'rgba(255,255,255,.95)';
+  particles.forEach(p => { const [x, y] = W2S(p.x, p.y); ctx.globalAlpha = clamp(p.life, 0, 1); ctx.beginPath(); ctx.arc(x, y, p.r * camera.scale / 4, 0, 7); ctx.fill(); });
+  ctx.globalAlpha = 1;
+  // 바람 줄무늬
+  if(game && J && (phase === 'flight' || phase === 'inrun')){
+    const w = windAt(J.t);
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5;
+    for(let i = 0; i < 14; i++){
+      const yy = (i * 41 + 13) % VH, len = 20 + Math.abs(w) * 14;
+      let xx = ((i * 97 - (performance.now() / 1000) * w * 160) % (VW + 200) + VW + 200) % (VW + 200) - 100;
+      ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx + (w >= 0 ? -len : len), yy); ctx.stroke();
+    }
+  }
+}
+
+function roundRect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function hudBox(x, y, w, h){ ctx.fillStyle = 'rgba(14,28,52,.72)'; roundRect(x, y, w, h, 12); ctx.fill(); }
+
+function drawHUD(){
+  if(!J || phase === 'menu') return;
+  ctx.textAlign = 'left';
+  // 왼쪽 위: 속도·바람
+  hudBox(12, 12, 230, 96);
+  ctx.fillStyle = '#9FC6F2'; ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillText('속도', 26, 34);
+  const v = phase === 'inrun' ? J.v : phase === 'flight' ? Math.hypot(J.vx, J.vy) : (J.vs || 0);
+  ctx.fillStyle = '#fff'; ctx.font = '900 30px "Noto Sans KR", sans-serif'; ctx.fillText(`${(v * 3.6).toFixed(1)}`, 26, 66);
+  const vw = ctx.measureText(`${(v * 3.6).toFixed(1)}`).width;
+  ctx.font = '700 13px "Noto Sans KR", sans-serif'; ctx.fillText('km/h', 26 + vw + 6, 66);
+  const w = windAt(J.t);
+  ctx.fillStyle = w >= 0 ? '#FF9BB8' : '#9FD0FF'; ctx.font = '800 13px "Noto Sans KR", sans-serif';
+  ctx.fillText(`${w >= 0 ? '⬅ 맞바람' : '➡ 뒷바람'} ${Math.abs(w).toFixed(1)} m/s · 게이트 ${J.gate}`, 26, 94);
+  // 오른쪽 위: 단계별 정보
+  if(phase === 'inrun'){
+    const rem = J.L - J.u;
+    hudBox(VW - 262, 12, 250, 112);
+    ctx.fillStyle = '#9FC6F2'; ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillText('자세 균형 (바늘을 가운데로!)', VW - 246, 34);
+    // 균형 바
+    const bx = VW - 246, by = 46, bw = 218;
+    ctx.fillStyle = '#3A4B66'; roundRect(bx, by, bw, 16, 8); ctx.fill();
+    ctx.fillStyle = '#2FBF7A'; roundRect(bx + bw * 0.38, by, bw * 0.24, 16, 4); ctx.fill();
+    ctx.fillStyle = '#FFD84D'; ctx.fillRect(bx + bw * (0.5 + J.needle * 0.5) - 3, by - 4, 6, 24);
+    const post = 1 - Math.abs(J.needle);
+    ctx.fillStyle = '#fff'; ctx.font = '800 13px "Noto Sans KR", sans-serif';
+    ctx.fillText(`자세 안정도 ${(post * 100).toFixed(0)}% · 공기저항 C_D·A ${(0.25 + 0.25 * Math.abs(J.needle)).toFixed(2)} m²`, VW - 246, 84);
+    ctx.fillStyle = rem < 2.2 && rem > 0.2 ? '#FFD84D' : '#9FC6F2';
+    ctx.fillText(J.pressRem !== null ? '점프 준비 완료!' : rem < 9 ? `도약대 끝까지 ${rem.toFixed(1)} m — 노란 구간에서 점프!` : `도약대까지 ${rem.toFixed(0)} m`, VW - 246, 108);
+  }else if(phase === 'flight'){
+    hudBox(VW - 262, 12, 250, 150);
+    ctx.fillStyle = '#9FC6F2'; ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillText('받음각 α (공기를 받는 각도)', VW - 246, 34);
+    // 받음각 게이지 (반원)
+    const cx = VW - 137, cy = 112, R = 58;
+    const toA = a => Math.PI + clamp(a, 0, 70) / 70 * Math.PI;
+    ctx.lineWidth = 12;
+    [[0, 25, '#D8463B'], [25, 30, '#E58A1F'], [30, 38, '#2FBF7A'], [38, 45, '#E58A1F'], [45, 70, '#D8463B']].forEach(([a0, a1, c]) => { ctx.strokeStyle = c; ctx.beginPath(); ctx.arc(cx, cy, R, toA(a0), toA(a1)); ctx.stroke(); });
+    const al = J.alpha || 0, aa = toA(al);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(aa) * (R - 4), cy + Math.sin(aa) * (R - 4)); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '900 20px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${al.toFixed(0)}°`, cx, cy - 12);
+    ctx.font = '700 11px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#9FC6F2';
+    ctx.fillText(al > 45 ? '실속 위험! ↓' : al < 25 ? '양력 부족 ↑' : al >= 30 && al <= 38 ? '좋아요' : '조금만 더', cx, cy + 4);
+    ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '800 12px "Noto Sans KR", sans-serif';
+    const lift = J.forces ? J.forces.L : 0, drag = J.forces ? J.forces.D : 0;
+    ctx.fillText(`높이 ${Math.max(0, J.hAbove || 0).toFixed(1)} m · 양력/저항 ${(drag ? lift / drag : 0).toFixed(2)}`, VW - 246, 150);
+    // 거리 표시
+    const dy = narrow ? VH - 62 : 12;
+    hudBox(VW / 2 - 70, dy, 140, 46);
+    ctx.fillStyle = '#fff'; ctx.font = '900 24px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${(J.dist || 0).toFixed(1)} m`, VW / 2, dy + 32);
+    if(!J.landing && J.hAbove < 3 && J.hAbove > 0.3){ ctx.fillStyle = '#FFD84D'; ctx.font = '900 22px "Noto Sans KR", sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(14,28,52,.8)'; ctx.strokeText('지금 착지!', VW / 2, narrow ? VH - 80 : VH - 30); ctx.fillText('지금 착지!', VW / 2, narrow ? VH - 80 : VH - 30); }
+    ctx.textAlign = 'left';
+  }else if(phase === 'slide'){
+    hudBox(VW / 2 - 90, 12, 180, 50);
+    ctx.fillStyle = '#fff'; ctx.font = '900 28px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${J.dist.toFixed(1)} m`, VW / 2, 47); ctx.textAlign = 'left';
+  }
+  // 알림 글자
+  if(popMsg){
+    popMsg.t += 1 / 60;
+    ctx.globalAlpha = clamp(2.2 - popMsg.t, 0, 1);
+    ctx.font = '900 30px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+    ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.strokeText(popMsg.text, VW / 2, VH * 0.3);
+    ctx.fillStyle = popMsg.color; ctx.fillText(popMsg.text, VW / 2, VH * 0.3);
+    ctx.globalAlpha = 1; ctx.textAlign = 'left';
+    if(popMsg.t > 2.2) popMsg = null;
+  }
+}
+
+function render(t){
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  updateCamera();
+  drawBackground();
+  drawWorld(t);
+  drawParticles();
+  drawJumper(t);
+  drawHUD();
+}
+
+/* =================================================================
+   반복
+================================================================= */
+let last = performance.now(), acc = 0;
+function loop(t){
+  acc += Math.min(0.1, (t - last) / 1000); last = t;
+  while(acc >= DT){ stepPhysics(); acc -= DT; }
+  render(t);
+  requestAnimationFrame(loop);
+}
+setControls();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
