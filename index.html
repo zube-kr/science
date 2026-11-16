@@ -1862,6 +1862,7 @@ const ROCK_DODGE_URL = "rock-dodge-seismo.html";
 const CHESS_BOT_URL = "chess-bot.html";
 const FREEKICK_URL = "freekick-magnus.html";
 const SKATE_URL = "skate-energy.html";
+const MOON_LANDING_URL = "moon-landing-game.html";
 
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
@@ -1986,6 +1987,12 @@ const topicsData = {
         title: "🛹 에너지 스케이트 — 하프파이프 트릭 챌린지",
         desc: "하프파이프를 오르내리며 운동에너지 ↔ 위치에너지 전환을 실시간 에너지 막대로 확인하고, 펌핑(근육 에너지)으로 속도를 올려 공중에서 킥플립·360 스핀·백플립을 성공시키는 3D 게임입니다. 마찰로 생기는 열에너지, h = v²/2g, 각운동량 보존까지! 화성·달 중력 체험 모드와 반 전체 랭킹 포함.",
         url: SKATE_URL,
+        ready: true
+      },
+      {
+        title: "🌙 달 착륙 미션 — 지구에서 달까지",
+        desc: "지구에서 로켓을 쏘아 올리고, 지구와 달의 중력을 이용한 궤도 비행(중력 도움)으로 달에 접근한 뒤, 엔진의 작용 반작용으로 속도를 줄여 착륙장에 내려앉는 게임입니다. 6단계로 갈수록 연료는 줄고 착륙장은 좁아져요. 반 전체 랭킹에 도전!",
+        url: MOON_LANDING_URL,
         ready: true
       }
     ]
@@ -3064,6 +3071,8 @@ const ARCADE_BOARDS = [
     norm:r => ({ score:Number(r.score) }), cmp:arcScoreDesc, main:e => `${e.score}점` },
   { id:"kick",   url:FREEKICK_URL,         icon:"⚽", name:"마그누스 프리킥",       tag:"", colors:["#4ade80","#15803d"], sheet:"프리킥_랭킹",
     norm:r => ({ score:Number(r.score), x:arcNum(r.goals) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `${e.x}골 성공` },
+  { id:"moon",   url:MOON_LANDING_URL,     icon:"🌙", name:"달 착륙 미션",          tag:"", colors:["#fde68a","#a16207"], sheet:"달착륙_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.stage) }), cmp:arcScoreDesc, main:e => `${Number(e.score).toLocaleString()}점`, sub:e => e.x ? `${e.x}단계 성공` : "" },
   { id:"skate",  url:SKATE_URL,            icon:"🛹", name:"에너지 스케이트",       tag:"", colors:["#fb923c","#c2410c"], sheet:"스케이트보드_랭킹",
     norm:r => ({ score:Number(r.score), x:arcNum(r.tricks) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `트릭 ${e.x}개` },
 ];
@@ -3269,7 +3278,7 @@ async function arcLoadAll(force){
         const rows = await arcFetchBoard(b, token);
         if(token !== arcLoadToken) return;
         // 용량을 아끼려고 필요한 열만 저장
-        const slim = rows.map(r => ({ name:r.name, score:r.score, level:r.level, totalTime:r.totalTime, survivalTime:r.survivalTime, strikes:r.strikes, planets:r.planets, distance:r.distance, goals:r.goals, tricks:r.tricks }));
+        const slim = rows.map(r => ({ name:r.name, score:r.score, stage:r.stage, level:r.level, totalTime:r.totalTime, survivalTime:r.survivalTime, strikes:r.strikes, planets:r.planets, distance:r.distance, goals:r.goals, tricks:r.tricks }));
         arcState[b.id] = { status:"ok", rows:slim, ranked:arcRank(b, slim), count:slim.length };
         const c = arcCacheLoad(); c[b.id] = { t:Date.now(), rows:slim }; arcCacheSave(c);
       }catch(err){
