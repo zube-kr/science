@@ -1187,6 +1187,163 @@ body.frame-mode .frameview-header{
   .chatview{ max-width:100%; height:80vh; }
   .guestbook-row input#guestbook-name{ flex:0 0 90px; }
 }
+
+/*==============================
+쉬어가는 게임 — 게임별 명예의 전당
+==============================*/
+#view-arcade.active{
+  display:flex;
+  width:100%;
+  justify-content:center;
+}
+.arcade{
+  width:1080px;
+  max-width:96%;
+  max-height:90vh;
+  overflow-y:auto;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:28px;
+  padding:30px 34px 28px;
+  box-shadow:0 14px 50px rgba(28,35,51,.07);
+  scrollbar-width:thin;
+}
+.arc-head{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.arc-title{ font-size:24px; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:10px; }
+.arc-title .pad{
+  width:38px; height:38px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#7c6cff,#4f46e5); color:#fff; box-shadow:0 6px 14px rgba(79,70,229,.3);
+}
+.arc-title .pad svg{ width:22px; height:22px; stroke:#fff; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.arc-head .spacer{ flex:1; }
+.arc-status{ font-size:12px; color:var(--muted); font-weight:600; }
+.arc-refresh{ display:inline-flex; align-items:center; gap:6px; }
+.arc-refresh.spin .ri{ animation:arcSpin .8s linear infinite; }
+@keyframes arcSpin{ to{ transform:rotate(360deg); } }
+.arc-sub{ margin:8px 0 18px; font-size:13.5px; color:var(--sub); line-height:1.6; }
+
+.arc-hero{
+  display:grid; grid-template-columns:minmax(0,1.35fr) repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:26px;
+}
+.arc-champ{
+  position:relative; overflow:hidden; border-radius:20px; padding:16px 20px; color:#fff;
+  background:linear-gradient(135deg,#1c2260 0%,#4f46e5 60%,#8b5cf6 100%);
+  display:flex; align-items:center; gap:14px; min-height:92px;
+}
+.arc-champ::after{
+  content:""; position:absolute; right:-30px; top:-40px; width:150px; height:150px; border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%);
+}
+.arc-champ .crown{ font-size:34px; filter:drop-shadow(0 4px 8px rgba(0,0,0,.25)); }
+.arc-champ small{ display:block; font-size:11.5px; font-weight:700; letter-spacing:.06em; opacity:.8; }
+.arc-champ b{ display:block; font-size:19px; font-weight:800; margin-top:2px; }
+.arc-champ span{ font-size:12.5px; opacity:.85; }
+.arc-stat{
+  border:1px solid var(--line); border-radius:20px; padding:14px 16px; background:#fbfbfe;
+  display:flex; flex-direction:column; justify-content:center; gap:2px;
+}
+.arc-stat .num{ font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--brand); line-height:1.1; }
+.arc-stat .lbl{ font-size:12.5px; color:var(--sub); font-weight:600; }
+
+.arc-sec{ display:flex; align-items:center; gap:10px; margin:6px 0 14px; font-size:16px; font-weight:800; letter-spacing:-.2px; }
+.arc-sec small{ font-size:12px; font-weight:600; color:var(--muted); }
+
+.rank-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:16px; margin-bottom:28px; }
+.rank-card{
+  --c1:#4f46e5; --c2:#8b5cf6;
+  position:relative; background:var(--surface); border:1px solid var(--line); border-radius:22px;
+  padding:18px 18px 16px; display:flex; flex-direction:column; gap:12px; overflow:hidden;
+  transition:transform .2s, box-shadow .2s, border-color .2s;
+}
+.rank-card::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:4px; background:linear-gradient(90deg,var(--c1),var(--c2));
+}
+.rank-card:hover{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(28,35,51,.10); border-color:#d3d6ea; }
+.rc-top{ display:flex; align-items:center; gap:12px; }
+.rc-icon{
+  width:46px; height:46px; border-radius:15px; flex:none; display:flex; align-items:center; justify-content:center;
+  font-size:24px; background:linear-gradient(135deg,var(--c1),var(--c2)); box-shadow:0 8px 16px -6px var(--c2);
+}
+.rc-name{ font-size:16px; font-weight:800; letter-spacing:-.2px; line-height:1.3; }
+.rc-tag{
+  display:inline-block; margin-top:3px; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px;
+  background:var(--brand-soft); color:var(--brand-dark);
+}
+.rc-tag.hw{ background:#fff1e8; color:#c2561f; }
+.rc-tag.kit{ background:#e8f8f1; color:#14805a; }
+
+.podium{ list-style:none; display:flex; flex-direction:column; gap:7px; }
+.pod{
+  display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:14px; background:#f7f8fc;
+  border:1px solid transparent; min-height:50px;
+}
+.pod.p1{ background:linear-gradient(135deg,#fff8e1,#fff2c7); border-color:#f6e2a0; }
+.pod.p2{ background:linear-gradient(135deg,#f6f7fb,#eceff6); border-color:#e1e5ef; }
+.pod.p3{ background:linear-gradient(135deg,#fff2ea,#fde5d6); border-color:#f3d4bf; }
+.medal{
+  width:28px; height:28px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:14px; font-weight:700; color:#fff; box-shadow:inset 0 -2px 0 rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.14);
+}
+.m1{ background:linear-gradient(135deg,#ffd75a,#f0a000); }
+.m2{ background:linear-gradient(135deg,#c9d1de,#8f9bb0); }
+.m3{ background:linear-gradient(135deg,#e6a574,#b8692f); }
+.pname{ flex:1; min-width:0; font-size:14.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pval{ text-align:right; line-height:1.25; flex:none; }
+.pval b{ display:block; font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
+.pval i{ display:block; font-style:normal; font-size:11px; color:var(--muted); font-weight:600; }
+.pod.noname .pname{ color:var(--muted); font-weight:600; font-style:italic; }
+.pod.noname .medal{ filter:grayscale(.55) opacity(.85); }
+.arc-warn{
+  display:flex; gap:12px; align-items:flex-start; margin:0 0 18px; padding:13px 16px; border-radius:16px;
+  background:#fff7e6; border:1px solid #f6dc9b; color:#6b4a00; font-size:13px; line-height:1.65;
+}
+.arc-warn .wi{ font-size:20px; line-height:1.3; flex:none; }
+.arc-warn b{ color:#b45309; }
+.pod.empty{ background:#fafbfd; border:1px dashed var(--line); }
+.pod.empty .medal{ background:#e4e6f0; box-shadow:none; color:#fff; }
+.pod.empty .pname{ color:var(--muted); font-weight:600; font-size:13px; }
+.pod.skel .pname, .pod.skel .pval b{ background:linear-gradient(90deg,#eceef6 25%,#f6f7fb 50%,#eceef6 75%); background-size:200% 100%; animation:arcShim 1.2s infinite; color:transparent; border-radius:6px; }
+.pod.skel .pname{ flex:none; width:90px; height:14px; }
+.pod.skel .pval{ margin-left:auto; }
+.pod.skel .pval b{ width:46px; height:16px; }
+@keyframes arcShim{ to{ background-position:-200% 0; } }
+.rc-err{ font-size:12px; color:#c0392b; font-weight:600; }
+
+.rc-foot{ display:flex; gap:8px; margin-top:2px; }
+.rc-play{
+  flex:1; font-family:var(--font-kr); font-size:13.5px; font-weight:800; cursor:pointer; border:none; border-radius:13px; padding:11px 14px;
+  color:#fff; background:linear-gradient(135deg,var(--c1),var(--c2)); transition:.2s; box-shadow:0 8px 16px -8px var(--c2);
+}
+.rc-play:hover{ filter:brightness(1.07); transform:translateY(-1px); }
+.rc-new{
+  font-family:var(--font-kr); font-size:12.5px; font-weight:700; cursor:pointer; border:1px solid var(--line); border-radius:13px; padding:11px 13px;
+  background:var(--surface); color:var(--sub); transition:.2s;
+}
+.rc-new:hover{ background:#f3f5f8; color:var(--ink); }
+
+.free-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:14px; margin-bottom:20px; }
+.free-card{
+  --c1:#4f46e5; --c2:#8b5cf6;
+  display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:20px; background:#fbfbfe;
+}
+.free-card .rc-icon{ width:42px; height:42px; font-size:22px; border-radius:14px; }
+.free-card .fc-body{ flex:1; min-width:0; }
+.free-card .rc-name{ font-size:15px; }
+.free-card .fc-desc{ font-size:12px; color:var(--sub); margin-top:2px; line-height:1.5; }
+.free-card .rc-play{ flex:none; padding:10px 16px; }
+
+.arc-note{ font-size:11.5px; color:var(--muted); line-height:1.7; text-align:center; padding-top:6px; }
+
+@media (max-width:1000px){
+  .arc-hero{ grid-template-columns:1fr 1fr 1fr; }
+  .arc-champ{ grid-column:1 / -1; }
+}
+@media (max-width:860px){
+  #view-arcade.active{ padding:16px 12px 24px; }
+  .arcade{ max-height:none; padding:22px 16px 20px; border-radius:22px; }
+  .arc-title{ font-size:20px; }
+  .arc-stat .num{ font-size:22px; }
+}
 </style>
 </head>
 
@@ -1262,7 +1419,7 @@ body.frame-mode .frameview-header{
       <li onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</li>
       <li onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험 모음</li>
       <li onclick="openSubject('student-dev')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"/><path d="m17.5 3.5 1 2 2 .4-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.4z"/></svg>학생개발자료</li>
-      <li onclick="openSubject('teacher-tools')"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>각종문서변환기</li>
+      <li onclick="openQuickLink('teacher-tools', {title:'📄 각종문서변환', url: DOC_TOOLS_URL, ready:true})"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>각종문서변환</li>
       <li onclick="openSubject('event-ops')"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9.5 14.5 2 2 3.5-3.5"/></svg>각종행사운영</li>
     </ul>
   </details>
@@ -1487,6 +1644,36 @@ body.frame-mode .frameview-header{
     </div>
   </div>
 
+
+  <!-- 쉬어가는 게임: 게임별 명예의 전당 -->
+  <div id="view-arcade" class="view">
+    <div class="arcade" id="arcade">
+      <div class="arc-head">
+        <button class="back-btn" onclick="goHome()">← 홈</button>
+        <div class="arc-title"><span class="pad"><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg></span>쉬어가는 게임</div>
+        <div class="spacer"></div>
+        <span class="arc-status" id="arc-status"></span>
+        <button class="back-btn arc-refresh" id="arc-refresh" title="순위 새로고침"><span class="ri">↻</span> 새로고침</button>
+      </div>
+      <p class="arc-sub">게임별 <b>명예의 전당 TOP 3</b>예요. 우리 반 친구들의 최고 기록을 확인하고, 카드를 눌러 바로 도전해 보세요!</p>
+
+      <div class="arc-warn">
+        <span class="wi">📝</span>
+        <div><b>기록 등록 안내</b> — 기록을 올릴 때는 <b>자신의 이름(3글자)</b>을 꼭 적어 주세요. 이름 없이 <b>별명으로 기록된 내용은 기록 무효</b>가 되고, 순위에는 별명 대신 <b>'이름없음'</b>으로 표시돼요.</div>
+      </div>
+
+      <div class="arc-hero" id="arc-hero"></div>
+
+      <div class="arc-sec">🏆 게임별 TOP 3 <small>반 전체가 함께 쓰는 공유 랭킹</small></div>
+      <div class="rank-grid" id="rank-grid"></div>
+
+      <div class="arc-sec">🎲 함께 즐기는 게임 <small>점수 랭킹이 없는 게임</small></div>
+      <div class="free-grid" id="free-grid"></div>
+
+      <p class="arc-note">한 학생은 게임마다 <b>최고 기록 한 번</b>만 보여 줘요. 기록은 게임을 끝낸 뒤 <b>실제 이름(3글자)</b>을 입력해 등록하면 올라가요.</p>
+    </div>
+  </div>
+
   <!-- 콘텐츠 임베드 화면 (원소 기호 규칙 등) -->
   <div id="view-frame" class="view">
     <div class="frameview">
@@ -1498,7 +1685,7 @@ body.frame-mode .frameview-header{
           <button class="back-btn" onclick="goHome()" title="홈 화면으로">🏠 홈</button>
         </div>
       </div>
-      <iframe id="content-frame" src=""></iframe>
+      <iframe id="content-frame" src="" allow="fullscreen" allowfullscreen></iframe>
     </div>
   </div>
 
@@ -1675,6 +1862,7 @@ const ROCK_DODGE_URL = "rock-dodge-seismo.html";
 const CHESS_BOT_URL = "chess-bot.html";
 const FREEKICK_URL = "freekick-magnus.html";
 const SKATE_URL = "skate-energy.html";
+const MOON_LANDING_URL = "moon-landing-game.html";
 const SKI_JUMP_URL = "ski-jump-game.html";
 
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
@@ -1711,6 +1899,7 @@ const SPACE_ASTRONAUT_URL = "space-astronaut-game.html";
 // 개발자료 · 선생님 도구
 const HWP_TO_PDF_URL = "hwp-to-pdf.html";
 const PDF_ROTATE_URL = "pdf-rotate.html";
+const DOC_TOOLS_URL = "doc-tools.html";
 const SANGJEOM_MARKET_URL = "sangjeom-market.html";
 
 const topicsData = {
@@ -1802,6 +1991,12 @@ const topicsData = {
         ready: true
       },
       {
+        title: "🌙 달 착륙 미션 — 지구에서 달까지",
+        desc: "지구에서 로켓을 쏘아 올리고, 지구와 달의 중력을 이용한 궤도 비행(중력 도움)으로 달에 접근한 뒤, 엔진의 작용 반작용으로 속도를 줄여 착륙장에 내려앉는 게임입니다. 6단계로 갈수록 연료는 줄고 착륙장은 좁아져요. 반 전체 랭킹에 도전!",
+        url: MOON_LANDING_URL,
+        ready: true
+      },
+      {
         title: "🎿 과학 스키점프 — 아화 힐 K120",
         desc: "출발 게이트 높이(위치에너지)와 도움닫기 자세(공기저항)로 속도를 만들고, 점프 타이밍·받음각(양력과 실속)·바람·텔레마크 착지까지 실제 물리로 계산되는 스키점프입니다. 비거리 점수 + 심판 자세 점수 + 바람·게이트 보정의 2라운드 합계로 반 전체 랭킹에 도전! 점프마다 궤적과 에너지 손실을 분석해 줘요.",
         url: SKI_JUMP_URL,
@@ -1827,8 +2022,14 @@ const topicsData = {
     ]
   },
   "teacher-tools": {
-    title: "📄 각종문서변환기",
+    title: "📄 각종문서변환",
     posts: [
+      {
+        title: "📄 각종문서변환 (전체 도구)",
+        desc: "PDF 합치기·분할·페이지 제거·추출·구성·스캔, 압축·복구·OCR, JPG·워드·파워포인트·엑셀·HTML → PDF, PDF → JPG·워드·파워포인트·엑셀·PDF/A, 회전·페이지 번호·워터마크·자르기·편집·양식 작성까지 한곳에서! 파일은 서버로 올라가지 않아요.",
+        url: DOC_TOOLS_URL,
+        ready: true
+      },
       {
         title: "📄 HWP → PDF 변환기",
         desc: "한글 문서(.hwp, .hwpx)를 끌어다 놓으면 PDF로 바꿔 줍니다. 파일은 서버로 올라가지 않고 이 컴퓨터의 브라우저 안에서만 변환돼요.",
@@ -2744,6 +2945,7 @@ const viewHome = document.getElementById("view-home");
 const viewList = document.getElementById("view-list");
 const viewFrame = document.getElementById("view-frame");
 const viewChat = document.getElementById("view-chat");
+const viewArcade = document.getElementById("view-arcade");
 const postlistTitle = document.getElementById("postlist-title");
 const postlistItems = document.getElementById("postlist-items");
 const frameTitle = document.getElementById("frame-title");
@@ -2752,7 +2954,7 @@ const contentFrame = document.getElementById("content-frame");
 let lastSubjectKey = null;
 
 function showView(view){
-  [viewHome, viewList, viewFrame, viewChat].forEach(v => v.classList.remove("active"));
+  [viewHome, viewList, viewFrame, viewChat, viewArcade].forEach(v => v.classList.remove("active"));
   view.classList.add("active");
   // 자료를 볼 때는 왼쪽 메뉴를 숨긴다 (← 목록 / 홈으로 돌아가면 다시 보임)
   document.body.classList.toggle("frame-mode", view === viewFrame);
@@ -2765,6 +2967,13 @@ function showView(view){
 function openSubject(key){
   const subject = topicsData[key];
   if(!subject) return;
+
+  // 쉬어가는 게임은 목록 대신 "게임별 명예의 전당" 화면으로 보여 준다
+  if(key === "swieo-game"){
+    lastSubjectKey = key;
+    openArcade();
+    return;
+  }
 
   lastSubjectKey = key;
   postlistTitle.textContent = subject.title;
@@ -2833,6 +3042,287 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
     showView(viewList);
   }
 });
+
+
+// ==========================================
+// 쉬어가는 게임 — 게임별 명예의 전당 (TOP 3)
+// 게임들이 쓰는 공유 스프레드시트(같은 웹 앱 주소)에서 시트별 기록을 읽어 와
+// 한 학생의 게임별 최고 기록만 남기고 1~3위를 보여 준다.
+// ==========================================
+const ARCADE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+const ARCADE_CACHE_KEY = "science-arcade-cache-v1";
+const arcScoreDesc = (a, b) => b.score - a.score;
+const ARC_NAME_RE = /^[가-힣]{3}$/;   // 실제 이름: 한글 3글자
+const arcNum = v => (v === "" || v === null || v === undefined || Number.isNaN(Number(v))) ? null : Number(v);
+
+const ARCADE_BOARDS = [
+  { id:"hwal",   url:HWALSSOGI_URL,        icon:"🏹", name:"활쏘기",              tag:"", colors:["#34d399","#059669"], sheet:"활쏘기_랭킹",
+    norm:r => ({ score:Number(r.score) }), cmp:arcScoreDesc, main:e => `${e.score}점` },
+  { id:"tilt",   url:TILT_MAZE_URL,        icon:"🌀", name:"기울기 미로",          tag:"hw", colors:["#fbbf24","#f97316"], sheet:"기울기미로_랭킹",
+    norm:r => ({ level:arcNum(r.level) || 4, time:Number(r.totalTime) }),
+    cmp:(a, b) => (b.level - a.level) || (a.time - b.time),
+    ok:e => !Number.isNaN(e.time),
+    main:e => e.level >= 4 ? "🏁 4단계 완주" : `${e.level}단계`,
+    sub:e => { const m = Math.floor(e.time / 60), sec = (e.time % 60).toFixed(1); return m > 0 ? `${m}분 ${sec}초` : `${sec}초`; } },
+  { id:"plane",  url:PLANE_SHOOTING_URL,   icon:"✈️", name:"비행기 슈팅",          tag:"hw", colors:["#38bdf8","#2563eb"], sheet:"비행기슈팅_랭킹",
+    norm:r => ({ score:Number(r.score), t:arcNum(r.survivalTime) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.t === null ? "" : `${Math.round(e.t)}초 생존` },
+  { id:"drone",  url:ULTRASONIC_DRONE_URL, icon:"🚁", name:"초음파 드론 동굴 비행", tag:"hw", colors:["#2dd4bf","#0f766e"], sheet:"초음파드론_랭킹",
+    norm:r => ({ score:Number(r.score), t:arcNum(r.survivalTime) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.t === null ? "" : `${Math.round(e.t)}초 생존` },
+  { id:"bowl",   url:BOWLING_URL,          icon:"🎳", name:"볼링",                tag:"", colors:["#a78bfa","#6d28d9"], sheet:"볼링_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.strikes) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `스트라이크 ${e.x}번` },
+  { id:"grav",   url:GRAVITY_JUMP_URL,     icon:"🪐", name:"중력 점프",            tag:"", colors:["#818cf8","#4338ca"], sheet:"중력점프_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.planets) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `행성 ${e.x}개` },
+  { id:"astro",  url:SPACE_ASTRONAUT_URL,  icon:"🧑‍🚀", name:"우주 유영 3D",        tag:"hw", colors:["#60a5fa","#1e3a8a"], sheet:"우주유영_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.distance) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `${Math.round(e.x)}m 비행` },
+  { id:"mmi",    url:SEISMO_GAME_URL,      icon:"📈", name:"흔들흔들 지진계 · 진도 맞추기", tag:"kit", colors:["#fb7185","#be123c"], sheet:"지진계_진도맞추기",
+    norm:r => ({ score:Number(r.score) }), cmp:arcScoreDesc, main:e => `${e.score}점` },
+  { id:"wave",   url:SEISMO_GAME_URL,      icon:"〰️", name:"흔들흔들 지진계 · 지진파 따라 그리기", tag:"kit", colors:["#f472b6","#9d174d"], sheet:"지진계_지진파",
+    norm:r => ({ score:Number(r.score) }), cmp:arcScoreDesc, main:e => `${e.score}%` },
+  { id:"rock",   url:ROCK_DODGE_URL,       icon:"🪨", name:"지진 탈출! 낙석 피하기", tag:"kit", colors:["#a8a29e","#57534e"], sheet:"지진계_낙석피하기",
+    norm:r => ({ score:Number(r.score) }), cmp:arcScoreDesc, main:e => `${e.score}점` },
+  { id:"wind",   url:WIND_BALLOON_URL,     icon:"🎈", name:"바람 타고 세계 일주",   tag:"", colors:["#f87171","#dc2626"], sheet:"바람풍선_랭킹",
+    norm:r => ({ score:Number(r.score) }), cmp:arcScoreDesc, main:e => `${e.score}점` },
+  { id:"kick",   url:FREEKICK_URL,         icon:"⚽", name:"마그누스 프리킥",       tag:"", colors:["#4ade80","#15803d"], sheet:"프리킥_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.goals) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `${e.x}골 성공` },
+  { id:"moon",   url:MOON_LANDING_URL,     icon:"🌙", name:"달 착륙 미션",          tag:"", colors:["#fde68a","#a16207"], sheet:"달착륙_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.stage) }), cmp:arcScoreDesc, main:e => `${Number(e.score).toLocaleString()}점`, sub:e => e.x ? `${e.x}단계 성공` : "" },
+  { id:"skate",  url:SKATE_URL,            icon:"🛹", name:"에너지 스케이트",       tag:"", colors:["#fb923c","#c2410c"], sheet:"스케이트보드_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.tricks) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `트릭 ${e.x}개` },
+  { id:"ski",    url:SKI_JUMP_URL,         icon:"🎿", name:"과학 스키점프",         tag:"", colors:["#7dd3fc","#0369a1"], sheet:"스키점프_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.distance) }), cmp:arcScoreDesc, main:e => `${Number(e.score).toFixed(1)}점`, sub:e => e.x === null ? "" : `최고 ${Number(e.x).toFixed(1)}m` },
+];
+const ARCADE_FREE = [
+  { url:DALMUTI_URL,   icon:"🃏", name:"달무티 게임",         desc:"방 코드로 친구들과 함께 즐기는 4인 실시간 카드 게임", colors:["#f59e0b","#b45309"] },
+  { url:CHESS_BOT_URL, icon:"♞",  name:"과학 체스", desc:"6단계 과학자 봇과 3D 우주 보드에서 겨루는 체스",       colors:["#64748b","#1e293b"] }
+];
+
+const arcEls = { grid:null, free:null, hero:null, status:null, refresh:null };
+let arcBuilt = false;
+let arcState = {};       // id → { status:"loading"|"ok"|"error", rows:[...] }
+let arcLoadToken = 0;
+
+function arcFindPost(url){ return topicsData["swieo-game"].posts.find(p => p.url === url); }
+function arcPlay(url){ const post = arcFindPost(url); if(post) openPost(post); }
+function arcNewTab(url){ window.open(url, "_blank"); }
+
+function arcBuild(){
+  arcEls.grid = document.getElementById("rank-grid");
+  arcEls.free = document.getElementById("free-grid");
+  arcEls.hero = document.getElementById("arc-hero");
+  arcEls.status = document.getElementById("arc-status");
+  arcEls.refresh = document.getElementById("arc-refresh");
+
+  arcEls.grid.innerHTML = "";
+  ARCADE_BOARDS.forEach(b => {
+    const card = document.createElement("div");
+    card.className = "rank-card";
+    card.id = "rc-" + b.id;
+    card.style.setProperty("--c1", b.colors[0]);
+    card.style.setProperty("--c2", b.colors[1]);
+    const tag = b.tag === "hw" ? '<span class="rc-tag hw">아두이노 센서</span>' : b.tag === "kit" ? '<span class="rc-tag kit">지진계 키트</span>' : '';
+    card.innerHTML = `
+      <div class="rc-top">
+        <div class="rc-icon">${b.icon}</div>
+        <div><div class="rc-name"></div>${tag}</div>
+      </div>
+      <ol class="podium"></ol>
+      <div class="rc-err" hidden></div>
+      <div class="rc-foot">
+        <button type="button" class="rc-play">플레이하기 ▶</button>
+        <button type="button" class="rc-new" title="새 창으로 열기">새창 ↗</button>
+      </div>`;
+    card.querySelector(".rc-name").textContent = b.name;
+    card.querySelector(".rc-play").addEventListener("click", () => arcPlay(b.url));
+    card.querySelector(".rc-new").addEventListener("click", () => arcNewTab(b.url));
+    arcEls.grid.appendChild(card);
+  });
+
+  arcEls.free.innerHTML = "";
+  ARCADE_FREE.forEach(g => {
+    const card = document.createElement("div");
+    card.className = "free-card";
+    card.style.setProperty("--c1", g.colors[0]);
+    card.style.setProperty("--c2", g.colors[1]);
+    card.innerHTML = `<div class="rc-icon">${g.icon}</div><div class="fc-body"><div class="rc-name"></div><div class="fc-desc"></div></div><button type="button" class="rc-play">플레이 ▶</button>`;
+    card.querySelector(".rc-name").textContent = g.name;
+    card.querySelector(".fc-desc").textContent = g.desc;
+    card.querySelector(".rc-play").addEventListener("click", () => arcPlay(g.url));
+    arcEls.free.appendChild(card);
+  });
+
+  arcEls.refresh.addEventListener("click", () => arcLoadAll(true));
+  arcBuilt = true;
+}
+
+// 한 학생은 게임마다 최고 기록만 남기고, 순위대로 정렬해 돌려준다
+function arcRank(board, rawRows){
+  const best = new Map();
+  rawRows.forEach(r => {
+    const name = String(r.name || "").replace(/\s+/g, "").slice(0, 12);
+    if(!name) return;
+    // 실제 이름(한글 3글자)이 아니면 별명으로 보고 기록 무효 → 순위에는 "이름없음"으로만 표시
+    const e = Object.assign({ name, valid:ARC_NAME_RE.test(name) }, board.norm(r));
+    if(board.ok ? !board.ok(e) : Number.isNaN(e.score)) return;
+    const prev = best.get(name);
+    if(!prev || board.cmp(e, prev) < 0) best.set(name, e);
+  });
+  return [...best.values()].sort(board.cmp);
+}
+
+function arcRenderCard(board){
+  const card = document.getElementById("rc-" + board.id);
+  const st = arcState[board.id];
+  const ol = card.querySelector(".podium");
+  const err = card.querySelector(".rc-err");
+  ol.innerHTML = "";
+  err.hidden = true;
+
+  for(let i = 0; i < 3; i++){
+    const li = document.createElement("li");
+    const rank = i + 1;
+    if(!st || st.status === "loading"){
+      li.className = `pod skel p${rank}`;
+      li.innerHTML = `<span class="medal m${rank}">${rank}</span><span class="pname">.</span><span class="pval"><b>.</b></span>`;
+    }else{
+      const e = (st.ranked || [])[i];
+      if(e){
+        li.className = `pod p${rank}` + (e.valid ? "" : " noname");
+        li.innerHTML = `<span class="medal m${rank}">${rank}</span><span class="pname"></span><span class="pval"><b></b><i></i></span>`;
+        li.querySelector(".pname").textContent = e.valid ? e.name : "이름없음";
+        if(!e.valid) li.querySelector(".pname").title = "실제 이름(3글자)이 아닌 별명으로 등록된 기록이에요";
+        li.querySelector(".pval b").textContent = board.main(e);
+        const sub = board.sub ? board.sub(e) : "";
+        const subEl = li.querySelector(".pval i");
+        if(sub) subEl.textContent = sub; else subEl.remove();
+      }else{
+        li.className = "pod empty";
+        li.innerHTML = `<span class="medal">${rank}</span><span class="pname">${rank === 1 && !(st.ranked || []).length ? "첫 도전자를 기다려요!" : "도전자를 기다려요"}</span>`;
+      }
+    }
+    ol.appendChild(li);
+  }
+  if(st && st.status === "error" && !(st.ranked || []).length){
+    err.hidden = false;
+    err.textContent = "⚠️ 순위를 불러오지 못했어요. 새로고침을 눌러 보세요.";
+  }
+}
+
+function arcRenderHero(){
+  const all = ARCADE_BOARDS.map(b => arcState[b.id]).filter(Boolean);
+  const loaded = all.filter(st => st.status !== "loading");
+  const players = new Set(), champs = new Map();
+  let records = 0, gamesWithRec = 0;
+  ARCADE_BOARDS.forEach(b => {
+    const st = arcState[b.id];
+    if(!st || !st.ranked) return;
+    records += st.count || 0;
+    if(st.ranked.length) gamesWithRec++;
+    (st.ranked || []).slice(0, 3).forEach(e => { if(e.valid) players.add(e.name); });
+    const top = st.ranked[0];
+    if(top && top.valid) champs.set(top.name, (champs.get(top.name) || 0) + 1);
+  });
+  // 1위 최다 보유자(동점이면 모두)
+  let champText = "", champSub = "";
+  if(champs.size){
+    const max = Math.max(...champs.values());
+    const names = [...champs.entries()].filter(([, n]) => n === max).map(([nm]) => nm);
+    champText = names.length > 3 ? `${names.slice(0, 3).join(" · ")} 외 ${names.length - 3}명` : names.join(" · ");
+    champSub = `${max}개 게임에서 1위`;
+  }
+  const waiting = loaded.length === 0;
+  const allError = loaded.length === ARCADE_BOARDS.length && loaded.every(st => st.status === "error" && !(st.ranked || []).length);
+  const heroTitle = waiting ? "순위 불러오는 중…" : allError ? "순위를 불러오지 못했어요" : (champText ? "" : "아직 챔피언이 없어요");
+  const heroSub = champText ? champSub : (waiting ? "" : allError ? "인터넷 연결을 확인하고 새로고침을 눌러 보세요." : "게임을 하고 첫 기록을 남겨 보세요!");
+  arcEls.hero.innerHTML = `
+    <div class="arc-champ">
+      <div class="crown">${allError ? "📡" : "👑"}</div>
+      <div>
+        <small>1위 최다 보유</small>
+        <b>${heroTitle}</b>
+        <span>${heroSub}</span>
+      </div>
+    </div>
+    <div class="arc-stat"><div class="num">${waiting ? "–" : gamesWithRec}<span style="font-size:15px;color:var(--muted);font-weight:600"> / ${ARCADE_BOARDS.length}</span></div><div class="lbl">기록이 있는 게임</div></div>
+    <div class="arc-stat"><div class="num">${waiting ? "–" : players.size}</div><div class="lbl">TOP 3에 오른 학생</div></div>
+    <div class="arc-stat"><div class="num">${waiting ? "–" : records}</div><div class="lbl">등록된 전체 기록</div></div>`;
+  if(champText) arcEls.hero.querySelector(".arc-champ b").textContent = champText;
+}
+
+function arcCacheLoad(){ try{ return JSON.parse(localStorage.getItem(ARCADE_CACHE_KEY) || "{}") || {}; }catch(e){ return {}; } }
+function arcCacheSave(c){ try{ localStorage.setItem(ARCADE_CACHE_KEY, JSON.stringify(c)); }catch(e){} }
+
+async function arcFetchBoard(board, token){
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 15000);
+  try{
+    const res = await fetch(ARCADE_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(board.sheet), { signal:ctl.signal });
+    if(!res.ok) throw new Error("status " + res.status);
+    const rows = await res.json();
+    if(!Array.isArray(rows)) throw new Error("not an array");
+    return rows;
+  } finally { clearTimeout(timer); }
+}
+
+async function arcLoadAll(force){
+  const token = ++arcLoadToken;
+  const cache = arcCacheLoad();
+  const now = Date.now();
+
+  // 1) 저장해 둔 순위가 있으면 먼저 바로 보여 준다
+  ARCADE_BOARDS.forEach(b => {
+    const c = cache[b.id];
+    if(c && Array.isArray(c.rows)){
+      arcState[b.id] = { status:"loading", rows:c.rows, ranked:arcRank(b, c.rows), count:c.rows.length, fromCache:true };
+      arcState[b.id].status = "ok";
+    }else{
+      arcState[b.id] = { status:"loading" };
+    }
+    arcRenderCard(b);
+  });
+  arcRenderHero();
+  arcEls.refresh.classList.add("spin");
+  arcEls.status.textContent = "순위 불러오는 중…";
+
+  // 2) 공유 스프레드시트에서 최신 기록을 받아 온다(동시에 4개씩)
+  const queue = ARCADE_BOARDS.slice();
+  let fails = 0;
+  const worker = async () => {
+    while(queue.length){
+      const b = queue.shift();
+      try{
+        const rows = await arcFetchBoard(b, token);
+        if(token !== arcLoadToken) return;
+        // 용량을 아끼려고 필요한 열만 저장
+        const slim = rows.map(r => ({ name:r.name, score:r.score, stage:r.stage, level:r.level, totalTime:r.totalTime, survivalTime:r.survivalTime, strikes:r.strikes, planets:r.planets, distance:r.distance, goals:r.goals, tricks:r.tricks }));
+        arcState[b.id] = { status:"ok", rows:slim, ranked:arcRank(b, slim), count:slim.length };
+        const c = arcCacheLoad(); c[b.id] = { t:Date.now(), rows:slim }; arcCacheSave(c);
+      }catch(err){
+        if(token !== arcLoadToken) return;
+        fails++;
+        const prev = arcState[b.id];
+        arcState[b.id] = { status:"error", rows:(prev && prev.rows) || [], ranked:(prev && prev.ranked) || [], count:(prev && prev.count) || 0 };
+        console.warn("명예의 전당 불러오기 실패:", b.sheet, err);
+      }
+      arcRenderCard(b);
+      arcRenderHero();
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  if(token !== arcLoadToken) return;
+
+  arcEls.refresh.classList.remove("spin");
+  const t = new Date();
+  const hhmm = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`;
+  arcEls.status.textContent = fails === ARCADE_BOARDS.length
+    ? "⚠️ 순위를 불러오지 못했어요 (저장된 순위를 보여 줘요)"
+    : fails ? `일부 게임 순위를 불러오지 못했어요 · ${hhmm}` : `${hhmm} 기준`;
+}
+
+function openArcade(){
+  if(!arcBuilt) arcBuild();
+  showView(viewArcade);
+  arcLoadAll();
+}
 
 // ==========================================
 // 홈(대문) 화면 — 학년별 단원 카드와 하단 패널
