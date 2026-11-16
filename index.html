@@ -1863,6 +1863,7 @@ const CHESS_BOT_URL = "chess-bot.html";
 const FREEKICK_URL = "freekick-magnus.html";
 const SKATE_URL = "skate-energy.html";
 const MOON_LANDING_URL = "moon-landing-game.html";
+const SKI_JUMP_URL = "ski-jump-game.html";
 
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
@@ -1993,6 +1994,12 @@ const topicsData = {
         title: "🌙 달 착륙 미션 — 지구에서 달까지",
         desc: "지구에서 로켓을 쏘아 올리고, 지구와 달의 중력을 이용한 궤도 비행(중력 도움)으로 달에 접근한 뒤, 엔진의 작용 반작용으로 속도를 줄여 착륙장에 내려앉는 게임입니다. 6단계로 갈수록 연료는 줄고 착륙장은 좁아져요. 반 전체 랭킹에 도전!",
         url: MOON_LANDING_URL,
+        ready: true
+      },
+      {
+        title: "🎿 과학 스키점프 — 아화 힐 K120",
+        desc: "출발 게이트 높이(위치에너지)와 도움닫기 자세(공기저항)로 속도를 만들고, 점프 타이밍·받음각(양력과 실속)·바람·텔레마크 착지까지 실제 물리로 계산되는 스키점프입니다. 비거리 점수 + 심판 자세 점수 + 바람·게이트 보정의 2라운드 합계로 반 전체 랭킹에 도전! 점프마다 궤적과 에너지 손실을 분석해 줘요.",
+        url: SKI_JUMP_URL,
         ready: true
       }
     ]
@@ -2817,6 +2824,12 @@ const topicsData = {
         url: SKATE_URL,
         ready: true
       },
+      {
+        title: "🎿 과학 스키점프 — 아화 힐 K120",
+        desc: "출발 게이트 높이(위치에너지)와 도움닫기 자세(공기저항)로 속도를 만들고, 점프 타이밍·받음각(양력과 실속)·바람·텔레마크 착지까지 실제 물리로 계산되는 스키점프입니다. 비거리 점수 + 심판 자세 점수 + 바람·게이트 보정의 2라운드 합계로 반 전체 랭킹에 도전! 점프마다 궤적과 에너지 손실을 분석해 줘요.",
+        url: SKI_JUMP_URL,
+        ready: true
+      },
       { title: "운동과 에너지 학습자료", desc: "준비 중인 콘텐츠입니다.", ready: false }
     ]
   },
@@ -3075,6 +3088,8 @@ const ARCADE_BOARDS = [
     norm:r => ({ score:Number(r.score), x:arcNum(r.stage) }), cmp:arcScoreDesc, main:e => `${Number(e.score).toLocaleString()}점`, sub:e => e.x ? `${e.x}단계 성공` : "" },
   { id:"skate",  url:SKATE_URL,            icon:"🛹", name:"에너지 스케이트",       tag:"", colors:["#fb923c","#c2410c"], sheet:"스케이트보드_랭킹",
     norm:r => ({ score:Number(r.score), x:arcNum(r.tricks) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `트릭 ${e.x}개` },
+  { id:"ski",    url:SKI_JUMP_URL,         icon:"🎿", name:"과학 스키점프",         tag:"", colors:["#7dd3fc","#0369a1"], sheet:"스키점프_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.distance) }), cmp:arcScoreDesc, main:e => `${Number(e.score).toFixed(1)}점`, sub:e => e.x === null ? "" : `최고 ${Number(e.x).toFixed(1)}m` },
 ];
 const ARCADE_FREE = [
   { url:DALMUTI_URL,   icon:"🃏", name:"달무티 게임",         desc:"방 코드로 친구들과 함께 즐기는 4인 실시간 카드 게임", colors:["#f59e0b","#b45309"] },
