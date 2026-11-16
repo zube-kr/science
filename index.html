@@ -1419,7 +1419,7 @@ body.frame-mode .frameview-header{
       <li onclick="openSubject('swieo-game')"><svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/></svg>쉬어가는 게임</li>
       <li onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험 모음</li>
       <li onclick="openSubject('student-dev')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"/><path d="m17.5 3.5 1 2 2 .4-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.4z"/></svg>학생개발자료</li>
-      <li onclick="openSubject('teacher-tools')"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>각종문서변환기</li>
+      <li onclick="openQuickLink('teacher-tools', {title:'📄 각종문서변환', url: DOC_TOOLS_URL, ready:true})"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>각종문서변환</li>
       <li onclick="openSubject('event-ops')"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9.5 14.5 2 2 3.5-3.5"/></svg>각종행사운영</li>
     </ul>
   </details>
@@ -1897,6 +1897,7 @@ const SPACE_ASTRONAUT_URL = "space-astronaut-game.html";
 // 개발자료 · 선생님 도구
 const HWP_TO_PDF_URL = "hwp-to-pdf.html";
 const PDF_ROTATE_URL = "pdf-rotate.html";
+const DOC_TOOLS_URL = "doc-tools.html";
 const SANGJEOM_MARKET_URL = "sangjeom-market.html";
 
 const topicsData = {
@@ -2007,8 +2008,14 @@ const topicsData = {
     ]
   },
   "teacher-tools": {
-    title: "📄 각종문서변환기",
+    title: "📄 각종문서변환",
     posts: [
+      {
+        title: "📄 각종문서변환 (전체 도구)",
+        desc: "PDF 합치기·분할·페이지 제거·추출·구성·스캔, 압축·복구·OCR, JPG·워드·파워포인트·엑셀·HTML → PDF, PDF → JPG·워드·파워포인트·엑셀·PDF/A, 회전·페이지 번호·워터마크·자르기·편집·양식 작성까지 한곳에서! 파일은 서버로 올라가지 않아요.",
+        url: DOC_TOOLS_URL,
+        ready: true
+      },
       {
         title: "📄 HWP → PDF 변환기",
         desc: "한글 문서(.hwp, .hwpx)를 끌어다 놓으면 PDF로 바꿔 줍니다. 파일은 서버로 올라가지 않고 이 컴퓨터의 브라우저 안에서만 변환돼요.",
