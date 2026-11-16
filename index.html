@@ -1291,6 +1291,14 @@ body.frame-mode .frameview-header{
 .pval{ text-align:right; line-height:1.25; flex:none; }
 .pval b{ display:block; font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
 .pval i{ display:block; font-style:normal; font-size:11px; color:var(--muted); font-weight:600; }
+.pod.noname .pname{ color:var(--muted); font-weight:600; font-style:italic; }
+.pod.noname .medal{ filter:grayscale(.55) opacity(.85); }
+.arc-warn{
+  display:flex; gap:12px; align-items:flex-start; margin:0 0 18px; padding:13px 16px; border-radius:16px;
+  background:#fff7e6; border:1px solid #f6dc9b; color:#6b4a00; font-size:13px; line-height:1.65;
+}
+.arc-warn .wi{ font-size:20px; line-height:1.3; flex:none; }
+.arc-warn b{ color:#b45309; }
 .pod.empty{ background:#fafbfd; border:1px dashed var(--line); }
 .pod.empty .medal{ background:#e4e6f0; box-shadow:none; color:#fff; }
 .pod.empty .pname{ color:var(--muted); font-weight:600; font-size:13px; }
@@ -1649,6 +1657,11 @@ body.frame-mode .frameview-header{
       </div>
       <p class="arc-sub">게임별 <b>명예의 전당 TOP 3</b>예요. 우리 반 친구들의 최고 기록을 확인하고, 카드를 눌러 바로 도전해 보세요!</p>
 
+      <div class="arc-warn">
+        <span class="wi">📝</span>
+        <div><b>기록 등록 안내</b> — 기록을 올릴 때는 <b>자신의 이름(3글자)</b>을 꼭 적어 주세요. 이름 없이 <b>별명으로 기록된 내용은 기록 무효</b>가 되고, 순위에는 별명 대신 <b>'이름없음'</b>으로 표시돼요.</div>
+      </div>
+
       <div class="arc-hero" id="arc-hero"></div>
 
       <div class="arc-sec">🏆 게임별 TOP 3 <small>반 전체가 함께 쓰는 공유 랭킹</small></div>
@@ -1657,7 +1670,7 @@ body.frame-mode .frameview-header{
       <div class="arc-sec">🎲 함께 즐기는 게임 <small>점수 랭킹이 없는 게임</small></div>
       <div class="free-grid" id="free-grid"></div>
 
-      <p class="arc-note">한 학생은 게임마다 <b>최고 기록 한 번</b>만 보여 줘요. 기록은 게임을 끝낸 뒤 이름을 입력해 등록하면 올라가요.</p>
+      <p class="arc-note">한 학생은 게임마다 <b>최고 기록 한 번</b>만 보여 줘요. 기록은 게임을 끝낸 뒤 <b>실제 이름(3글자)</b>을 입력해 등록하면 올라가요.</p>
     </div>
   </div>
 
@@ -3012,6 +3025,7 @@ document.getElementById("frame-back-btn").addEventListener("click", () => {
 const ARCADE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
 const ARCADE_CACHE_KEY = "science-arcade-cache-v1";
 const arcScoreDesc = (a, b) => b.score - a.score;
+const ARC_NAME_RE = /^[가-힣]{3}$/;   // 실제 이름: 한글 3글자
 const arcNum = v => (v === "" || v === null || v === undefined || Number.isNaN(Number(v))) ? null : Number(v);
 
 const ARCADE_BOARDS = [
@@ -3113,9 +3127,10 @@ function arcBuild(){
 function arcRank(board, rawRows){
   const best = new Map();
   rawRows.forEach(r => {
-    const name = String(r.name || "").trim().slice(0, 12);
+    const name = String(r.name || "").replace(/\s+/g, "").slice(0, 12);
     if(!name) return;
-    const e = Object.assign({ name }, board.norm(r));
+    // 실제 이름(한글 3글자)이 아니면 별명으로 보고 기록 무효 → 순위에는 "이름없음"으로만 표시
+    const e = Object.assign({ name, valid:ARC_NAME_RE.test(name) }, board.norm(r));
     if(board.ok ? !board.ok(e) : Number.isNaN(e.score)) return;
     const prev = best.get(name);
     if(!prev || board.cmp(e, prev) < 0) best.set(name, e);
@@ -3140,9 +3155,10 @@ function arcRenderCard(board){
     }else{
       const e = (st.ranked || [])[i];
       if(e){
-        li.className = `pod p${rank}`;
+        li.className = `pod p${rank}` + (e.valid ? "" : " noname");
         li.innerHTML = `<span class="medal m${rank}">${rank}</span><span class="pname"></span><span class="pval"><b></b><i></i></span>`;
-        li.querySelector(".pname").textContent = e.name;
+        li.querySelector(".pname").textContent = e.valid ? e.name : "이름없음";
+        if(!e.valid) li.querySelector(".pname").title = "실제 이름(3글자)이 아닌 별명으로 등록된 기록이에요";
         li.querySelector(".pval b").textContent = board.main(e);
         const sub = board.sub ? board.sub(e) : "";
         const subEl = li.querySelector(".pval i");
@@ -3170,8 +3186,9 @@ function arcRenderHero(){
     if(!st || !st.ranked) return;
     records += st.count || 0;
     if(st.ranked.length) gamesWithRec++;
-    (st.ranked || []).forEach(e => players.add(e.name));
-    if(st.ranked[0]) champs.set(st.ranked[0].name, (champs.get(st.ranked[0].name) || 0) + 1);
+    (st.ranked || []).slice(0, 3).forEach(e => { if(e.valid) players.add(e.name); });
+    const top = st.ranked[0];
+    if(top && top.valid) champs.set(top.name, (champs.get(top.name) || 0) + 1);
   });
   // 1위 최다 보유자(동점이면 모두)
   let champText = "", champSub = "";
