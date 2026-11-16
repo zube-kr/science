@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎯 클레이 사격 — 바람·중력 챌린지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#0B1220}
+  body{font-family:"Jua","Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;color:#fff;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  #view{position:fixed;inset:0;touch-action:none}
+  #view canvas{display:block;width:100%;height:100%}
+  body.playing #view{cursor:none}
+  .hidden{display:none!important}
+  .sans{font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif}
+
+  /* ---------- HUD ---------- */
+  .top{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:7px;pointer-events:none}
+  .chip{background:rgba(8,14,30,.72);border:1.5px solid rgba(255,255,255,.18);border-radius:14px;padding:4px 13px;text-align:center;backdrop-filter:blur(4px)}
+  .chip small{display:block;font-size:11.5px;color:#A9B8D8;font-family:"Pretendard",sans-serif;white-space:nowrap}
+  .chip b{font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .chip.score b{color:#FFD166}
+  .shells{display:flex;gap:4px;justify-content:center;height:27px;align-items:center}
+  .shell{width:11px;height:24px;border-radius:3px 3px 2px 2px;background:linear-gradient(#E3453A 0 70%,#D9B45A 70%);box-shadow:inset -2px 0 0 rgba(0,0,0,.25)}
+  .shell.used{opacity:.2}
+
+  .menu-btn{position:fixed;top:10px;left:10px;z-index:7;background:rgba(8,14,30,.72);border:1.5px solid rgba(255,255,255,.22);color:#fff;border-radius:12px;padding:7px 12px;font-family:"Jua",sans-serif;font-size:15px;cursor:pointer}
+
+  .side{position:fixed;top:10px;right:10px;z-index:5;width:218px;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+  .panel{background:rgba(8,14,30,.78);border:1.5px solid rgba(255,255,255,.16);border-radius:15px;padding:8px 10px;font-family:"Pretendard",sans-serif;backdrop-filter:blur(4px)}
+  .panel h4{font-family:"Jua",sans-serif;font-weight:400;font-size:14.5px;color:#9FE3C1;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+  .wind-row{display:flex;gap:9px;align-items:center}
+  #wind-dial{width:74px;height:74px;flex:none}
+  .wind-txt{font-size:12px;line-height:1.5;color:#DCE6FA}
+  .wind-txt b{font-family:"Jua",sans-serif;font-weight:400;font-size:22px;color:#fff}
+  .gust{height:5px;border-radius:3px;background:rgba(255,255,255,.15);margin-top:3px;overflow:hidden}
+  .gust i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7DD3FC,#F472B6);transition:width .2s}
+  .sci{font-size:11.8px;line-height:1.6;color:#DCE6FA}
+  .sci .r{display:flex;justify-content:space-between;gap:6px}
+  .sci .r b{color:#fff;font-variant-numeric:tabular-nums}
+  .sci .sw{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:4px;border:1px solid rgba(255,255,255,.5)}
+  .sci .note{font-size:11px;color:#A9B8D8;margin-top:3px;line-height:1.45}
+  .force{display:grid;grid-template-columns:52px 1fr 52px;gap:5px;align-items:center;font-size:11px;margin-top:2px}
+  .force .fb{height:7px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
+  .force .fb i{display:block;height:100%;width:0;border-radius:4px}
+
+  #cross{position:fixed;left:0;top:0;z-index:4;width:46px;height:46px;margin:-23px 0 0 -23px;pointer-events:none;transition:filter .1s}
+  #cross svg{width:100%;height:100%;overflow:visible}
+  #cross.hit{filter:drop-shadow(0 0 6px #ff4d4d)}
+
+  #msg{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);z-index:6;font-size:52px;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 24px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap;opacity:0}
+  #msg.show{animation:pop 1.1s ease-out forwards}
+  #msg small{display:block;font-size:20px;text-align:center;font-family:"Pretendard",sans-serif;font-weight:800;margin-top:4px}
+  @keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}22%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+  .pts{position:fixed;z-index:6;pointer-events:none;font-size:24px;color:#FFD166;text-shadow:0 2px 0 rgba(0,0,0,.5);transform:translate(-50%,-50%);animation:rise 1.1s ease-out forwards;white-space:nowrap;text-align:center}
+  .pts small{display:block;font-size:13px;color:#fff;font-family:"Pretendard",sans-serif;font-weight:800}
+  .pts.bad{color:#FF8A8A}
+  @keyframes rise{0%{opacity:0;margin-top:0}15%{opacity:1}100%{opacity:0;margin-top:-60px}}
+
+  #hint{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;background:rgba(8,14,30,.72);border-radius:999px;padding:7px 18px;font-size:16px;pointer-events:none;white-space:nowrap;border:1.5px solid rgba(255,255,255,.18)}
+  #hint.blink{animation:blink 1s ease-in-out infinite alternate}
+  @keyframes blink{from{border-color:rgba(255,255,255,.18)}to{border-color:#FFD166;box-shadow:0 0 18px rgba(255,209,102,.5)}}
+
+  .ana{position:fixed;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:5;width:310px;pointer-events:none;transition:opacity .3s}
+  .ana canvas{width:100%;height:118px;display:block;border-radius:9px;background:rgba(255,255,255,.04)}
+  .ana .txt{font-size:11.8px;line-height:1.55;color:#DCE6FA;margin-top:5px}
+  .ana .txt b{color:#FFD166}
+  .ana .txt .good{color:#86EFAC}
+  .ana .txt .bad{color:#FCA5A5}
+
+  #fire{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:7;width:118px;height:118px;border-radius:50%;border:0;cursor:pointer;touch-action:none;
+    background:radial-gradient(circle at 35% 30%,#FFB4A8,#E5483B 60%,#A3231A);color:#fff;font-family:"Jua",sans-serif;font-size:27px;box-shadow:0 6px 0 #7A1610,0 12px 30px rgba(0,0,0,.4);text-shadow:0 2px 0 rgba(0,0,0,.3)}
+  #fire small{display:block;font-size:12px;font-family:"Pretendard",sans-serif;font-weight:700}
+  #fire.pull{background:radial-gradient(circle at 35% 30%,#FFE9A8,#F5B30B 60%,#B07A05);box-shadow:0 6px 0 #7A5503,0 12px 30px rgba(0,0,0,.4)}
+  #fire.on{transform:translateY(4px);box-shadow:0 2px 0 #7A1610}
+  body:not(.touch) #fire{display:none}
+
+  /* ---------- 실험실 패널 ---------- */
+  body.labmode .ana{left:272px}
+  .lab{position:fixed;left:10px;top:56px;z-index:7;width:252px;max-height:calc(100vh - 200px);overflow:auto;font-family:"Pretendard",sans-serif;font-size:12.5px}
+  .lab h4{cursor:pointer;pointer-events:auto}
+  .lab.fold .lab-body{display:none}
+  .lab label{display:block;margin-top:7px;color:#BFD0F0;font-weight:700}
+  .lab label span{float:right;color:#fff;font-variant-numeric:tabular-nums}
+  .lab input[type=range]{width:100%;accent-color:#FFD166}
+  .lab select{width:100%;margin-top:3px;padding:5px;border-radius:8px;border:0;background:#1B2742;color:#fff;font-family:inherit;font-size:12.5px}
+  .tg{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+  .tg button{flex:1 1 auto;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#DCE6FA;border-radius:9px;padding:5px 7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+  .tg button.on{background:#FFD166;color:#3A2A00;border-color:#FFD166}
+  .lab .act{width:100%;margin-top:8px;border:0;border-radius:11px;padding:9px;font-family:"Jua",sans-serif;font-size:16px;cursor:pointer;background:#34C27A;color:#03301A}
+  .lab .act.alt{background:#7DD3FC;color:#06283D}
+
+  /* ---------- 오버레이 ---------- */
+  .ov{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at center,rgba(8,14,30,.55),rgba(8,14,30,.88));overflow:auto}
+  .card{background:linear-gradient(180deg,#14203B,#0E1730);border:2px solid rgba(255,255,255,.14);border-radius:24px;padding:22px 24px;width:min(860px,100%);box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100vh - 32px);overflow:auto}
+  .title{font-size:40px;text-align:center;line-height:1.15}
+  .title em{font-style:normal;color:#FF9F43}
+  .sub{text-align:center;color:#B9C7E6;font-family:"Pretendard",sans-serif;font-size:14.5px;margin-top:6px;line-height:1.6}
+  .grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-top:16px}
+  .modes{display:flex;flex-direction:column;gap:10px}
+  .mode{display:flex;gap:12px;align-items:center;text-align:left;border:0;border-radius:18px;padding:13px 15px;cursor:pointer;color:#1B1404;font-family:"Jua",sans-serif;box-shadow:0 5px 0 rgba(0,0,0,.3);transition:transform .1s}
+  .mode:hover{transform:translateY(-2px)}
+  .mode:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+  .mode .ic{font-size:36px}
+  .mode b{font-size:21px;display:block;font-weight:400}
+  .mode span{font-size:12.5px;font-family:"Pretendard",sans-serif;font-weight:600;opacity:.85;line-height:1.45;display:block}
+  .mode.main{background:linear-gradient(135deg,#FFD166,#FF9F43)}
+  .mode.lab2{background:linear-gradient(135deg,#9BE7FF,#5EB8F2)}
+  .sci-box{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:16px;padding:11px 14px;font-family:"Pretendard",sans-serif;font-size:13px;line-height:1.65;color:#DCE6FA}
+  .sci-box h3{font-family:"Jua",sans-serif;font-weight:400;font-size:17px;color:#9FE3C1;margin-bottom:4px}
+  .sci-box li{margin-left:16px}
+  .sci-box b{color:#FFD166}
+  .how{margin-top:10px;font-size:12.5px}
+  .hof{background:rgba(255,209,102,.08);border:1.5px solid rgba(255,209,102,.4);border-radius:16px;padding:9px 13px}
+  .hof h3{font-family:"Jua",sans-serif;font-weight:400;font-size:17px;color:#FFD166;text-align:center}
+  .hof-list{list-style:none;margin-top:3px}
+  .hof-row{display:flex;gap:7px;align-items:center;font-size:15px;line-height:1.7}
+  .hof-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hof-date{font-size:11px;color:#8EA0C6;font-family:"Pretendard",sans-serif}
+  .hof-score{color:#FFD166;min-width:4em;text-align:right}
+  .hof-empty{font-size:12.5px;color:#C9D4F0;text-align:center;font-family:"Pretendard",sans-serif}
+
+  .st-num{text-align:center;color:#FF9F43;font-size:18px}
+  .st-title{text-align:center;font-size:36px;margin-top:2px}
+  .conds{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+  .cond{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);border-radius:14px;padding:8px 13px;text-align:center;min-width:104px}
+  .cond .ci{font-size:26px}
+  .cond b{display:block;font-size:15px;font-weight:400}
+  .cond small{display:block;font-size:11.5px;color:#A9B8D8;font-family:"Pretendard",sans-serif}
+  .go{display:block;margin:16px auto 0;border:0;border-radius:16px;padding:12px 38px;font-family:"Jua",sans-serif;font-size:22px;cursor:pointer;background:linear-gradient(135deg,#FFD166,#FF9F43);color:#2A1A00;box-shadow:0 5px 0 rgba(0,0,0,.3)}
+  .go.ghost{background:rgba(255,255,255,.1);color:#fff;font-size:16px;padding:9px 22px;box-shadow:none;display:inline-block;margin:10px 4px 0}
+
+  .res-score{text-align:center;font-size:62px;color:#FFD166;line-height:1.1;margin-top:4px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;font-family:"Pretendard",sans-serif;font-size:13px;color:#C9D4F0}
+  .stats div{background:rgba(255,255,255,.06);border-radius:12px;padding:8px;text-align:center}
+  .stats b{display:block;font-family:"Jua",sans-serif;font-weight:400;font-size:21px;color:#fff}
+  .name-form{display:flex;gap:8px;justify-content:center;margin-top:14px}
+  .name-form input{width:200px;padding:10px 13px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:16px;font-family:"Pretendard",sans-serif;outline:none}
+  .name-form button{border:0;border-radius:12px;padding:10px 18px;font-family:"Jua",sans-serif;font-size:17px;background:#34C27A;color:#03301A;cursor:pointer}
+  .board{list-style:none;margin-top:6px;columns:2;column-gap:14px}
+  .board-row{display:flex;gap:7px;font-size:14.5px;line-height:1.75;break-inside:avoid;padding:0 6px;border-radius:8px}
+  .board-row.me{background:rgba(255,209,102,.22)}
+  .board-row.empty{opacity:.4}
+  .rank{width:1.6em;color:#9FB0D6}
+  .bname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bdate{font-size:11px;color:#8EA0C6;font-family:"Pretendard",sans-serif;align-self:center}
+  .bscore{color:#FFD166;min-width:4.4em;text-align:right}
+  .board-note{text-align:center;font-size:12px;color:#9FB0D6;font-family:"Pretendard",sans-serif;margin-top:12px}
+
+  .rotate-tip{display:none}
+  @media (max-width:760px){
+    .grid2{grid-template-columns:1fr}
+    .title{font-size:30px}
+    .side{width:168px;gap:5px}
+    .panel{padding:6px 8px}
+    #wind-dial{width:54px;height:54px}
+    .wind-txt b{font-size:17px}
+    .sci{font-size:10.5px;line-height:1.5}
+    .sci .note,.force{display:none}
+    .chip{padding:3px 8px}.chip b{font-size:17px}.chip small{font-size:10px}
+    .shell{width:9px;height:19px}
+    .ana{width:220px}.ana canvas{height:84px}.ana .txt{font-size:10.5px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .board{columns:1}
+    #msg{font-size:38px}
+    .lab{width:200px}
+    body.labmode .ana{left:auto;right:10px;bottom:150px}
+  }
+  @media (max-height:520px){
+    .side .panel.sci-p{display:none}
+    .ana .txt{display:none}
+    .ana canvas{height:76px}
+    .ana{width:200px}
+    #fire{width:96px;height:96px;font-size:22px}
+    .lab{max-height:calc(100vh - 70px)}
+  }
+  @media (orientation:portrait) and (max-width:760px){ .rotate-tip{display:block;text-align:center;color:#FFD166;font-family:"Pretendard",sans-serif;font-size:13px;margin-top:8px} }
+</style>
+</head>
+<body>
+<div id="view"></div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <button class="menu-btn" id="menu-btn">☰ 메뉴</button>
+  <div class="top">
+    <div class="chip"><small id="c-station-l">스테이션</small><b id="c-station">1/5</b></div>
+    <div class="chip score"><small>점수</small><b id="c-score">0</b></div>
+    <div class="chip"><small>클레이</small><b id="c-clay">0/28</b></div>
+    <div class="chip"><small>탄</small><div class="shells" id="c-shells"></div></div>
+    <div class="chip"><small>연속 명중</small><b id="c-streak">0</b></div>
+  </div>
+  <div class="side">
+    <div class="panel">
+      <h4><span>💨 바람</span><span id="w-gustlbl" style="font-size:12px;color:#F9A8D4"></span></h4>
+      <div class="wind-row">
+        <canvas id="wind-dial" width="148" height="148"></canvas>
+        <div class="wind-txt"><b id="w-speed">0.0</b> m/s<br><span id="w-dir">무풍</span><div class="gust"><i id="w-gust"></i></div></div>
+      </div>
+    </div>
+    <div class="panel sci-p">
+      <h4><span>🔬 표적 과학 계기판</span></h4>
+      <div class="sci" id="sci"></div>
+    </div>
+  </div>
+  <div id="cross"><svg viewBox="-23 -23 46 46"><circle r="15" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="4.5"/><circle r="15" fill="none" stroke="#7CFF6B" stroke-width="2.4"/><path d="M0 -21V-9M0 21V9M-21 0H-9M21 0H9" stroke="rgba(0,0,0,.45)" stroke-width="4.5"/><path d="M0 -21V-9M0 21V9M-21 0H-9M21 0H9" stroke="#7CFF6B" stroke-width="2.4"/><circle r="2.2" fill="#FF4D4D"/></svg></div>
+  <div id="msg"></div>
+  <div id="hint">클릭하면 "풀!" 하고 표적이 날아가요</div>
+  <div class="ana panel" id="ana" style="opacity:0"><h4><span id="ana-title">🎯 표적 분석</span></h4><canvas id="ana-canvas" width="620" height="236"></canvas><div class="txt" id="ana-text"></div></div>
+  <button id="fire" class="pull">풀!<small>표적 부르기</small></button>
+  <div class="lab panel hidden" id="lab">
+    <h4 id="lab-head"><span>🔬 실험 설정</span><span>▾</span></h4>
+    <div class="lab-body">
+      <label>클레이 무게(같은 모양)</label>
+      <div class="tg" id="lab-type"></div>
+      <label>발사 방향</label>
+      <select id="lab-launch">
+        <option value="trap">멀어지는 표적(트랩)</option>
+        <option value="crossL">왼쪽 → 오른쪽 가로지르기</option>
+        <option value="crossR">오른쪽 → 왼쪽 가로지르기</option>
+        <option value="rabbit">땅 위로 굴러가는 래빗</option>
+        <option value="double">더블(2개 동시)</option>
+      </select>
+      <label>바람 세기 <span id="lab-wind-v">4 m/s</span></label>
+      <input type="range" id="lab-wind" min="0" max="12" step="0.5" value="4">
+      <label>바람이 부는 쪽</label>
+      <select id="lab-wdir">
+        <option value="90">왼쪽 → 오른쪽 (측풍)</option>
+        <option value="270">오른쪽 → 왼쪽 (측풍)</option>
+        <option value="0">등 뒤 → 앞 (뒷바람)</option>
+        <option value="180">앞 → 나에게 (맞바람)</option>
+      </select>
+      <label>돌풍(바람의 변덕) <span id="lab-gust-v">1</span></label>
+      <input type="range" id="lab-gust" min="0" max="4" step="0.5" value="1">
+      <label>장소(중력과 공기)</label>
+      <div class="tg" id="lab-planet"></div>
+      <label>장애물</label>
+      <div class="tg" id="lab-obs"></div>
+      <label>보조 기능</label>
+      <div class="tg" id="lab-aid"></div>
+      <button class="act" id="lab-pull">🚀 표적 발사 (풀!)</button>
+      <button class="act alt" id="lab-galileo">⚖️ 무게 비교 실험 — 3개 동시 발사</button>
+    </div>
+  </div>
+</div>
+
+<!-- 메뉴 -->
+<div class="ov" id="menu">
+  <div class="card">
+    <div class="title">🎯 클레이 사격 <em>바람·중력 챌린지</em></div>
+    <div class="sub">하늘로 날아가는 접시(클레이)를 산탄총으로 맞히는 3D 사격 게임이에요.<br>바람에 밀리고, 중력에 떨어지고, 공기에 느려지는 표적을 과학으로 예측해서 맞혀 보세요!</div>
+    <div class="grid2">
+      <div class="modes">
+        <button class="mode main" id="btn-match"><span class="ic">🏆</span><div><b>정식 경기</b><span>5개 스테이션 · 표적 28개 · 반 전체 랭킹<br>측풍 → 무게 비교 → 숲 크로싱 → 더블·새떼·풍차·안개</span></div></button>
+        <button class="mode lab2" id="btn-lab"><span class="ic">🔬</span><div><b>사격 실험실</b><span>바람 세기·방향, 클레이 무게, 중력(지구·화성·달), 장애물을 직접 바꾸며 궤적을 관찰해요 (랭킹 없음)</span></div></button>
+        <div class="hof"><h3>🏆 명예의 전당</h3><ul class="hof-list" id="hof-list"></ul><div class="board-note" id="hof-note" style="margin-top:2px"></div></div>
+      </div>
+      <div class="sci-box">
+        <h3>🔬 이 게임 속 과학</h3>
+        <ul>
+          <li><b>중력</b>: 공기가 없다면 가벼운 표적도 무거운 표적도 <b>똑같이</b> 9.8 m/s²로 떨어져요. (갈릴레이)</li>
+          <li><b>공기 저항·바람</b>: 같은 힘을 받아도 가벼운 표적은 <b>a = F / m</b>이 커서 더 많이 밀리고 더 빨리 느려져요.</li>
+          <li><b>리드(앞 겨냥)</b>: 탄알이 날아가는 0.1초 동안에도 표적은 움직여요. 표적의 <b>앞</b>을 겨냥해야 맞아요.</li>
+          <li><b>산탄 퍼짐</b>: 탄알 수십 개가 원뿔 모양으로 퍼져서, 멀수록 넓지만 듬성듬성해져요.</li>
+        </ul>
+        <div class="how"><b>조작</b> · 🖱️ 마우스로 조준, 클릭(또는 스페이스)으로 "풀!" → 다시 클릭해서 발사 · 표적 하나에 탄 2발<br>📱 화면을 끌어서 조준, 오른쪽 아래 버튼으로 풀!/발사 · 조준점을 화면 끝으로 가져가면 고개가 돌아가요.</div>
+        <div class="rotate-tip">📱 휴대폰은 가로로 돌려서 하면 더 잘 보여요!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 스테이션 안내 -->
+<div class="ov hidden" id="station-card">
+  <div class="card" style="width:min(640px,100%)">
+    <div class="st-num" id="st-num">STATION 1 / 5</div>
+    <div class="st-title" id="st-title">기본 트랩</div>
+    <div class="conds" id="st-conds"></div>
+    <div class="sci-box" id="st-tip"></div>
+    <button class="go" id="st-go">시작하기 ▶</button>
+  </div>
+</div>
+
+<!-- 일시정지 -->
+<div class="ov hidden" id="pause">
+  <div class="card" style="width:min(420px,100%);text-align:center">
+    <div class="st-title">⏸ 잠깐 멈춤</div>
+    <button class="go" id="p-resume">계속하기</button>
+    <button class="go ghost" id="p-quit">처음 화면으로</button>
+  </div>
+</div>
+
+<!-- 결과 -->
+<div class="ov hidden" id="result">
+  <div class="card">
+    <div class="st-title" id="r-title">🏁 경기 끝!</div>
+    <div class="res-score" id="r-score">0점</div>
+    <div class="stats" id="r-stats"></div>
+    <div class="sci-box" id="r-sci" style="margin-top:12px"></div>
+    <form class="name-form" id="name-form"><input id="name-input" maxlength="12" placeholder="이름 (예: 1-3 홍길동)" autocomplete="off"><button>랭킹 등록</button></form>
+    <div class="board-note" id="board-source-note"></div>
+    <ul class="board" id="leader-list"></ul>
+    <div style="text-align:center"><button class="go ghost" id="r-again">🔁 다시 도전</button><button class="go ghost" id="r-menu">처음 화면</button></div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "./lib/three-0.160.0.module.min.js";
+
+/* =====================================================================
+   기본 도구
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const DEG = Math.PI / 180;
+const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+let isTouch = matchMedia("(pointer:coarse)").matches;
+if (isTouch) document.body.classList.add("touch");
+addEventListener("touchstart", () => { if (!isTouch){ isTouch = true; document.body.classList.add("touch"); if (G.phase === "ready") readyEvent(); } }, { passive: true, capture: true });
+
+/* =====================================================================
+   렌더러 · 장면
+   ===================================================================== */
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+$("view").appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const SKY_TOP = new THREE.Color("#3c7fd8"), SKY_HOR = new THREE.Color("#cfe5f6");
+const FOG_CLEAR = { color: new THREE.Color("#cfe2f2"), near: 160, far: 900 };
+scene.fog = new THREE.Fog(FOG_CLEAR.color.clone(), FOG_CLEAR.near, FOG_CLEAR.far);
+
+const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.05, 2500);
+camera.rotation.order = "YXZ";
+camera.position.set(0, 1.62, 0);
+scene.add(camera);
+
+const SUN_DIR = V3(-0.42, 0.62, -0.66).normalize();
+const hemi = new THREE.HemisphereLight(0xcfe6ff, 0x5a7a3a, 0.85); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff1d6, 2.4);
+sun.position.copy(SUN_DIR).multiplyScalar(80).add(V3(0, 0, -25));
+sun.target.position.set(0, 0, -25);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -55, right: 55, top: 55, bottom: -55, near: 1, far: 220 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
+scene.add(sun, sun.target);
+
+/* ---------- 하늘(그라데이션 + 해) ---------- */
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { top: { value: SKY_TOP.clone() }, hor: { value: SKY_HOR.clone() }, sunDir: { value: SUN_DIR }, haze: { value: 0 } },
+  vertexShader: `varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `uniform vec3 top; uniform vec3 hor; uniform vec3 sunDir; uniform float haze; varying vec3 vP;
+    void main(){ float h = max(vP.y, 0.0); vec3 c = mix(hor, top, pow(h, 0.55));
+      if (vP.y < 0.0) c = hor * 0.92;
+      float s = max(dot(normalize(vP), sunDir), 0.0);
+      c += vec3(1.0,0.93,0.75) * (pow(s, 900.0) * 3.0 + pow(s, 30.0) * 0.28 + pow(s, 4.0) * 0.08) * (1.0 - haze * 0.8);
+      c = mix(c, hor, haze);
+      gl_FragColor = vec4(c, 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`
+});
+const sky = new THREE.Mesh(new THREE.SphereGeometry(1800, 40, 20), skyMat);
+scene.add(sky);
+
+/* ---------- 구름(바람 방향으로 흘러감) ---------- */
+function cloudTexture(){
+  const c = document.createElement("canvas"); c.width = 256; c.height = 128;
+  const g = c.getContext("2d");
+  for (let i = 0; i < 26; i++){
+    const x = rnd(40, 216), y = rnd(52, 92) - Math.abs(x - 128) * 0.12, r = rnd(18, 42);
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, "rgba(255,255,255,.95)"); gr.addColorStop(.55, "rgba(250,252,255,.55)"); gr.addColorStop(1, "rgba(240,245,252,0)");
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  const sh = g.createLinearGradient(0, 60, 0, 120); sh.addColorStop(0, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(150,165,190,.35)");
+  g.globalCompositeOperation = "source-atop"; g.fillStyle = sh; g.fillRect(0, 0, 256, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const clouds = [];
+{ const texs = [cloudTexture(), cloudTexture(), cloudTexture()];
+  for (let i = 0; i < 22; i++){
+    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: texs[i % 3], transparent: true, depthWrite: false, fog: false, opacity: rnd(.75, .98) }));
+    const a = rnd(-Math.PI, Math.PI), d = rnd(260, 900);
+    m.position.set(Math.sin(a) * d, rnd(70, 190), -Math.cos(a) * d);
+    const s = rnd(130, 280); m.scale.set(s, s * 0.5, 1); scene.add(m); clouds.push(m);
+  } }
+
+/* ---------- 먼 산 (두 겹) ---------- */
+function ridge(radius, base, amp, color, seed){
+  const N = 220, pos = [], idx = [];
+  for (let i = 0; i <= N; i++){
+    const a = i / N * Math.PI * 2;
+    const n = Math.sin(a * 3 + seed) * .5 + Math.sin(a * 7.3 + seed * 2) * .28 + Math.sin(a * 17.1 + seed * 3) * .14 + Math.sin(a * 41 + seed) * .06;
+    const h = base + amp * (0.55 + n * 0.75);
+    pos.push(Math.sin(a) * radius, -2, -Math.cos(a) * radius, Math.sin(a) * radius, h, -Math.cos(a) * radius);
+    if (i < N){ const k = i * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx);
+  const cols = []; const top = new THREE.Color(color), bot = new THREE.Color(color).multiplyScalar(.75);
+  for (let i = 0; i <= N; i++){ cols.push(bot.r, bot.g, bot.b, top.r, top.g, top.b); }
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: true }));
+  scene.add(m); return m;
+}
+ridge(1300, 30, 190, "#8fa6c4", 1.3);
+ridge(820, 12, 85, "#6f8f6a", 4.1);
+
+/* ---------- 땅 ---------- */
+function grassTexture(stripes){
+  const c = document.createElement("canvas"); c.width = c.height = 512; const g = c.getContext("2d");
+  g.fillStyle = "#5d8c39"; g.fillRect(0, 0, 512, 512);
+  if (stripes){ for (let i = 0; i < 8; i++){ g.fillStyle = i % 2 ? "rgba(255,255,190,.07)" : "rgba(0,40,0,.06)"; g.fillRect(i * 64, 0, 64, 512); } }
+  for (let i = 0; i < 9000; i++){
+    const x = Math.random() * 512, y = Math.random() * 512, l = rnd(2, 6);
+    const h = rnd(75, 110), s = rnd(35, 60), L = rnd(22, 42);
+    g.strokeStyle = `hsla(${h},${s}%,${L}%,.55)`; g.lineWidth = rnd(.6, 1.4);
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + rnd(-1.5, 1.5), y - l); g.stroke();
+  }
+  for (let i = 0; i < 40; i++){ g.fillStyle = `rgba(${rnd(60, 110)},${rnd(80, 120)},30,.18)`; g.beginPath(); g.ellipse(rnd(0, 512), rnd(0, 512), rnd(10, 40), rnd(6, 24), rnd(0, 3), 0, 7); g.fill(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t;
+}
+{ const t = grassTexture(false); t.repeat.set(140, 140);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshStandardMaterial({ map: t, roughness: 1, color: 0xdfe8cf }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  const t2 = grassTexture(true); t2.repeat.set(4, 6);
+  const range = new THREE.Mesh(new THREE.PlaneGeometry(90, 120), new THREE.MeshStandardMaterial({ map: t2, roughness: 1, polygonOffset: true, polygonOffsetFactor: -2 }));
+  range.rotation.x = -Math.PI / 2; range.position.set(0, 0.005, -50); range.receiveShadow = true; scene.add(range);
+}
+
+/* ---------- 재질 ---------- */
+const MAT = {
+  concrete: new THREE.MeshStandardMaterial({ color: 0xb9b6ad, roughness: .92 }),
+  concreteDark: new THREE.MeshStandardMaterial({ color: 0x8d8a82, roughness: .95 }),
+  white: new THREE.MeshStandardMaterial({ color: 0xf2efe6, roughness: .8 }),
+  roof: new THREE.MeshStandardMaterial({ color: 0xb6402f, roughness: .7, flatShading: true }),
+  dark: new THREE.MeshStandardMaterial({ color: 0x1d1f24, roughness: .9 }),
+  wood: new THREE.MeshStandardMaterial({ color: 0x8a5a32, roughness: .85 }),
+  bark: new THREE.MeshStandardMaterial({ color: 0x5b3d26, roughness: 1 }),
+  pine: new THREE.MeshStandardMaterial({ color: 0x2f5f33, roughness: .95, flatShading: true }),
+  leaf: new THREE.MeshStandardMaterial({ color: 0x4f8a37, roughness: .95, flatShading: true }),
+  hay: new THREE.MeshStandardMaterial({ color: 0xd8b85c, roughness: 1 }),
+  metal: new THREE.MeshStandardMaterial({ color: 0xcfd3da, roughness: .4, metalness: .6 }),
+};
+const box = (w, h, d, m) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.castShadow = o.receiveShadow = true; return o; };
+
+/* ---------- 사대(쏘는 자리) ---------- */
+{ const pad = box(3.2, .12, 2.6, MAT.concrete); pad.position.set(0, .06, .3); scene.add(pad);
+  const rail = new THREE.Group();
+  for (const x of [-1.6, 1.6]){ const p = box(.08, 1.05, .08, MAT.wood); p.position.set(x, .58, -.9); rail.add(p); }
+  const bar = box(3.3, .07, .1, MAT.wood); bar.position.set(0, 1.08, -.9); rail.add(bar);
+  scene.add(rail);
+}
+
+/* ---------- 트랩 하우스(앞), 하이·로 하우스(옆) ---------- */
+const TRAP = V3(0, 0.95, -16);
+{ const g = new THREE.Group(); g.position.set(0, 0, -16);
+  const b = box(4.2, .9, 3, MAT.concrete); b.position.y = .45; g.add(b);
+  const top = box(4.4, .12, 3.2, new THREE.MeshStandardMaterial({ color: 0x4f7d34, roughness: 1 })); top.position.y = .96; g.add(top);
+  const slot = box(1.6, .22, .05, MAT.dark); slot.position.set(0, .72, -1.52); g.add(slot);
+  const arm = box(.5, .06, .1, MAT.metal); arm.position.set(0, 1.06, -1.1); g.add(arm);
+  scene.add(g); }
+const HIGH = V3(-24, 4.3, -20), LOW = V3(24, 1.1, -20);
+function house(x, z, h, win){
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  const b = box(2.8, h, 2.8, MAT.white); b.position.y = h / 2; g.add(b);
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(2.4, 1.3, 4), MAT.roof); roof.rotation.y = Math.PI / 4; roof.position.y = h + .65; roof.castShadow = true; g.add(roof);
+  const w = box(.06, .45, 1.1, MAT.dark); w.position.set(x < 0 ? 1.42 : -1.42, win, 0); g.add(w);
+  const door = box(.06, 1.6, .8, MAT.wood); door.position.set(0, .8, 1.42); door.rotation.y = Math.PI / 2; g.add(door);
+  scene.add(g);
+}
+house(HIGH.x, HIGH.z, 5, HIGH.y); house(LOW.x, LOW.z, 2.4, LOW.y);
+
+/* ---------- 나무 ---------- */
+function pineTree(h){
+  const g = new THREE.Group();
+  const tr = new THREE.Mesh(new THREE.CylinderGeometry(h * .035, h * .05, h * .35, 7), MAT.bark); tr.position.y = h * .17; tr.castShadow = true; g.add(tr);
+  for (let i = 0; i < 4; i++){
+    const r = h * (.32 - i * .06), hh = h * (.36 - i * .03);
+    const c = new THREE.Mesh(new THREE.ConeGeometry(r, hh, 8), MAT.pine); c.position.y = h * (.32 + i * .17); c.rotation.y = i; c.castShadow = true; c.receiveShadow = true; g.add(c);
+  }
+  return g;
+}
+function roundTree(h){
+  const g = new THREE.Group();
+  const tr = new THREE.Mesh(new THREE.CylinderGeometry(h * .045, h * .065, h * .45, 7), MAT.bark); tr.position.y = h * .22; tr.castShadow = true; g.add(tr);
+  for (let i = 0; i < 5; i++){
+    const r = h * rnd(.17, .25);
+    const c = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), MAT.leaf);
+    c.position.set(rnd(-.14, .14) * h, h * rnd(.6, .78), rnd(-.14, .14) * h); c.castShadow = true; c.receiveShadow = true; g.add(c);
+  }
+  return g;
+}
+/* 배경 숲: 인스턴스로 많이 */
+{ const N = 520, cone = new THREE.ConeGeometry(1, 1, 7), trunk = new THREE.CylinderGeometry(.08, .12, 1, 5);
+  const im = new THREE.InstancedMesh(cone, MAT.pine, N), it = new THREE.InstancedMesh(trunk, MAT.bark, N);
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), col = new THREE.Color();
+  let k = 0;
+  while (k < N){
+    const a = rnd(-Math.PI, Math.PI), d = rnd(70, 260);
+    const x = Math.sin(a) * d, z = -Math.cos(a) * d;
+    if (z > -30 && Math.abs(x) < 45) continue;
+    if (z > 20 && Math.random() < .6) continue;
+    const h = rnd(8, 17);
+    m.compose(V3(x, h * .55, z), q, V3(h * .26, h * .85, h * .26)); im.setMatrixAt(k, m);
+    col.setHSL(rnd(.29, .36), rnd(.35, .5), rnd(.18, .27)); im.setColorAt(k, col);
+    m.compose(V3(x, h * .1, z), q, V3(h * .3, h * .2, h * .3)); it.setMatrixAt(k, m);
+    k++;
+  }
+  im.castShadow = true; scene.add(im, it);
+}
+/* 사격장 양옆 장식 나무 */
+for (const [x, z, h, t] of [[-34, -8, 11, 0], [-38, -30, 13, 1], [-30, -52, 12, 0], [35, -6, 10, 1], [38, -34, 14, 0], [31, -55, 11, 1], [-44, 6, 12, 0], [44, 10, 13, 0]]){
+  const tr = t ? roundTree(h) : pineTree(h); tr.position.set(x, 0, z); scene.add(tr);
+}
+/* 건초더미 장식 */
+function hayBale(){ const m = new THREE.Mesh(new THREE.CylinderGeometry(.75, .75, 1.2, 18), MAT.hay); m.rotation.z = Math.PI / 2; m.castShadow = m.receiveShadow = true; return m; }
+for (const [x, z, r] of [[-12, -6, .3], [-13.3, -6.4, .1], [13, -4, -.2], [20, -40, .5], [-19, -44, 1]]){ const b = hayBale(); b.position.set(x, .75, z); b.rotation.y = r; scene.add(b); }
+
+/* ---------- 바람자루(윈드삭) ---------- */
+function sockTexture(){
+  const c = document.createElement("canvas"); c.width = 128; c.height = 32; const g = c.getContext("2d");
+  for (let i = 0; i < 5; i++){ g.fillStyle = i % 2 ? "#ffffff" : "#ff5a1f"; g.fillRect(i * 25.6, 0, 25.6, 32); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const sockTex = sockTexture();
+const socks = [];
+for (const [x, z] of [[-7, -9], [9, -26], [-16, -46], [17, -12]]){
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(.05, .06, 5, 8), MAT.metal); pole.position.y = 2.5; pole.castShadow = true; g.add(pole);
+  const pivot = new THREE.Group(); pivot.position.y = 4.9; g.add(pivot);
+  const geo = new THREE.CylinderGeometry(.16, .32, 1.8, 16, 1, true); geo.rotateZ(Math.PI / 2); geo.translate(-.9, 0, 0);
+  // 텍스처가 길이 방향으로 감기도록 uv 돌리기
+  const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++){ const u = uv.getX(i), v = uv.getY(i); uv.setXY(i, v, u); }
+  const sock = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: sockTex, side: THREE.DoubleSide, roughness: .8 })); sock.castShadow = true;
+  const hinge = new THREE.Group(); hinge.add(sock); pivot.add(hinge);
+  scene.add(g); socks.push({ g, pivot, hinge, sock, ph: Math.random() * 6 });
+}
+
+/* ---------- 장애물: 숲(스테이션 4), 풍차, 새떼 ---------- */
+const obstacles = { forest: new THREE.Group(), windmill: new THREE.Group(), bales: new THREE.Group() };
+const FOREST_SPEC = [[-10, -13, 8, 0], [6, -11.5, 6.5, 1], [16, -27, 11, 0], [-3, -31, 9, 1]];
+for (const [x, z, h, t] of FOREST_SPEC){ const tr = t ? roundTree(h) : pineTree(h); tr.position.set(x, 0, z); obstacles.forest.add(tr); }
+for (const [x, z] of [[-.7, -10.6], [.7, -10.6]]){ const b = hayBale(); b.position.set(x, .75, z); obstacles.bales.add(b); }
+scene.add(obstacles.forest, obstacles.bales);
+const MILL = V3(13, 0, -42), MILL_HUB = V3(13, 15.5, -41.1);
+const millRotor = new THREE.Group();
+{ const g = obstacles.windmill; g.position.copy(MILL);
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(.45, .9, 15.5, 16), MAT.white); tower.position.y = 7.75; tower.castShadow = true; g.add(tower);
+  const nac = box(1.2, 1.1, 2.2, MAT.white); nac.position.set(0, 15.5, .2); g.add(nac);
+  millRotor.position.set(0, 15.5, .9); g.add(millRotor);
+  const hub = new THREE.Mesh(new THREE.SphereGeometry(.45, 16, 10), MAT.white); millRotor.add(hub);
+  for (let i = 0; i < 3; i++){
+    const bl = new THREE.Group(); bl.rotation.z = i * Math.PI * 2 / 3;
+    const blade = box(.55, 7.5, .14, MAT.white); blade.position.y = 4.1; bl.add(blade);
+    const tip = box(.56, .9, .15, new THREE.MeshStandardMaterial({ color: 0xd8432f })); tip.position.y = 7.4; bl.add(tip);
+    millRotor.add(bl);
+  }
+  scene.add(g); }
+
+/* 새 */
+const BIRD_MAT = new THREE.MeshStandardMaterial({ color: 0x2b2d33, roughness: .8, side: THREE.DoubleSide });
+function makeBird(){
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.SphereGeometry(.16, 10, 8), BIRD_MAT); body.scale.set(1, .7, 2.1); g.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(.1, 8, 6), BIRD_MAT); head.position.set(0, .05, -.36); g.add(head);
+  const beak = new THREE.Mesh(new THREE.ConeGeometry(.04, .14, 6), new THREE.MeshStandardMaterial({ color: 0xe0a020 })); beak.rotation.x = -Math.PI / 2; beak.position.set(0, .04, -.5); g.add(beak);
+  const wingGeo = new THREE.BufferGeometry(); wingGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, -.18, .75, 0, .05, 0, 0, .22, .75, 0, .05, .95, 0, .18, 0, 0, .22], 3)); wingGeo.computeVertexNormals();
+  const wl = new THREE.Mesh(wingGeo, BIRD_MAT), wr = new THREE.Mesh(wingGeo, BIRD_MAT); wr.scale.x = -1;
+  g.add(wl, wr); g.userData = { wl, wr };
+  return g;
+}
+
+/* =====================================================================
+   물리 상수 · 환경
+   ===================================================================== */
+const VIS = 3;                    // 화면에서 잘 보이도록 표적을 3배 크게 그림(충돌 판정도 같은 크기)
+const CLAY_R = 0.055;             // 실제 클레이 반지름 (지름 11 cm)
+const HIT_R = CLAY_R * VIS;
+const CLAY_CD = 0.6, CLAY_A = 0.0045;      // 항력계수, 바람을 받는 단면적(m²) — 모양이 같으면 같음
+const PELLETS = 70, PELLET_V = 400, SPREAD = 0.0105, PELLET_K = 0.0155;
+const EYE = V3(0, 1.62, 0);
+const CLAY_TYPES = {
+  light:  { key: "light",  name: "가벼운 클레이", mass: 0.060, color: "#38bdf8" },
+  std:    { key: "std",    name: "표준 클레이",   mass: 0.105, color: "#ff7a1a" },
+  heavy:  { key: "heavy",  name: "무거운 클레이", mass: 0.150, color: "#22c55e" },
+  rabbit: { key: "rabbit", name: "래빗(굴러감)",   mass: 0.110, color: "#facc15", rabbit: true },
+};
+const PLANETS = {
+  earth: { key: "earth", name: "지구", g: 9.8, rho: 1.2, icon: "🌍" },
+  mars:  { key: "mars",  name: "화성", g: 3.71, rho: 0.02, icon: "🔴" },
+  moon:  { key: "moon",  name: "달",   g: 1.62, rho: 0, icon: "🌙" },
+};
+const ENV = { planet: PLANETS.earth, windBase: 0, windDir: 0, gust: 0, wind: V3(), windSpeed: 0, t: 0,
+  obs: { forest: false, bales: false, windmill: false, birds: false, fog: false } };
+
+function updateWind(dt){
+  ENV.t += dt;
+  const t = ENV.t, G = ENV.gust;
+  let s = ENV.windBase + G * (0.55 * Math.sin(0.63 * t) + 0.3 * Math.sin(1.71 * t + 1.3) + 0.18 * Math.sin(3.3 * t + .4));
+  s = Math.max(0, s);
+  if (ENV.planet.rho === 0) s = 0;          // 공기가 없으면 바람도 없다
+  const d = (ENV.windDir + G * 5 * Math.sin(0.37 * t + 2)) * DEG;
+  ENV.windSpeed = s;
+  ENV.wind.set(Math.sin(d) * s, 0, -Math.cos(d) * s);
+}
+const dirFrom = (yaw, elev) => V3(Math.sin(yaw * DEG) * Math.cos(elev * DEG), Math.sin(elev * DEG), -Math.cos(yaw * DEG) * Math.cos(elev * DEG));
+
+/* 표적 한 걸음 (실제 게임과 예측·유령 궤적 모두 이 함수를 씀) */
+const _vr = V3(), _a = V3();
+function clayAccel(st, type, env, out){
+  const rho = env.rho, k = 0.5 * rho * CLAY_CD * CLAY_A / type.mass;
+  _vr.copy(st.v).sub(env.wind);
+  const sp = _vr.length();
+  out.copy(_vr).multiplyScalar(-k * sp);       // 공기 힘 / 질량 = 공기에 의한 가속도
+  return out;
+}
+function stepClayState(st, type, env, h){
+  const air = clayAccel(st, type, env, _a);
+  if (st.rolling){
+    air.y = 0;
+    const sp = Math.hypot(st.v.x, st.v.z);
+    if (sp > 0.01){ const f = 0.12 * env.g; st.v.x -= st.v.x / sp * f * h; st.v.z -= st.v.z / sp * f * h; }
+    st.v.x += air.x * h; st.v.z += air.z * h; st.v.y = 0;
+    st.hop -= h;
+    if (st.hop < 0){ st.v.y = rnd(1.6, 3.4) * Math.min(1, sp / 10); st.rolling = false; st.hop = rnd(.35, .9); }
+  } else {
+    st.v.x += air.x * h; st.v.y += (air.y - env.g) * h; st.v.z += air.z * h;
+  }
+  st.p.addScaledVector(st.v, h);
+  st.air = air;
+  if (st.p.y < (type.rabbit ? HIT_R * .9 : 0.04)){
+    if (type.rabbit){
+      st.p.y = HIT_R * .9;
+      if (st.v.y < -1.2){ st.v.y = -st.v.y * 0.32; } else { st.v.y = 0; st.rolling = true; }
+      if (Math.hypot(st.v.x, st.v.z) < 0.9) return "stop";
+    } else { st.p.y = 0.04; return "ground"; }
+  }
+  return null;
+}
+/* 바람·공기 조건을 바꿔 같은 발사를 다시 계산 (분석용 유령 궤적) */
+function ghostPath(p0, v0, type, opt){
+  const pl = opt.planet || ENV.planet;
+  const env = { g: pl.g, rho: opt.vacuum ? 0 : pl.rho, wind: opt.wind ? opt.wind.clone() : V3() };
+  const st = { p: p0.clone(), v: v0.clone(), rolling: false, hop: .5 }, pts = [{ t: 0, p: p0.clone() }];
+  let t = 0;
+  for (let i = 0; i < 3000 && t < 12; i++){
+    const r = stepClayState(st, type, env, 1 / 240); t += 1 / 240;
+    if (i % 10 === 9) pts.push({ t, p: st.p.clone() });
+    if (r) { pts.push({ t, p: st.p.clone() }); break; }
+  }
+  return pts;
+}
+const physEnv = () => ({ g: ENV.planet.g, rho: ENV.planet.rho, wind: ENV.wind });
+
+/* =====================================================================
+   총 (1인칭 상하 쌍대 산탄총)
+   ===================================================================== */
+const gun = new THREE.Group(), gunInner = new THREE.Group();
+gun.add(gunInner); camera.add(gun);
+gun.position.set(0.19, -0.235, -0.46); gun.scale.setScalar(.8);
+const MUZZLE = V3(0, 0.035, -0.86);
+{ const steel = new THREE.MeshStandardMaterial({ color: 0x3a3f48, roughness: .35, metalness: .45 });
+  const silver = new THREE.MeshStandardMaterial({ color: 0xd9dce2, roughness: .32, metalness: .35 });
+  const walnut = new THREE.MeshStandardMaterial({ color: 0x7a4422, roughness: .42, metalness: .05 });
+  const black = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .8 });
+  for (const y of [0.012, 0.035]){
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(.0115, .0125, .78, 18), steel); b.rotation.x = Math.PI / 2; b.position.set(0, y, -.47); gunInner.add(b);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.0118, .0025, 6, 18), steel); ring.position.set(0, y, -.86); gunInner.add(ring);
+  }
+  const rib = new THREE.Mesh(new THREE.BoxGeometry(.008, .006, .78), steel); rib.position.set(0, .05, -.47); gunInner.add(rib);
+  const bead = new THREE.Mesh(new THREE.SphereGeometry(.0035, 8, 6), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x888888 })); bead.position.set(0, .056, -.85); gunInner.add(bead);
+  const rec = new THREE.Mesh(new THREE.BoxGeometry(.04, .062, .13), silver); rec.position.set(0, .018, -.02); gunInner.add(rec);
+  const fore = new THREE.Mesh(new THREE.BoxGeometry(.042, .03, .27), walnut); fore.position.set(0, -.006, -.26); gunInner.add(fore);
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(.038, .06, .14), walnut); grip.position.set(0, -.012, .12); grip.rotation.x = .25; gunInner.add(grip);
+  const stock = new THREE.Mesh(new THREE.BoxGeometry(.04, .085, .3), walnut); stock.position.set(0, -.04, .3); stock.rotation.x = .12; gunInner.add(stock);
+  const butt = new THREE.Mesh(new THREE.BoxGeometry(.042, .1, .02), black); butt.position.set(0, -.058, .455); butt.rotation.x = .12; gunInner.add(butt);
+  const guard = new THREE.Mesh(new THREE.TorusGeometry(.022, .004, 6, 14, Math.PI), steel); guard.position.set(0, -.02, .04); guard.rotation.set(Math.PI, Math.PI / 2, 0); gunInner.add(guard);
+  gunInner.traverse(o => { if (o.isMesh) o.castShadow = false; });
+}
+function softDot(inner, outer){
+  const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d");
+  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, inner); gr.addColorStop(.45, outer); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const TEX_FLASH = softDot("rgba(255,250,220,1)", "rgba(255,170,60,.7)");
+const TEX_SOFT = softDot("rgba(255,255,255,.9)", "rgba(255,255,255,.35)");
+const flash = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_FLASH, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
+flash.scale.set(.32, .32, 1); flash.position.copy(MUZZLE); gunInner.add(flash);
+const flashLight = new THREE.PointLight(0xffb060, 0, 6); flashLight.position.copy(MUZZLE); gunInner.add(flashLight);
+const GUN = { recoil: 0, flash: 0 };
+
+/* =====================================================================
+   표적 만들기
+   ===================================================================== */
+const clayGeo = new THREE.LatheGeometry([[0.001, .026], [.022, .025], [.038, .021], [.048, .014], [.055, .005], [.054, 0], [.046, .004], [.03, .009], [.001, .011]].map(([x, y]) => new THREE.Vector2(x, y)), 28);
+clayGeo.translate(0, -.012, 0);
+const rabbitGeo = new THREE.CylinderGeometry(CLAY_R, CLAY_R, .035, 28); rabbitGeo.rotateX(Math.PI / 2);
+const clayMats = {}, glowMats = {};
+for (const k in CLAY_TYPES){
+  clayMats[k] = new THREE.MeshStandardMaterial({ color: CLAY_TYPES[k].color, roughness: .5, emissive: CLAY_TYPES[k].color, emissiveIntensity: .12 });
+  glowMats[k] = new THREE.SpriteMaterial({ map: TEX_SOFT, color: CLAY_TYPES[k].color, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .4 });
+}
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+function makeClayMesh(type){
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(type.rabbit ? rabbitGeo : clayGeo, clayMats[type.key]); m.castShadow = true; m.scale.setScalar(VIS); g.add(m);
+  if (!type.rabbit){ const ring = new THREE.Mesh(new THREE.TorusGeometry(.03, .0035, 5, 22), ringMat); ring.rotation.x = Math.PI / 2; ring.position.y = .016 * VIS - .012 * VIS + .002; ring.scale.setScalar(VIS); g.add(ring); }
+  const glow = new THREE.Sprite(glowMats[type.key]); glow.scale.set(1.1, 1.1, 1); g.add(glow);
+  g.userData.body = m;
+  return g;
+}
+
+/* =====================================================================
+   효과: 파편 · 가루 · 연기 · 궤적선
+   ===================================================================== */
+const fx = [];
+const shardGeo = new THREE.CylinderGeometry(.055, .055, .02, 3, 1, false, 0, 1.9);
+function spawnBreak(pos, vel, type){
+  const col = CLAY_TYPES[type.key].color;
+  for (let i = 0; i < 13; i++){
+    const m = new THREE.Mesh(shardGeo, clayMats[type.key]); m.scale.setScalar(VIS * rnd(.45, 1.1)); m.castShadow = true;
+    m.position.copy(pos); scene.add(m);
+    fx.push({ kind: "shard", o: m, v: vel.clone().multiplyScalar(rnd(.35, .7)).add(V3(rnd(-6, 6), rnd(-2, 7), rnd(-6, 6))), w: V3(rnd(-20, 20), rnd(-20, 20), rnd(-20, 20)), life: 3.2 });
+  }
+  const N = 70, geo = new THREE.BufferGeometry(), arr = new Float32Array(N * 3), vels = [];
+  for (let i = 0; i < N; i++){ arr.set([pos.x, pos.y, pos.z], i * 3); vels.push(V3(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)).normalize().multiplyScalar(rnd(2, 9)).addScaledVector(vel, .3)); }
+  geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: col, size: .22, map: TEX_SOFT, transparent: true, depthWrite: false, opacity: 1 }));
+  scene.add(pts); fx.push({ kind: "dust", o: pts, vels, life: 1.4, max: 1.4 });
+  const puff = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_SOFT, color: col, transparent: true, depthWrite: false, opacity: .75 }));
+  puff.position.copy(pos); scene.add(puff); fx.push({ kind: "puff", o: puff, v: vel.clone().multiplyScalar(.25), life: 1.1, max: 1.1, s0: .6, s1: 3.4 });
+}
+function spawnSmoke(pos){
+  for (let i = 0; i < 4; i++){
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_SOFT, color: 0xdedbd2, transparent: true, depthWrite: false, opacity: .35 }));
+    s.position.copy(pos); scene.add(s);
+    fx.push({ kind: "smoke", o: s, v: V3(rnd(-.3, .3), rnd(.1, .5), rnd(-.3, .3)), life: 2.2, max: 2.2, s0: .15, s1: rnd(1.2, 1.9) });
+  }
+}
+function updateFx(dt){
+  for (let i = fx.length - 1; i >= 0; i--){
+    const f = fx[i]; f.life -= dt;
+    if (f.kind === "shard"){
+      if (f.o.position.y > .02){ f.v.y -= ENV.planet.g * dt; f.v.addScaledVector(f.v, -.4 * dt * (ENV.planet.rho > 0 ? 1 : 0)); f.o.position.addScaledVector(f.v, dt); f.o.rotation.x += f.w.x * dt; f.o.rotation.y += f.w.y * dt; }
+      else f.o.position.y = .02;
+    } else if (f.kind === "dust"){
+      const a = f.o.geometry.attributes.position;
+      for (let j = 0; j < f.vels.length; j++){ const v = f.vels[j]; v.multiplyScalar(1 - 2.5 * dt); v.y -= 1.5 * dt; v.addScaledVector(ENV.wind, 2.2 * dt); a.setXYZ(j, a.getX(j) + v.x * dt, a.getY(j) + v.y * dt, a.getZ(j) + v.z * dt); }
+      a.needsUpdate = true; f.o.material.opacity = Math.max(0, f.life / f.max);
+    } else if (f.kind === "puff" || f.kind === "smoke"){
+      const k = 1 - f.life / f.max;
+      f.o.position.addScaledVector(f.v, dt).addScaledVector(ENV.wind, dt * (f.kind === "smoke" ? .9 : .6));
+      const s = f.s0 + (f.s1 - f.s0) * (1 - Math.pow(1 - k, 2)); f.o.scale.set(s, s, 1);
+      f.o.material.opacity = (f.kind === "smoke" ? .35 : .75) * (1 - k);
+    }
+    if (f.life <= 0){ scene.remove(f.o); if (f.kind !== "shard") { f.o.material.dispose(); if (f.o.geometry && f.kind === "dust") f.o.geometry.dispose(); } fx.splice(i, 1); }
+  }
+}
+/* 궤적선 */
+const trails = [];
+function makeTrail(color, dashed){
+  const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(900 * 3), 3)); geo.setDrawRange(0, 0);
+  const mat = dashed ? new THREE.LineDashedMaterial({ color, dashSize: .6, gapSize: .45, transparent: true, opacity: .85 }) : new THREE.LineBasicMaterial({ color, transparent: true, opacity: .9 });
+  const l = new THREE.Line(geo, mat); l.frustumCulled = false; scene.add(l); trails.push(l); l.userData.n = 0; return l;
+}
+function trailPush(l, p){ const n = l.userData.n; if (n >= 900) return; l.geometry.attributes.position.setXYZ(n, p.x, p.y, p.z); l.userData.n = n + 1; l.geometry.setDrawRange(0, n + 1); l.geometry.attributes.position.needsUpdate = true; }
+function trailSet(l, pts){ pts.forEach(q => trailPush(l, q.p)); if (l.material.isLineDashedMaterial) l.computeLineDistances(); }
+function clearTrails(){ for (const l of trails){ scene.remove(l); l.geometry.dispose(); l.material.dispose(); } trails.length = 0; }
+
+/* 리드 가이드 표시 */
+function ringTexture(){
+  const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d");
+  g.strokeStyle = "rgba(255,255,255,.95)"; g.lineWidth = 5; g.setLineDash([9, 6]); g.beginPath(); g.arc(32, 32, 25, 0, Math.PI * 2); g.stroke();
+  const t = new THREE.CanvasTexture(c); return t;
+}
+const guideTex = ringTexture();
+const guides = [0, 1, 2].map(() => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: guideTex, color: 0x7cff6b, depthTest: false, transparent: true })); s.scale.set(.9, .9, 1); s.visible = false; s.renderOrder = 5; scene.add(s); return s; });
+
+/* =====================================================================
+   소리 (Web Audio로 직접 합성)
+   ===================================================================== */
+const AU = { ctx: null, noise: null, windGain: null, master: null, echo: null };
+function audioInit(){
+  if (AU.ctx) { if (AU.ctx.state === "suspended") AU.ctx.resume(); return; }
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)(); AU.ctx = ctx;
+    AU.master = ctx.createGain(); AU.master.gain.value = .8; AU.master.connect(ctx.destination);
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    AU.noise = buf;
+    const dl = ctx.createDelay(1), fb = ctx.createGain(), lp = ctx.createBiquadFilter();
+    dl.delayTime.value = .38; fb.gain.value = .28; lp.type = "lowpass"; lp.frequency.value = 900;
+    dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(AU.master); AU.echo = dl;
+    const ws = ctx.createBufferSource(); ws.buffer = buf; ws.loop = true;
+    const wf = ctx.createBiquadFilter(); wf.type = "lowpass"; wf.frequency.value = 420;
+    AU.windGain = ctx.createGain(); AU.windGain.gain.value = 0;
+    ws.connect(wf); wf.connect(AU.windGain); AU.windGain.connect(AU.master); ws.start();
+  }catch(e){ AU.ctx = null; }
+}
+function noiseHit({ f = 1500, type = "lowpass", q = .7, dur = .4, vol = .8, echo = 0 }){
+  const ctx = AU.ctx; if (!ctx) return; const t = ctx.currentTime;
+  const s = ctx.createBufferSource(); s.buffer = AU.noise; s.playbackRate.value = rnd(.9, 1.1);
+  const fl = ctx.createBiquadFilter(); fl.type = type; fl.frequency.value = f; fl.Q.value = q;
+  const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  s.connect(fl); fl.connect(g); g.connect(AU.master); if (echo) { const e = ctx.createGain(); e.gain.value = echo; g.connect(e); e.connect(AU.echo); }
+  s.start(t, rnd(0, 1)); s.stop(t + dur + .05);
+}
+function tone(f0, f1, dur, vol, type = "sine"){
+  const ctx = AU.ctx; if (!ctx) return; const t = ctx.currentTime;
+  const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + dur + .05);
+}
+const sndShot = () => { noiseHit({ f: 2400, dur: .55, vol: 1, echo: .9 }); noiseHit({ f: 420, dur: .9, vol: .9, echo: .6 }); tone(120, 38, .35, .9); };
+const sndBreak = () => { noiseHit({ f: 3200, type: "bandpass", q: 1.4, dur: .16, vol: .9 }); setTimeout(() => noiseHit({ f: 5200, type: "bandpass", q: 2, dur: .09, vol: .5 }), 40); };
+const sndThrow = () => { tone(140, 60, .18, .45, "square"); noiseHit({ f: 900, type: "bandpass", dur: .25, vol: .45 }); };
+const sndClick = () => tone(1800, 1200, .05, .25, "square");
+const sndPull = () => { tone(520, 780, .16, .18, "triangle"); };
+const sndBird = () => { for (let i = 0; i < 4; i++) setTimeout(() => tone(rnd(2600, 3400), rnd(1800, 2400), .08, .12, "sine"), i * 70); };
+
+/* =====================================================================
+   스테이션(정식 경기)
+   ===================================================================== */
+const T = CLAY_TYPES;
+function trapSpec(type = T.std, yaw = rnd(-22, 22), elev = rnd(10, 19), speed = 25){
+  return { type, p: TRAP.clone().add(V3(yaw * .02, 0, -1)), v: dirFrom(yaw, elev).multiplyScalar(speed) };
+}
+function crossSpec(side, type = T.std){
+  if (side === "L") return { type, p: HIGH.clone().add(V3(1.6, 0, 0)), v: dirFrom(90 + rnd(-6, 12), rnd(3, 9)).multiplyScalar(23) };
+  return { type, p: LOW.clone().add(V3(-1.6, 0, 0)), v: dirFrom(-90 + rnd(-12, 6), rnd(15, 22)).multiplyScalar(23) };
+}
+const rabbitSpec = () => ({ type: T.rabbit, p: V3(15, HIT_R, -13.6), v: V3(-14.5, 0, rnd(-1.2, .4)) });
+
+const STATIONS = [
+  { title: "기본 트랩", wind: { s: 1, dir: 0, g: .4 }, obs: {}, guideFirst: 2,
+    conds: [["🥏", "표준 클레이", "105 g"], ["💨", "약한 바람", "1 m/s"], ["🎯", "멀어지는 표적", "트랩"]],
+    tip: "<h3>🎯 리드(앞 겨냥)를 익혀요</h3>탄알은 초속 400 m로 날아가지만, 25 m 떨어진 표적까지 가는 데도 약 <b>0.07초</b>가 걸려요. 그동안 표적은 1.5 m 넘게 움직여요! 그래서 표적의 <b>조금 앞(가는 쪽)</b>을 겨냥해야 해요. 처음 두 표적은 초록 점선 고리로 겨냥할 곳을 보여 줄게요.",
+    events: () => [[trapSpec()], [trapSpec()], [trapSpec()], [trapSpec()], [trapSpec()]] },
+  { title: "측풍 사격", wind: { s: 5.5, dir: 90, g: 1 }, obs: {},
+    conds: [["🥏", "표준 클레이", "105 g"], ["💨", "옆바람", "왼쪽→오른쪽 5.5 m/s"], ["🎏", "바람자루", "바람 방향 확인"]],
+    tip: "<h3>💨 바람은 표적을 옆으로 밀어요</h3>왼쪽에서 바람이 불면 표적은 날아가는 동안 점점 <b>오른쪽으로 휘어져요</b>. 바람이 표적에 주는 힘 F 때문에 가속도 a = F / m 이 생기기 때문이에요. 오른쪽 위 💨 바람 표시와 사격장의 주황 바람자루를 보고, 표적이 밀려갈 쪽을 미리 생각하세요.",
+    events: () => [[trapSpec()], [trapSpec()], [trapSpec()], [trapSpec()], [trapSpec()]] },
+  { title: "무게 비교 — 가벼운 vs 무거운", wind: { s: 5, dir: 270, g: 1.6 }, obs: {},
+    conds: [["🔵", "가벼운 클레이", "60 g"], ["🟢", "무거운 클레이", "150 g"], ["💨", "옆바람 + 돌풍", "오른쪽→왼쪽 5 m/s"]],
+    tip: "<h3>⚖️ 모양이 같으면 바람이 주는 힘도 같아요</h3>그런데 <b>a = F / m</b> 이라서, 질량이 작은 <b style='color:#38bdf8'>파란 클레이(60 g)</b>는 <b style='color:#22c55e'>초록 클레이(150 g)</b>보다 2.5배나 크게 밀리고 빨리 느려져요. 반대로 <b>중력</b>은 무게에 비례해서 커지기 때문에, 중력만 있을 때는 둘 다 똑같이 떨어져요(갈릴레이!). 표적마다 휘는 정도를 비교해 보세요.",
+    events: () => [[trapSpec(T.light)], [trapSpec(T.heavy)], [trapSpec(T.light)], [trapSpec(T.heavy)], [trapSpec(T.std)]] },
+  { title: "숲 크로싱 & 래빗", wind: { s: 3, dir: 180, g: 1 }, obs: { forest: true, bales: true },
+    conds: [["↔️", "가로지르는 표적", "왼쪽·오른쪽 집"], ["🌲", "나무 장애물", "탄이 막혀요"], ["🐇", "래빗", "땅을 굴러가요"]],
+    tip: "<h3>🌲 장애물 뒤로 숨는 표적</h3>옆으로 가로지르는 표적은 리드를 <b>가장 많이</b> 줘야 해요(표적 몸길이의 몇 배!). 나무에 가려질 때 쏘면 탄알이 나무에 막혀요. 땅을 굴러가는 <b>래빗</b>은 바닥과의 <b>마찰력</b> 때문에 점점 느려지고, 툭툭 튀어 오르기도 해요. 건초더미 뒤로 숨기 전에 맞혀요!",
+    events: () => [[crossSpec("L")], [crossSpec("R")], [rabbitSpec()], [crossSpec("L", T.light)], [crossSpec("R", T.heavy)]] },
+  { title: "더블 · 새떼 · 풍차 · 안개", wind: { s: 4, dir: 60, g: 2.6 }, obs: { windmill: true, birds: true, fog: true },
+    conds: [["✌️", "더블", "2개 동시 · 탄 2발"], ["🐦", "새떼", "새 쪽으론 쏘지 마요(-50)"], ["🌀", "풍차", "날개가 탄을 막아요"], ["🌫️", "안개", "멀리 안 보여요"]],
+    tip: "<h3>✌️ 마지막 관문</h3>표적 2개가 한꺼번에 날아와요. 탄은 2발뿐이니 <b>한 발에 하나씩</b>! 돌풍이 세게 불어서 바람이 계속 바뀌어요. 하늘을 지나가는 <b>새떼 근처로는 쏘지 마세요</b>(새가 놀라면 -50점). 풍차 날개 뒤의 표적은 날개가 지나간 뒤에 쏘세요. 안개 속에서는 가까울 때 빨리 쏘는 게 유리해요.",
+    events: () => [[trapSpec(T.std, rnd(-20, -10)), trapSpec(T.std, rnd(10, 20))], [crossSpec("L")], [crossSpec("L"), crossSpec("R")], [trapSpec(T.light)], [trapSpec(T.heavy, rnd(-16, -6)), trapSpec(T.light, rnd(6, 16))]] },
+];
+const TOTAL_CLAYS = 28;
+
+/* =====================================================================
+   게임 상태
+   ===================================================================== */
+const G = {
+  mode: "menu", phase: "idle", station: 0, event: 0, events: [], score: 0, streak: 0, shells: 2, shellNo: 0,
+  clays: [], shots: [], clayDone: 0, pullAt: 0, endAt: 0, time: 0, slow: 1, slowUntil: 0,
+  guide: false, trails: false, paused: false, labGalileo: false,
+  stats: null,
+};
+function newStats(){ return { hits: 0, first: 0, shots: 0, birds: 0, best: 0, drift: { light: [], std: [], heavy: [] }, behind: 0, ahead: 0, misses: 0, longest: 0 }; }
+
+function applyObstacles(o){
+  Object.assign(ENV.obs, { forest: !!o.forest, bales: !!o.bales, windmill: !!o.windmill, birds: !!o.birds, fog: !!o.fog });
+  obstacles.forest.visible = ENV.obs.forest; obstacles.bales.visible = ENV.obs.bales; obstacles.windmill.visible = ENV.obs.windmill;
+  if (!ENV.obs.birds) clearBirds();
+  applyAtmosphere();
+}
+function applyAtmosphere(){
+  const p = ENV.planet, fog = ENV.obs.fog;
+  let top = SKY_TOP, hor = SKY_HOR;
+  if (p.key === "moon"){ top = new THREE.Color("#020308"); hor = new THREE.Color("#1a1d26"); }
+  if (p.key === "mars"){ top = new THREE.Color("#b98a64"); hor = new THREE.Color("#e8caa2"); }
+  skyMat.uniforms.top.value.copy(top); skyMat.uniforms.hor.value.copy(hor);
+  skyMat.uniforms.haze.value = fog ? .78 : 0;
+  scene.fog.color.copy(fog ? new THREE.Color("#c9d3dc") : (p.key === "earth" ? FOG_CLEAR.color : hor));
+  scene.fog.near = fog ? 22 : (p.key === "moon" ? 2000 : FOG_CLEAR.near); scene.fog.far = fog ? 150 : (p.key === "moon" ? 5000 : FOG_CLEAR.far);
+  if (fog) skyMat.uniforms.hor.value.copy(scene.fog.color);
+  clouds.forEach(c => c.visible = !fog && p.key !== "moon");
+  hemi.intensity = p.key === "moon" ? .35 : fog ? .95 : .85; sun.intensity = fog ? 1.2 : 2.4;
+}
+
+/* ---------- 경기 흐름 ---------- */
+function startMatch(){
+  G.mode = "match"; G.station = 0; G.score = 0; G.streak = 0; G.clayDone = 0; G.stats = newStats();
+  ENV.planet = PLANETS.earth; G.trails = false;
+  $("lab").classList.add("hidden"); $("c-station-l").textContent = "스테이션";
+  showStation();
+}
+function showStation(){
+  const S = STATIONS[G.station];
+  ENV.windBase = S.wind.s; ENV.windDir = S.wind.dir; ENV.gust = S.wind.g; applyObstacles(S.obs);
+  G.events = S.events(); G.event = 0;
+  $("st-num").textContent = `STATION ${G.station + 1} / ${STATIONS.length}`;
+  $("st-title").textContent = S.title;
+  $("st-conds").innerHTML = S.conds.map(([i, b, s]) => `<div class="cond"><div class="ci">${i}</div><b>${b}</b><small>${s}</small></div>`).join("");
+  $("st-tip").innerHTML = S.tip;
+  openOverlay("station-card");
+  G.phase = "card";
+  camYaw = 0; camPitch = .1; cross.x = innerWidth / 2; cross.y = innerHeight * .42;
+}
+function startLab(){
+  document.body.classList.add("labmode");
+  G.mode = "lab"; G.score = 0; G.streak = 0; G.clayDone = 0; G.stats = newStats();
+  $("lab").classList.remove("hidden"); $("c-station-l").textContent = "모드";
+  labApply(); closeOverlays(); enterPlay(); readyEvent();
+}
+function enterPlay(){ document.body.classList.add("playing"); $("hud").classList.remove("hidden"); audioInit(); }
+function readyEvent(){
+  G.phase = "ready"; G.shells = 2; G.shellNo = 0;
+  for (const c of G.clays) if (c.mesh) scene.remove(c.mesh);
+  G.clays = []; clearTrails();
+  if (G.mode === "match"){
+    const S = STATIONS[G.station];
+    G.guide = !!S.guideFirst && G.event < S.guideFirst;
+  }
+  setHint(isTouch ? "오른쪽 아래 버튼을 눌러 \"풀!\"" : "클릭(또는 스페이스)하면 \"풀!\" — 표적이 날아가요", true);
+  $("fire").className = "pull"; $("fire").innerHTML = "풀!<small>표적 부르기</small>";
+  updateHud();
+}
+function pull(){
+  if (G.phase !== "ready") return;
+  G.phase = "pull"; G.pullAt = G.time + .45; sndPull();
+  showMsg("풀!", "", "#FFE08A"); setHint("", false);
+}
+function launch(specs){
+  sndThrow();
+  for (const s of specs){
+    const mesh = makeClayMesh(s.type); mesh.position.copy(s.p); scene.add(mesh);
+    const c = { type: s.type, planet: ENV.planet, p: s.p.clone(), v: s.v.clone(), p0: s.p.clone(), v0: s.v.clone(), t: 0, state: "fly", mesh,
+      rolling: false, hop: rnd(.3, .7), path: [{ t: 0, p: s.p.clone() }], rec: 0, spin: rnd(25, 40), close: [], hitShell: 0, hitRange: 0, resolved: false, maxH: s.p.y };
+    // 1초 동안 바람에 밀린 거리(같은 발사, 바람만 없앤 계산과 비교)
+    const a = ghostPath(c.p0, c.v0, c.type, { wind: ENV.wind }), b = ghostPath(c.p0, c.v0, c.type, {});
+    const at = (pts, t) => (pts.find(q => q.t >= t) || pts[pts.length - 1]).p;
+    c.drift1 = Math.hypot(at(a, 1).x - at(b, 1).x, at(a, 1).z - at(b, 1).z);
+    if (G.trails){ c.trail = makeTrail(s.type.color); trailPush(c.trail, c.p); }
+    G.clays.push(c);
+  }
+  if (G.trails && G.clays[0]){ const v = makeTrail(0xffffff, true); trailSet(v, ghostPath(G.clays[0].p0, G.clays[0].v0, G.clays[0].type, { vacuum: true })); }
+  G.phase = "flying"; G.launchT = G.time;
+  $("fire").className = ""; $("fire").innerHTML = "발사<small>탄 2발</small>";
+  setHint("", false); updateHud();
+}
+function eventSpecs(){
+  if (G.mode === "match") return G.events[G.event];
+  return labSpecs();
+}
+
+/* ---------- 사격 ---------- */
+const _ray = new THREE.Raycaster(), aimDir = V3(0, 0, -1);
+function fire(){
+  if (G.phase !== "flying") return;
+  if (G.shells <= 0){ sndClick(); return; }
+  G.shells--; G.shellNo++; G.stats.shots++;
+  const d = aimDir.clone(), u = V3(0, 1, 0).cross(d).normalize(), w = d.clone().cross(u).normalize();
+  const N = PELLETS, pos = new Float32Array(N * 3), vel = new Float32Array(N * 3), alive = new Uint8Array(N).fill(1);
+  for (let i = 0; i < N; i++){
+    const r = Math.sqrt(-2 * Math.log(Math.random() + 1e-9)), th = Math.random() * Math.PI * 2;
+    const dir = d.clone().addScaledVector(u, Math.cos(th) * r * SPREAD).addScaledVector(w, Math.sin(th) * r * SPREAD).normalize().multiplyScalar(PELLET_V + rnd(-10, 10));
+    pos.set([EYE.x, EYE.y, EYE.z], i * 3); vel.set([dir.x, dir.y, dir.z], i * 3);
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 6), 3));
+  const lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0xe9e1c4, transparent: true, opacity: .55, depthWrite: false })); lines.frustumCulled = false; scene.add(lines);
+  const muzzleW = MUZZLE.clone(); gunInner.localToWorld(muzzleW);
+  const shot = { no: G.shellNo, t: 0, pos, vel, alive, lines, muzzle: muzzleW.sub(EYE), hits: new Map(), birdHit: false, blocked: 0,
+    cp: EYE.clone(), cv: d.clone().multiplyScalar(PELLET_V), done: false };
+  G.shots.push(shot);
+  GUN.recoil = 1; GUN.flash = 1; sndShot();
+  const sm = MUZZLE.clone(); gunInner.localToWorld(sm); spawnSmoke(sm);
+  updateHud();
+}
+/* 선분-구 충돌 */
+const _d = V3(), _m = V3();
+function segPointDist2(p0, p1, c){ _d.copy(p1).sub(p0); const L = _d.lengthSq(); let t = L > 0 ? _m.copy(c).sub(p0).dot(_d) / L : 0; t = clamp(t, 0, 1); return _m.copy(p0).addScaledVector(_d, t).distanceToSquared(c); }
+function segSegDist2(p1, q1, p2, q2){
+  const d1 = q1.clone().sub(p1), d2 = q2.clone().sub(p2), r = p1.clone().sub(p2);
+  const a = d1.dot(d1), e = d2.dot(d2), f = d2.dot(r), c = d1.dot(r), b = d1.dot(d2), den = a * e - b * b;
+  let s = den > 1e-9 ? clamp((b * f - c * e) / den, 0, 1) : 0, t = (b * s + f) / e;
+  if (t < 0){ t = 0; s = clamp(-c / a, 0, 1); } else if (t > 1){ t = 1; s = clamp((b - c) / a, 0, 1); }
+  return p1.clone().addScaledVector(d1, s).distanceToSquared(p2.clone().addScaledVector(d2, t));
+}
+/* 장애물(탄을 막는 것) */
+function blockers(){
+  const L = [];
+  if (ENV.obs.forest) for (const [x, z, h, t] of FOREST_SPEC){
+    L.push({ k: "sph", c: V3(x, h * (t ? .68 : .55), z), r: h * (t ? .27 : .24), name: "나무" });
+    L.push({ k: "cyl", x, z, r: h * .06, y1: h * .5, name: "나무" });
+  }
+  if (ENV.obs.bales) L.push({ k: "box", min: V3(-1.45, 0, -11.35), max: V3(1.45, 1.5, -9.85), name: "건초더미" });
+  if (ENV.obs.windmill){
+    L.push({ k: "cyl", x: MILL.x, z: MILL.z, r: .8, y1: 15.5, name: "풍차 기둥" });
+    for (let i = 0; i < 3; i++){
+      const a = millRotor.rotation.z + i * Math.PI * 2 / 3, dir = V3(-Math.sin(a), Math.cos(a), 0);
+      L.push({ k: "seg", a: MILL_HUB.clone().addScaledVector(dir, .4), b: MILL_HUB.clone().addScaledVector(dir, 7.9), r: .38, name: "풍차 날개" });
+    }
+  }
+  return L;
+}
+function segBlocked(p0, p1, L){
+  for (const o of L){
+    if (o.k === "sph"){ if (segPointDist2(p0, p1, o.c) < o.r * o.r) return o; }
+    else if (o.k === "cyl"){
+      const ymid = (p0.y + p1.y) / 2; if (ymid > o.y1) continue;
+      const a = V3(p0.x, 0, p0.z), b = V3(p1.x, 0, p1.z); if (segPointDist2(a, b, V3(o.x, 0, o.z)) < o.r * o.r) return o;
+    } else if (o.k === "seg"){ if (segSegDist2(p0, p1, o.a, o.b) < o.r * o.r) return o; }
+    else if (o.k === "box"){
+      let t0 = 0, t1 = 1; const d = p1.clone().sub(p0); let ok = true;
+      for (const ax of ["x", "y", "z"]){
+        if (Math.abs(d[ax]) < 1e-9){ if (p0[ax] < o.min[ax] || p0[ax] > o.max[ax]){ ok = false; break; } continue; }
+        let ta = (o.min[ax] - p0[ax]) / d[ax], tb = (o.max[ax] - p0[ax]) / d[ax]; if (ta > tb) [ta, tb] = [tb, ta];
+        t0 = Math.max(t0, ta); t1 = Math.min(t1, tb); if (t0 > t1){ ok = false; break; }
+      }
+      if (ok) return o;
+    }
+  }
+  return null;
+}
+const _p0 = V3(), _p1 = V3();
+function stepShots(h, L){
+  const env = physEnv(), kp = PELLET_K * env.rho / 1.2;
+  for (const s of G.shots){
+    if (s.done) continue;
+    s.t += h;
+    const flying = G.clays.filter(c => c.state === "fly");
+    let any = false;
+    for (let i = 0; i < PELLETS; i++){
+      if (!s.alive[i]) continue; any = true;
+      const j = i * 3;
+      _p0.set(s.pos[j], s.pos[j + 1], s.pos[j + 2]);
+      let vx = s.vel[j], vy = s.vel[j + 1], vz = s.vel[j + 2];
+      const rx = vx - env.wind.x, ry = vy, rz = vz - env.wind.z, sp = Math.hypot(rx, ry, rz);
+      vx -= kp * sp * rx * h; vy -= (kp * sp * ry + env.g) * h; vz -= kp * sp * rz * h;
+      _p1.set(_p0.x + vx * h, _p0.y + vy * h, _p0.z + vz * h);
+      s.vel[j] = vx; s.vel[j + 1] = vy; s.vel[j + 2] = vz;
+      let dead = false;
+      for (const c of flying){ if (segPointDist2(_p0, _p1, c.p) < HIT_R * HIT_R){ s.hits.set(c, (s.hits.get(c) || 0) + 1); dead = true; break; } }
+      if (!dead && L.length && segBlocked(_p0, _p1, L)){ dead = true; s.blocked++; }
+      if (!dead && !s.birdHit) for (const b of birds){ if (!b.scared && segPointDist2(_p0, _p1, b.o.position) < .8 * .8){ s.birdHit = true; scareBird(b, s); break; } }
+      if (dead || s.t > .75 || _p1.y < 0 || _p1.lengthSq() > 110 * 110){ s.alive[i] = 0; }
+      s.pos[j] = _p1.x; s.pos[j + 1] = _p1.y; s.pos[j + 2] = _p1.z;
+    }
+    // 탄 무리의 가운데(퍼짐 없는 가상의 한 알) — 리드 분석용
+    { const sp = Math.hypot(s.cv.x - env.wind.x, s.cv.y, s.cv.z - env.wind.z);
+      s.cv.x -= kp * sp * (s.cv.x - env.wind.x) * h; s.cv.y -= (kp * sp * s.cv.y + env.g) * h; s.cv.z -= kp * sp * (s.cv.z - env.wind.z) * h;
+      s.cp.addScaledVector(s.cv, h);
+      for (const c of G.clays){
+        if (c.state !== "fly" && !(c.state === "broken" && c.brokenBy === s)) continue;
+        const dd = c.p.distanceTo(s.cp);
+        let rec = c.close.find(r => r.shot === s);
+        if (!rec){ rec = { shot: s, min: 1e9 }; c.close.push(rec); }
+        if (dd < rec.min){
+          const sd = s.cv.clone().normalize(), off = c.p.clone().sub(s.cp);   // 표적 - 탄 가운데
+          const vperp = c.v.clone().addScaledVector(sd, -c.v.dot(sd)), vp = vperp.length();
+          const u = vp > .1 ? vperp.clone().divideScalar(vp) : V3(0, 1, 0);
+          const along = off.dot(u), rest = off.clone().addScaledVector(u, -along).addScaledVector(sd, -off.dot(sd));
+          Object.assign(rec, { min: dd, along, rest, tof: s.t, range: s.cp.distanceTo(EYE), vperp: vp });
+        }
+      }
+    }
+    if (s.hits.size){
+      const broken = [];
+      for (const [c, n] of s.hits){ if (c.state === "fly"){ breakClay(c, s); broken.push(c); } }
+      s.hits.clear();
+      if (broken.length >= 2) addScore(80, "더블 킬!", broken[0].p, "✌️");
+    }
+    if (!any){ s.done = true; }
+  }
+}
+function updateShotVisuals(dt){
+  for (let k = G.shots.length - 1; k >= 0; k--){
+    const s = G.shots[k];
+    const a = s.lines.geometry.attributes.position, fade = Math.max(0, 1 - s.t / .3);
+    for (let i = 0; i < PELLETS; i++){
+      const j = i * 3, x = s.pos[j], y = s.pos[j + 1], z = s.pos[j + 2];
+      const dist = Math.hypot(x - EYE.x, y - EYE.y, z - EYE.z), m = Math.max(0, 1 - dist / 8);
+      const vx = x + s.muzzle.x * m, vy = y + s.muzzle.y * m, vz = z + s.muzzle.z * m;
+      if (!s.alive[i]){ a.setXYZ(i * 2, vx, vy, vz); a.setXYZ(i * 2 + 1, vx, vy, vz); continue; }
+      const L = 2.2;
+      const sp = Math.hypot(s.vel[j], s.vel[j + 1], s.vel[j + 2]) || 1;
+      a.setXYZ(i * 2, vx - s.vel[j] / sp * L, vy - s.vel[j + 1] / sp * L, vz - s.vel[j + 2] / sp * L); a.setXYZ(i * 2 + 1, vx, vy, vz);
+    }
+    a.needsUpdate = true; s.lines.material.opacity = .55 * fade + .05;
+    if (s.done && s.t > .3){ scene.remove(s.lines); s.lines.geometry.dispose(); s.lines.material.dispose(); s.lines = null; G.shots.splice(k, 1); }
+  }
+}
+
+/* ---------- 명중 · 점수 ---------- */
+function breakClay(c, s){
+  c.state = "broken"; c.brokenBy = s; c.hitShell = s.no; c.hitRange = c.p.distanceTo(EYE); c.hitT = c.t;
+  scene.remove(c.mesh); spawnBreak(c.p, c.v, c.type); sndBreak();
+  G.stats.hits++; if (s.no === 1) G.stats.first++;
+  G.stats.longest = Math.max(G.stats.longest, c.hitRange);
+  G.streak++; G.stats.best = Math.max(G.stats.best, G.streak);
+  let pts = s.no === 1 ? 100 : 70; const tags = [s.no === 1 ? "첫 발 명중" : "두 번째 발 명중"];
+  if (c.hitRange > 32){ pts += 20; tags.push("롱샷"); }
+  if (c.t < .85){ pts += 20; tags.push("퀵샷"); }
+  if (G.streak >= 3){ const b = Math.min(50, 10 * (G.streak - 2)); pts += b; tags.push(`${G.streak}연속`); }
+  addScore(pts, tags.join(" · "), c.p);
+  G.slowUntil = G.time + .32;
+  $("cross").classList.add("hit"); setTimeout(() => $("cross").classList.remove("hit"), 180);
+  resolveClay(c);
+}
+function addScore(pts, label, wpos, icon){
+  G.score += pts; updateHud();
+  const v = wpos.clone().project(camera);
+  const el = document.createElement("div"); el.className = "pts" + (pts < 0 ? " bad" : "");
+  el.innerHTML = `${icon ? icon + " " : ""}${pts > 0 ? "+" : ""}${pts}<small>${label}</small>`;
+  el.style.left = clamp((v.x + 1) / 2 * innerWidth, 60, innerWidth - 60) + "px"; el.style.top = clamp((1 - v.y) / 2 * innerHeight, 60, innerHeight - 60) + "px";
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
+}
+function resolveClay(c){
+  if (c.resolved) return; c.resolved = true; G.clayDone++;
+  if (c.state !== "broken"){ G.streak = 0; G.stats.misses++; }
+  if (G.stats.drift[c.type.key] && ENV.planet.key === "earth") G.stats.drift[c.type.key].push(c.drift1);
+  updateHud();
+}
+
+/* ---------- 새떼 ---------- */
+const birds = []; let nextBirdAt = 0;
+function clearBirds(){ for (const b of birds) scene.remove(b.o); birds.length = 0; }
+function spawnFlock(){
+  const dir = Math.random() < .5 ? 1 : -1, n = 4 + (Math.random() * 3 | 0), y = rnd(9, 14), z = rnd(-30, -48), sp = rnd(7.5, 10);
+  for (let i = 0; i < n; i++){
+    const o = makeBird(); const off = i === 0 ? 0 : Math.ceil(i / 2) * (i % 2 ? 1 : -1);
+    o.position.set(-dir * (62 + Math.abs(off) * 1.6), y + rnd(-.4, .4), z + off * 1.5); o.rotation.y = dir > 0 ? -Math.PI / 2 : Math.PI / 2; o.scale.setScalar(1.25);
+    scene.add(o); birds.push({ o, v: V3(dir * sp, rnd(-.2, .2), 0), ph: rnd(0, 6), scared: false });
+  }
+}
+function scareBird(b, s){
+  sndBird();
+  for (const o of birds){ if (o.o.position.distanceTo(b.o.position) < 9){ o.scared = true; o.v.y += rnd(4, 7); o.v.x *= 1.7; o.v.z += rnd(-3, 3); } }
+  G.stats.birds++; addScore(-50, "새가 놀랐어요! 새 쪽으로 쏘지 마세요", b.o.position, "🐦");
+}
+function updateBirds(dt){
+  if (ENV.obs.birds && G.time > nextBirdAt && birds.length < 8){ spawnFlock(); nextBirdAt = G.time + rnd(7, 12); }
+  for (let i = birds.length - 1; i >= 0; i--){
+    const b = birds[i]; b.o.position.addScaledVector(b.v, dt);
+    const f = Math.sin(G.time * (b.scared ? 22 : 11) + b.ph) * .85;
+    b.o.userData.wl.rotation.z = f; b.o.userData.wr.rotation.z = -f;
+    if (Math.abs(b.o.position.x) > 90 || b.o.position.y > 60){ scene.remove(b.o); birds.splice(i, 1); }
+  }
+}
+
+/* =====================================================================
+   매 순간 표적 움직이기 · 경기 흐름
+   ===================================================================== */
+const _prev = V3();
+function stepClays(h, L){
+  const env = physEnv();
+  for (const c of G.clays){
+    if (c.state !== "fly") continue;
+    _prev.copy(c.p);
+    const r = stepClayState(c, c.type, env, h); c.t += h;
+    if (c.p.y > c.maxH) c.maxH = c.p.y;
+    if (c.t - c.rec >= .04){ c.rec = c.t; c.path.push({ t: c.t, p: c.p.clone() }); if (c.trail) trailPush(c.trail, c.p); }
+    const hit = L.length && segBlocked(_prev, c.p, L);
+    if (hit){ c.state = "lost"; c.lostBy = hit.name; scene.remove(c.mesh); spawnBreak(c.p, c.v, c.type); sndBreak(); if (G.mode !== "menu"){ addScore(0, `${hit.name}에 부딪혀 깨졌어요`, c.p, "💥"); resolveClay(c); } continue; }
+    if (r){ c.state = "landed"; c.path.push({ t: c.t, p: c.p.clone() }); if (G.mode !== "menu") resolveClay(c); continue; }
+    if (c.t > 12 || Math.abs(c.p.x) > 170 || c.p.z < -280){ c.state = "gone"; scene.remove(c.mesh); if (G.mode !== "menu") resolveClay(c); }
+  }
+}
+function updateClayVisuals(dt){
+  for (const c of G.clays){
+    if (c.state === "broken" || c.state === "lost" || c.state === "gone") continue;
+    c.mesh.position.copy(c.p);
+    const body = c.mesh.userData.body;
+    if (c.type.rabbit){
+      const sp = Math.hypot(c.v.x, c.v.z); c.mesh.rotation.y = Math.atan2(-c.v.z, c.v.x) - Math.PI / 2;
+      body.rotation.x -= (c.state === "fly" ? sp / CLAY_R / VIS : 0) * dt;
+    } else if (c.state === "fly"){
+      body.rotation.y += c.spin * dt;
+      c.mesh.rotation.z = clamp(-c.v.x * .02, -.4, .4); c.mesh.rotation.x = clamp(c.v.y * .015, -.3, .3);
+    } else { c.mesh.rotation.set(0, 0, 0); }
+  }
+}
+function eventFlow(){
+  if (G.mode === "menu") return;
+  if (G.phase === "flying"){
+    const shooting = G.shots.some(s => !s.done);
+    if (G.shells === 0 && !shooting) for (const c of G.clays) if (!c.resolved) resolveClay(c);
+    if (G.clays.every(c => c.resolved) && !shooting){ G.phase = "after"; G.endAt = G.time + .8; }
+  } else if (G.phase === "after" && G.time >= G.endAt){
+    finishEvent();
+  } else if (G.phase === "next" && G.time >= G.endAt){
+    if (G.mode === "lab"){ readyEvent(); return; }
+    G.event++;
+    if (G.event < G.events.length) readyEvent();
+    else { G.station++; if (G.station < STATIONS.length){ clearShotsAndClays(); showStation(); } else finishMatch(); }
+  }
+}
+function clearShotsAndClays(){
+  for (const c of G.clays) if (c.mesh) scene.remove(c.mesh);
+  G.clays = []; clearTrails();
+}
+function finishEvent(){
+  G.phase = "next"; G.endAt = G.time + (G.mode === "lab" ? .5 : 1.3);
+  const cs = G.clays; if (!cs.length) return;
+  if (G.labGalileo){ G.labGalileo = false; analyzeGalileo(cs); return; }
+  const hits = cs.filter(c => c.state === "broken").length;
+  if (hits === cs.length) showMsg(cs.length > 1 ? "더블 성공!" : "명중!", "", "#86EFAC");
+  else if (hits === 0) showMsg("놓쳤어요", "", "#FCA5A5");
+  analyzeClay(cs.find(c => c.state !== "broken") || cs[0], cs);
+}
+
+/* =====================================================================
+   분석 카드 (위·옆에서 본 궤적 + 리드 피드백)
+   ===================================================================== */
+const at = (pts, t) => (pts.find(q => q.t >= t) || pts[pts.length - 1]).p;
+function analyzeClay(c, all){
+  const tEnd = c.path[c.path.length - 1].t;
+  const noWind = ghostPath(c.p0, c.v0, c.type, { planet: c.planet }), vac = ghostPath(c.p0, c.v0, c.type, { vacuum: true, planet: c.planet });
+  const gEnd = at(noWind, tEnd), last = c.path[c.path.length - 1].p;
+  const drift = Math.hypot(last.x - gEnd.x, last.z - gEnd.z);
+  drawAnalysis([{ pts: noWind, color: "#7dd3fc", dash: true, top: true }, { pts: vac, color: "#ffffff", dash: true, side: true }, { pts: c.path, color: c.type.color, top: true, side: true, end: c.state === "broken" ? "hit" : "miss" }]);
+  const lines = [];
+  const recs = c.close.filter(r => r.min < 1e8);
+  const rec = c.state === "broken" ? recs.find(r => r.shot === c.brokenBy) : recs.sort((a, b) => a.min - b.min)[0];
+  if (c.state === "broken"){
+    lines.push(`<span class="good">✅ 명중!</span> ${c.hitShell}번째 탄 · 거리 <b>${c.hitRange.toFixed(1)} m</b> · 발사 ${c.hitT.toFixed(2)}초 뒤`);
+  } else if (c.state === "lost"){
+    lines.push(`<span class="bad">💥 ${c.lostBy}에 부딪혀 깨졌어요</span> (점수 없음)`);
+  } else if (rec){
+    const blocked = rec.shot.blocked > PELLETS * .4;
+    if (blocked) lines.push(`<span class="bad">❌ 놓침</span> — 탄알 ${rec.shot.blocked}개가 장애물에 막혔어요. 가려지지 않을 때 쏘세요.`);
+    else {
+      const a = rec.along, r = rec.rest, rl = r.length();
+      let dirTxt = "";
+      if (rl > .3){ const ay = Math.abs(r.y), ah = Math.hypot(r.x, r.z); dirTxt = ay >= ah ? (r.y > 0 ? `, ${rl.toFixed(1)} m 아래` : `, ${rl.toFixed(1)} m 위`) : ` (옆으로 ${rl.toFixed(1)} m)`; }
+      const where = Math.abs(a) < .3 ? `거의 정확한 방향이었는데 ${rec.min.toFixed(1)} m 빗나갔어요` : `표적보다 <b>${Math.abs(a).toFixed(1)} m ${a > 0 ? "뒤" : "앞"}</b>${dirTxt}를 지나갔어요`;
+      lines.push(`<span class="bad">❌ 놓침</span> — 탄 무리 가운데가 ${where}.`);
+      if (a > .35) { lines.push(`👉 리드가 모자라요. 표적이 가는 쪽으로 약 <b>${(rec.vperp * rec.tof).toFixed(1)} m</b> 앞을 겨냥하세요.`); G.stats.behind++; }
+      else if (a < -.35) { lines.push("👉 너무 앞을 쐈어요. 리드를 조금 줄이세요."); G.stats.ahead++; }
+    }
+  } else lines.push(`<span class="bad">❌ 놓침</span> — 이 표적에는 쏘지 않았어요.`);
+  if (rec) lines.push(`⏱️ 탄이 ${rec.range.toFixed(0)} m 가는 데 <b>${rec.tof.toFixed(3)}초</b> → 그동안 표적이 ${(rec.vperp * rec.tof).toFixed(1)} m 움직여요(필요한 리드).`);
+  const m = c.type.mass * 1000;
+  if (c.planet.rho > 0) lines.push(`💨 ${c.type.name}(${m} g) · 바람에 밀린 거리 <b>${drift.toFixed(1)} m</b> · 1초에 ${c.drift1.toFixed(2)} m → 평균 옆 가속도 약 ${(2 * c.drift1).toFixed(1)} m/s²`);
+  else lines.push(`🌙 공기가 없어서 바람·공기 저항이 0! 표적은 중력만 받아 포물선으로 날아가요.`);
+  lines.push(`📈 비행 ${tEnd.toFixed(2)}초 · 최고 높이 ${c.maxH.toFixed(1)} m · 공기가 없었다면 ${Math.hypot(vac[vac.length - 1].p.x - c.p0.x, vac[vac.length - 1].p.z - c.p0.z).toFixed(0)} m 날아갔을 거예요(흰 점선).`);
+  if (all.length > 1){ const h = all.filter(x => x.state === "broken").length; lines.unshift(`✌️ 더블: ${all.length}개 중 <b>${h}개</b> 명중`); }
+  $("ana-title").textContent = c.state === "broken" ? "🎯 명중 분석" : "🎯 놓친 표적 분석";
+  $("ana-text").innerHTML = lines.join("<br>");
+  $("ana").style.opacity = 1;
+}
+function analyzeGalileo(cs){
+  const sets = cs.map(c => ({ pts: c.path, color: c.type.color, top: true, side: true, end: c.state === "broken" ? "hit" : "miss" }));
+  drawAnalysis(sets);
+  const rows = cs.map(c => { const e = c.path[c.path.length - 1]; return `<span style="color:${c.type.color}">●</span> ${c.type.name} ${c.type.mass * 1000} g: 비행 ${e.t.toFixed(2)} s · 거리 <b>${Math.hypot(e.p.x - c.p0.x, e.p.z - c.p0.z).toFixed(1)} m</b> · 1초에 바람에 밀림 ${c.drift1.toFixed(2)} m`; });
+  const concl = cs[0].planet.rho === 0
+    ? "🌙 공기가 없으니 세 클레이가 <b>완전히 같은 길</b>로 날아갔어요! 중력은 무거운 물체에 더 큰 힘을 주지만, 질량도 그만큼 커서 가속도(g)는 모두 같아요."
+    : "🌍 모양이 같아 공기·바람이 주는 힘 F는 같지만, <b>a = F / m</b> 이라서 가벼운 클레이가 더 빨리 느려지고 더 많이 밀려요. 장소를 '달'로 바꿔 다시 해 보세요!";
+  $("ana-title").textContent = "⚖️ 무게 비교 실험 결과";
+  $("ana-text").innerHTML = rows.join("<br>") + "<br>" + concl;
+  $("ana").style.opacity = 1;
+}
+function drawAnalysis(sets){
+  const cv = $("ana-canvas"), g = cv.getContext("2d"), W = cv.width, H = cv.height, PW = W / 2 - 6;
+  g.clearRect(0, 0, W, H);
+  const panel = (x0, title, proj, filter) => {
+    const ps = []; sets.filter(filter).forEach(s => s.pts.forEach(q => ps.push(proj(q.p, s))));
+    if (filter === topF) ps.push([0, 0]);
+    let minX = Math.min(...ps.map(p => p[0])), maxX = Math.max(...ps.map(p => p[0])), minY = Math.min(...ps.map(p => p[1])), maxY = Math.max(...ps.map(p => p[1]));
+    if (filter === sideF){ minY = 0; minX = Math.min(minX, 0); }
+    const pad = 18, sw = (PW - pad * 2) / Math.max(maxX - minX, 1), sh = (H - pad * 2 - 14) / Math.max(maxY - minY, 1), s = Math.min(sw, sh);
+    const ox = x0 + pad + ((PW - pad * 2) - (maxX - minX) * s) / 2, oy = H - pad - ((H - pad * 2 - 14) - (maxY - minY) * s) / 2;
+    const P = ([x, y]) => [ox + (x - minX) * s, oy - (y - minY) * s];
+    g.fillStyle = "rgba(255,255,255,.05)"; g.fillRect(x0, 0, PW, H);
+    g.fillStyle = "#A9B8D8"; g.font = "bold 20px Pretendard, sans-serif"; g.fillText(title, x0 + 10, 24);
+    if (filter === sideF){ const [a, b] = P([minX, 0]), [c] = P([maxX, 0]); g.strokeStyle = "rgba(160,220,140,.6)"; g.lineWidth = 2; g.beginPath(); g.moveTo(a, b); g.lineTo(c, b); g.stroke(); }
+    else { const [a, b] = P([0, 0]); g.fillStyle = "#fff"; g.beginPath(); g.arc(a, b, 6, 0, 7); g.fill(); g.font = "16px Pretendard"; g.fillText("나", a + 8, b + 4); }
+    for (const st of sets.filter(filter)){
+      g.strokeStyle = st.color; g.lineWidth = st.dash ? 2.5 : 4; g.setLineDash(st.dash ? [8, 7] : []);
+      g.beginPath(); st.pts.forEach((q, i) => { const [x, y] = P(proj(q.p, st)); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.setLineDash([]);
+      if (st.end){ const [x, y] = P(proj(st.pts[st.pts.length - 1].p, st)); g.font = "26px sans-serif"; g.textAlign = "center"; g.fillText(st.end === "hit" ? "💥" : "✖", x, y + 9); g.textAlign = "left"; }
+    }
+  };
+  const topF = s => s.top, sideF = s => s.side;
+  panel(0, "위에서 본 모습", p => [p.x, -p.z], topF);
+  panel(W / 2 + 6, "옆에서 본 모습", (p, s) => [Math.hypot(p.x - s.pts[0].p.x, p.z - s.pts[0].p.z), p.y], sideF);
+}
+
+/* =====================================================================
+   경기 결과 · 랭킹
+   ===================================================================== */
+function avg(a){ return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; }
+function finishMatch(){
+  G.phase = "over"; document.body.classList.remove("playing");
+  const st = G.stats;
+  $("r-title").textContent = st.hits >= 24 ? "🏆 명사수 탄생!" : st.hits >= 16 ? "🎯 훌륭한 사격!" : "🏁 경기 끝!";
+  $("r-score").textContent = G.score + "점";
+  $("r-stats").innerHTML = `<div>명중<b>${st.hits} / ${TOTAL_CLAYS}</b></div><div>명중률<b>${Math.round(st.hits / TOTAL_CLAYS * 100)}%</b></div><div>첫 발 명중<b>${st.first}개</b></div>
+    <div>최다 연속 명중<b>${st.best}개</b></div><div>가장 먼 명중<b>${st.longest.toFixed(1)} m</b></div><div>쏜 탄 · 놀란 새<b>${st.shots}발 · ${st.birds}번</b></div>`;
+  const dl = avg(st.drift.light), dh = avg(st.drift.heavy), ds = avg(st.drift.std);
+  let sci = "<h3>🔬 오늘의 사격 과학</h3>";
+  if (dl && dh) sci += `같은 모양의 클레이가 바람 속에서 <b>1초 동안 밀린 거리</b>: <span style="color:#38bdf8">가벼운(60 g) ${dl.toFixed(2)} m</span>, ${ds ? `<span style="color:#ff7a1a">표준(105 g) ${ds.toFixed(2)} m</span>, ` : ""}<span style="color:#22c55e">무거운(150 g) ${dh.toFixed(2)} m</span> → 약 <b>${(dl / dh).toFixed(1)}배</b> 차이! (질량비 150 ÷ 60 = 2.5배, 바람 세기가 계속 바뀌어서 조금 달라요) <b>a = F / m</b>이 눈에 보였죠?<br>`;
+  if (st.behind + st.ahead > 0) sci += `놓친 표적 중 <b>${st.behind}번은 표적 뒤</b>, ${st.ahead}번은 표적 앞을 쐈어요. ${st.behind > st.ahead ? "탄이 날아가는 시간 동안 표적이 움직인다는 걸 기억하고 리드를 더 주세요!" : "리드를 조금 줄여도 돼요."}`;
+  else sci += "탄이 날아가는 짧은 시간(약 0.1초) 동안에도 표적이 움직여서, 앞을 겨냥하는 <b>리드</b>가 필요했어요.";
+  $("r-sci").innerHTML = sci;
+  $("name-form").classList.remove("hidden");
+  openOverlay("result"); renderAllLeaderboards(null);
+}
+const LEADERBOARD_KEY = "science-clay-leaderboard";
+const LEADERBOARD_WORKSHEET = "클레이사격_랭킹";
+const LEADERBOARD_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+function loadLeaderboard(){ try{ const raw = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]"); if (Array.isArray(raw)) return raw; }catch(e){} return []; }
+function saveLeaderboard(list){ try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){} }
+async function fetchSharedLeaderboard(){
+  try{ const res = await fetch(LEADERBOARD_WEBHOOK_URL + "?worksheet=" + encodeURIComponent(LEADERBOARD_WORKSHEET)); if (!res.ok) throw new Error(res.status);
+    const rows = await res.json(); return rows.map(r => ({ name: String(r.name || "").slice(0, 12), score: Number(r.score), hits: r.hits, date: r.date || r.timestamp })).filter(r => r.name && !Number.isNaN(r.score));
+  }catch(e){ console.warn("공유 랭킹을 불러오지 못했습니다:", e); return null; }
+}
+async function submitToSharedLeaderboard(e){
+  try{ await fetch(LEADERBOARD_WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ worksheet: LEADERBOARD_WORKSHEET, name: e.name, score: String(e.score), hits: String(e.hits), total: String(TOTAL_CLAYS), accuracy: String(e.acc), date: e.date }) }); }catch(err){ console.warn(err); }
+}
+function localDateStr(){ const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function fmtDate(v){ if (!v) return ""; const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${+m[2]}.${+m[3]}`; const t = new Date(v); return isNaN(t) ? "" : `${t.getMonth() + 1}.${t.getDate()}`; }
+function renderLeaderboardInto(el, board, n, me){
+  el.innerHTML = "";
+  for (let i = 0; i < n; i++){
+    const e = board[i], li = document.createElement("li");
+    if (!e){ li.className = "board-row empty"; li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname">—</span><span class="bdate"></span><span class="bscore"></span>`; el.appendChild(li); continue; }
+    const isMe = me && e.name === me.name && e.score === me.score;
+    li.className = "board-row" + (isMe ? " me" : "");
+    li.innerHTML = `<span class="rank">${i + 1}</span><span class="bname"></span><span class="bdate">${fmtDate(e.date)}</span><span class="bscore">${e.score}점</span>`;
+    li.querySelector(".bname").textContent = e.name + (e.hits !== undefined && e.hits !== "" ? ` (${e.hits}개)` : ""); el.appendChild(li);
+  }
+}
+function renderHallOfFame(board){
+  const el = $("hof-list"); el.innerHTML = "";
+  if (!board.length){ el.innerHTML = '<li class="hof-empty">아직 기록이 없어요. 첫 명사수가 되어 보세요!</li>'; return; }
+  ["🥇", "🥈", "🥉"].forEach((m, i) => { const e = board[i], li = document.createElement("li"); li.className = "hof-row";
+    li.innerHTML = `<span>${m}</span><span class="hof-name"></span><span class="hof-date">${e ? fmtDate(e.date) : ""}</span><span class="hof-score">${e ? e.score + "점" : ""}</span>`;
+    li.querySelector(".hof-name").textContent = e ? e.name : "—"; el.appendChild(li); });
+}
+async function renderAllLeaderboards(me){
+  const local = loadLeaderboard().sort((a, b) => b.score - a.score);
+  renderLeaderboardInto($("leader-list"), local, 10, me); renderHallOfFame(local);
+  $("board-source-note").textContent = $("hof-note").textContent = "🌐 반 전체 랭킹을 불러오는 중...";
+  const shared = await fetchSharedLeaderboard();
+  if (shared){
+    if (me && !shared.some(e => e.name === me.name && e.score === me.score)) shared.push(me);
+    shared.sort((a, b) => b.score - a.score);
+    renderLeaderboardInto($("leader-list"), shared, 10, me); renderHallOfFame(shared);
+    $("board-source-note").textContent = "🌐 반 전체가 함께 보는 공유 랭킹 TOP 10"; $("hof-note").textContent = "🌐 반 전체 공유 랭킹";
+  } else { $("board-source-note").textContent = "📱 이 기기에 저장된 기록 TOP 10 (공유 랭킹 연결 안 됨)"; $("hof-note").textContent = "📱 이 기기의 기록"; }
+}
+$("name-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("name-input").value.trim().slice(0, 12); if (!name) return;
+  const entry = { name, score: G.score, hits: G.stats.hits, acc: Math.round(G.stats.hits / TOTAL_CLAYS * 100), date: localDateStr() };
+  const list = loadLeaderboard(); list.push(entry); list.sort((a, b) => b.score - a.score); saveLeaderboard(list.slice(0, 50));
+  submitToSharedLeaderboard(entry); $("name-form").classList.add("hidden"); renderAllLeaderboards(entry);
+});
+
+/* =====================================================================
+   HUD
+   ===================================================================== */
+function updateHud(){
+  $("c-station").textContent = G.mode === "lab" ? "실험실" : `${Math.min(G.station + 1, STATIONS.length)}/${STATIONS.length}`;
+  $("c-score").textContent = G.score;
+  $("c-clay").textContent = G.mode === "lab" ? `${G.stats ? G.stats.hits : 0}/${G.clayDone}` : `${G.clayDone}/${TOTAL_CLAYS}`;
+  $("c-shells").innerHTML = [0, 1].map(i => `<div class="shell${i < 2 - G.shells ? " used" : ""}"></div>`).join("");
+  $("c-streak").textContent = G.streak;
+}
+let hint = "";
+function setHint(t, blink){ hint = t; $("hint").textContent = t; $("hint").classList.toggle("hidden", !t); $("hint").classList.toggle("blink", !!blink); }
+function showMsg(t, sub, color){ const m = $("msg"); m.innerHTML = t + (sub ? `<small>${sub}</small>` : ""); m.style.color = color || "#fff"; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); }
+function drawWindDial(){
+  const cv = $("wind-dial"), g = cv.getContext("2d"), W = cv.width, c = W / 2;
+  g.clearRect(0, 0, W, W);
+  g.fillStyle = "rgba(255,255,255,.07)"; g.beginPath(); g.arc(c, c, c - 4, 0, 7); g.fill();
+  g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 3; g.stroke();
+  g.fillStyle = "#A9B8D8"; g.font = "bold 18px Pretendard"; g.textAlign = "center"; g.fillText("앞", c, 24); g.fillText("나", c, W - 10);
+  const rel = Math.atan2(ENV.wind.x, -ENV.wind.z) + camYaw, s = ENV.windSpeed;
+  if (s < .2){ g.fillStyle = "#fff"; g.font = "bold 22px Pretendard"; g.fillText("무풍", c, c + 8); return; }
+  const L = (c - 22) * Math.min(1, .45 + s / 12);
+  g.save(); g.translate(c, c); g.rotate(rel);
+  g.strokeStyle = g.fillStyle = s > 6 ? "#F472B6" : s > 3 ? "#FDE047" : "#7DD3FC"; g.lineWidth = 9; g.lineCap = "round";
+  g.beginPath(); g.moveTo(0, L); g.lineTo(0, -L + 16); g.stroke();
+  g.beginPath(); g.moveTo(0, -L - 6); g.lineTo(-17, -L + 20); g.lineTo(17, -L + 20); g.closePath(); g.fill();
+  g.restore();
+}
+function windWords(){
+  if (ENV.planet.rho === 0) return "공기가 없어 바람 없음";
+  if (ENV.windSpeed < .2) return "무풍";
+  let a = (Math.atan2(ENV.wind.x, -ENV.wind.z) + camYaw) / DEG; a = ((a % 360) + 360) % 360;
+  const n = ["뒷바람 (앞으로)", "왼쪽 뒤에서", "왼쪽 → 오른쪽", "왼쪽 앞에서", "맞바람 (나에게)", "오른쪽 앞에서", "오른쪽 → 왼쪽", "오른쪽 뒤에서"];
+  return n[Math.round(a / 45) % 8];
+}
+function updateSidePanels(){
+  drawWindDial();
+  $("w-speed").textContent = ENV.windSpeed.toFixed(1);
+  $("w-dir").textContent = windWords();
+  $("w-gust").style.width = Math.min(100, ENV.windSpeed / 12 * 100) + "%";
+  $("w-gustlbl").textContent = ENV.gust >= 1.5 ? "돌풍 주의!" : "";
+  const P = ENV.planet, c = G.clays.find(x => x.state === "fly");
+  let h = "";
+  if (c){
+    const m = c.type.mass, Fg = m * P.g, a = c.air ? c.air.length() : 0, Fa = m * a, sp = c.v.length();
+    h += `<div class="r"><span><i class="sw" style="background:${c.type.color}"></i>${c.type.name}</span><b>${(m * 1000).toFixed(0)} g</b></div>`;
+    h += `<div class="r"><span>중력 mg</span><b>${Fg.toFixed(2)} N ↓</b></div>`;
+    h += `<div class="r"><span>공기·바람의 힘 F</span><b>${Fa.toFixed(2)} N</b></div>`;
+    h += `<div class="r"><span>공기 때문의 가속도 F/m</span><b>${a.toFixed(1)} m/s²</b></div>`;
+    h += `<div class="force"><span>중력</span><div class="fb"><i style="width:${Math.min(100, Fg / 2 * 100)}%;background:#60A5FA"></i></div><span>${Fg.toFixed(2)}N</span></div>`;
+    h += `<div class="force"><span>공기 힘</span><div class="fb"><i style="width:${Math.min(100, Fa / 2 * 100)}%;background:#F472B6"></i></div><span>${Fa.toFixed(2)}N</span></div>`;
+    h += `<div class="r"><span>높이 · 속력</span><b>${c.p.y.toFixed(1)} m · ${sp.toFixed(1)} m/s</b></div>`;
+    h += `<div class="r"><span>비행 시간 · 거리</span><b>${c.t.toFixed(2)} s · ${c.p.distanceTo(EYE).toFixed(0)} m</b></div>`;
+  } else {
+    const spec = G.phase === "ready" || G.phase === "pull" ? (G.mode === "match" ? (G.events[G.event] || [])[0] : { type: CLAY_TYPES[lab.type] }) : null;
+    if (spec){ const t = spec.type; h += `<div class="r"><span><i class="sw" style="background:${t.color}"></i>다음 표적</span><b>${t.name}</b></div><div class="r"><span>질량 · 중력</span><b>${(t.mass * 1000).toFixed(0)} g · ${(t.mass * P.g).toFixed(2)} N</b></div>`; }
+    h += `<div class="r"><span>${P.icon} ${P.name}의 중력 가속도</span><b>${P.g} m/s²</b></div>`;
+    h += `<div class="note">${P.rho === 0 ? "공기가 없어서 무게가 달라도 모두 똑같이 날아가요." : "모양이 같으면 바람의 힘 F는 같아요. 가벼울수록 a = F / m 이 커서 더 많이 밀려요."}</div>`;
+  }
+  $("sci").innerHTML = h;
+}
+
+/* =====================================================================
+   조준 · 카메라 · 총
+   ===================================================================== */
+let camYaw = 0, camPitch = .1;
+const cross = { x: innerWidth / 2, y: innerHeight * .42, inside: true };
+const ndc = new THREE.Vector2();
+function playing(){ return (G.mode === "match" || G.mode === "lab") && !G.paused && ["ready", "pull", "flying", "after", "next"].includes(G.phase); }
+function updateCamera(dt){
+  if (G.mode === "menu"){ camYaw = Math.sin(G.time * .12) * .35; camPitch = .14 + Math.sin(G.time * .2) * .04; }
+  else if (playing() && (cross.inside || isTouch)){
+    ndc.set(cross.x / innerWidth * 2 - 1, -(cross.y / innerHeight * 2 - 1));
+    const dz = .5;
+    if (Math.abs(ndc.x) > dz) camYaw -= Math.sign(ndc.x) * Math.pow((Math.abs(ndc.x) - dz) / (1 - dz), 1.3) * 1.7 * dt;
+    if (ndc.y > .45) camPitch += Math.pow((ndc.y - .45) / .55, 1.3) * 1.2 * dt;
+    if (ndc.y < -.55) camPitch -= Math.pow((-ndc.y - .55) / .45, 1.3) * 1.0 * dt;
+    camYaw = clamp(camYaw, -80 * DEG, 80 * DEG); camPitch = clamp(camPitch, -.12, .9);
+  }
+  camera.rotation.set(camPitch, camYaw, 0);
+  camera.updateMatrixWorld();
+  ndc.set(cross.x / innerWidth * 2 - 1, -(cross.y / innerHeight * 2 - 1));
+  _ray.setFromCamera(ndc, camera); aimDir.copy(_ray.ray.direction);
+  const cr = $("cross"); cr.style.transform = `translate(${cross.x}px,${cross.y}px)`;
+}
+const _q = new THREE.Quaternion(), _inv = new THREE.Quaternion();
+function updateGun(dt){
+  _inv.copy(camera.quaternion).invert();
+  const target = aimDir.clone().multiplyScalar(30).applyQuaternion(_inv).sub(gun.position).normalize();
+  _q.setFromUnitVectors(V3(0, 0, -1), target);
+  gun.quaternion.slerp(_q, Math.min(1, dt * 22));
+  GUN.recoil = Math.max(0, GUN.recoil - dt * 4.5);
+  const r = Math.sin(Math.min(1, GUN.recoil) * Math.PI / 2);
+  gunInner.position.set(0, r * .02, r * .09); gunInner.rotation.x = r * .2;
+  GUN.flash = Math.max(0, GUN.flash - dt * 14);
+  flash.material.opacity = GUN.flash; flash.scale.setScalar(.25 + GUN.flash * .25); flash.material.rotation = Math.random() * 6;
+  flashLight.intensity = GUN.flash * 18;
+}
+function updateScenery(dt){
+  millRotor.rotation.z -= (0.13 * ENV.windSpeed + .06) * dt;
+  for (const s of socks){
+    const w = ENV.wind, sp = ENV.windSpeed;
+    const target = Math.atan2(w.z, -w.x);
+    let d = target - s.pivot.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); s.pivot.rotation.y += d * Math.min(1, dt * 2);
+    const droop = (1 - Math.min(sp / 9, 1)) * 1.3;
+    s.hinge.rotation.z = droop + Math.sin(G.time * (3 + sp) + s.ph) * (.04 + sp * .006);
+    s.hinge.rotation.x = Math.sin(G.time * (5 + sp * 1.3) + s.ph * 2) * .05 * Math.min(1, sp / 3);
+  }
+  for (const c of clouds){ c.position.addScaledVector(ENV.wind, dt * 2.2); if (Math.hypot(c.position.x, c.position.z) > 950){ c.position.x *= -.98; c.position.z *= -.98; } }
+}
+/* 리드 가이드: 탄이 도착할 때 표적이 있을 곳 */
+function predictIntercept(c){
+  const env = physEnv(), kp = PELLET_K * env.rho / 1.2;
+  let T = c.p.distanceTo(EYE) / 380, fut = c.p.clone();
+  for (let it = 0; it < 4; it++){
+    const st = { p: c.p.clone(), v: c.v.clone(), rolling: c.rolling, hop: 9 };
+    for (let t = 0; t < T; t += 1 / 240) stepClayState(st, c.type, env, 1 / 240);
+    fut = st.p; const D = fut.distanceTo(EYE);
+    T = kp > 0 ? (Math.exp(kp * D) - 1) / (kp * PELLET_V) : D / PELLET_V;
+  }
+  return fut.clone().add(V3(0, .5 * env.g * T * T, 0));
+}
+function updateGuides(){
+  const fl = G.guide ? G.clays.filter(c => c.state === "fly") : [];
+  guides.forEach((s, i) => { const c = fl[i]; s.visible = !!c; if (c){ s.position.copy(predictIntercept(c)); const d = s.position.distanceTo(EYE); s.scale.setScalar(Math.max(.6, d * .028)); } });
+}
+
+/* =====================================================================
+   입력
+   ===================================================================== */
+function action(){
+  audioInit();
+  if (!playing()) return;
+  if (G.phase === "ready") pull();
+  else if (G.phase === "flying") fire();
+}
+const view = $("view");
+view.addEventListener("mousemove", e => { cross.x = e.clientX; cross.y = e.clientY; cross.inside = true; });
+view.addEventListener("mouseleave", () => { cross.inside = false; });
+view.addEventListener("pointerdown", e => { if (e.pointerType === "mouse" && e.button === 0){ cross.x = e.clientX; cross.y = e.clientY; cross.inside = true; action(); } });
+window.addEventListener("keydown", e => {
+  if (e.code === "Space"){ if (document.activeElement && document.activeElement.tagName === "INPUT") return; e.preventDefault(); action(); }
+  if (e.code === "Escape" && playing()) pauseGame();
+});
+let lastTouch = null;
+view.addEventListener("touchstart", e => { const t = e.changedTouches[0]; lastTouch = { id: t.identifier, x: t.clientX, y: t.clientY }; e.preventDefault(); }, { passive: false });
+view.addEventListener("touchmove", e => {
+  for (const t of e.changedTouches){ if (!lastTouch || t.identifier !== lastTouch.id) continue;
+    cross.x = clamp(cross.x + (t.clientX - lastTouch.x) * 1.3, 4, innerWidth - 4); cross.y = clamp(cross.y + (t.clientY - lastTouch.y) * 1.3, 4, innerHeight - 4);
+    lastTouch.x = t.clientX; lastTouch.y = t.clientY; }
+  e.preventDefault();
+}, { passive: false });
+view.addEventListener("touchend", e => { for (const t of e.changedTouches) if (lastTouch && t.identifier === lastTouch.id) lastTouch = null; });
+const fb = $("fire");
+fb.addEventListener("touchstart", e => { e.preventDefault(); fb.classList.add("on"); action(); }, { passive: false });
+fb.addEventListener("touchend", () => fb.classList.remove("on"));
+fb.addEventListener("click", () => action());
+
+/* ---------- 오버레이 ---------- */
+function openOverlay(id){ for (const o of ["menu", "station-card", "pause", "result"]) $(o).classList.toggle("hidden", o !== id); document.body.classList.remove("playing"); }
+function closeOverlays(){ for (const o of ["menu", "station-card", "pause", "result"]) $(o).classList.add("hidden"); }
+function pauseGame(){ G.paused = true; openOverlay("pause"); }
+$("menu-btn").onclick = () => { if (playing()) pauseGame(); };
+$("p-resume").onclick = () => { G.paused = false; closeOverlays(); document.body.classList.add("playing"); };
+$("p-quit").onclick = () => { G.paused = false; goMenu(); };
+$("st-go").onclick = () => { closeOverlays(); enterPlay(); readyEvent(); };
+$("btn-match").onclick = () => { audioInit(); clearShotsAndClays(); startMatch(); };
+$("btn-lab").onclick = () => { audioInit(); clearShotsAndClays(); startLab(); };
+$("r-again").onclick = () => { clearShotsAndClays(); startMatch(); };
+$("r-menu").onclick = () => goMenu();
+function goMenu(){
+  document.body.classList.remove("labmode");
+  G.mode = "menu"; G.phase = "idle"; clearShotsAndClays(); $("hud").classList.add("hidden"); $("lab").classList.add("hidden"); $("ana").style.opacity = 0;
+  ENV.planet = PLANETS.earth; ENV.windBase = 2.5; ENV.windDir = 70; ENV.gust = 1; applyObstacles({}); G.guide = false; G.trails = false;
+  openOverlay("menu"); renderAllLeaderboards(null);
+}
+
+/* =====================================================================
+   실험실
+   ===================================================================== */
+const lab = { type: "std", planet: "earth", forest: false, windmill: false, birds: false, fog: false, guide: true, trails: true, slow: false };
+function tgGroup(el, items, single, key){
+  el.innerHTML = "";
+  for (const [k, label] of items){
+    const b = document.createElement("button"); b.type = "button"; b.textContent = label;
+    const on = () => single ? lab[key] === k : lab[k];
+    b.className = on() ? "on" : "";
+    b.onclick = () => { if (single) lab[key] = k; else lab[k] = !lab[k]; [...el.children].forEach((x, i) => x.className = (single ? lab[key] === items[i][0] : lab[items[i][0]]) ? "on" : ""); labApply(); };
+    el.appendChild(b);
+  }
+}
+tgGroup($("lab-type"), [["light", "🔵 60 g"], ["std", "🟠 105 g"], ["heavy", "🟢 150 g"]], true, "type");
+tgGroup($("lab-planet"), [["earth", "🌍 지구"], ["mars", "🔴 화성"], ["moon", "🌙 달"]], true, "planet");
+tgGroup($("lab-obs"), [["forest", "🌲 나무"], ["windmill", "🌀 풍차"], ["birds", "🐦 새떼"], ["fog", "🌫️ 안개"]], false);
+tgGroup($("lab-aid"), [["guide", "🎯 리드 가이드"], ["trails", "〰️ 궤적"], ["slow", "🐢 슬로모션"]], false);
+for (const id of ["lab-wind", "lab-gust", "lab-wdir", "lab-launch"]) $(id).addEventListener("input", labApply);
+$("lab-head").onclick = () => $("lab").classList.toggle("fold");
+$("lab-pull").onclick = () => { audioInit(); if (G.phase === "ready") pull(); };
+$("lab-galileo").onclick = () => { audioInit(); if (G.phase !== "ready") return; G.labGalileo = true; pull(); };
+function labApply(){
+  if (G.mode !== "lab") return;
+  ENV.planet = PLANETS[lab.planet]; ENV.windBase = +$("lab-wind").value; ENV.gust = +$("lab-gust").value; ENV.windDir = +$("lab-wdir").value;
+  $("lab-wind-v").textContent = ENV.windBase + " m/s"; $("lab-gust-v").textContent = ENV.gust;
+  applyObstacles({ forest: lab.forest, bales: lab.forest, windmill: lab.windmill, birds: lab.birds, fog: lab.fog });
+  G.guide = lab.guide; G.trails = lab.trails;
+}
+function labSpecs(){
+  const t = CLAY_TYPES[lab.type];
+  if (G.labGalileo){ const v = dirFrom(0, 16).multiplyScalar(25); G.trails = true; return [T.light, T.std, T.heavy].map((ty, i) => ({ type: ty, p: TRAP.clone().add(V3((i - 1) * .5, 0, -1)), v: v.clone() })); }
+  switch ($("lab-launch").value){
+    case "crossL": return [crossSpec("L", t)];
+    case "crossR": return [crossSpec("R", t)];
+    case "rabbit": return [rabbitSpec()];
+    case "double": return [trapSpec(t, rnd(-20, -8)), trapSpec(t, rnd(8, 20))];
+    default: return [trapSpec(t)];
+  }
+}
+
+/* =====================================================================
+   메뉴 화면 배경: 저절로 날아가는 표적
+   ===================================================================== */
+let demoNext = 1;
+function demoTick(){
+  if (G.mode !== "menu") return;
+  if (G.time > demoNext){
+    demoNext = G.time + rnd(1.6, 2.6);
+    const s = Math.random() < .7 ? trapSpec(T.std) : crossSpec(Math.random() < .5 ? "L" : "R");
+    const mesh = makeClayMesh(s.type); mesh.position.copy(s.p); scene.add(mesh);
+    G.clays.push({ type: s.type, p: s.p.clone(), v: s.v.clone(), t: 0, state: "fly", mesh, rolling: false, hop: 1, path: [], rec: 0, spin: 30, close: [], maxH: 0, demoBreak: rnd(.7, 1.4) });
+  }
+  for (const c of G.clays) if (c.state === "fly" && c.demoBreak && c.t > c.demoBreak){ c.state = "broken"; scene.remove(c.mesh); spawnBreak(c.p, c.v, c.type); sndBreak(); }
+  G.clays = G.clays.filter(c => { if (c.state === "fly") return true; if (c.state === "landed" && (c.landT = (c.landT || 0) + 1) < 240) return true; scene.remove(c.mesh); return false; });
+}
+
+/* =====================================================================
+   메인 루프
+   ===================================================================== */
+let last = performance.now(), hudT = 0;
+function frame(now){
+  const dtR = Math.min(.05, (now - last) / 1000); last = now;
+  if (!G.paused){
+    G.time += dtR;
+    const dt = dtR * (G.time < G.slowUntil ? .3 : 1) * (G.mode === "lab" && lab.slow ? .35 : 1);
+    updateWind(dt);
+    updateCamera(dtR);
+    if (G.phase === "pull" && G.time >= G.pullAt) launch(eventSpecs());
+    const n = Math.max(1, Math.ceil(dt * 480)), h = dt / n, L = blockers();
+    for (let i = 0; i < n; i++){ stepClays(h, L); stepShots(h, L); }
+    updateClayVisuals(dt); eventFlow(); demoTick();
+    updateFx(dt); updateBirds(dt); updateShotVisuals(dt); updateScenery(dt); updateGun(dtR); updateGuides();
+    if (AU.windGain) AU.windGain.gain.setTargetAtTime(G.mode === "menu" ? .02 : .015 + ENV.windSpeed * .012, AU.ctx.currentTime, .3);
+    hudT -= dtR; if (hudT < 0 && !$("hud").classList.contains("hidden")){ hudT = .1; updateSidePanels(); }
+  } else updateCamera(0);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+goMenu();
+requestAnimationFrame(frame);
+
+window.__clay = { G, ENV, STATIONS, predictIntercept, action, goStation: i => { G.station = i; showStation(); }, fireAt: p => { aimDir.copy(p).sub(EYE).normalize(); fire(); }, cross, camera, aim: p => { const v = p.clone().project(camera); cross.x = (v.x + 1) / 2 * innerWidth; cross.y = (1 - v.y) / 2 * innerHeight; }, lab, labApply };
+</script>
+</body>
+</html>

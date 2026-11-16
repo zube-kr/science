@@ -1864,6 +1864,7 @@ const FREEKICK_URL = "freekick-magnus.html";
 const SKATE_URL = "skate-energy.html";
 const MOON_LANDING_URL = "moon-landing-game.html";
 const SKI_JUMP_URL = "ski-jump-game.html";
+const CLAY_URL = "clay-shooting.html";
 
 // ⚠️ seongdan-seongun.html을 GitHub(Pages)에 올린 뒤, 아래 주소를 그 주소로 바꿔주세요.
 const SEONGDAN_SEONGUN_URL = "seongdan-seongun.html";
@@ -2000,6 +2001,12 @@ const topicsData = {
         title: "🎿 과학 스키점프 — 아화 힐 K120",
         desc: "출발 게이트 높이(위치에너지)와 도움닫기 자세(공기저항)로 속도를 만들고, 점프 타이밍·받음각(양력과 실속)·바람·텔레마크 착지까지 실제 물리로 계산되는 스키점프입니다. 비거리 점수 + 심판 자세 점수 + 바람·게이트 보정의 2라운드 합계로 반 전체 랭킹에 도전! 점프마다 궤적과 에너지 손실을 분석해 줘요.",
         url: SKI_JUMP_URL,
+        ready: true
+      },
+      {
+        title: "🎯 클레이 사격 — 바람·중력 챌린지",
+        desc: "하늘로 날아가는 클레이(접시)를 산탄총으로 맞히는 3D 사격 게임입니다. 중력에 떨어지고, 공기 저항에 느려지고, 바람에 밀리는 표적을 예측해 앞을 겨냥(리드)해야 해요. 가벼운(60 g)·무거운(150 g) 클레이로 a = F/m을 직접 확인하고, 나무·풍차·새떼·안개·더블 표적까지 5개 스테이션으로 반 전체 랭킹에 도전! 실험실에서는 달·화성 중력과 무게 비교 실험도 할 수 있어요.",
+        url: CLAY_URL,
         ready: true
       }
     ]
@@ -2459,6 +2466,12 @@ const topicsData = {
         title: "⚽ 마그누스 프리킥 — 바나나킥 챌린지",
         desc: "힘의 작용점 탐구 게임: 공의 어느 부분을 차느냐(힘의 작용점)에 따라 회전과 발사각이 바뀌고, 회전하는 공은 마그누스 효과로 휘어집니다. 수비벽·골키퍼·바람·고산 경기장(공기 밀도)을 이겨내고 10번의 프리킥으로 반 전체 랭킹에 도전하세요! 슛마다 궤적과 마그누스 힘을 분석해 줘요.",
         url: FREEKICK_URL,
+        ready: true
+      },
+      {
+        title: "🎯 클레이 사격 — 바람·중력 챌린지",
+        desc: "하늘로 날아가는 클레이(접시)를 산탄총으로 맞히는 3D 사격 게임입니다. 중력에 떨어지고, 공기 저항에 느려지고, 바람에 밀리는 표적을 예측해 앞을 겨냥(리드)해야 해요. 가벼운(60 g)·무거운(150 g) 클레이로 a = F/m을 직접 확인하고, 나무·풍차·새떼·안개·더블 표적까지 5개 스테이션으로 반 전체 랭킹에 도전! 실험실에서는 달·화성 중력과 무게 비교 실험도 할 수 있어요.",
+        url: CLAY_URL,
         ready: true
       }
     ]
@@ -3090,6 +3103,8 @@ const ARCADE_BOARDS = [
     norm:r => ({ score:Number(r.score), x:arcNum(r.tricks) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `트릭 ${e.x}개` },
   { id:"ski",    url:SKI_JUMP_URL,         icon:"🎿", name:"과학 스키점프",         tag:"", colors:["#7dd3fc","#0369a1"], sheet:"스키점프_랭킹",
     norm:r => ({ score:Number(r.score), x:arcNum(r.distance) }), cmp:arcScoreDesc, main:e => `${Number(e.score).toFixed(1)}점`, sub:e => e.x === null ? "" : `최고 ${Number(e.x).toFixed(1)}m` },
+  { id:"clay",   url:CLAY_URL,             icon:"🎯", name:"클레이 사격",          tag:"", colors:["#fdba74","#ea580c"], sheet:"클레이사격_랭킹",
+    norm:r => ({ score:Number(r.score), x:arcNum(r.hits) }), cmp:arcScoreDesc, main:e => `${e.score}점`, sub:e => e.x === null ? "" : `${e.x}/28 명중` },
 ];
 const ARCADE_FREE = [
   { url:DALMUTI_URL,   icon:"🃏", name:"달무티 게임",         desc:"방 코드로 친구들과 함께 즐기는 4인 실시간 카드 게임", colors:["#f59e0b","#b45309"] },
