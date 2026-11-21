@@ -559,6 +559,59 @@
   </section>
 
   <section>
+    <h2><span class="num">8</span>확인 · 도전 문제</h2>
+    <p class="hint">배운 원리를 다른 그림과 새로운 상황에 적용해 보세요. 답을 확인하기 전에 <b>내 답에 얼마나 확신하는지</b>도 골라 주세요.</p>
+
+    <p style="font-size:14.5px; margin:14px 0 8px;"><b>확인 1.</b> 6개월 간격으로 같은 별을 관측했더니 배경 별들에 대한 위치가 달라 보였다. 그 까닭으로 가장 알맞은 것은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="probeMove" value="move"> ① 별이 6개월 동안 실제로 우주 공간을 움직였기 때문이다.</label>
+      <label><input type="radio" name="probeMove" value="orbit"> ② 지구가 공전하여 별을 바라보는 위치가 달라졌기 때문이다.</label>
+      <label><input type="radio" name="probeMove" value="tele"> ③ 관측할 때 망원경이 흔들렸기 때문이다.</label>
+      <label><input type="radio" name="probeMove" value="light"> ④ 별빛이 지구 대기에서 꺾였기 때문이다.</label>
+    </div>
+    <button class="check-btn" id="checkProbe">정답 확인</button>
+    <span class="check-result" id="resultProbe"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>확인 2.</b> 연주 시차(p)를 그림으로 나타낼 때, p에 해당하는 각은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="drawAngle" value="full"> ① 1월의 지구와 7월의 지구를 별에서 바라본 각 전체</label>
+      <label><input type="radio" name="drawAngle" value="au"> ② 태양과 지구 사이 거리(1 AU)를 별에서 바라본 각</label>
+      <label><input type="radio" name="drawAngle" value="move"> ③ 별이 하늘에서 움직인 거리</label>
+      <label><input type="radio" name="drawAngle" value="sun"> ④ 태양에서 지구를 바라본 각</label>
+    </div>
+    <button class="check-btn" id="checkDraw">정답 확인</button>
+    <span class="check-result" id="resultDraw"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>확인 3.</b> 연주 시차를 이용해 거리를 구하기 <b>어려운</b> 별은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="limitQ" value="near"> ① 태양 가까이에 있는 별</label>
+      <label><input type="radio" name="limitQ" value="far"> ② 아주 멀리 있는 별</label>
+      <label><input type="radio" name="limitQ" value="bright"> ③ 아주 밝은 별</label>
+      <label><input type="radio" name="limitQ" value="big"> ④ 크기가 큰 별</label>
+    </div>
+    <button class="check-btn" id="checkLimit">정답 확인</button>
+    <span class="check-result" id="resultLimit"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>도전 1.</b> 처음 보는 별 B의 연주 시차가 0.1″로 측정되었다. 별 B까지의 거리는?</p>
+    <div class="fill-row">
+      별 B까지의 거리 =
+      <input type="number" step="0.01" class="blank" id="tCalc" style="width:90px;" placeholder="숫자">
+      pc
+    </div>
+    <button class="check-btn" id="checkTCalc">정답 확인</button>
+    <span class="check-result" id="resultTCalc"></span>
+
+    <p style="font-size:14.5px; margin:24px 0 8px;"><b>도전 2.</b> 자율주행 자동차의 '스테레오 카메라'는 나란히 붙은 두 렌즈로 앞 차를 찍어, 두 사진 속 앞 차의 위치 차이로 거리를 잰다. 앞 차가 <b>가까워질수록</b> 두 사진 속 위치 차이는?</p>
+    <div class="option-list">
+      <label><input type="radio" name="stereo" value="up"> ① 커진다</label>
+      <label><input type="radio" name="stereo" value="down"> ② 작아진다</label>
+      <label><input type="radio" name="stereo" value="same"> ③ 변하지 않는다</label>
+    </div>
+    <button class="check-btn" id="checkStereo">정답 확인</button>
+    <span class="check-result" id="resultStereo"></span>
+  </section>
+
+  <section>
     <button class="submit-btn" id="submitBtn">답안 제출하기</button>
     <div class="status" id="statusBox"></div>
   </section>
@@ -567,6 +620,10 @@
 
 <footer>제출한 답은 선생님이 확인 후 개별 피드백을 남깁니다.</footer>
 
+<script src="lms/config.js"></script>
+<script src="lms/objectives.js"></script>
+<script src="lms/lms-core.js"></script>
+<script src="lms/lms-client.js"></script>
 <script>
   // ── 배포 시 이 값을 본인의 Google Apps Script 웹앱 URL로 교체하세요 ──
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
@@ -664,6 +721,94 @@
       '다시 계산해 보세요: 거리(pc) = 1 / 연주시차("). 연주 시차가 2"이므로 1 ÷ 2 = 0.5 pc입니다.');
   });
 
+  const radio = name => (document.querySelector(`input[name="${name}"]:checked`) || {}).value || '';
+  $('checkProbe').addEventListener('click', () => {
+    const ok = radio('probeMove') === 'orbit';
+    showResult($('resultProbe'), ok, '맞았어요. 별이 움직인 것이 아니라 지구가 공전해서 보는 위치가 바뀐 거예요.', '다시 생각해 보세요: 6개월 사이에 달라진 것은 별일까요, 지구의 위치일까요?');
+  });
+  $('checkDraw').addEventListener('click', () => {
+    const ok = radio('drawAngle') === 'au';
+    showResult($('resultDraw'), ok, '맞았어요. 연주 시차는 1 AU(지구-태양 거리)를 별에서 본 각, 즉 6개월 간격 시차의 절반이에요.', '다시 확인해 보세요: 연주 시차는 6개월 간격으로 잰 시차의 1/2이에요.');
+  });
+  $('checkLimit').addEventListener('click', () => {
+    const ok = radio('limitQ') === 'far';
+    showResult($('resultLimit'), ok, '맞았어요. 너무 먼 별은 연주 시차가 너무 작아서 측정하기 어려워요.', '다시 생각해 보세요: 거리가 멀어질수록 연주 시차는 어떻게 되나요?');
+  });
+  $('checkTCalc').addEventListener('click', () => {
+    const v = parseFloat($('tCalc').value), ok = !isNaN(v) && Math.abs(v - 10) < 0.05;
+    showResult($('resultTCalc'), ok, '정답! 거리 = 1 ÷ 0.1 = 10 pc', '다시 계산해 보세요: 거리(pc) = 1 ÷ 연주 시차(″)');
+  });
+  $('checkStereo').addEventListener('click', () => {
+    const ok = radio('stereo') === 'up';
+    showResult($('resultStereo'), ok, '맞았어요. 가까울수록 두 렌즈로 본 위치 차이(시차)가 커져요 — 별의 시차와 같은 원리!', '다시 생각해 보세요: 손가락을 눈 가까이 가져올 때 두 눈으로 번갈아 본 차이는?');
+  });
+
+  // ── 학습 성장 관리(LMS) 연결: 문항 → 학습 목표 · 오개념 ──
+  LMS.init({ unit: 'ASTRO-PARALLAX', activity: 'parallax-ws', mount: document.querySelector('main section'),
+    onLogin: st => { if (!$('stuClass').value) $('stuClass').value = st.cls; if (!$('stuNumber').value) $('stuNumber').value = st.num; if (st.name && !$('stuName').value) $('stuName').value = st.name; } });
+  const IT = id => LMS_DB.item('parallax-ws', id);
+  const reg = (id, button, check) => LMS.item(id, { objectives: IT(id).objectives, kind: IT(id).kind, button, check });
+  reg('exp-data', null, () => {
+    const er = $('extendRight').value, el = $('extendLeft').value, br = $('bentRight').value, bl = $('bentLeft').value;
+    if (!er || !el || !br || !bl) return null;
+    const eg = Math.abs(er - el), bg = Math.abs(br - bl);
+    return { correct: bg > eg, answer: `편 팔 차이 ${eg}, 굽힌 팔 차이 ${bg}`, misc: [] };
+  });
+  reg('concept1', $('checkConcept1'), () => {
+    const c = $('blankClose').value, f = $('blankFar').value, w = $('blankDistanceWord').value.trim();
+    if (!c && !f && !w) return null;
+    const ok = c === '커지고' && f === '작아진다' && norm(w).includes('거리');
+    return { correct: ok, answer: `${c} / ${f} / ${w}`, misc: (c === '작아지고' || f === '커진다') ? ['M-PLX-REVERSE'] : [] };
+  });
+  reg('concept2', $('checkConcept2'), () => {
+    const m = norm($('blankMonths').value), pc = norm($('blankPc').value), r1 = $('blankRel1').value, r2 = $('blankRel2').value;
+    if (!m && !pc && !r1 && !r2) return null;
+    const misc = [];
+    if (m === '12') misc.push('M-PLX-INTERVAL'); else if (m && m !== '6') misc.push('M-PLX-VIEWPOINT');
+    if (r1 === '작아' || r2 === '커') misc.push('M-PLX-REVERSE');
+    return { correct: m === '6' && pc === '1' && r1 === '커' && r2 === '작아', answer: `${m}개월 / ${pc}pc / ${r1}·${r2}`, misc };
+  });
+  reg('xy', $('checkXY'), () => {
+    const p = $('blankParallaxCompare').value, d = $('blankDistanceCompare').value;
+    if (!p && !d) return null;
+    return { correct: p === '>' && d === '<', answer: `시차 X${p}Y, 거리 X${d}Y`, misc: (p === '<' || d === '>') ? ['M-PLX-REVERSE'] : [] };
+  });
+  reg('q1', $('checkQ1'), () => {
+    const a = $('q1a').checked, b = $('q1b').checked, c = $('q1c').checked;
+    if (!a && !b && !c) return null;
+    const misc = []; if (a) misc.push('M-PLX-INTERVAL'); if (c) misc.push('M-PLX-REVERSE'); if (!b) misc.push('M-PLX-HALF');
+    return { correct: !a && b && !c, answer: ['ㄱ', 'ㄴ', 'ㄷ'].filter((x, i) => [a, b, c][i]).join(','), misc };
+  });
+  reg('q2', $('checkQ2'), () => {
+    const v = $('starADistance').value; if (v === '') return null;
+    const ok = Math.abs(parseFloat(v) - 0.5) < 0.05;
+    return { correct: ok, answer: v + ' pc', misc: ok ? [] : ['M-PLX-FORMULA'] };
+  });
+  reg('probe-move', $('checkProbe'), () => {
+    const v = radio('probeMove'); if (!v) return null;
+    return { correct: v === 'orbit', answer: v, misc: v === 'move' ? ['M-PLX-STARMOVE'] : v === 'orbit' ? [] : ['M-PLX-VIEWPOINT'] };
+  });
+  reg('draw-angle', $('checkDraw'), () => {
+    const v = radio('drawAngle'); if (!v) return null;
+    return { correct: v === 'au', answer: v, misc: v === 'full' ? ['M-PLX-HALF'] : v === 'move' ? ['M-PLX-STARMOVE'] : v === 'sun' ? ['M-PLX-VIEWPOINT'] : [] };
+  });
+  reg('limit', $('checkLimit'), () => {
+    const v = radio('limitQ'); if (!v) return null;
+    return { correct: v === 'far', answer: v, misc: v === 'near' ? ['M-PLX-REVERSE'] : [] };
+  });
+  reg('t-calc', $('checkTCalc'), () => {
+    const v = $('tCalc').value; if (v === '') return null;
+    const ok = Math.abs(parseFloat(v) - 10) < 0.05;
+    return { correct: ok, answer: v + ' pc', misc: ok ? [] : ['M-PLX-FORMULA'] };
+  });
+  reg('t-stereo', $('checkStereo'), () => {
+    const v = radio('stereo'); if (!v) return null;
+    return { correct: v === 'up', answer: v, misc: v === 'down' ? ['M-PLX-REVERSE'] : [] };
+  });
+  LMS.text('reflection', { objectives: IT('reflection').objectives, get: () => $('reflection').value });
+  LMS.text('ex2Reason', { objectives: IT('ex2Reason').objectives, get: () => $('ex2Reason').value });
+  LMS.text('ex2AltMethod', { objectives: IT('ex2AltMethod').objectives, get: () => $('ex2AltMethod').value });
+
   $('submitBtn').addEventListener('click', async () => {
     const payload = {
       form: 'parallax',
@@ -732,6 +877,10 @@
       statusBox.className = 'status show success';
       statusBox.textContent = '제출 완료! 선생님이 확인 후 피드백을 남길 예정입니다.';
       btn.textContent = '제출 완료';
+      const lr = await LMS.submit();
+      statusBox.textContent += lr.ok ? ` 학습 목표별 기록 ${lr.n}개도 저장했어요${lr.demo ? '(시험 모드: 이 기기)' : ''}.`
+        : lr.reason === 'login' ? ' (맨 위 \'내 학습 기록 연결\'에 개인코드를 넣으면 학습 성장 기록도 남길 수 있어요.)'
+        : lr.reason === 'network' ? ' (학습 성장 기록은 인터넷이 연결되면 다시 보낼게요.)' : '';
     }catch(err){
       statusBox.className = 'status show error';
       statusBox.textContent = '제출 중 오류가 발생했습니다. 네트워크를 확인하고 다시 시도해 주세요.';

@@ -1420,6 +1420,7 @@ body.frame-mode .frameview-header{
       <li onclick="openSubject('best-of-sim')"><svg class="ico" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/><path d="M7.5 15h9"/></svg>추천 가상실험 모음</li>
       <li onclick="openSubject('student-dev')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"/><path d="m17.5 3.5 1 2 2 .4-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.4z"/></svg>학생개발자료</li>
       <li onclick="openQuickLink('teacher-tools', {title:'📄 각종문서변환', url: DOC_TOOLS_URL, ready:true})"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>각종문서변환</li>
+      <li onclick="openSubject('learning-growth')"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>학습성장관리</li>
       <li onclick="openSubject('event-ops')"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9.5 14.5 2 2 3.5-3.5"/></svg>각종행사운영</li>
     </ul>
   </details>
@@ -2047,6 +2048,23 @@ const topicsData = {
         title: "🔄 PDF 회전 & 저장",
         desc: "옆으로 눕거나 거꾸로 된 PDF 페이지를 한 장씩 또는 한꺼번에 돌려서 새 PDF로 저장합니다. 가로 페이지 자동 세우기, 페이지 빼기, 여러 파일 합치기도 돼요. 파일은 서버로 올라가지 않고 브라우저 안에서만 처리돼요.",
         url: PDF_ROTATE_URL,
+        ready: true
+      }
+    ]
+  },
+  "learning-growth": {
+    title: "📊 학습성장관리",
+    posts: [
+      {
+        title: "📊 과학 학습 성장 관리 — 교사 대시보드",
+        desc: "워크시트를 풀면 학습 목표별 숙달 수준(L1 미도달 · L2 발달 중 · L3 숙달 · L4 심화·전이)이 학생마다 쌓여요. 반 전체 목표별 달성률, 학생×목표 숙달 지도, 오개념 분석, 확신도×정답(오답인데 확신한 학생), 학생별 영역 프로필·성장 그래프·추천 학습 경로와 교사 판정까지. 처음 설정 방법과 예시 데이터 보기 포함.",
+        url: "lms/teacher.html",
+        ready: true
+      },
+      {
+        title: "🌱 내 학습 성장 (학생용)",
+        desc: "학년·반·번호와 개인코드로 내 기록을 열어요. 나는 무엇을 알고 있나? 아직 무엇을 모르나? 어떤 활동으로 발전했나? 다음에 무엇을 공부할까?",
+        url: "lms/student.html",
         ready: true
       }
     ]
