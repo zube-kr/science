@@ -8,6 +8,9 @@
   /* ---------- 기본 화면 ---------- */
   for (const [k, U] of Object.entries(DB.UNITS)) $("f-unit").insertAdjacentHTML("beforeend", `<option value="${k}">${esc(U.grade)}학년 · ${esc(U.title)}</option>`);
   try { $("f-key").value = localStorage.getItem(KEY_LS) || ""; } catch (e) {}
+  // 마지막으로 고른 학년·반·단원 기억
+  try { const f = JSON.parse(localStorage.getItem("lms-teacher-filter") || "null"); if (f){ $("f-grade").value = f.grade; $("f-cls").value = f.cls; if (DB.UNITS[f.unit]) $("f-unit").value = f.unit; } } catch (e) {}
+  const saveFilter = () => { try { localStorage.setItem("lms-teacher-filter", JSON.stringify({ grade: $("f-grade").value, cls: $("f-cls").value, unit: $("f-unit").value })); } catch (e) {} };
   if (C.demo()){
     $("key-box").classList.add("hidden");
     banner(`아직 서버(구글 시트)가 연결되지 않았어요. <b>⚙️ 처음 설정</b>을 따라 연결하면 반 전체 기록이 모여요. 지금은 <b>예시 데이터로 보기</b>로 둘러보거나, 시험 모드로 푼 워크시트 기록을 <b>이 기기 기록</b>으로 볼 수 있어요.`);
@@ -30,7 +33,9 @@
     try {
       const r = await C.apiGet({ action: "class", key, grade: $("f-grade").value, cls: $("f-cls").value });
       ST.source = "server"; ST.roster = r.roster || []; ST.rows = r.rows || [];
-      pill("구글 시트 연결됨", "ok"); $("load-msg").textContent = `학생 ${ST.roster.length}명 · 기록 ${ST.rows.length}줄을 불러왔어요 (${fmtD(Date.now())}).`;
+      pill("구글 시트 연결됨", "ok"); saveFilter();
+      $("load-msg").textContent = ST.roster.length ? `${$("f-grade").value}학년 ${$("f-cls").value}반 학생 ${ST.roster.length}명 · 기록 ${ST.rows.length}줄을 불러왔어요 (${fmtD(Date.now())}).`
+        : `${$("f-grade").value}학년 ${$("f-cls").value}반 학생이 '학생' 시트에 없어요. 학년·반을 확인해 주세요.`;
       render();
     } catch (e) { $("load-msg").textContent = e.code === "key" ? "교사 비밀번호가 맞지 않아요." : "불러오지 못했어요: " + e.message; }
   };
@@ -44,7 +49,7 @@
     $("load-msg").innerHTML = mine.length ? `이 기기에 저장된 ${g}학년 ${c}반 기록 ${mine.length}줄` : `이 기기에 ${g}학년 ${c}반 기록이 없어요. 워크시트를 시험 모드로 풀어 보거나 <b>예시 데이터로 보기</b>를 눌러 보세요.`;
     render();
   }
-  $("f-unit").onchange = () => ST.source && render();
+  $("f-unit").onchange = () => { saveFilter(); ST.source && render(); };
 
   /* ---------- 그리기 ---------- */
   function render(){

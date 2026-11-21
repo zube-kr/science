@@ -23,6 +23,8 @@ function setup() {
   let l = ss.getSheetByName(SH_LOG);
   if (!l) { l = ss.insertSheet(SH_LOG); l.appendRow(LOG_COLS); l.setFrozenRows(1); l.getRange(1, 1, 1, LOG_COLS.length).setFontWeight('bold').setBackground('#e8f7ee'); }
   r.getRange('E:E').setNumberFormat('@');   // 개인코드 앞자리 0 유지
+  l.getRange('B:B').setNumberFormat('@');   // 학생 번호(1-1-01)가 날짜로 바뀌지 않게
+  l.getRange('N:N').setNumberFormat('@');   // 학생 답(1/2 등)이 날짜·숫자로 바뀌지 않게
   SpreadsheetApp.getUi && Logger.log('준비 완료: 학생 시트에 명렬표를 적고 makeCodes 를 실행하세요.');
 }
 
@@ -50,11 +52,20 @@ function auth_(sid, code) {
   return s && s.code && s.code === String(code) ? s : null;
 }
 function out_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+/* 시트가 '1-1-01' 같은 학생 번호를 날짜(2001-01-01)로 바꿔 저장한 경우 원래 번호로 되돌림 */
+function sidText_(v, known, tz) {
+  if (!(v instanceof Date)) return String(v);
+  const p = Utilities.formatDate(v, tz, 'yy-M-d').split('-').map(Number);   // [년, 월, 일]
+  const pad = n => ('0' + n).slice(-2);
+  const a = p[0] + '-' + p[1] + '-' + pad(p[2]), b = p[2] + '-' + p[1] + '-' + pad(p[0]);
+  return known.has(a) ? a : known.has(b) ? b : a;
+}
 function logRows_(filter) {
-  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SH_LOG);
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName(SH_LOG);
   if (!sh) return [];
-  const v = sh.getDataRange().getValues(), head = v[0];
-  return v.slice(1).map(row => { const o = {}; head.forEach((h, i) => o[h] = row[i] instanceof Date ? row[i].getTime() : row[i]); return o; }).filter(filter);
+  const v = sh.getDataRange().getValues(), head = v[0], tz = ss.getSpreadsheetTimeZone();
+  const known = new Set(roster_().map(s => s.sid));
+  return v.slice(1).map(row => { const o = {}; head.forEach((h, i) => o[h] = h === 'sid' ? sidText_(row[i], known, tz) : (row[i] instanceof Date ? row[i].getTime() : row[i])); return o; }).filter(filter);
 }
 
 function doGet(e) {
@@ -109,7 +120,12 @@ function doPost(e) {
     // 학생이 쓴 글이 '=' 등으로 시작하면 수식으로 실행되지 않게 앞에 ' 를 붙임
     const safe = v => (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v;
     const vals = rows.map(r => LOG_COLS.map(c => c === 'savedAt' ? now : (r[c] == null ? '' : safe(c === 'answer' ? String(r[c]).slice(0, 1000) : r[c]))));
-    if (vals.length) sh.getRange(sh.getLastRow() + 1, 1, vals.length, LOG_COLS.length).setValues(vals);
+    if (vals.length) {
+      const start = sh.getLastRow() + 1;
+      sh.getRange(start, 2, vals.length, 1).setNumberFormat('@');    // sid
+      sh.getRange(start, 14, vals.length, 1).setNumberFormat('@');   // answer
+      sh.getRange(start, 1, vals.length, LOG_COLS.length).setValues(vals);
+    }
     return out_({ ok: true, saved: vals.length });
   } catch (err) {
     return out_({ ok: false, error: String(err) });
