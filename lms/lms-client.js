@@ -66,7 +66,7 @@
       go.disabled = true; msg.className = "lms-msg"; msg.textContent = "확인하는 중…";
       try {
         let name = "";
-        if (!C.demo()){ const r = await C.apiGet({ action: "login", sid, code }); name = r.name || ""; }
+        if (!C.demo()){ const r = await C.apiGet({ action: "login", stu: sid, code }); name = r.name || ""; }
         S.student = { sid, grade, cls, num, code, name }; saveStudent(S.student); renderBar(); flushQueue();
         if (S.onLogin) S.onLogin(S.student);
       } catch (e) {
