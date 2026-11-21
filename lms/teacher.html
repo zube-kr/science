@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>과학 학습 성장 관리 — 교사 대시보드</title>
+<link rel="stylesheet" href="lms.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">📊</div>
+    <div class="grow"><h1>과학 학습 성장 관리 <span class="muted" style="font-size:15px">교사 대시보드</span></h1>
+      <p>학생이 '무엇을 학습했는지'가 아니라, 무엇을 이해했고 무엇을 아직 모르며 다음에 무엇을 배워야 하는지 봅니다.</p></div>
+    <span class="pill" id="src-pill">데이터 없음</span>
+  </div>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <div class="card noprint">
+    <div class="bar-row">
+      <label class="soft">학년</label><select id="f-grade"><option>1</option><option>2</option><option selected>3</option></select>
+      <label class="soft">반</label><input type="number" id="f-cls" value="1" min="1" style="width:70px">
+      <label class="soft">단원</label><select id="f-unit"></select>
+      <span id="key-box" class="bar-row"><label class="soft">교사 비밀번호</label><input type="password" id="f-key" style="width:150px" autocomplete="off"></span>
+      <button class="btn primary" id="b-load">불러오기</button>
+      <span class="grow"></span>
+      <button class="btn" id="b-demo" title="가상의 학생 28명 데이터로 둘러보기">예시 데이터로 보기</button>
+      <button class="btn" id="b-local" title="시험 모드에서 이 기기에 저장된 워크시트 기록">이 기기 기록</button>
+      <button class="btn" id="b-csv">CSV 내보내기</button>
+    </div>
+    <div id="load-msg" class="muted" style="margin-top:6px;font-size:12.5px"></div>
+  </div>
+
+  <div class="tabs noprint">
+    <button class="tab on" data-tab="overview">학급 현황</button>
+    <button class="tab" data-tab="student">학생별 학습 이력</button>
+    <button class="tab" data-tab="misc">오개념 · 확신도</button>
+    <button class="tab" data-tab="setup">⚙️ 처음 설정</button>
+  </div>
+
+  <!-- 학급 현황 -->
+  <section id="t-overview">
+    <div class="grid g4" id="kpis"></div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card"><h2>학습 목표별 달성률 <small>숙달(L3) 이상인 학생 비율 · 기록이 있는 학생 기준</small></h2><div id="objbars"></div></div>
+      <div class="card"><h2>🔔 교사에게 필요한 알림</h2><div id="alerts"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h2>학생 × 학습 목표 숙달 지도 <small>칸을 누르면 그 학생의 증거를 볼 수 있어요</small></h2>
+      <div class="legend" id="legend" style="margin-bottom:8px"></div>
+      <div class="scroll"><table class="heat" id="heat"></table></div>
+    </div>
+  </section>
+
+  <!-- 학생별 -->
+  <section id="t-student" class="hidden">
+    <div class="side">
+      <div class="card"><h2>학생</h2><div class="stlist" id="stlist"></div></div>
+      <div id="stdetail"></div>
+    </div>
+  </section>
+
+  <!-- 오개념 · 확신도 -->
+  <section id="t-misc" class="hidden">
+    <div class="grid g2e">
+      <div class="card"><h2>오개념 분석 <small>무엇을 틀렸는지보다, 어떤 생각 때문에 틀렸는지</small></h2><div id="miscbars"></div></div>
+      <div class="card"><h2>확신도 × 정답 <small>답을 확인하기 전에 고른 확신도 기준</small></h2><div id="quad"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><h2>⚠️ 오답인데 확신한 답 <small>강한 오개념이 의심돼요 — 꼭 확인할 학생</small></h2><div id="confwrong"></div></div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="t-setup" class="hidden">
+    <div class="grid g2e">
+      <div class="card">
+        <h2>처음 한 번만 하면 돼요</h2>
+        <ol class="steps">
+          <li>구글 드라이브에서 <b>새 스프레드시트</b>를 만들어요. (예: '과학 학습 성장 기록')</li>
+          <li>메뉴 <b>확장 프로그램 → Apps Script</b>를 열고, 오른쪽 <b>code.gs</b> 내용을 통째로 붙여넣어요.</li>
+          <li>맨 위 <code>TEACHER_KEY</code>를 선생님만 아는 비밀번호로 바꾸고 저장해요.</li>
+          <li>위쪽 함수 목록에서 <b>setup</b>을 골라 ▶ 실행 → 권한 허용. '학생', '학습기록' 시트가 생겨요.</li>
+          <li>'학생' 시트에 <b>학년 · 반 · 번호 · 이름</b>을 적고(명렬표 붙여넣기), 함수 <b>makeCodes</b>를 실행하면 개인코드 4자리가 자동으로 생겨요.</li>
+          <li><b>배포 → 새 배포 → 웹 앱</b> · 실행: <b>나</b> · 액세스: <b>모든 사용자</b> → 배포. 나온 주소(…/exec)를 복사해요.</li>
+          <li>그 주소를 Claude에게 알려 주시면 <code>lms/config.js</code>에 넣어 드려요. (GitHub에서 직접 고쳐도 돼요.) 그러면 모든 워크시트와 이 대시보드가 같은 시트를 써요.</li>
+          <li>아래 <b>개인코드 쪽지 인쇄</b>로 학생들에게 코드를 나눠 줘요.</li>
+        </ol>
+        <div class="note">🔒 학습 기록 시트에는 <b>학년-반-번호</b>만 남고, 이름은 '학생' 시트에만 있어요. 학생은 자기 번호와 개인코드로만 자기 기록을 볼 수 있고, 반 전체 기록은 교사 비밀번호로만 열려요. AI에는 학생 정보를 보내지 않아요.</div>
+        <h2 style="margin-top:14px">연결 확인</h2>
+        <div class="bar-row"><input type="text" id="ping-url" placeholder="https://script.google.com/macros/s/…/exec" style="flex:1;min-width:220px"><button class="btn" id="b-ping">확인</button></div>
+        <div id="ping-msg" class="muted" style="margin-top:6px;font-size:12.5px"></div>
+        <h2 style="margin-top:14px">개인코드 쪽지 인쇄</h2>
+        <div class="bar-row"><button class="btn" id="b-codes">위에서 고른 학년·반 쪽지 만들기</button></div>
+        <div id="codes" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <h2>code.gs <button class="btn small" id="b-copy">복사</button></h2>
+        <pre class="code" id="gs">불러오는 중…</pre>
+        <h2 style="margin-top:12px">워크시트에 연결하는 방법</h2>
+        <div class="note">워크시트 HTML에 <code>lms/config.js · objectives.js · lms-core.js · lms-client.js</code>를 넣고, 문항마다 <code>LMS.item("문항", { objectives:[목표 코드], check })</code>로 연결해요. 새 단원은 <code>objectives.js</code>에 목표와 오개념을 추가하면 돼요. 예시: <a href="../parallax.html" target="_blank">별의 시차 워크시트</a></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="config.js"></script>
+<script src="objectives.js"></script>
+<script src="lms-core.js"></script>
+<script src="teacher.js"></script>
+</body>
+</html>

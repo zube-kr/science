@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 학습 성장</title>
+<link rel="stylesheet" href="lms.css">
+<style>
+  .wrap{max-width:900px}
+  .q4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:640px){ .q4{grid-template-columns:1fr} }
+  .q4 .card h2{font-size:15px}
+  .q4 ul{margin:0;padding-left:18px}.q4 li{margin:4px 0}
+  .objline{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+  .objline:last-child{border-bottom:0}
+  .objline .t small{display:block;color:var(--mute);font-size:12px}
+  .login{max-width:460px;margin:40px auto}
+  .login .bar-row input{width:72px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">🌱</div>
+    <div class="grow"><h1>내 학습 성장</h1><p>나는 무엇을 알고, 무엇을 아직 모르고, 다음에 무엇을 공부하면 좋을까?</p></div>
+    <span class="pill" id="who"></span>
+  </div>
+
+  <div class="card login" id="login">
+    <h2>내 기록 열기</h2>
+    <div class="bar-row"><input type="number" id="g" min="1" max="3" value="3"><span>학년</span><input type="number" id="c" min="1"><span>반</span><input type="number" id="n" min="1"><span>번</span></div>
+    <div class="bar-row" style="margin-top:8px"><input type="password" id="code" placeholder="개인코드" inputmode="numeric" style="width:140px"><button class="btn primary" id="go">열기</button></div>
+    <div class="muted" id="msg" style="margin-top:8px;font-size:13px"></div>
+  </div>
+
+  <div id="main" class="hidden">
+    <div class="card bar-row"><label class="soft">단원</label><select id="unit"></select><span class="grow"></span><button class="btn small" id="logout">닫기</button></div>
+    <div id="body" style="margin-top:12px"></div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script src="objectives.js"></script>
+<script src="lms-core.js"></script>
+<script>
+(function(){
+  const C = LMS_CORE, DB = C.DB, $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let me = null, rows = [];
+  for (const [k, U] of Object.entries(DB.UNITS)) $("unit").insertAdjacentHTML("beforeend", `<option value="${k}">${esc(U.grade)}학년 · ${esc(U.title)}</option>`);
+  try { const s = JSON.parse(sessionStorage.getItem("lms-student-v1") || "null"); if (s){ $("g").value = s.grade; $("c").value = s.cls; $("n").value = s.num; $("code").value = s.code; } } catch (e) {}
+  if (C.demo()) $("msg").textContent = "시험 모드: 이 기기에서 푼 워크시트 기록만 볼 수 있어요.";
+  $("go").onclick = open; $("code").onkeydown = e => { if (e.key === "Enter") open(); };
+  $("logout").onclick = () => { me = null; rows = []; $("main").classList.add("hidden"); $("login").classList.remove("hidden"); $("who").textContent = ""; };
+  $("unit").onchange = render;
+  async function open(){
+    const g = +$("g").value, c = +$("c").value, n = +$("n").value, code = $("code").value.trim();
+    if (!g || !c || !n || !code){ $("msg").textContent = "학년, 반, 번호, 개인코드를 모두 넣어 주세요."; return; }
+    const sid = C.sidOf(g, c, n); $("msg").textContent = "불러오는 중…";
+    try {
+      let name = "";
+      if (C.demo()) rows = C.localRecords().filter(r => r.sid === sid);
+      else { const r = await C.apiGet({ action: "student", sid, code }); rows = r.rows || []; name = r.name || ""; }
+      me = { sid, g, c, n, name };
+      $("who").textContent = `${g}학년 ${c}반 ${n}번 ${name}`;
+      $("login").classList.add("hidden"); $("main").classList.remove("hidden");
+      const units = [...new Set(rows.map(r => r.unit))]; if (units.length) $("unit").value = units[units.length - 1];
+      render();
+    } catch (e) { $("msg").textContent = e.code === "auth" ? "번호나 개인코드가 맞지 않아요." : "불러오지 못했어요: " + e.message; }
+  }
+  function render(){
+    const U = DB.UNITS[$("unit").value];
+    const mine = C.dedupe(rows.map(C.norm)).filter(r => r.unit === U.code);
+    const mast = C.studentMastery(mine, U.code), list = Object.values(mast), st = C.nextSteps(mast);
+    if (!mine.length){ $("body").innerHTML = `<div class="card empty">이 단원은 아직 기록이 없어요. <a href="../${esc(Object.values(U.activities)[0].url)}">${esc(Object.values(U.activities)[0].title)}</a>를 풀어 보세요!</div>`; return; }
+    const know = list.filter(m => m.level >= 3), notyet = list.filter(m => m.level > 0 && m.level <= 2), blank = list.filter(m => m.level === 0);
+    const grew = list.filter(m => m.hist.length >= 2 && m.hist[m.hist.length - 1].level > m.hist[0].level);
+    const lv = l => `<span class="lv l${l}">${l ? "L" + l : "-"}</span>`;
+    const actName = a => a === "teacher" ? "선생님 확인" : ((U.activities[a] || {}).title || a);
+    const miscs = [...new Set(list.flatMap(m => m.misc))].map(k => DB.MISC[k]).filter(Boolean);
+    const path = { basic: "기초를 다지는 길", core: "약한 목표를 채우는 길", deep: "심화 탐구의 길" }[st.path];
+    const nexts = (st.path === "deep" ? st.strong.slice(0, 2).map(m => "🚀 " + m.obj.deep) : st.weak.slice(0, 3).map(m => "📘 " + m.obj.basic))
+      .concat(st.due.map(m => "🔁 다시 확인할 때가 됐어요: " + m.obj.text)).concat(blank.filter(m => m.obj.area !== "design").slice(0, 2).map(m => "🆕 아직 도전하지 않은 목표: " + m.obj.text));
+    $("body").innerHTML = `
+      <div class="q4">
+        <div class="card"><h2>✅ 나는 무엇을 알고 있나?</h2>${know.length ? `<ul>${know.map(m => `<li>${esc(m.obj.text)} ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">아직 숙달한 목표가 없어요. 괜찮아요, 지금부터!</span>'}</div>
+        <div class="card"><h2>🤔 아직 무엇을 잘 모르나?</h2>${notyet.length ? `<ul>${notyet.map(m => `<li>${esc(m.obj.text)} ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">기록된 목표는 모두 숙달했어요!</span>'}
+          ${miscs.length ? `<div class="note" style="margin-top:8px">💡 이런 생각을 했던 적이 있어요:<br>${miscs.map(m => `• ${esc(m.text)} → ${esc(m.fix)}`).join("<br>")}</div>` : ""}</div>
+        <div class="card"><h2>📈 어떤 활동으로 발전했나?</h2>${grew.length ? `<ul>${grew.map(m => `<li>${esc(m.obj.text)}: ${lv(m.hist[0].level)} → ${lv(m.level)} <span class="muted">(${esc(actName(m.hist[m.hist.length - 1].by))})</span></li>`).join("")}</ul>` : '<span class="muted">같은 목표에 다시 도전하면 성장이 여기에 보여요.</span>'}</div>
+        <div class="card"><h2>🧭 다음에 무엇을 공부할까? <small>${esc(path)}</small></h2>${nexts.length ? `<ul>${nexts.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : '<span class="muted">멋져요! 선생님께 심화 활동을 물어보세요.</span>'}</div>
+      </div>
+      <div class="card" style="margin-top:12px"><h2>학습 목표별 나의 수준 <small>${DB.LEVELS.slice(1).map(l => `${l.short} ${l.name}`).join(" · ")}</small></h2>
+        ${list.map(m => `<div class="objline"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small>${esc(DB.area(m.obj.area).name)}${m.due ? " · 🔁 복습할 때" : ""}${m.pendingText ? " · ✍️ 선생님 확인 기다리는 중" : ""}</small></div>${lv(m.level)}</div>`).join("")}
+      </div>`;
+  }
+})();
+</script>
+</body>
+</html>
