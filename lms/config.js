@@ -4,5 +4,5 @@
            기록이 이 기기 브라우저에만 저장됩니다.
    ===================================================================== */
 window.LMS_CONFIG = {
-  apiUrl: "",
+  apiUrl: "https://script.google.com/macros/s/AKfycbxDTSv6FvuoTQGedh_eEkA4waI5OZtNkKq76tIhUJ2pue1xYZieSIL58AFTl6Fg5kCZ8A/exec",
 };
