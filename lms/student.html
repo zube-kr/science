@@ -59,7 +59,7 @@
     try {
       let name = "";
       if (C.demo()) rows = C.localRecords().filter(r => r.sid === sid);
-      else { const r = await C.apiGet({ action: "student", sid, code }); rows = r.rows || []; name = r.name || ""; }
+      else { const r = await C.apiGet({ action: "student", stu: sid, code }); rows = r.rows || []; name = r.name || ""; }
       me = { sid, g, c, n, name };
       $("who").textContent = `${g}학년 ${c}반 ${n}번 ${name}`;
       $("login").classList.add("hidden"); $("main").classList.remove("hidden");

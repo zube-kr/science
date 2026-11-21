@@ -59,6 +59,8 @@ function logRows_(filter) {
 
 function doGet(e) {
   const p = e.parameter || {};
+  // ※ 주소 매개변수 이름 'sid'는 구글이 막아서(400 오류) 'stu'를 씀
+  p.sid = p.stu || p.sid;
   try {
     if (p.action === 'ping') return out_({ ok: true, app: 'science-lms' });
     if (p.action === 'login') {
