@@ -10,6 +10,7 @@
    ※ 학생 이름은 이 시트에만 있고, 학습 기록에는 학년-반-번호만 저장됩니다.
    ===================================================================== */
 const TEACHER_KEY = '여기에-선생님-비밀번호';   // ← 꼭 바꾸세요
+const CODE_VERSION = '2026-11-21-3';             // 배포 확인용 (바꾸지 마세요)
 
 const SH_ROSTER = '학생';
 const SH_LOG = '학습기록';
@@ -73,7 +74,7 @@ function doGet(e) {
   // ※ 주소 매개변수 이름 'sid'는 구글이 막아서(400 오류) 'stu'를 씀
   p.sid = p.stu || p.sid;
   try {
-    if (p.action === 'ping') return out_({ ok: true, app: 'science-lms' });
+    if (p.action === 'ping') return out_({ ok: true, app: 'science-lms', version: CODE_VERSION });
     if (p.action === 'login') {
       const s = auth_(p.sid, p.code);
       return s ? out_({ ok: true, name: s.name }) : out_({ ok: false, code: 'auth', error: '번호 또는 개인코드가 맞지 않아요' });
