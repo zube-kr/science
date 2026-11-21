@@ -10,7 +10,7 @@
    ※ 학생 이름은 이 시트에만 있고, 학습 기록에는 학년-반-번호만 저장됩니다.
    ===================================================================== */
 const TEACHER_KEY = '여기에-선생님-비밀번호';   // ← 꼭 바꾸세요
-const CODE_VERSION = '2026-11-21-3';             // 배포 확인용 (바꾸지 마세요)
+const CODE_VERSION = '2026-11-21-4';             // 배포 확인용 (바꾸지 마세요)
 
 const SH_ROSTER = '학생';
 const SH_LOG = '학습기록';
@@ -53,13 +53,42 @@ function auth_(sid, code) {
   return s && s.code && s.code === String(code) ? s : null;
 }
 function out_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
-/* 시트가 '1-1-01' 같은 학생 번호를 날짜(2001-01-01)로 바꿔 저장한 경우 원래 번호로 되돌림 */
+/* 시트가 '1-1-01' 같은 학생 번호를 날짜(2001-01-01)로 바꿔 저장한 경우 원래 번호로 되돌림.
+   날짜 객체 · 날짜 글자("2001-01-01", "2001. 1. 1") · 시트 날짜 일련번호(36892) 모두 처리 */
 function sidText_(v, known, tz) {
-  if (!(v instanceof Date)) return String(v);
-  const p = Utilities.formatDate(v, tz, 'yy-M-d').split('-').map(Number);   // [년, 월, 일]
+  if (v === null || v === undefined || v === '') return '';
   const pad = n => ('0' + n).slice(-2);
-  const a = p[0] + '-' + p[1] + '-' + pad(p[2]), b = p[2] + '-' + p[1] + '-' + pad(p[0]);
-  return known.has(a) ? a : known.has(b) ? b : a;
+  const pick = (y, m, d) => {                       // 년-월-일 또는 일-월-년 중 명렬표에 있는 쪽
+    const a = (y % 100) + '-' + m + '-' + pad(d), b = d + '-' + m + '-' + pad(y % 100);
+    return known.has(a) ? a : known.has(b) ? b : a;
+  };
+  const isDate = Object.prototype.toString.call(v) === '[object Date]' || (typeof v === 'object' && typeof v.getFullYear === 'function');
+  if (isDate) { const p = Utilities.formatDate(v, tz, 'yyyy-M-d').split('-').map(Number); return pick(p[0], p[1], p[2]); }
+  if (typeof v === 'number' && v > 20000 && v < 80000) {   // 시트 날짜 일련번호
+    const d = new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000);
+    return pick(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+  }
+  const s = String(v).trim();
+  if (known.has(s)) return s;
+  const m = s.match(/^(\d{4})\s*[-.\/]\s*(\d{1,2})\s*[-.\/]\s*(\d{1,2})/);
+  if (m) return pick(+m[1], +m[2], +m[3]);
+  return s;
+}
+/* 한 번만 실행: 학습기록 시트 B열(학생 번호)을 모두 '1-1-01' 같은 글자로 고쳐 씀.
+   실행 로그에 무엇을 고쳤는지 나옵니다. */
+function fixSids() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName(SH_LOG);
+  const n = sh.getLastRow() - 1; if (n < 1) { Logger.log('기록이 없어요'); return; }
+  const rg = sh.getRange(2, 2, n, 1), v = rg.getValues(), tz = ss.getSpreadsheetTimeZone();
+  const known = new Set(roster_().map(s => s.sid));
+  const out = v.map((row, i) => {
+    const t = sidText_(row[0], known, tz);
+    if (i < 5) Logger.log((i + 2) + '행: [' + Object.prototype.toString.call(row[0]) + '] ' + row[0] + '  →  ' + t + (known.has(t) ? '  (명렬표 일치)' : '  (명렬표에 없음)'));
+    return [t];
+  });
+  rg.setNumberFormat('@'); rg.setValues(out);
+  sh.getRange('B:B').setNumberFormat('@'); sh.getRange('N:N').setNumberFormat('@');
+  Logger.log('완료: ' + n + '줄을 고쳤어요.');
 }
 function logRows_(filter) {
   const ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName(SH_LOG);
