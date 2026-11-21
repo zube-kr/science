@@ -105,7 +105,7 @@
       return `<tr><td><b>${o.no}.</b> ${esc(o.text)}<div class="muted" style="font-size:11.5px">${esc(o.code)} · ${esc(DB.area(o.area).name)}${m.due ? " · 🔁 복습할 때" : ""}</div>${misc}</td>
         <td>${lvBadge(m.level)}${m.pendingText ? '<div class="pill" style="margin-top:4px">판정 대기</div>' : ""}</td>
         <td>${ev || '<span class="muted">-</span>'}${teach}${texts}
-          <div class="bar-row" style="margin-top:6px"><select data-ov="${o.code}"><option value="">교사 판정…</option>${DB.LEVELS.slice(1).map(l => `<option value="${l.lv}">${l.short} ${esc(l.name)}</option>`).join("")}</select><input type="text" placeholder="메모(선택)" data-ovm="${o.code}" style="flex:1;min-width:110px"><button class="btn small" data-ovs="${o.code}">저장</button></div></td></tr>`;
+          <div class="bar-row" style="margin-top:6px"><select data-ov="${o.code}"><option value="">교사 판정…</option>${DB.LEVELS.slice(1).map(l => `<option value="${l.lv}">${l.short} ${esc(l.name)}</option>`).join("")}</select><input type="text" placeholder="학생에게 남길 말 (학생 화면에 보여요)" data-ovm="${o.code}" style="flex:1;min-width:150px"><button class="btn small" data-ovs="${o.code}">저장</button></div></td></tr>`;
     }).join("");
     const pathTxt = { basic: ["기초 보충 경로", "개념이 아직 부족한 목표부터 차근차근"], core: ["표준 경로", "약한 목표를 보완하고 확인 문제로 숙달 확인"], deep: ["심화 탐구 경로", "이미 숙달 — 실제 자료와 새로운 상황으로"] }[steps.path];
     const recs = (steps.path === "deep" ? steps.strong.slice(0, 3).map(m => m.obj.deep) : steps.weak.slice(0, 3).map(m => m.obj.basic)).concat(steps.due.slice(0, 2).map(m => `🔁 복습: ${m.obj.text}`));

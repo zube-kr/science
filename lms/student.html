@@ -80,7 +80,10 @@
     const path = { basic: "기초를 다지는 길", core: "약한 목표를 채우는 길", deep: "심화 탐구의 길" }[st.path];
     const nexts = (st.path === "deep" ? st.strong.slice(0, 2).map(m => "🚀 " + m.obj.deep) : st.weak.slice(0, 3).map(m => "📘 " + m.obj.basic))
       .concat(st.due.map(m => "🔁 다시 확인할 때가 됐어요: " + m.obj.text)).concat(blank.filter(m => m.obj.area !== "design").slice(0, 2).map(m => "🆕 아직 도전하지 않은 목표: " + m.obj.text));
+    const fb = list.flatMap(m => m.hist.filter(h => h.by === "teacher").map(h => ({ m, h }))).sort((a, b) => b.h.ts - a.h.ts);
+    const fdate = ts => { const d = new Date(ts); return `${d.getMonth() + 1}/${d.getDate()}`; };
     $("body").innerHTML = `
+      ${fb.length ? `<div class="card" style="margin-bottom:12px;border-color:#c7c9f5"><h2>💬 선생님 피드백</h2>${fb.map(({ m, h }) => `<div class="objline" style="grid-template-columns:38px 1fr auto"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small style="color:var(--ink);font-size:13.5px;margin-top:2px">👩‍🏫 ${h.note ? esc(h.note) : "선생님이 수준을 확인했어요."} <span class="muted">· ${fdate(h.ts)}</span></small></div>${lv(h.level)}</div>`).join("")}</div>` : ""}
       <div class="q4">
         <div class="card"><h2>✅ 나는 무엇을 알고 있나?</h2>${know.length ? `<ul>${know.map(m => `<li>${esc(m.obj.text)} ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">아직 숙달한 목표가 없어요. 괜찮아요, 지금부터!</span>'}</div>
         <div class="card"><h2>🤔 아직 무엇을 잘 모르나?</h2>${notyet.length ? `<ul>${notyet.map(m => `<li>${esc(m.obj.text)} ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">기록된 목표는 모두 숙달했어요!</span>'}
@@ -89,7 +92,7 @@
         <div class="card"><h2>🧭 다음에 무엇을 공부할까? <small>${esc(path)}</small></h2>${nexts.length ? `<ul>${nexts.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : '<span class="muted">멋져요! 선생님께 심화 활동을 물어보세요.</span>'}</div>
       </div>
       <div class="card" style="margin-top:12px"><h2>학습 목표별 나의 수준 <small>${DB.LEVELS.slice(1).map(l => `${l.short} ${l.name}`).join(" · ")}</small></h2>
-        ${list.map(m => `<div class="objline"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small>${esc(DB.area(m.obj.area).name)}${m.due ? " · 🔁 복습할 때" : ""}${m.pendingText ? " · ✍️ 선생님 확인 기다리는 중" : ""}</small></div>${lv(m.level)}</div>`).join("")}
+        ${list.map(m => { const t = [...m.hist].reverse().find(h => h.by === "teacher" && h.note); return `<div class="objline"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small>${esc(DB.area(m.obj.area).name)}${m.due ? " · 🔁 복습할 때" : ""}${m.pendingText ? " · ✍️ 선생님 확인 기다리는 중" : ""}</small>${t ? `<small style="color:var(--accent)">👩‍🏫 ${esc(t.note)}</small>` : ""}</div>${lv(m.level)}</div>`; }).join("")}
       </div>`;
   }
 })();
