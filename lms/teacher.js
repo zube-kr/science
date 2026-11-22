@@ -4,6 +4,9 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const KEY_LS = "lms-teacher-key";
   const ST = { source: null, roster: [], rows: [], A: null, sel: null, tab: "overview" };
+  // 예시 전용 보기 (lms/demo.html 에서 teacher.html?demo=1 로 열림): 서버·설정 숨기고 가상 데이터만
+  const DEMO_ONLY = new URLSearchParams(location.search).has("demo");
+  if (DEMO_ONLY) document.body.classList.add("demo-only");
 
   /* ---------- 기본 화면 ---------- */
   for (const [k, U] of Object.entries(DB.UNITS)) $("f-unit").insertAdjacentHTML("beforeend", `<option value="${k}">${esc(U.grade)}학년 · ${esc(U.title)}</option>`);
@@ -282,19 +285,32 @@
       for (let k = 0; k < sessions; k++){
         const t0 = now - (sessions - k) * 4 * C.DAY - R() * C.DAY, session = `${act}-demo${si}-${k}`, gain = k * .9;
         for (const [id, it] of Object.entries(items)){
+          if (id.startsWith("re-")) continue;                       // 재도전 문항은 아래 재학습 회차에서
+          if (it.kind === "diag"){                                  // 사전 진단: 배우기 전이라 정답률 낮게
+            if (k > 0) continue;
+            const ok = R() < sig(ab - 1);
+            rows.push({ ts: t0 - 6e5, sid: st.sid, unit: "ASTRO-PARALLAX", activity: act, session, item: id, objectives: it.objectives.join(","), kind: "diag", correct: ok, attempts: 1, level: ok ? 3 : 1, confidence: 0, misconceptions: ok ? "" : (id === "diag-near" ? "M-PLX-REVERSE" : "M-PLX-VIEWPOINT"), answer: ok ? "정답" : "오답", aided: false });
+            continue;
+          }
           if (it.kind === "text"){
             if (k === 0 && R() < .8) rows.push({ ts: t0 + 3e5, sid: st.sid, unit: "ASTRO-PARALLAX", activity: act, session, item: id, objectives: it.objectives.join(","), kind: "text", correct: false, attempts: 1, level: 0, confidence: 0, misconceptions: "", answer: id === "ex2AltMethod" ? "한쪽 눈으로 두 위치에서 번갈아 보며 빨대 끝이 가리키는 눈금을 비교한다." : "팔을 굽히면 물체가 눈에 가까워져서 두 눈으로 본 방향 차이가 커지기 때문이다.", aided: false });
             continue;
           }
-          let p = sig(ab + gain + diff[id]); const relRev = rev && k === 0 && ["concept1", "xy", "t-stereo", "limit", "concept2"].includes(id);
+          let p = sig(ab + gain + (diff[id] != null ? diff[id] : .3)); const relRev = rev && k === 0 && ["concept1", "xy", "t-stereo", "limit", "concept2"].includes(id);
           if (relRev) p *= .25;
           const first = R() < p, fin = first || R() < .6;
           const conf = first ? (R() < .75 ? 4 : 3) : (relRev && R() < .7 ? (R() < .5 ? 4 : 3) : 1 + (R() * 3 | 0));
-          const mo = miscOf[id] || [];
+          const mo = miscOf[id] || (id === "cer-claim" ? ["M-PLX-REVERSE"] : []);
           const ms = !fin ? [relRev ? "M-PLX-REVERSE" : mo[(R() * mo.length) | 0]].filter(Boolean) : (!first && mo.length && R() < .5 ? [mo[0]] : []);
           const lvl = first ? (it.kind === "transfer" ? 4 : 3) : fin ? (it.kind === "transfer" ? 3 : 2) : 1;
           rows.push({ ts: t0 + R() * 2e5, sid: st.sid, unit: "ASTRO-PARALLAX", activity: act, session, item: id, objectives: it.objectives.join(","), kind: it.kind, correct: fin, attempts: first ? 1 : 2 + (R() * 2 | 0), level: lvl, confidence: conf, misconceptions: (ms || []).join(","), answer: fin ? "정답" : ({ q2: "2", "t-calc": "0.1", concept1: "작아지고 / 커진다", "probe-move": "별이 실제로 움직여서" }[id] || "오답"), aided: false });
         }
+      }
+      // 재학습 (가상): 약한 목표 두 개를 비슷한 새 문제로 다시 도전
+      if (R() < .5){
+        const re = Object.entries(items).filter(([id]) => id.startsWith("re-")).sort(() => R() - .5).slice(0, 2), ts = now - 3 * C.DAY;
+        for (const [id, it] of re){ const ok = R() < sig(ab + 1.3);
+          rows.push({ ts, sid: st.sid, unit: "ASTRO-PARALLAX", activity: act, session: `${act}-demo${si}-0-re`, item: id, objectives: it.objectives.join(","), kind: "core", correct: ok, attempts: ok ? 1 : 2, level: ok ? 3 : 2, confidence: 3, misconceptions: "", answer: ok ? "정답" : "오답", aided: false }); }
       }
       // 메타질문 (가상)
       if (R() < .85){
@@ -304,13 +320,16 @@
         mk("mb-main", 0, ["별까지의 거리는 어떻게 잴 수 있을까?", "왜 별 A만 위치가 바뀌어 보일까?", "움직인 것은 별일까 지구일까?"][(R() * 3) | 0], t1);
         mk("mb-rate", rb, DB.RATE[rb - 1].name, t1);
         mk("mb-prior", 0, ["망원경으로 보면 알 수 있을 것 같다.", "빛이 오는 시간을 재면 될 것 같다.", "모르겠다. 별이 너무 멀다.", "별의 밝기로 알 수 있지 않을까?"][(R() * 4) | 0], t1);
+        if (R() < .75) mk("md-strategy", 0, ["빨대와 눈 사이 거리를 다시 재 보고, 같은 사람이 여러 번 측정해 평균을 내겠다.", "예상과 같았다. 그래도 관측 지점 사이 거리를 바꿔서 한 번 더 확인하고 싶다."][(R() * 2) | 0], t1 + 3e5);
         if (R() < .8) mk("md-why", 0, ["팔을 굽히면 물체가 가까워져서 두 눈이 보는 방향 차이가 커졌다. 번호 차이가 근거다.", "번호 차이가 더 컸기 때문인데 근거가 충분한지는 잘 모르겠다."][(R() * 2) | 0], t1 + 2e5);
         if (R() < .75){ mk("ma-rate", ra, DB.RATE[ra - 1].name, t1 + 5e5);
           mk("ma-change", 0, ["처음엔 망원경으로 본다고 생각했는데, 지구가 공전하며 보는 위치가 바뀌는 시차로 거리를 잰다는 걸 알았다.", "시차가 클수록 멀다고 생각했는데 반대였다. 가까울수록 시차가 크다.", "별이 움직여서 위치가 바뀌는 줄 알았는데 지구가 움직인 것이었다."][(R() * 3) | 0], t1 + 5e5);
           if (R() < .7) mk("ma-check", 0, "가까운 물체일수록 두 곳에서 본 방향 차이(시차)가 크고, 먼 별은 시차가 작다.", t1 + 5e5); }
         if (R() < .55){ mk("me-apply", 2, ["우리 두 눈 | 자동차 카메라", "드론 센서 | 3D 영화", "측량 | 로봇 눈 | VR"][(R() * 3) | 0], t1 + 6e5);
           mk("me-next", 2, ["더 먼 별은 어떻게 재지? | 은하까지 거리는?", "가이아 망원경은 얼마나 정확할까? | 별이 진짜 움직이기도 할까?", "빛의 속도로 거리를 잴 수는 없을까?"][(R() * 3) | 0], t1 + 6e5);
-          mk("me-revisit", 0, "별까지 거리는 어떻게 잴까? → 해결됐다 | 별도 움직일까? → 아직 궁금", t1 + 6e5); }
+          mk("me-revisit", 0, "별까지 거리는 어떻게 잴까? → 해결됐다 | 별도 움직일까? → 아직 궁금", t1 + 6e5);
+          mk("me-value", 0, ["직접 가지 않고도 우주의 크기를 알 수 있다는 게 놀랍다. 생각하는 힘이 중요하다.", "우리 은하의 지도를 만들 수 있게 되었다."][(R() * 2) | 0], t1 + 6e5);
+          mk("me-self", 0, ["질문을 많이 만든 건 잘했다. 다음엔 실험 결과를 더 꼼꼼히 기록하겠다.", "처음엔 반대로 알고 있었는데 실험으로 고쳤다. 다음엔 근거를 먼저 찾겠다."][(R() * 2) | 0], t1 + 6e5); }
       }
       if (R() < .4){ const ts = now - C.DAY / 2, sess = "rubric-" + si;
         for (const c of DB.UNITS["ASTRO-PARALLAX"].rubric){ const lv = Math.max(1, Math.min(4, Math.round(2.4 + ab * .8 + (R() - .5)))); rows.push({ ts, sid: st.sid, unit: "ASTRO-PARALLAX", activity: "rubric", session: sess, item: "rubric:" + c.key, objectives: c.objectives.join(","), kind: "rubric", correct: lv >= 3, attempts: 0, level: lv, confidence: 0, misconceptions: "", answer: lv <= 2 ? "다음 단계 기준을 보고 다시 도전해 보자!" : "", aided: false }); } }
@@ -318,5 +337,6 @@
     });
     return { roster, rows };
   }
+  if (DEMO_ONLY){ $("b-demo").click(); $("load-msg").textContent = "가상의 3학년 1반 28명으로 만든 예시 화면이에요. 실제 학생 기록이 아니에요. 평가·판정을 눌러 봐도 저장되지 않아요."; }
   window.__lmsTeacher = { ST, render, makeDemo };
 })();
