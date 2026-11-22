@@ -184,7 +184,8 @@
         const ls = c.objectives.map(o => mast[o] ? mast[o].level : 0).filter(l => l > 0);
         if (ls.length) sug = Math.max(1, Math.min(4, Math.round(ls.reduce((a, b) => a + b, 0) / ls.length)));
       }
-      return { c, level: conf ? conf.level : 0, suggested: sug, show: conf ? conf.level : sug, confirmed: !!conf, memo: conf ? conf.answer : "", ts: conf ? conf.ts : 0 };
+      const self = latest(rows, "self:" + c.key, "self");
+      return { c, level: conf ? conf.level : 0, suggested: sug, show: conf ? conf.level : sug, confirmed: !!conf, memo: conf ? conf.answer : "", ts: conf ? conf.ts : 0, self: self ? self.level : 0 };
     });
   }
   /* 학습 순환 진행 상태: 목표 → 활동 → 메타질문 → 루브릭 → 피드백·재학습 */
@@ -192,14 +193,14 @@
     const act = rows.filter(r => r.kind === "core" || r.kind === "transfer");
     const fbRows = rows.filter(r => (r.kind === "teacher" || r.kind === "rubric") && r.answer);
     const lastFb = fbRows.length ? Math.max(...fbRows.map(r => r.ts)) : 0;
-    const relearn = lastFb && act.some(r => r.ts > lastFb);
+    const relearn = act.some(r => /-re$/.test(r.session)) || (lastFb && act.some(r => r.ts > lastFb));
     const conf = rub.filter(x => x.confirmed).length;
     return {
       goal: "done",
       activity: act.length ? "done" : "todo",
       meta: meta.stagesDone >= 3 ? "done" : meta.stagesAny ? "partial" : "todo",
       rubric: rub.length && conf === rub.length ? "done" : conf ? "partial" : "todo",
-      feedback: relearn ? "done" : lastFb ? "partial" : "todo",
+      feedback: relearn ? "done" : lastFb || act.length ? "partial" : "todo",
       relearn, lastFb,
     };
   }

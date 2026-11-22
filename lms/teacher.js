@@ -131,7 +131,7 @@
     const rubHtml = s.rub.map(x => {
       const cur = x.confirmed ? x.level : x.suggested;
       return `<div class="rb" data-rk="${x.c.key}" data-lv="${cur || ""}">
-        <div class="top">${domTag(x.c.domain)}<b>${esc(x.c.name)}</b><span class="muted" style="font-size:12px">${x.c.meta ? "메타질문 답 기반" : "목표 " + x.c.objectives.map(o => DB.OBJ[o].no).join("·")} · 증거 기반 제안 ${x.suggested ? rlBadge(x.suggested, false) : "-"}</span>${x.confirmed ? `<span class="pill ok" style="margin-left:auto">확정 ${x.level} · ${fmtD(x.ts)}</span>` : '<span class="pill" style="margin-left:auto">확정 전</span>'}</div>
+        <div class="top">${domTag(x.c.domain)}<b>${esc(x.c.name)}</b><span class="muted" style="font-size:12px">${x.c.meta ? "메타질문 답 기반" : "목표 " + x.c.objectives.map(o => DB.OBJ[o].no).join("·")} · 증거 기반 제안 ${x.suggested ? rlBadge(x.suggested, false) : "-"} · 학생 자기평가 ${x.self ? `<b>${x.self}</b>` : "-"}</span>${x.confirmed ? `<span class="pill ok" style="margin-left:auto">확정 ${x.level} · ${fmtD(x.ts)}</span>` : '<span class="pill" style="margin-left:auto">확정 전</span>'}</div>
         <div class="lvls">${DB.RUBRIC_LEVELS.map(l => `<button type="button" data-rv="${l.lv}" class="${l.lv === cur ? "on" : ""} ${l.lv === x.suggested ? "sug" : ""}">${l.lv} ${esc(l.name)}</button>`).join("")}</div>
         <div class="desc" data-desc>${cur ? `<b>${cur} ${esc(DB.RUBRIC_LEVELS.find(l => l.lv === cur).name)}</b> — ${esc(x.c.desc[cur])}` : "수준을 골라 주세요."}</div>
         <input type="text" data-rm placeholder="이 영역 피드백 (학생 화면에 보여요)" value="${esc(x.memo)}" style="width:100%;margin-top:6px">
@@ -146,8 +146,8 @@
       const mm = s.mast[o.code];
       const misc = mm.misc.map(x => `<div class="muted" style="font-size:12px">⚠️ ${esc(DB.MISC[x] ? DB.MISC[x].text : x)}</div>`).join("");
       const texts = mm.texts.map(t => `<div class="note" style="margin-top:4px">✍️ ${esc((DB.item(t.activity, t.item) || {}).label || t.item)}<br>${esc(t.answer)}</div>`).join("");
-      const ev = mm.evidence.filter(r => r.kind === "core" || r.kind === "transfer").map(r => { const it = DB.item(r.activity, r.item);
-        return `<div style="font-size:12px">${r.correct ? "✅" : "❌"} ${esc(it ? it.label : r.item)} ${r.kind === "transfer" ? '<span class="pill" style="padding:1px 6px">전이</span>' : ""} · 시도 ${r.attempts}번${r.confidence ? " · 확신 " + esc(DB.CONFIDENCE.find(c => c.v === r.confidence).name) : ""}${r.answer ? ` · <span class="muted">답: ${esc(r.answer)}</span>` : ""}</div>`; }).join("");
+      const ev = mm.evidence.filter(r => r.kind === "core" || r.kind === "transfer" || r.kind === "diag").map(r => { const it = DB.item(r.activity, r.item);
+        return `<div style="font-size:12px">${r.correct ? "✅" : "❌"} ${esc(it ? it.label : r.item)} ${r.kind === "transfer" ? '<span class="pill" style="padding:1px 6px">전이</span>' : r.kind === "diag" ? '<span class="pill" style="padding:1px 6px">학습 전</span>' : /-re$/.test(r.session) ? '<span class="pill ok" style="padding:1px 6px">재학습</span>' : ""} · 시도 ${r.attempts}번${r.confidence ? " · 확신 " + esc(DB.CONFIDENCE.find(c => c.v === r.confidence).name) : ""}${r.answer ? ` · <span class="muted">답: ${esc(r.answer)}</span>` : ""}</div>`; }).join("");
       const teach = mm.hist.filter(h => h.by === "teacher").map(h => `<div style="font-size:12px">👩‍🏫 교사 판정 L${h.level} ${h.note ? "· " + esc(h.note) : ""} <span class="muted">${fmtD(h.ts)}</span></div>`).join("");
       return `<tr><td><b>${o.no}.</b> ${esc(o.text)}<div class="muted" style="font-size:11.5px">${esc(o.code)} · ${esc(DB.area(o.area).name)}${mm.due ? " · 🔁 복습할 때" : ""}</div>${misc}</td>
         <td>${lvBadge(mm.level)}${mm.pendingText ? '<div class="pill" style="margin-top:4px">판정 대기</div>' : ""}</td>

@@ -13,7 +13,7 @@
   const C = g.LMS_CORE, DB = C.DB;
   const BASE = (document.currentScript && document.currentScript.src || "").replace(/[^/]*$/, "");
   const SKEY = "lms-student-v1", QKEY = "lms-queue-v1";
-  const S = { unit: null, activity: null, session: null, student: null, items: new Map(), texts: new Map(), metas: new Map(), cards: new Map(), bar: null, onLogin: null };
+  const S = { unit: null, activity: null, session: null, student: null, items: new Map(), texts: new Map(), metas: new Map(), cards: new Map(), records: new Map(), base: null, bar: null, onLogin: null };
 
   const css = `
   .lms-bar{font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;background:linear-gradient(135deg,#eef4ff,#f3efff);border:1.5px solid #c9d6f5;border-radius:16px;padding:12px 14px;margin:0 0 16px;color:#1f2a44}
@@ -131,14 +131,16 @@
   /* ---------------- 메타질문 카드 ----------------
      LMS.meta(넣을 자리 요소, "before"|"during"|"after"|"extend", { position: "before"|"after" }) */
   function meta(anchor, stageKey, o = {}){
-    const U = DB.UNITS[S.unit], qs = ((U && U.meta) || {})[stageKey] || [], st = DB.META_STAGES.find(x => x.key === stageKey);
+    const U = DB.UNITS[S.unit], st = DB.META_STAGES.find(x => x.key === stageKey);
+    const qs = (((U && U.meta) || {})[stageKey] || []).filter(q => !o.only || o.only.includes(q.id));
+    const cardKey = stageKey + (o.only ? ":" + o.only.join(",") : "");
     if (!qs.length || !st || !anchor) return;
     const box = el("div", { class: "lms-meta", "data-stage": stageKey });
     box.append(el("div", { class: "mh" }, el("b", {}, "🧠 메타질문 · " + st.name), el("span", { class: "tag" }, st.type)), el("div", { class: "mhint" }, st.hint));
     const vals = {}, ctrls = [];
     if (stageKey === "after"){        // 학습 전 내 생각을 다시 보여 주며 비교하게
       const prev = el("div", { class: "prev" }); box.append(prev);
-      const show = () => { const b = S.metas.get("before"); if (!b){ prev.style.display = "none"; return; } prev.style.display = "";
+      const show = () => { const e = [...S.metas.entries()].find(([k]) => k.startsWith("before")), b = e && e[1]; if (!b){ prev.style.display = "none"; return; } prev.style.display = "";
         const bq = qs.length && (U.meta.before || []); const txt = bq.map(q => b.vals[q.id] ? (q.type === "rate" ? "자기평가: " + (DB.RATE.find(r => r.v === b.vals[q.id]) || {}).name : "“" + b.vals[q.id] + "”") : "").filter(Boolean).join("<br>");
         prev.innerHTML = "📌 <b>학습 전 내 생각</b><br>" + txt.replace(/</g, "&lt;").replace(/&lt;br>/g, "<br>"); };
       ctrls.push(show); show();
@@ -153,13 +155,13 @@
         const ta = el("textarea", { placeholder: "내 생각을 자유롭게 적어 보세요." }); ta.oninput = () => { vals[q.id] = ta.value.trim(); }; box.append(ta);
       }
     }
-    S.cards.set(stageKey, { qs, vals });          // 저장 버튼을 안 눌러도 제출할 때 함께 보냄
+    S.cards.set(cardKey, { stage: stageKey, qs, vals });          // 저장 버튼을 안 눌러도 제출할 때 함께 보냄
     const stat = el("span", { class: "mstat" }, stageKey === "before" ? "학습 전 생각은 저장하면 잠겨요. 나중에 '처음 생각'과 비교해요." : "");
     const save = el("button", { class: "msave", type: "button" }, "내 생각 저장");
     save.onclick = async () => {
       const filled = qs.filter(q => vals[q.id]);
       if (!filled.length){ stat.textContent = "한 가지 이상 답해 주세요."; return; }
-      const rec = { stage: stageKey, qs, vals: { ...vals }, ts: Date.now() }; S.metas.set(stageKey, rec);
+      const rec = { stage: stageKey, qs, vals: { ...vals }, ts: Date.now() }; S.metas.set(cardKey, rec);
       if (stageKey === "before"){ box.querySelectorAll("textarea").forEach(t => t.readOnly = true); box.querySelectorAll(".rate button").forEach(b => b.disabled = true); save.style.display = "none"; }
       document.querySelectorAll('.lms-meta[data-stage="after"]').forEach(a => a.__refresh && a.__refresh());
       const t = new Date(rec.ts), hm = `${t.getHours()}:${String(t.getMinutes()).padStart(2, "0")}`;
@@ -182,6 +184,7 @@
   }
   function levelOf(it){
     if (!it.attempts) return 0;
+    if (it.kind === "diag") return it.first ? 3 : 1;
     const fin = it.last && it.last.correct, tr = it.kind === "transfer";
     if (it.first) return tr ? 4 : 3;
     if (fin) return tr ? 3 : 2;
@@ -203,7 +206,12 @@
       rows.push({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: t.id, objectives: t.objectives.join(","), kind: "text",
         correct: false, attempts: 1, level: 0, confidence: 0, misconceptions: "", answer: v.slice(0, 800), aided: false });
     }
-    for (const [stage, card] of S.cards){ if (Object.values(card.vals).some(Boolean)) rows.push(...metaRows({ stage, qs: card.qs, vals: { ...card.vals }, ts })); }
+    for (const card of S.cards.values()){ if (Object.values(card.vals).some(Boolean)) rows.push(...metaRows({ stage: card.stage, qs: card.qs, vals: { ...card.vals }, ts })); }
+    for (const rc of S.records.values()){
+      const v = rc.get(); if (!v || (!v.level && !v.answer)) continue;
+      rows.push({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: rc.id, objectives: (rc.objectives || []).join(","), kind: rc.kind,
+        correct: !!v.correct, attempts: 1, level: +v.level || 0, confidence: 0, misconceptions: "", answer: String(v.answer || "").slice(0, 800), aided: false });
+    }
     return rows;
   }
   function queue(){ try { return JSON.parse(localStorage.getItem(QKEY) || "[]"); } catch (e) { return []; } }
@@ -225,15 +233,33 @@
     catch (e) { setQueue(queue().concat([pack])); return { ok: false, reason: "network", queued: true, error: e.message }; }
   }
 
+  /* 문항이 아닌 기록(루브릭 자기평가, 체크리스트 등): get() → { level, answer, correct } */
+  function record(id, o){ S.records.set(id, { id, kind: o.kind || "check", objectives: o.objectives || [], get: o.get }); }
+  /* 이 화면에서 지금까지 푼 결과로 목표별 수준 계산 (즉시 피드백용) */
+  function summary(){
+    const byObj = {}, misc = new Set();
+    for (const it of S.items.values()){
+      if (!it.attempts || it.kind === "diag") continue;
+      const r = { kind: it.kind, level: levelOf(it) };
+      it.misc.forEach(m => misc.add(m));
+      for (const o of it.objectives) (byObj[o] = byObj[o] || []).push(r);
+    }
+    const out = {}; for (const [o, list] of Object.entries(byObj)) out[o] = C.sessionLevel(list);
+    return { levels: out, misc: [...misc] };
+  }
+  /* 재학습처럼 새 회차로 기록할 때 (앞 회차 문항은 비움) */
+  function beginSession(suffix){
+    S.session = S.base + suffix; S.items.clear(); S.texts.clear(); S.cards.clear(); S.records.clear();
+  }
   function init(o){
     addCss();
     S.unit = o.unit; S.activity = o.activity; S.onLogin = o.onLogin || null;
     S.student = loadStudent();
-    S.session = `${o.activity}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    S.session = S.base = `${o.activity}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
     S.bar = el("div", { class: "lms-bar" });
     if (o.mount) o.mount.parentNode.insertBefore(S.bar, o.mount); else document.body.prepend(S.bar);
     renderBar();
     if (S.student){ flushQueue(); if (S.onLogin) setTimeout(() => S.onLogin(S.student)); }
   }
-  g.LMS = { init, item, text, meta, attempt, submit, state: S, levelOf };
+  g.LMS = { init, item, text, meta, record, summary, beginSession, attempt, submit, state: S, levelOf };
 })(window);
