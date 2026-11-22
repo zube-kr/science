@@ -68,6 +68,21 @@
           "reflection": { label: "서술 · 팔을 굽혔을 때 시차가 큰 까닭",  kind: "text",     objectives: ["ASTRO-PARALLAX-07", "ASTRO-PARALLAX-04"] },
           "ex2Reason":  { label: "서술 · 빨대 실험 (가)·(나) 비교",      kind: "text",     objectives: ["ASTRO-PARALLAX-07"] },
           "ex2AltMethod": { label: "서술 · 시차를 재는 다른 방법",       kind: "text",     objectives: ["ASTRO-PARALLAX-08"] },
+          /* 학습 전 사전 진단 (숙달 판정에는 쓰지 않고, 처음 생각·오개념 확인용) */
+          "diag-near":   { label: "사전 진단 1 · 가까운 것과 먼 것",     kind: "diag",     objectives: ["ASTRO-PARALLAX-01", "ASTRO-PARALLAX-04"] },
+          "diag-method": { label: "사전 진단 2 · 별까지 거리 재는 법",   kind: "diag",     objectives: ["ASTRO-PARALLAX-02"] },
+          /* 과학적 논증 (CER: 주장-근거-추론) */
+          "cer-claim":     { label: "논증 · 주장",  kind: "core", objectives: ["ASTRO-PARALLAX-04"] },
+          "cer-evidence":  { label: "논증 · 근거",  kind: "text", objectives: ["ASTRO-PARALLAX-07"] },
+          "cer-reasoning": { label: "논증 · 추론",  kind: "text", objectives: ["ASTRO-PARALLAX-04"] },
+          /* 재학습 변형 문항 (제출 뒤 약한 목표만 다시 도전) */
+          "re-01": { label: "재도전 · 시차의 뜻",               kind: "core", objectives: ["ASTRO-PARALLAX-01"] },
+          "re-02": { label: "재도전 · 6개월 간격으로 관측하는 까닭", kind: "core", objectives: ["ASTRO-PARALLAX-02"] },
+          "re-03": { label: "재도전 · 연주 시차를 나타내는 각",   kind: "core", objectives: ["ASTRO-PARALLAX-03"] },
+          "re-04": { label: "재도전 · 더 가까운 별 고르기",       kind: "core", objectives: ["ASTRO-PARALLAX-04"] },
+          "re-05": { label: "재도전 · 연주 시차로 거리 계산",     kind: "core", objectives: ["ASTRO-PARALLAX-05"] },
+          "re-06": { label: "재도전 · 아주 먼 별의 시차",         kind: "core", objectives: ["ASTRO-PARALLAX-06"] },
+          "re-07": { label: "재도전 · 거리-시차 자료 해석",       kind: "core", objectives: ["ASTRO-PARALLAX-07"] },
         } } },
       objectives: [
         { code: "ASTRO-PARALLAX-01", area: "concept",  text: "시차의 개념을 설명한다",
@@ -102,6 +117,7 @@
         ],
         during: [
           { id: "md-why",   type: "text", q: "실험에서 팔을 굽혔을 때와 폈을 때 결과가 달랐다. 나는 그 까닭을 어떤 근거로 판단했나? 그 근거는 충분한가?" },
+          { id: "md-strategy", type: "text", q: "빨대 실험 결과가 내 예상과 달랐다면(또는 같았다면), 무엇을 다시 확인하거나 바꿔야 할까?" },
         ],
         after: [
           { id: "ma-rate",   type: "rate", q: "학습을 마친 지금, 나는 이 내용을 얼마나 알고 있나?" },

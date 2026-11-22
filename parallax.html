@@ -215,6 +215,45 @@
     border-radius:8px; padding:9px 12px; margin-top:10px;
   }
 
+
+  /* ===== 학습 순환 단계 ===== */
+  .phase{display:flex;align-items:center;gap:12px;margin:34px 0 12px;scroll-margin-top:12px}
+  .phase b{flex:none;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6d5bd0,#2b3a7a);color:#fff;display:grid;place-items:center;font-size:17px}
+  .phase div{line-height:1.3}
+  .phase span{display:block;font-size:12px;letter-spacing:.08em;color:#6d5bd0;font-weight:700}
+  .phase strong{font-family:'Noto Serif KR',serif;font-size:19px;color:var(--night)}
+  .phase em{font-style:normal;font-size:13px;color:var(--ink-soft);margin-left:6px}
+  .roadmap{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .roadmap a{font-size:12.5px;text-decoration:none;color:var(--night);background:#F3F0E6;border:1px solid var(--paper-line);border-radius:999px;padding:4px 10px}
+  .roadmap a:hover{background:#EAE5D6}
+  .goal-area{margin:10px 0 4px;font-size:12.5px;font-weight:700;color:#6d5bd0}
+  .goal{display:flex;gap:8px;font-size:14px;padding:3px 0}
+  .goal i{font-style:normal;flex:none;width:22px;height:22px;border-radius:6px;background:#EEF0FA;color:#3b3f8f;display:grid;place-items:center;font-size:12px;font-weight:700}
+  .rub-prev{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  .rub-prev th,.rub-prev td{border:1px solid var(--paper-line);padding:7px 9px;text-align:left;vertical-align:top}
+  .rub-prev th{background:#F3F0E6}
+  .dom{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+  .dom.knowledge{background:#e0ecff;color:#1d4ed8}.dom.process{background:#dcfce7;color:#166534}.dom.attitude{background:#fde7e9;color:#9f1239}
+  .lock-msg{font-size:13px;margin-top:10px;color:#6d5bd0;font-weight:700}
+  .cer-block{margin:14px 0}
+  .cer-block label.t{display:block;font-weight:700;font-size:14.5px;margin-bottom:6px}
+  .cer-block .tag{display:inline-block;font-size:11px;font-weight:700;background:var(--night);color:var(--star-soft);border-radius:6px;padding:1px 7px;margin-right:6px}
+  .self-rub{border:1px solid var(--paper-line);border-radius:12px;padding:12px 14px;margin:10px 0}
+  .self-rub .opts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .self-rub button{all:unset;cursor:pointer;display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--paper-line);border-radius:10px;padding:8px 10px;font-size:13.5px;line-height:1.45}
+  .self-rub button b{flex:none;min-width:72px}
+  .self-rub button:hover{background:#F7F5EE}
+  .self-rub button.on{border-color:#6d5bd0;background:#F1EEFF}
+  .fb-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 12px}
+  .fb-table td,.fb-table th{border-bottom:1px solid var(--paper-line);padding:7px 6px;text-align:left}
+  .lvb{display:inline-block;min-width:30px;text-align:center;border-radius:6px;padding:2px 6px;font-size:12px;font-weight:700;background:#E5E8F0;color:#6b7280}
+  .lvb.l1{background:#F2A7A7;color:#7f1d1d}.lvb.l2{background:#F6C27A;color:#7a3e00}.lvb.l3{background:#7FA8F5;color:#173f99}.lvb.l4{background:#5FCF9D;color:#0b5a3a}
+  .retry{border:1.5px dashed #6d5bd0;border-radius:12px;padding:12px 14px;margin:12px 0;background:#FBFAFF}
+  .retry h4{margin:0 0 4px;font-size:13px;color:#6d5bd0}
+  .fb-box{background:#F4F7FF;border:1px solid #D7E0F7;border-radius:10px;padding:10px 12px;font-size:13.5px;margin:10px 0;line-height:1.6}
+  .next-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .next-links a{background:var(--night);color:var(--star-soft);text-decoration:none;border-radius:10px;padding:10px 14px;font-weight:700;font-size:14px}
+
   @media (max-width:520px){
     table.answer-table th{ width:90px; font-size:13px; }
     .cell-pair .field{ min-width:90px; }
@@ -227,24 +266,26 @@
   <div class="hero-inner">
     <div class="eyebrow">Ⅶ. 별과 우주 · 배움활동</div>
     <h1>시차 측정하기</h1>
-    <p>시차를 측정하여 물체까지의 거리와 시차의 관계를 설명할 수 있다. 아래 시뮬레이션으로 실험한 뒤, 표와 질문에 답해 제출하세요.</p>
+    <p>학습 목표 → 학습 전 생각하기 → 탐구 → 개념 정리·적용 → 논증 → 돌아보기 → 피드백·재학습 → 확장. 한 단계씩 따라가며 시차와 거리의 관계를 스스로 발견해 보세요.</p>
   </div>
 </header>
 
 <main>
-
-  <section>
-    <h2><span class="num">1</span>실험하기</h2>
-    <p class="hint">연필(또는 화면 속 표시)을 팔을 편 상태와 굽힌 상태에서 오른쪽 눈·왼쪽 눈을 번갈아 감고, 배경의 눈금 중 몇 번과 겹치는지 확인하세요.</p>
-    <div class="sim-frame-wrap">
-      <!-- 사이언스제이 시차 시뮬레이션 임베드: 운영자 허락 확인 후 아래 iframe을 사용하세요 -->
-      <iframe id="simFrame" src="https://sciencej.cafe24.com/html5/parallax/parallax.html" allowfullscreen title="시차 측정 시뮬레이션"></iframe>
+  <div class="phase" id="ph-1"><b>1</b><div><span>STEP 1</span><strong>학습 목표</strong><em>무엇을 배울 것인가?</em></div></div>
+  <section id="goals">
+    <h2><span class="num"></span>오늘의 학습 목표</h2>
+    <p class="hint">끝까지 학습하면 아래 목표에 도달해요. 문제를 풀 때마다 목표별로 <b>L1 미도달 · L2 발달 중 · L3 숙달 · L4 심화·전이</b>가 기록돼요.</p>
+    <div id="goalList"></div>
+    <p style="font-size:14.5px;margin:18px 0 4px"><b>이렇게 평가해요 — 루브릭</b></p>
+    <p class="hint" style="margin-bottom:6px">'우수' 이상을 목표로 도전해 보세요. 마지막에 스스로 평가하고, 선생님 평가와 비교해요.</p>
+    <div style="overflow-x:auto"><table class="rub-prev" id="rubricPreview"></table></div>
+    <p style="font-size:14.5px;margin:18px 0 0"><b>오늘의 학습 순서</b></p>
+    <div class="roadmap">
+      <a href="#ph-1">1 학습 목표</a><a href="#ph-2">2 학습 전 생각하기</a><a href="#ph-3">3 탐구 활동</a><a href="#ph-4">4 개념 정리·적용</a><a href="#ph-5">5 과학적 논증</a><a href="#ph-6">6 학습 후 돌아보기</a><a href="#ph-7">7 피드백·재학습</a><a href="#ph-8">8 확장하기</a>
     </div>
-    <p class="sim-note">※ 이 시뮬레이션은 사이언스제이(sciencej.cafe24.com) 제작물입니다. 임베드 사용 허락을 받은 뒤 배포해 주세요. 모바일 화면에서는 시뮬레이션이 작게 보일 수 있어 가로모드 사용을 권장합니다.</p>
   </section>
-
   <section>
-    <h2><span class="num">2</span>학생 정보</h2>
+    <h2><span class="num"></span>학생 정보</h2>
     <div class="id-row">
       <div class="field field-narrow">
         <label for="stuClass">반</label>
@@ -261,8 +302,39 @@
     </div>
   </section>
 
+  <div class="phase" id="ph-2"><b>2</b><div><span>STEP 2</span><strong>학습 전 · 생각하기</strong><em>내가 이미 알고 있는 것은?</em></div></div>
+  <section id="diag">
+    <h2><span class="num"></span>사전 진단 · 지금 내 생각은?</h2>
+    <p class="hint">배우기 <b>전</b> 생각을 확인하는 문제예요. 정답은 학습을 마친 뒤 피드백에서 알려 줘요. 틀려도 괜찮아요!</p>
+    <p style="font-size:14.5px;margin:12px 0 6px"><b>진단 1.</b> 창밖을 보며 왼쪽 눈과 오른쪽 눈을 번갈아 감았다 떴다 할 때, 더 많이 움직여 보이는 것은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="diagNear" value="near"> ① 가까이 있는 창틀</label>
+      <label><input type="radio" name="diagNear" value="far"> ② 멀리 있는 산</label>
+      <label><input type="radio" name="diagNear" value="same"> ③ 둘 다 똑같이 움직인다</label>
+    </div>
+    <p style="font-size:14.5px;margin:18px 0 6px"><b>진단 2.</b> 아주 먼 별까지의 거리를 재는 방법으로 가장 알맞은 것은?</p>
+    <div class="option-list">
+      <label><input type="radio" name="diagMethod" value="bright"> ① 별의 밝기만 보고 짐작한다.</label>
+      <label><input type="radio" name="diagMethod" value="orbit"> ② 지구가 공전 궤도 반대편에 있을 때(6개월 간격) 별을 보는 방향의 차이를 잰다.</label>
+      <label><input type="radio" name="diagMethod" value="ship"> ③ 우주선을 보내 직접 재 본다.</label>
+      <label><input type="radio" name="diagMethod" value="zoom"> ④ 망원경 배율을 높여 별의 크기를 잰다.</label>
+    </div>
+    <button class="check-btn" id="diagLock" type="button">내 생각 확정하기</button>
+    <div class="lock-msg" id="diagMsg"></div>
+  </section>
+  <div class="phase" id="ph-3"><b>3</b><div><span>STEP 3</span><strong>탐구 활동</strong><em>관찰하고 측정하고 판단하기</em></div></div>
   <section>
-    <h2><span class="num">3</span>정리하기</h2>
+    <h2><span class="num"></span>실험하기</h2>
+    <p class="hint">연필(또는 화면 속 표시)을 팔을 편 상태와 굽힌 상태에서 오른쪽 눈·왼쪽 눈을 번갈아 감고, 배경의 눈금 중 몇 번과 겹치는지 확인하세요.</p>
+    <div class="sim-frame-wrap">
+      <!-- 사이언스제이 시차 시뮬레이션 임베드: 운영자 허락 확인 후 아래 iframe을 사용하세요 -->
+      <iframe id="simFrame" src="https://sciencej.cafe24.com/html5/parallax/parallax.html" allowfullscreen title="시차 측정 시뮬레이션"></iframe>
+    </div>
+    <p class="sim-note">※ 이 시뮬레이션은 사이언스제이(sciencej.cafe24.com) 제작물입니다. 임베드 사용 허락을 받은 뒤 배포해 주세요. 모바일 화면에서는 시뮬레이션이 작게 보일 수 있어 가로모드 사용을 권장합니다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num"></span>정리하기</h2>
     <p class="hint">1. 팔을 폈을 때와 굽혔을 때 읽은 번호를 각각 써 보자.</p>
     <table class="answer-table">
       <tr>
@@ -315,7 +387,7 @@
   </section>
 
   <section>
-    <h2><span class="num">4</span>심화 실험 · 빨대로 시차 측정하기</h2>
+    <h2><span class="num"></span>심화 실험 · 빨대로 시차 측정하기</h2>
     <p class="hint">지름 6 cm 원 7개를 칠판에 일정한 간격으로 붙이고 왼쪽부터 번호를 적는다. 지름 3 cm 원을 빨대 끝에 끼운 뒤, 눈에서 20 cm 정도 떨어뜨려 든다.</p>
     <ol class="steps">
       <li>지름 6 cm 크기의 원 7개를 만든 후, 칠판에 일정한 간격으로 붙이고 왼쪽부터 원 위에 번호를 적는다.</li>
@@ -405,8 +477,9 @@
     <p class="teacher-note">이 섹션의 서술형 답변은 자동 채점 없이 그대로 저장되어, 선생님이 스프레드시트에서 직접 확인하고 피드백을 남깁니다.</p>
   </section>
 
+  <div class="phase" id="ph-4"><b>4</b><div><span>STEP 4</span><strong>개념 정리 · 적용</strong><em>원리를 정리하고 새 상황에 적용하기</em></div></div>
   <section>
-    <h2><span class="num">5</span>개념정리 · 시차와 거리</h2>
+    <h2><span class="num"></span>개념정리 · 시차와 거리</h2>
     <p class="hint">빈칸을 채운 뒤 [정답 확인] 버튼으로 스스로 점검해 보세요. 제출 시 선생님께도 함께 전달됩니다.</p>
 
     <p style="font-size:14.5px; margin:14px 0 4px;"><b>1. 시차와 거리</b></p>
@@ -463,7 +536,7 @@
   </section>
 
   <section>
-    <h2><span class="num">6</span>별 X, 별 Y의 연주 시차 비교</h2>
+    <h2><span class="num"></span>별 X, 별 Y의 연주 시차 비교</h2>
     <div class="svg-wrap">
       <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="130" cy="110" rx="70" ry="34" fill="none" stroke="#3E5C99" stroke-width="1.5"/>
@@ -518,7 +591,7 @@
   </section>
 
   <section>
-    <h2><span class="num">7</span>문제 풀이</h2>
+    <h2><span class="num"></span>문제 풀이</h2>
 
     <p style="font-size:14.5px; margin:0 0 8px;"><b>문제 1.</b> 별의 연주 시차에 대한 설명으로 옳은 것을 모두 고르시오.</p>
     <div class="option-list">
@@ -559,7 +632,7 @@
   </section>
 
   <section>
-    <h2><span class="num">8</span>확인 · 도전 문제</h2>
+    <h2><span class="num"></span>확인 · 도전 문제</h2>
     <p class="hint">배운 원리를 다른 그림과 새로운 상황에 적용해 보세요. 답을 확인하기 전에 <b>내 답에 얼마나 확신하는지</b>도 골라 주세요.</p>
 
     <p style="font-size:14.5px; margin:14px 0 8px;"><b>확인 1.</b> 6개월 간격으로 같은 별을 관측했더니 배경 별들에 대한 위치가 달라 보였다. 그 까닭으로 가장 알맞은 것은?</p>
@@ -611,9 +684,63 @@
     <span class="check-result" id="resultStereo"></span>
   </section>
 
+  <div class="phase" id="ph-5"><b>5</b><div><span>STEP 5</span><strong>과학적 논증</strong><em>근거를 들어 주장하기</em></div></div>
+  <section id="cer">
+    <h2><span class="num"></span>과학적 논증 · 주장-근거-추론(CER)</h2>
+    <p class="hint">과학자처럼 <b>주장</b>을 세우고, 실험에서 찾은 <b>근거</b>를 들고, 근거가 왜 주장을 뒷받침하는지 <b>추론</b>을 써 보세요.</p>
+    <div class="cer-block">
+      <label class="t"><span class="tag">Claim</span>주장</label>
+      <div class="fill-row">별까지의 거리가 가까울수록 연주 시차는
+        <span class="toggle-group" id="cerClaimGroup">
+          <button type="button" class="toggle-opt" data-value="커진다">커진다</button>
+          <button type="button" class="toggle-opt" data-value="작아진다">작아진다</button>
+        </span><input type="hidden" id="cerClaim">.
+      </div>
+      <button class="check-btn" id="checkClaim">정답 확인</button>
+      <span class="check-result" id="resultClaim"></span>
+    </div>
+    <div class="cer-block">
+      <label class="t" for="cerEvidence"><span class="tag">Evidence</span>근거 — 실험이나 관측에서 찾은 사실</label>
+      <textarea id="cerEvidence" placeholder="예: 팔을 굽혔을 때(물체가 가까울 때) 두 눈으로 읽은 번호 차이가 ○칸으로, 팔을 폈을 때보다 컸다."></textarea>
+    </div>
+    <div class="cer-block">
+      <label class="t" for="cerReasoning"><span class="tag">Reasoning</span>추론 — 그 근거가 왜 주장을 뒷받침하는가?</label>
+      <textarea id="cerReasoning" placeholder="예: 번호 차이는 시차의 크기를 나타낸다. 가까운 물체일수록 ... 그러므로 별도 ..."></textarea>
+    </div>
+    <p style="font-size:14px;margin:14px 0 6px"><b>내 논증 스스로 점검하기</b></p>
+    <div class="option-list">
+      <label><input type="checkbox" id="cerC1"> 주장이 분명한가?</label>
+      <label><input type="checkbox" id="cerC2"> 관찰이나 실험 결과를 근거로 제시했는가?</label>
+      <label><input type="checkbox" id="cerC3"> 근거가 주장을 뒷받침하는 이유를 설명했는가?</label>
+    </div>
+  </section>
+  <div class="phase" id="ph-6"><b>6</b><div><span>STEP 6</span><strong>학습 후 · 돌아보기</strong><em>처음 생각과 지금 생각은?</em></div></div>
+  <section id="selfrub">
+    <h2><span class="num"></span>루브릭 자기평가 · 나는 어디까지 도달했나?</h2>
+    <p class="hint">영역마다 지금 내 모습에 가장 가까운 수준을 골라 보세요. 제출하면 선생님 평가와 비교할 수 있어요.</p>
+    <div id="selfRubric"></div>
+  </section>
+  <div class="phase" id="ph-submit"><b>✓</b><div><span>제출</span><strong>제출하고 피드백 받기</strong><em>오늘 학습을 기록으로 남겨요</em></div></div>
   <section>
-    <button class="submit-btn" id="submitBtn">답안 제출하기</button>
+    <button class="submit-btn" id="submitBtn">제출하고 바로 피드백 받기</button>
     <div class="status" id="statusBox"></div>
+  </section>
+
+
+  <div class="phase" id="ph-7"><b>7</b><div><span>STEP 7</span><strong>피드백 · 재학습</strong><em>무엇을 보완하고 어떻게 성장할까?</em></div></div>
+  <section id="feedback" hidden>
+    <h2><span class="num"></span>피드백 · 재학습</h2>
+    <p class="hint">방금 제출한 결과예요. 아직 숙달하지 못한 목표는 <b>비슷한 새 문제</b>로 바로 다시 도전할 수 있어요.</p>
+    <div id="fbSummary"></div>
+    <div id="fbRetry"></div>
+  </section>
+  <div class="phase" id="ph-8"><b>8</b><div><span>STEP 8</span><strong>확장하기</strong><em>새롭게 안 것을 어디에 쓸 수 있을까?</em></div></div>
+  <section id="extendSec">
+    <h2><span class="num"></span>확장하기 · 배운 원리를 넓혀 보기</h2>
+    <p class="hint">오늘 배운 시차의 원리를 우주 밖의 세상과 연결해 보세요.</p>
+    <div id="extendMount"></div>
+    <div class="next-links"><a href="lms/student.html" target="_blank">🌱 내 학습 성장 보기</a></div>
+    <p class="teacher-note">🔁 숙달한 목표도 <b>3일 뒤 · 1주 뒤 · 3주 뒤</b> '내 학습 성장'에서 복습할 때를 알려 줘요. 다시 풀면 성장이 기록돼요.</p>
   </section>
 
 </main>
@@ -744,14 +871,53 @@
   });
 
   // ── 학습 성장 관리(LMS) 연결: 문항 → 학습 목표 · 오개념 ──
-  LMS.init({ unit: 'ASTRO-PARALLAX', activity: 'parallax-ws', mount: document.querySelector('main section'),
+  LMS.init({ unit: 'ASTRO-PARALLAX', activity: 'parallax-ws', mount: $('ph-1'),
     onLogin: st => { if (!$('stuClass').value) $('stuClass').value = st.cls; if (!$('stuNumber').value) $('stuNumber').value = st.num; if (st.name && !$('stuName').value) $('stuName').value = st.name; } });
-  // 메타질문: 학습 전(생각하기) → 학습 중(점검하기) → 학습 후(돌아보기) → 확장하기
-  LMS.meta(document.querySelector('main section'), 'before');
-  LMS.meta($('reflection').closest('section'), 'during', { position: 'after' });
-  LMS.meta($('submitBtn').closest('section'), 'after');
-  LMS.meta($('submitBtn').closest('section'), 'extend');
+  // ════════ 학습 순환 구성 ════════
+  const DBU = LMS_DB.UNITS['ASTRO-PARALLAX'];
+  const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // 섹션 번호 다시 매기기
+  document.querySelectorAll('main section h2 .num').forEach((n, i) => n.textContent = i + 1);
+  // STEP 1 · 학습 목표 + 루브릭 미리보기
+  $('goalList').innerHTML = LMS_DB.AREAS.filter(a => DBU.objectives.some(o => o.area === a.key)).map(a =>
+    `<div class="goal-area">${escH(a.name)}</div>` + DBU.objectives.filter(o => o.area === a.key).map(o => `<div class="goal"><i>${o.no}</i><span>${escH(o.text)}</span></div>`).join('')).join('');
+  $('rubricPreview').innerHTML = '<tr><th>영역</th><th>평가 요소</th><th>우수 (3)</th><th>매우 우수 (4)</th></tr>' + DBU.rubric.map(c =>
+    `<tr><td><span class="dom ${c.domain}">${escH(LMS_DB.DOMAINS.find(d => d.key === c.domain).name)}</span></td><td><b>${escH(c.name)}</b></td><td>${escH(c.desc[3])}</td><td>${escH(c.desc[4])}</td></tr>`).join('');
+
+  // 메타질문: 학습 전 → 학습 중(두 번) → 학습 후 → 확장
+  LMS.meta($('diag'), 'before');
+  LMS.meta($('reflection').closest('section'), 'during', { position: 'after', only: ['md-why'] });
+  LMS.meta($('ex2Reason').closest('section'), 'during', { position: 'after', only: ['md-strategy'] });
+  LMS.meta($('selfrub'), 'after');
+  LMS.meta($('extendMount'), 'extend', { position: 'after' });
   const IT = id => LMS_DB.item('parallax-ws', id);
+
+  // STEP 2 · 사전 진단 (정답은 피드백에서 공개)
+  LMS.item('diag-near', { objectives: IT('diag-near').objectives, kind: 'diag', check: () => { const v = radio('diagNear'); return v ? { correct: v === 'near', answer: v, misc: v === 'far' ? ['M-PLX-REVERSE'] : [] } : null; } });
+  LMS.item('diag-method', { objectives: IT('diag-method').objectives, kind: 'diag', check: () => { const v = radio('diagMethod'); return v ? { correct: v === 'orbit', answer: v, misc: v === 'orbit' ? [] : ['M-PLX-VIEWPOINT'] } : null; } });
+  $('diagLock').addEventListener('click', () => {
+    if (!radio('diagNear') || !radio('diagMethod')){ $('diagMsg').textContent = '두 문제 모두 골라 주세요.'; return; }
+    LMS.attempt('diag-near'); LMS.attempt('diag-method');
+    document.querySelectorAll('input[name=diagNear],input[name=diagMethod]').forEach(i => i.disabled = true);
+    $('diagLock').style.display = 'none';
+    $('diagMsg').textContent = '✓ 내 처음 생각을 확정했어요. 정답은 학습을 마친 뒤 피드백에서 확인해요!';
+  });
+
+  // STEP 5 · 과학적 논증(CER)
+  setupToggle('cerClaimGroup', 'cerClaim');
+  $('checkClaim').addEventListener('click', () => {
+    const ok = $('cerClaim').value === '커진다';
+    showResult($('resultClaim'), ok, '맞아요. 이제 이 주장을 뒷받침할 근거와 추론을 써 보세요.', '다시 생각해 보세요: 팔을 굽혔을 때(가까울 때) 번호 차이는 어땠나요?');
+  });
+
+  // STEP 6 · 루브릭 자기평가
+  const selfSel = {};
+  $('selfRubric').innerHTML = DBU.rubric.map(c => `<div class="self-rub" data-k="${c.key}"><span class="dom ${c.domain}">${escH(LMS_DB.DOMAINS.find(d => d.key === c.domain).name)}</span> <b>${escH(c.name)}</b>
+    <div class="opts">${LMS_DB.RUBRIC_LEVELS.map(l => `<button type="button" data-v="${l.lv}"><b>${l.lv} ${escH(l.name)}</b><span>${escH(c.desc[l.lv])}</span></button>`).join('')}</div></div>`).join('');
+  document.querySelectorAll('.self-rub').forEach(box => box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    selfSel[box.dataset.k] = +b.dataset.v; box.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  })));
+
   const reg = (id, button, check) => LMS.item(id, { objectives: IT(id).objectives, kind: IT(id).kind, button, check });
   reg('exp-data', null, () => {
     const er = $('extendRight').value, el = $('extendLeft').value, br = $('bentRight').value, bl = $('bentLeft').value;
@@ -813,6 +979,72 @@
   LMS.text('reflection', { objectives: IT('reflection').objectives, get: () => $('reflection').value });
   LMS.text('ex2Reason', { objectives: IT('ex2Reason').objectives, get: () => $('ex2Reason').value });
   LMS.text('ex2AltMethod', { objectives: IT('ex2AltMethod').objectives, get: () => $('ex2AltMethod').value });
+  reg('cer-claim', $('checkClaim'), () => { const v = $('cerClaim').value; return v ? { correct: v === '커진다', answer: v, misc: v === '작아진다' ? ['M-PLX-REVERSE'] : [] } : null; });
+  LMS.text('cer-evidence', { objectives: IT('cer-evidence').objectives, get: () => $('cerEvidence').value });
+  LMS.text('cer-reasoning', { objectives: IT('cer-reasoning').objectives, get: () => $('cerReasoning').value });
+  LMS.record('cer-self', { kind: 'check', get: () => { const n = ['cerC1', 'cerC2', 'cerC3'].filter(id => $(id).checked); return n.length ? { level: n.length, answer: '스스로 점검 ' + n.length + '/3' } : null; } });
+  DBU.rubric.forEach(c => LMS.record('self:' + c.key, { kind: 'self', objectives: c.objectives, get: () => selfSel[c.key] ? { level: selfSel[c.key], answer: LMS_DB.RUBRIC_LEVELS.find(l => l.lv === selfSel[c.key]).name } : null }));
+
+  // ════════ STEP 7 · 즉시 피드백 · 재학습 ════════
+  const VARIANTS = {
+    'ASTRO-PARALLAX-01': { id: 're-01', q: '시차를 가장 바르게 설명한 것은?', opts: [['angle', '두 관측 지점에서 같은 물체를 볼 때 생기는 방향(각)의 차이', 1], ['move', '물체가 실제로 움직인 거리', 0, 'M-PLX-STARMOVE'], ['bright', '물체의 밝기가 달라 보이는 정도', 0]] },
+    'ASTRO-PARALLAX-02': { id: 're-02', q: '별의 연주 시차를 잴 때 6개월 간격으로 관측하는 까닭은?', opts: [['far', '지구가 공전 궤도의 반대편에 있어 두 관측 지점 사이가 가장 멀기 때문', 1], ['star', '별이 6개월마다 자리를 옮기기 때문', 0, 'M-PLX-STARMOVE'], ['year', '1년 간격으로 재면 시차가 너무 커지기 때문', 0, 'M-PLX-INTERVAL']] },
+    'ASTRO-PARALLAX-03': { id: 're-03', q: '연주 시차 p를 그림에 나타낼 때 알맞은 것은?', opts: [['au', '별에서 지구-태양 거리(1 AU)를 바라본 각', 1], ['two', '별에서 지구 공전 궤도 지름(2 AU)을 바라본 각', 0, 'M-PLX-HALF'], ['alt', '지구에서 별을 올려다본 높이(고도)', 0, 'M-PLX-VIEWPOINT']] },
+    'ASTRO-PARALLAX-04': { id: 're-04', q: '별 P의 연주 시차는 0.5″, 별 Q는 0.2″이다. 지구에서 더 가까운 별은?', opts: [['P', '별 P', 1], ['Q', '별 Q', 0, 'M-PLX-REVERSE'], ['same', '두 별의 거리는 같다', 0]] },
+    'ASTRO-PARALLAX-05': { id: 're-05', q: '연주 시차가 0.25″인 별까지의 거리는 몇 pc인가?', num: 4 },
+    'ASTRO-PARALLAX-06': { id: 're-06', q: '연주 시차가 0.001″인 별(약 1000 pc)의 거리를 지상에서 연주 시차로 재기 어려운 까닭은?', opts: [['small', '시차가 너무 작아서 측정 오차보다도 작기 때문', 1], ['near', '별이 너무 가까워 시차가 너무 크기 때문', 0, 'M-PLX-REVERSE'], ['bright', '별빛이 너무 밝기 때문', 0]] },
+    'ASTRO-PARALLAX-07': { id: 're-07', q: '물체까지 거리를 30 cm, 60 cm로 하여 두 눈으로 본 눈금 차이를 재니 각각 8칸, 4칸이었다. 90 cm일 때 예상되는 눈금 차이는?', opts: [['less', '약 3칸 (더 작아진다)', 1], ['more', '12칸 (더 커진다)', 0, 'M-PLX-REVERSE'], ['same', '4칸 (그대로)', 0]] },
+  };
+  const lvb = l => `<span class="lvb l${l}">${l ? 'L' + l : '-'}</span>`;
+  const DIAG_TXT = { near: '가까이 있는 창틀', far: '멀리 있는 산', same: '둘 다 똑같이', bright: '별의 밝기로 짐작', orbit: '6개월 간격 방향 차이(시차)', ship: '우주선으로 직접', zoom: '망원경으로 크기 재기' };
+  function showFeedback(){
+    const items = LMS.state.items, sum = LMS.summary();
+    const before = {};
+    for (const o of DBU.objectives) before[o.code] = sum.levels[o.code] || 0;
+    const rows = DBU.objectives.map(o => `<tr><td>${o.no}. ${escH(o.text)}</td><td>${o.area === 'design' && !before[o.code] ? '<span class="lvb">선생님 확인</span>' : lvb(before[o.code])}</td></tr>`).join('');
+    // 처음 생각 → 지금 생각
+    const dn = items.get('diag-near'), dm = items.get('diag-method');
+    const post = id => { const it = items.get(id); return it && it.attempts ? (it.last.correct ? '✅' : '❌') : '–'; };
+    const change = [];
+    if (dn && dn.attempts) change.push(`진단 1 처음 답: <b>${escH(DIAG_TXT[dn.last.answer])}</b> ${dn.first ? '✅' : '❌'} → 학습 후 '자동차 스테레오 카메라' ${post('t-stereo')}, 논증 주장 ${post('cer-claim')} <span style="color:#6b7280">(정답: 가까운 것일수록 시차가 크다)</span>`);
+    if (dm && dm.attempts) change.push(`진단 2 처음 답: <b>${escH(DIAG_TXT[dm.last.answer])}</b> ${dm.first ? '✅' : '❌'} → 학습 후 '겉보기 위치가 바뀌는 까닭' ${post('probe-move')} <span style="color:#6b7280">(정답: 6개월 간격으로 본 방향 차이)</span>`);
+    const tips = sum.misc.map(m => LMS_DB.MISC[m]).filter(Boolean).map(m => `• <b>${escH(m.text)}</b><br>&nbsp;&nbsp;→ ${escH(m.fix)}`).join('<br>');
+    const weak = DBU.objectives.filter(o => before[o.code] > 0 && before[o.code] <= 2 && VARIANTS[o.code]);
+    $('fbSummary').innerHTML = `<table class="fb-table"><tr><th>학습 목표</th><th>오늘 수준</th></tr>${rows}</table>
+      ${change.length ? `<div class="fb-box">💭 <b>처음 생각 → 지금 생각</b><br>${change.join('<br>')}</div>` : ''}
+      ${tips ? `<div class="fb-box">💡 <b>이런 생각을 고쳐 봐요</b><br>${tips}</div>` : ''}
+      <div class="fb-box">✍️ 서술형(근거·추론·설명)은 선생님이 확인한 뒤 루브릭 피드백을 '내 학습 성장'에 남겨 줘요.</div>`;
+    $('feedback').hidden = false;
+    if (!weak.length){ $('fbRetry').innerHTML = '<div class="fb-box">🎉 기록된 목표를 모두 숙달했어요! 아래 <b>확장하기</b>로 넘어가세요.</div>'; $('ph-7').scrollIntoView({ behavior: 'smooth' }); return; }
+    // 재학습: 새 회차로 변형 문항 다시 도전
+    LMS.beginSession('-re');
+    $('fbRetry').innerHTML = `<p style="font-size:14.5px;margin:6px 0"><b>🔁 다시 도전 — 비슷한 새 문제 ${weak.length}개</b></p>` + weak.map(o => { const v = VARIANTS[o.code];
+      return `<div class="retry" data-obj="${o.code}"><h4>목표 ${o.no}. ${escH(o.text)} — 지금 ${lvb(before[o.code])}</h4><p style="font-size:14.5px;margin:4px 0 6px">${escH(v.q)}</p>
+        ${v.num != null ? `<div class="fill-row">답: <input type="number" step="0.01" class="blank" id="${v.id}-in" style="width:90px"> pc</div>`
+          : `<div class="option-list">${v.opts.map(op => `<label><input type="radio" name="${v.id}" value="${op[0]}"> ${escH(op[1])}</label>`).join('')}</div>`}
+        <button class="check-btn" id="${v.id}-btn" type="button">정답 확인</button><span class="check-result" id="${v.id}-res"></span></div>`; }).join('') +
+      `<button class="submit-btn" id="retrySave" type="button" style="margin-top:6px">재도전 결과 저장하기</button><div class="status" id="retryStatus"></div>`;
+    for (const o of weak){
+      const v = VARIANTS[o.code], btn = $(v.id + '-btn');
+      const check = () => {
+        if (v.num != null){ const x = $(v.id + '-in').value; if (x === '') return null; const ok = Math.abs(parseFloat(x) - v.num) < 0.05; return { correct: ok, answer: x + ' pc', misc: ok ? [] : ['M-PLX-FORMULA'] }; }
+        const x = radio(v.id); if (!x) return null; const op = v.opts.find(z => z[0] === x); return { correct: !!op[2], answer: x, misc: op[3] ? [op[3]] : [] };
+      };
+      btn.addEventListener('click', () => { const r = check(); if (!r) return;
+        const right = v.num != null ? `${v.num} pc (거리 = 1 ÷ 연주 시차)` : v.opts.find(z => z[2])[1];
+        showResult($(v.id + '-res'), r.correct, '맞았어요! 이 목표가 한 단계 올라갈 거예요.', '아쉬워요. 정답: ' + right); });
+      LMS.item(v.id, { objectives: [o.code], kind: 'core', button: btn, check });
+    }
+    $('retrySave').addEventListener('click', async () => {
+      const after = LMS.summary().levels, st = $('retryStatus');
+      const lines = weak.map(o => `목표 ${o.no}: ${lvb(before[o.code])} → ${lvb(after[o.code] || before[o.code])}`).join('<br>');
+      const r = await LMS.submit();
+      st.className = 'status show ' + (r.ok ? 'success' : 'sending');
+      st.innerHTML = `${lines}<br>${r.ok ? '✅ 재학습 결과를 내 학습 기록에 저장했어요. 이제 확장하기로 가요!' : r.reason === 'login' ? '맨 위에서 학습 기록을 연결하면 재학습 결과도 저장돼요.' : r.reason === 'empty' ? '먼저 문제를 풀고 정답 확인을 눌러 주세요.' : '인터넷이 연결되면 다시 보낼게요.'}`;
+      if (r.ok){ $('retrySave').disabled = true; $('ph-8').scrollIntoView({ behavior: 'smooth' }); }
+    });
+    $('ph-7').scrollIntoView({ behavior: 'smooth' });
+  }
 
   $('submitBtn').addEventListener('click', async () => {
     const payload = {
@@ -883,6 +1115,7 @@
       statusBox.textContent = '제출 완료! 선생님이 확인 후 피드백을 남길 예정입니다.';
       btn.textContent = '제출 완료';
       const lr = await LMS.submit();
+      showFeedback();
       statusBox.textContent += lr.ok ? ` 학습 목표별 기록 ${lr.n}개도 저장했어요${lr.demo ? '(시험 모드: 이 기기)' : ''}.`
         : lr.reason === 'login' ? ' (맨 위 \'내 학습 기록 연결\'에 개인코드를 넣으면 학습 성장 기록도 남길 수 있어요.)'
         : lr.reason === 'network' ? ' (학습 성장 기록은 인터넷이 연결되면 다시 보낼게요.)' : '';
