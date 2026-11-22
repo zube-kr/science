@@ -13,7 +13,7 @@
   const C = g.LMS_CORE, DB = C.DB;
   const BASE = (document.currentScript && document.currentScript.src || "").replace(/[^/]*$/, "");
   const SKEY = "lms-student-v1", QKEY = "lms-queue-v1";
-  const S = { unit: null, activity: null, session: null, student: null, items: new Map(), texts: new Map(), bar: null, onLogin: null };
+  const S = { unit: null, activity: null, session: null, student: null, items: new Map(), texts: new Map(), metas: new Map(), cards: new Map(), bar: null, onLogin: null };
 
   const css = `
   .lms-bar{font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;background:linear-gradient(135deg,#eef4ff,#f3efff);border:1.5px solid #c9d6f5;border-radius:16px;padding:12px 14px;margin:0 0 16px;color:#1f2a44}
@@ -35,6 +35,23 @@
   .lms-conf.need{animation:lmsShake .4s}.lms-conf.need b{color:#c0392b}
   @keyframes lmsShake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
   .lms-hint{display:block;margin-top:6px;font-size:13px;line-height:1.55;color:#7c3aed;background:#f5f0ff;border-radius:10px;padding:7px 10px}
+  .lms-meta{font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;border:2px solid #c4b5fd;background:linear-gradient(180deg,#faf7ff,#f3efff);border-radius:16px;padding:14px 16px;margin:16px 0;color:#1f2a44}
+  .lms-meta .mh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .lms-meta .mh b{font-size:16px}
+  .lms-meta .tag{font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:999px;background:#ede9fe;color:#5b21b6}
+  .lms-meta .mhint{font-size:12.5px;color:#6b5b95;margin-bottom:8px}
+  .lms-meta .mq{margin:10px 0 4px;font-size:14px;font-weight:700;line-height:1.5}
+  .lms-meta textarea{width:100%;min-height:64px;box-sizing:border-box;border:1.5px solid #d8ccfb;border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;background:#fff;color:#1f2a44;resize:vertical}
+  .lms-meta textarea[readonly]{background:#f4f1fb;color:#4b4370}
+  .lms-meta .rate{display:flex;flex-wrap:wrap;gap:6px}
+  .lms-meta .rate button{border:1.5px solid #d8ccfb;background:#fff;color:#3b2f6b;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}
+  .lms-meta .rate button.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
+  .lms-meta .rate button:disabled{cursor:default;opacity:.85}
+  .lms-meta .prev{font-size:13px;background:#fff;border:1px dashed #c4b5fd;border-radius:10px;padding:8px 10px;margin-top:6px;color:#4b4370;line-height:1.55}
+  .lms-meta .mfoot{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .lms-meta .msave{border:0;border-radius:10px;padding:8px 16px;font-weight:800;font-size:14px;cursor:pointer;background:#7c3aed;color:#fff}
+  .lms-meta .mstat{font-size:12.5px;color:#6b5b95}
+  @media (prefers-color-scheme:dark){ .lms-meta{background:#211a3a;border-color:#4c3d8a;color:#ece8fb}.lms-meta .tag{background:#3b2d6b;color:#ddd3ff}.lms-meta .mhint,.lms-meta .mstat{color:#bfb3e8}.lms-meta textarea,.lms-meta .rate button,.lms-meta .prev{background:#151027;color:#ece8fb;border-color:#4c3d8a}.lms-meta textarea[readonly]{background:#1c1633} }
   @media (prefers-color-scheme:dark){ .lms-bar{background:#1b2340;border-color:#34406b;color:#e8ecfa}.lms-bar h4 small,.lms-msg,.lms-row label{color:#a9b4d6}.lms-row input{background:#111833;color:#fff;border-color:#3a4670}.lms-conf button{background:#111833;color:#dfe5f7;border-color:#3a4670}.lms-hint{background:#2a2147;color:#d6c8ff} }`;
   function addCss(){ if (document.getElementById("lms-css")) return; const s = document.createElement("style"); s.id = "lms-css"; s.textContent = css; document.head.appendChild(s); }
   const el = (t, a = {}, ...k) => { const e = document.createElement(t); for (const [x, v] of Object.entries(a)) { if (x === "class") e.className = v; else if (x.startsWith("on")) e[x] = v; else e.setAttribute(x, v); } k.flat().forEach(c => c != null && e.append(c)); return e; };
@@ -110,6 +127,59 @@
     return r;
   }
   function text(id, o){ S.texts.set(id, { id, objectives: o.objectives || [], get: o.get }); }
+
+  /* ---------------- 메타질문 카드 ----------------
+     LMS.meta(넣을 자리 요소, "before"|"during"|"after"|"extend", { position: "before"|"after" }) */
+  function meta(anchor, stageKey, o = {}){
+    const U = DB.UNITS[S.unit], qs = ((U && U.meta) || {})[stageKey] || [], st = DB.META_STAGES.find(x => x.key === stageKey);
+    if (!qs.length || !st || !anchor) return;
+    const box = el("div", { class: "lms-meta", "data-stage": stageKey });
+    box.append(el("div", { class: "mh" }, el("b", {}, "🧠 메타질문 · " + st.name), el("span", { class: "tag" }, st.type)), el("div", { class: "mhint" }, st.hint));
+    const vals = {}, ctrls = [];
+    if (stageKey === "after"){        // 학습 전 내 생각을 다시 보여 주며 비교하게
+      const prev = el("div", { class: "prev" }); box.append(prev);
+      const show = () => { const b = S.metas.get("before"); if (!b){ prev.style.display = "none"; return; } prev.style.display = "";
+        const bq = qs.length && (U.meta.before || []); const txt = bq.map(q => b.vals[q.id] ? (q.type === "rate" ? "자기평가: " + (DB.RATE.find(r => r.v === b.vals[q.id]) || {}).name : "“" + b.vals[q.id] + "”") : "").filter(Boolean).join("<br>");
+        prev.innerHTML = "📌 <b>학습 전 내 생각</b><br>" + txt.replace(/</g, "&lt;").replace(/&lt;br>/g, "<br>"); };
+      ctrls.push(show); show();
+    }
+    for (const q of qs){
+      box.append(el("div", { class: "mq" }, q.q));
+      if (q.type === "rate"){
+        const row = el("div", { class: "rate" });
+        DB.RATE.forEach(r => { const b = el("button", { type: "button" }, r.name); b.onclick = () => { if (b.disabled) return; vals[q.id] = r.v; [...row.children].forEach(x => x.classList.toggle("on", x === b)); }; row.append(b); });
+        box.append(row);
+      } else {
+        const ta = el("textarea", { placeholder: "내 생각을 자유롭게 적어 보세요." }); ta.oninput = () => { vals[q.id] = ta.value.trim(); }; box.append(ta);
+      }
+    }
+    S.cards.set(stageKey, { qs, vals });          // 저장 버튼을 안 눌러도 제출할 때 함께 보냄
+    const stat = el("span", { class: "mstat" }, stageKey === "before" ? "학습 전 생각은 저장하면 잠겨요. 나중에 '처음 생각'과 비교해요." : "");
+    const save = el("button", { class: "msave", type: "button" }, "내 생각 저장");
+    save.onclick = async () => {
+      const filled = qs.filter(q => vals[q.id]);
+      if (!filled.length){ stat.textContent = "한 가지 이상 답해 주세요."; return; }
+      const rec = { stage: stageKey, qs, vals: { ...vals }, ts: Date.now() }; S.metas.set(stageKey, rec);
+      if (stageKey === "before"){ box.querySelectorAll("textarea").forEach(t => t.readOnly = true); box.querySelectorAll(".rate button").forEach(b => b.disabled = true); save.style.display = "none"; }
+      document.querySelectorAll('.lms-meta[data-stage="after"]').forEach(a => a.__refresh && a.__refresh());
+      const t = new Date(rec.ts), hm = `${t.getHours()}:${String(t.getMinutes()).padStart(2, "0")}`;
+      if (!S.student){ stat.textContent = `✓ 저장했어요 (${hm}). 위에서 학습 기록을 연결하면 내 학습 성장에 남아요.`; return; }
+      stat.textContent = "저장하는 중…";
+      const pack = { sid: S.student.sid, code: S.student.code, rows: metaRows(rec) };
+      try { await send(pack); stat.textContent = `✓ 내 학습 기록에 저장했어요 (${hm})`; }
+      catch (e) { setQueue(queue().concat([pack])); stat.textContent = `✓ 저장했어요 (${hm}). 인터넷이 연결되면 기록으로 보낼게요.`; }
+    };
+    box.__refresh = () => ctrls.forEach(f => f());
+    box.append(el("div", { class: "mfoot" }, save, stat));
+    if (o.position === "after") anchor.after(box); else anchor.parentNode.insertBefore(box, anchor);
+    return box;
+  }
+  function metaRows(rec){
+    const st = S.student, ts = rec.ts;
+    return rec.qs.filter(q => rec.vals[q.id]).map(q => ({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: "meta:" + q.id, objectives: "", kind: "meta",
+      correct: false, attempts: 1, level: q.type === "rate" ? rec.vals[q.id] : 0, confidence: 0, misconceptions: "",
+      answer: String(q.type === "rate" ? (DB.RATE.find(r => r.v === rec.vals[q.id]) || {}).name : rec.vals[q.id]).slice(0, 800), aided: false }));
+  }
   function levelOf(it){
     if (!it.attempts) return 0;
     const fin = it.last && it.last.correct, tr = it.kind === "transfer";
@@ -133,6 +203,7 @@
       rows.push({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: t.id, objectives: t.objectives.join(","), kind: "text",
         correct: false, attempts: 1, level: 0, confidence: 0, misconceptions: "", answer: v.slice(0, 800), aided: false });
     }
+    for (const [stage, card] of S.cards){ if (Object.values(card.vals).some(Boolean)) rows.push(...metaRows({ stage, qs: card.qs, vals: { ...card.vals }, ts })); }
     return rows;
   }
   function queue(){ try { return JSON.parse(localStorage.getItem(QKEY) || "[]"); } catch (e) { return []; } }
@@ -164,5 +235,5 @@
     renderBar();
     if (S.student){ flushQueue(); if (S.onLogin) setTimeout(() => S.onLogin(S.student)); }
   }
-  g.LMS = { init, item, text, attempt, submit, state: S, levelOf };
+  g.LMS = { init, item, text, meta, attempt, submit, state: S, levelOf };
 })(window);

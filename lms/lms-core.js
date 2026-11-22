@@ -101,7 +101,9 @@
       // 오개념이 드러난 '회차' 수 (한 워크시트 안 여러 문항은 1번으로 셈 → 2회차 이상이면 '반복')
       const miscSes = {}; for (const r of mine) for (const m of r.misconceptions) (miscSes[m] = miscSes[m] || new Set()).add(r.session);
       const miscCount = {}; for (const [m, set] of Object.entries(miscSes)) miscCount[m] = set.size;
-      return { ...st, sid, rows: mine, mast, profile: areaProfile(mast), done, ok, low, miscCount,
+      const meta = metaOf(mine, unitCode), rub = rubricOf(mine, unitCode, mast, meta), cyc = cycleOf(mine, meta, rub, mast);
+      const avgLv = lv.filter(l => l > 0).length ? lv.filter(l => l > 0).reduce((a, b) => a + b, 0) / lv.filter(l => l > 0).length : 0;
+      return { ...st, sid, rows: mine, mast, profile: areaProfile(mast), done, ok, low, miscCount, meta, rub, cyc, avgLv,
         confWrong: mine.filter(r => !r.correct && r.confidence >= 3 && r.kind !== "teacher" && r.kind !== "text"),
         lastTs: mine.length ? mine[mine.length - 1].ts : 0 };
     });
@@ -134,8 +136,74 @@
     if (cw.length) alerts.push({ kind: "conf", text: `'오답인데 확신함' — 강한 오개념이 의심되는 학생 ${cw.length}명`, sids: cw.map(s => s.sid) });
     const pend = active.filter(s => Object.values(s.mast).some(m => m.pendingText));
     if (pend.length) alerts.push({ kind: "text", text: `서술형 답변이 교사 판정을 기다리는 학생 ${pend.length}명`, sids: pend.map(s => s.sid) });
-    return { unit: U, rows, students, active, objStats, miscStats, quad, kpi, alerts };
+    // 학습 순환 단계별 완료 학생 수
+    const cycleStats = DB.CYCLE.map(c => ({ c, done: active.filter(s => s.cyc[c.key] === "done").length, partial: active.filter(s => s.cyc[c.key] === "partial").length }));
+    // 메타인지 보정: 학습 후 자기평가와 실제 숙달 수준 비교
+    const over = active.filter(s => s.meta.after >= 3 && s.avgLv > 0 && s.avgLv < 2.5);
+    const under = active.filter(s => s.meta.after != null && s.meta.after <= 2 && s.avgLv >= 3);
+    if (over.length) alerts.push({ kind: "over", text: `스스로는 잘 안다고 했지만(자기평가 3~4) 실제 숙달은 낮은 학생 ${over.length}명 — 메타인지 점검 필요`, sids: over.map(s => s.sid) });
+    const rubWait = active.filter(s => s.cyc.activity === "done" && s.cyc.rubric !== "done");
+    if (rubWait.length) alerts.push({ kind: "rubric", text: `학습 활동은 마쳤지만 루브릭 평가가 끝나지 않은 학생 ${rubWait.length}명`, sids: rubWait.map(s => s.sid) });
+    const rubricStats = (U.rubric || []).map(c => {
+      const ls = active.map(s => s.rub.find(x => x.c.key === c.key)).filter(x => x && x.show);
+      const dist = [1, 2, 3, 4].map(l => ls.filter(x => x.show === l).length);
+      return { c, n: ls.length, confirmed: ls.filter(x => x.confirmed).length, avg: ls.length ? ls.reduce((a, x) => a + x.show, 0) / ls.length : null, dist };
+    });
+    const withRate = active.filter(s => s.meta.before != null && s.meta.after != null);
+    const metaStats = { stages: DB.META_STAGES.map(st => ({ st, done: active.filter(s => s.meta.stages.find(x => x.stage.key === st.key).done === "done").length })),
+      rateBefore: withRate.length ? withRate.reduce((a, s) => a + s.meta.before, 0) / withRate.length : null,
+      rateAfter: withRate.length ? withRate.reduce((a, s) => a + s.meta.after, 0) / withRate.length : null, nRate: withRate.length, over, under };
+    return { unit: U, rows, students, active, objStats, miscStats, quad, kpi, alerts, cycleStats, rubricStats, metaStats };
   }
+  /* ---------------- 메타질문 · 루브릭 · 학습 순환 ---------------- */
+  const latest = (rows, item, kind) => { let o = null; for (const r of rows) if (r.item === item && (!kind || r.kind === kind) && (!o || r.ts >= o.ts)) o = r; return o; };
+  /* 메타질문 답: 단계별 답, 학습 전·후 자기평가 */
+  function metaOf(rows, unitCode){
+    const U = DB.UNITS[unitCode], M = (U && U.meta) || {};
+    const stages = DB.META_STAGES.map(st => {
+      const items = (M[st.key] || []).map(q => { const r = latest(rows, "meta:" + q.id, "meta"); return { q, r, value: r ? (q.type === "rate" ? r.level : r.answer) : null, ts: r ? r.ts : 0 }; });
+      const done = items.length > 0 && items.every(i => i.value) ? "done" : items.some(i => i.value) ? "partial" : "todo";
+      return { stage: st, items, done };
+    });
+    const rateOf = key => { const st = stages.find(x => x.stage.key === key); const it = st && st.items.find(i => i.q.type === "rate" && i.value); return it ? +it.value : null; };
+    const textLen = stages.flatMap(s => s.items).filter(i => i.q.type === "text" && i.value).map(i => String(i.value).length);
+    return { stages, before: rateOf("before"), after: rateOf("after"), stagesDone: stages.filter(s => s.done === "done").length,
+      stagesAny: stages.filter(s => s.done !== "todo").length, avgLen: textLen.length ? textLen.reduce((a, b) => a + b, 0) / textLen.length : 0, any: textLen.length > 0 };
+  }
+  /* 루브릭: 교사가 확정한 수준, 없으면 증거로 계산한 '제안 수준' */
+  function rubricOf(rows, unitCode, mast, meta){
+    const U = DB.UNITS[unitCode];
+    return (U.rubric || []).map(c => {
+      const conf = latest(rows, "rubric:" + c.key, "rubric");
+      let sug = 0;
+      if (c.meta){
+        const change = meta.stages.find(s => s.stage.key === "after");
+        const hasChange = change && change.items.some(i => i.q.type === "text" && i.value && String(i.value).length >= 15);
+        sug = !meta.any ? (rows.some(r => r.kind === "core") ? 1 : 0) : meta.stagesDone >= 4 && hasChange && meta.avgLen >= 25 ? 4 : meta.stagesDone >= 3 ? 3 : meta.stagesAny >= 1 ? 2 : 1;
+      } else {
+        const ls = c.objectives.map(o => mast[o] ? mast[o].level : 0).filter(l => l > 0);
+        if (ls.length) sug = Math.max(1, Math.min(4, Math.round(ls.reduce((a, b) => a + b, 0) / ls.length)));
+      }
+      return { c, level: conf ? conf.level : 0, suggested: sug, show: conf ? conf.level : sug, confirmed: !!conf, memo: conf ? conf.answer : "", ts: conf ? conf.ts : 0 };
+    });
+  }
+  /* 학습 순환 진행 상태: 목표 → 활동 → 메타질문 → 루브릭 → 피드백·재학습 */
+  function cycleOf(rows, meta, rub, mast){
+    const act = rows.filter(r => r.kind === "core" || r.kind === "transfer");
+    const fbRows = rows.filter(r => (r.kind === "teacher" || r.kind === "rubric") && r.answer);
+    const lastFb = fbRows.length ? Math.max(...fbRows.map(r => r.ts)) : 0;
+    const relearn = lastFb && act.some(r => r.ts > lastFb);
+    const conf = rub.filter(x => x.confirmed).length;
+    return {
+      goal: "done",
+      activity: act.length ? "done" : "todo",
+      meta: meta.stagesDone >= 3 ? "done" : meta.stagesAny ? "partial" : "todo",
+      rubric: rub.length && conf === rub.length ? "done" : conf ? "partial" : "todo",
+      feedback: relearn ? "done" : lastFb ? "partial" : "todo",
+      relearn, lastFb,
+    };
+  }
+
   /* 학생에게 추천할 다음 학습 */
   function nextSteps(mast){
     const list = Object.values(mast);
@@ -147,5 +215,5 @@
     return { weak, none, due, strong, path };
   }
 
-  g.LMS_CORE = { DB, CFG, demo, apiGet, apiPost, localRecords, saveLocal, clearLocal, sidOf, norm, dedupe, sessionLevel, studentMastery, areaProfile, classAnalysis, nextSteps, DAY };
+  g.LMS_CORE = { DB, CFG, demo, metaOf, rubricOf, cycleOf, apiGet, apiPost, localRecords, saveLocal, clearLocal, sidOf, norm, dedupe, sessionLevel, studentMastery, areaProfile, classAnalysis, nextSteps, DAY };
 })(window);
