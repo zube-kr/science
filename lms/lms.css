@@ -130,3 +130,8 @@ ol.steps li{margin:6px 0}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .mcard{background:#211a3a;border-color:#3b2d6b} :root:not([data-theme="light"]) .mcard h4{color:#d6c8ff} }
 .ratechg{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap}
 details.more summary{cursor:pointer;font-weight:800;color:var(--accent);margin:4px 0}
+
+/* 예시 전용 보기 */
+body.demo-only #key-box, body.demo-only #b-load, body.demo-only #b-local, body.demo-only #b-demo,
+body.demo-only .tab[data-tab="setup"], body.demo-only #banner, body.demo-only #f-grade, body.demo-only #f-cls,
+body.demo-only label[for], body.demo-only .demo-hide{display:none!important}
