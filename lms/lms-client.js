@@ -47,6 +47,14 @@
   .lms-meta .rate button{border:1.5px solid #d8ccfb;background:#fff;color:#3b2f6b;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}
   .lms-meta .rate button.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
   .lms-meta .rate button:disabled{cursor:default;opacity:.85}
+  .lms-meta .ideas-in{display:flex;gap:6px}.lms-meta .ideas-in input{flex:1;border:1.5px solid #d8ccfb;border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;background:#fff;color:#1f2a44}
+  .lms-meta .ideas-in button,.lms-meta .rv button{border:1.5px solid #c4b5fd;background:#fff;color:#5b21b6;border-radius:10px;padding:6px 12px;font-weight:800;cursor:pointer;font-size:13px}
+  .lms-meta .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .lms-meta .chips span{background:#ede9fe;color:#3b2f6b;border-radius:999px;padding:4px 6px 4px 12px;font-size:13.5px;display:inline-flex;align-items:center;gap:4px}
+  .lms-meta .chips span button{all:unset;cursor:pointer;width:18px;height:18px;border-radius:50%;text-align:center;line-height:18px;color:#7c3aed}
+  .lms-meta .rv{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed #e4dafd;font-size:14px}
+  .lms-meta .rv span.q{flex:1;min-width:180px}
+  .lms-meta .rv button.on{background:#7c3aed;color:#fff;border-color:#7c3aed}
   .lms-meta .prev{font-size:13px;background:#fff;border:1px dashed #c4b5fd;border-radius:10px;padding:8px 10px;margin-top:6px;color:#4b4370;line-height:1.55}
   .lms-meta .mfoot{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
   .lms-meta .msave{border:0;border-radius:10px;padding:8px 16px;font-weight:800;font-size:14px;cursor:pointer;background:#7c3aed;color:#fff}
@@ -140,9 +148,14 @@
     const vals = {}, ctrls = [];
     if (stageKey === "after"){        // 학습 전 내 생각을 다시 보여 주며 비교하게
       const prev = el("div", { class: "prev" }); box.append(prev);
-      const show = () => { const e = [...S.metas.entries()].find(([k]) => k.startsWith("before")), b = e && e[1]; if (!b){ prev.style.display = "none"; return; } prev.style.display = "";
-        const bq = qs.length && (U.meta.before || []); const txt = bq.map(q => b.vals[q.id] ? (q.type === "rate" ? "자기평가: " + (DB.RATE.find(r => r.v === b.vals[q.id]) || {}).name : "“" + b.vals[q.id] + "”") : "").filter(Boolean).join("<br>");
-        prev.innerHTML = "📌 <b>학습 전 내 생각</b><br>" + txt.replace(/</g, "&lt;").replace(/&lt;br>/g, "<br>"); };
+      const show = () => {
+        const all = {}; let qd = [];
+        for (const [k, r] of S.metas) if (k.startsWith("before")){ Object.assign(all, r.vals); qd = qd.concat(r.qs); }
+        const lines = qd.filter(q => filled(all[q.id])).map(q => q.id === "mb-main" ? "🔎 내 탐구 질문: " + all[q.id] : q.type === "rate" ? "자기평가: " + (DB.RATE.find(r => r.v === all[q.id]) || {}).name : q.type === "ideas" ? "내가 만든 질문: " + all[q.id].join(" / ") : "“" + all[q.id] + "”");
+        if (!lines.length){ prev.style.display = "none"; return; }
+        prev.style.display = ""; prev.innerHTML = "";
+        prev.append(el("b", {}, "📌 학습 전 내 생각")); lines.forEach(t => prev.append(el("br"), t));
+      };
       ctrls.push(show); show();
     }
     for (const q of qs){
@@ -151,6 +164,25 @@
         const row = el("div", { class: "rate" });
         DB.RATE.forEach(r => { const b = el("button", { type: "button" }, r.name); b.onclick = () => { if (b.disabled) return; vals[q.id] = r.v; [...row.children].forEach(x => x.classList.toggle("on", x === b)); }; row.append(b); });
         box.append(row);
+      } else if (q.type === "ideas"){       // 여러 생각을 하나씩 늘어놓기 (발산적 사고)
+        vals[q.id] = [];
+        const inp = el("input", { type: "text", placeholder: "하나 쓰고 Enter (또는 '추가')", maxlength: 120 }), chips = el("div", { class: "chips" });
+        const draw = () => { chips.innerHTML = ""; vals[q.id].forEach((t, i) => { const x = el("button", { type: "button", title: "지우기" }, "×"); x.onclick = () => { if (box.dataset.locked) return; vals[q.id].splice(i, 1); draw(); }; chips.append(el("span", {}, t, x)); }); };
+        const add = () => { const t = inp.value.trim(); if (!t || box.dataset.locked) return; vals[q.id].push(t); inp.value = ""; draw(); inp.focus(); };
+        inp.onkeydown = e => { if (e.key === "Enter"){ e.preventDefault(); add(); } };
+        box.append(el("div", { class: "ideas-in" }, inp, el("button", { type: "button", onclick: add }, "추가")), chips);
+      } else if (q.type === "revisit"){      // 처음에 만든 내 질문 다시 보기
+        const wrap = el("div"); box.append(wrap); const st = {}; let lastKey = null;
+        const draw = force => {
+          const mine = myQuestions(), key = JSON.stringify(mine);
+          if (force !== true && key === lastKey) return;      // 질문 목록이 바뀔 때만 다시 그림(클릭이 사라지지 않게)
+          lastKey = key; wrap.innerHTML = "";
+          if (!mine.length){ wrap.append(el("div", { class: "mstat" }, "처음에 만든 질문이 없어요. 맨 위 '질문 만들기'에 질문을 적으면 여기에 나타나요.")); return; }
+          mine.forEach(t => { const row = el("div", { class: "rv" }, el("span", { class: "q" }, "❓ " + t));
+            ["해결됐다", "일부 해결", "아직 궁금"].forEach(lbl => { const b = el("button", { type: "button", class: st[t] === lbl ? "on" : "" }, lbl); b.onclick = () => { st[t] = lbl; vals[q.id] = Object.entries(st).map(([k, v]) => `${k} → ${v}`).join(" | "); draw(true); }; row.append(b); });
+            wrap.append(row); });
+        };
+        ctrls.push(() => draw()); box.addEventListener("focusin", () => draw()); box.addEventListener("mouseenter", () => draw()); draw();
       } else {
         const ta = el("textarea", { placeholder: "내 생각을 자유롭게 적어 보세요." }); ta.oninput = () => { vals[q.id] = ta.value.trim(); }; box.append(ta);
       }
@@ -159,11 +191,11 @@
     const stat = el("span", { class: "mstat" }, stageKey === "before" ? "학습 전 생각은 저장하면 잠겨요. 나중에 '처음 생각'과 비교해요." : "");
     const save = el("button", { class: "msave", type: "button" }, "내 생각 저장");
     save.onclick = async () => {
-      const filled = qs.filter(q => vals[q.id]);
-      if (!filled.length){ stat.textContent = "한 가지 이상 답해 주세요."; return; }
-      const rec = { stage: stageKey, qs, vals: { ...vals }, ts: Date.now() }; S.metas.set(cardKey, rec);
-      if (stageKey === "before"){ box.querySelectorAll("textarea").forEach(t => t.readOnly = true); box.querySelectorAll(".rate button").forEach(b => b.disabled = true); save.style.display = "none"; }
-      document.querySelectorAll('.lms-meta[data-stage="after"]').forEach(a => a.__refresh && a.__refresh());
+      const ans = qs.filter(q => filled(vals[q.id]));
+      if (!ans.length){ stat.textContent = "한 가지 이상 답해 주세요."; return; }
+      const rec = { stage: stageKey, qs, vals: JSON.parse(JSON.stringify(vals)), ts: Date.now() }; S.metas.set(cardKey, rec);
+      if (stageKey === "before"){ box.dataset.locked = "1"; box.querySelectorAll("textarea,input").forEach(t => t.readOnly = true); box.querySelectorAll(".rate button,.ideas-in button").forEach(b => b.disabled = true); save.style.display = "none"; }
+      document.querySelectorAll(".lms-meta").forEach(a => a.__refresh && a.__refresh());
       const t = new Date(rec.ts), hm = `${t.getHours()}:${String(t.getMinutes()).padStart(2, "0")}`;
       if (!S.student){ stat.textContent = `✓ 저장했어요 (${hm}). 위에서 학습 기록을 연결하면 내 학습 성장에 남아요.`; return; }
       stat.textContent = "저장하는 중…";
@@ -176,11 +208,17 @@
     if (o.position === "after") anchor.after(box); else anchor.parentNode.insertBefore(box, anchor);
     return box;
   }
+  const filled = v => Array.isArray(v) ? v.length > 0 : !!v;
+  function myQuestions(){
+    const out = [];
+    for (const c of S.cards.values()) if (c.stage === "before") for (const q of c.qs) if (q.id === "mb-question" && Array.isArray(c.vals[q.id])) out.push(...c.vals[q.id]);
+    return out;
+  }
   function metaRows(rec){
     const st = S.student, ts = rec.ts;
-    return rec.qs.filter(q => rec.vals[q.id]).map(q => ({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: "meta:" + q.id, objectives: "", kind: "meta",
-      correct: false, attempts: 1, level: q.type === "rate" ? rec.vals[q.id] : 0, confidence: 0, misconceptions: "",
-      answer: String(q.type === "rate" ? (DB.RATE.find(r => r.v === rec.vals[q.id]) || {}).name : rec.vals[q.id]).slice(0, 800), aided: false }));
+    return rec.qs.filter(q => filled(rec.vals[q.id])).map(q => { const v = rec.vals[q.id]; return { ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: "meta:" + q.id, objectives: "", kind: "meta",
+      correct: false, attempts: 1, level: q.type === "rate" ? v : Array.isArray(v) ? v.length : 0, confidence: 0, misconceptions: "",
+      answer: String(q.type === "rate" ? (DB.RATE.find(r => r.v === v) || {}).name : Array.isArray(v) ? v.join(" | ") : v).slice(0, 800), aided: false }; });
   }
   function levelOf(it){
     if (!it.attempts) return 0;
@@ -206,7 +244,7 @@
       rows.push({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: t.id, objectives: t.objectives.join(","), kind: "text",
         correct: false, attempts: 1, level: 0, confidence: 0, misconceptions: "", answer: v.slice(0, 800), aided: false });
     }
-    for (const card of S.cards.values()){ if (Object.values(card.vals).some(Boolean)) rows.push(...metaRows({ stage: card.stage, qs: card.qs, vals: { ...card.vals }, ts })); }
+    for (const card of S.cards.values()){ if (Object.values(card.vals).some(filled)) rows.push(...metaRows({ stage: card.stage, qs: card.qs, vals: { ...card.vals }, ts })); }
     for (const rc of S.records.values()){
       const v = rc.get(); if (!v || (!v.level && !v.answer)) continue;
       rows.push({ ts, sid: st.sid, unit: S.unit, activity: S.activity, session: S.session, item: rc.id, objectives: (rc.objectives || []).join(","), kind: rc.kind,
