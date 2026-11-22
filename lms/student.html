@@ -108,7 +108,7 @@
 
       ${H("③", "메타질문", "나는 무엇을 이해했고, 어떻게 생각했는가?")}
       <div class="card">${meta.before != null || meta.after != null ? `<div class="ratechg">'얼마나 아는지' 내 자기평가: <b>${meta.before != null ? esc(rateName(meta.before)) : "-"}</b> → <b>${meta.after != null ? esc(rateName(meta.after)) : "-"}</b></div>` : ""}
-        <div class="meta-grid" style="margin-top:8px">${meta.stages.map(x => `<div class="mcard"><h4>${esc(x.stage.name)}</h4>${x.items.map(i => `<div class="q">${esc(i.q.q)}</div><div class="a">${i.value ? esc(i.q.type === "rate" ? rateName(i.value) : i.value) : '<span class="muted">아직 답하지 않았어요</span>'}</div>`).join("")}</div>`).join("")}</div>
+        <div class="meta-grid" style="margin-top:8px">${meta.stages.map(x => `<div class="mcard"><h4>${esc(x.stage.name)}</h4>${x.items.map(i => `<div class="q">${esc(i.q.q)}</div><div class="a">${i.value ? (i.q.type === "rate" ? esc(rateName(i.value)) : String(i.value).split(" | ").map(esc).join("<br>")) : '<span class="muted">아직 답하지 않았어요</span>'}</div>`).join("")}</div>`).join("")}</div>
         ${meta.stagesDone < 4 ? `<div class="muted" style="margin-top:8px;font-size:13px">워크시트의 🧠 메타질문 카드에서 답하면 여기에 쌓여요. <a href="../${esc(act0.url)}">${esc(act0.title)} 열기</a></div>` : ""}</div>
 
       ${H("④", "루브릭 평가", "학습 목표에 어느 정도 도달했는가? · 점선은 선생님 확인 전 예상 수준")}

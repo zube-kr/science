@@ -226,6 +226,21 @@
   .roadmap{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
   .roadmap a{font-size:12.5px;text-decoration:none;color:var(--night);background:#F3F0E6;border:1px solid var(--paper-line);border-radius:999px;padding:4px 10px}
   .roadmap a:hover{background:#EAE5D6}
+  .sky{position:relative}
+  .sky svg .near{transition:transform 1.2s cubic-bezier(.5,0,.3,1)}
+  .sky-btns{display:flex;gap:8px;justify-content:center;margin:10px 0 2px;flex-wrap:wrap}
+  .sky-btns button{all:unset;cursor:pointer;padding:8px 16px;border-radius:999px;border:1.5px solid #C9C3B0;font-size:14px;font-weight:700;background:#fff}
+  .sky-btns button.on{background:var(--night);color:var(--star-soft);border-color:var(--night)}
+  .talk{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .talk .b{display:flex;gap:10px;align-items:flex-start}
+  .talk .b .who{flex:none;width:40px;height:40px;border-radius:50%;background:#F3F0E6;display:grid;place-items:center;font-size:22px}
+  .talk .b p{margin:0;background:#F7F5EE;border:1px solid var(--paper-line);border-radius:4px 14px 14px 14px;padding:9px 13px;font-size:14.5px}
+  .talk .b.r{flex-direction:row-reverse}.talk .b.r p{border-radius:14px 4px 14px 14px;background:#EEF0FA}
+  .fact{background:linear-gradient(135deg,#141B34,#26325C);color:#E6E9F5;border-radius:12px;padding:13px 15px;font-size:14.5px;line-height:1.65;margin:12px 0}
+  .fact b{color:var(--star)}
+  .try{border:1.5px dashed #C9C3B0;border-radius:12px;padding:11px 14px;font-size:14px;margin:12px 0;background:#FFFDF7}
+  details.goals{margin-top:16px;border:1px solid var(--paper-line);border-radius:12px;padding:10px 14px;background:#FCFBF8}
+  details.goals summary{cursor:pointer;font-weight:700;font-size:14.5px;color:#3b3f8f}
   .goal-area{margin:10px 0 4px;font-size:12.5px;font-weight:700;color:#6d5bd0}
   .goal{display:flex;gap:8px;font-size:14px;padding:3px 0}
   .goal i{font-style:normal;flex:none;width:22px;height:22px;border-radius:6px;background:#EEF0FA;color:#3b3f8f;display:grid;place-items:center;font-size:12px;font-weight:700}
@@ -266,23 +281,48 @@
   <div class="hero-inner">
     <div class="eyebrow">Ⅶ. 별과 우주 · 배움활동</div>
     <h1>시차 측정하기</h1>
-    <p>학습 목표 → 학습 전 생각하기 → 탐구 → 개념 정리·적용 → 논증 → 돌아보기 → 피드백·재학습 → 확장. 한 단계씩 따라가며 시차와 거리의 관계를 스스로 발견해 보세요.</p>
+    <p>이상한 밤하늘에서 출발해 나만의 질문을 세우고, 실험과 논증으로 답을 찾은 뒤, 다음 질문까지 이어 가 보세요.</p>
   </div>
 </header>
 
 <main>
-  <div class="phase" id="ph-1"><b>1</b><div><span>STEP 1</span><strong>학습 목표</strong><em>무엇을 배울 것인가?</em></div></div>
-  <section id="goals">
-    <h2><span class="num"></span>오늘의 학습 목표</h2>
-    <p class="hint">끝까지 학습하면 아래 목표에 도달해요. 문제를 풀 때마다 목표별로 <b>L1 미도달 · L2 발달 중 · L3 숙달 · L4 심화·전이</b>가 기록돼요.</p>
-    <div id="goalList"></div>
-    <p style="font-size:14.5px;margin:18px 0 4px"><b>이렇게 평가해요 — 루브릭</b></p>
-    <p class="hint" style="margin-bottom:6px">'우수' 이상을 목표로 도전해 보세요. 마지막에 스스로 평가하고, 선생님 평가와 비교해요.</p>
-    <div style="overflow-x:auto"><table class="rub-prev" id="rubricPreview"></table></div>
-    <p style="font-size:14.5px;margin:18px 0 0"><b>오늘의 학습 순서</b></p>
-    <div class="roadmap">
-      <a href="#ph-1">1 학습 목표</a><a href="#ph-2">2 학습 전 생각하기</a><a href="#ph-3">3 탐구 활동</a><a href="#ph-4">4 개념 정리·적용</a><a href="#ph-5">5 과학적 논증</a><a href="#ph-6">6 학습 후 돌아보기</a><a href="#ph-7">7 피드백·재학습</a><a href="#ph-8">8 확장하기</a>
+  <div class="phase" id="ph-1"><b>1</b><div><span>STEP 1</span><strong>주제 만나기 · 질문 만들기</strong><em>무엇이 궁금한가?</em></div></div>
+  <section id="hook">
+    <h2><span class="num"></span>주제 만나기 · 이상한 밤하늘</h2>
+    <p class="hint">같은 곳에서 같은 방향의 밤하늘을 1월과 7월에 찍었어요. 두 하늘을 번갈아 보세요. 무엇이 달라졌나요?</p>
+    <div class="svg-wrap sky">
+      <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1월과 7월의 밤하늘 비교">
+        <g fill="#C9CEE0">
+          <circle cx="40" cy="30" r="1.4"/><circle cx="95" cy="190" r="1.8"/><circle cx="150" cy="70" r="1.2"/><circle cx="210" cy="225" r="1.5"/><circle cx="250" cy="40" r="2"/>
+          <circle cx="330" cy="210" r="1.3"/><circle cx="395" cy="25" r="1.6"/><circle cx="440" cy="150" r="1.2"/><circle cx="500" cy="60" r="1.9"/><circle cx="545" cy="215" r="1.4"/>
+          <circle cx="600" cy="110" r="1.6"/><circle cx="70" cy="120" r="1.1"/><circle cx="175" cy="150" r="1.7"/><circle cx="470" cy="235" r="1.2"/><circle cx="615" cy="20" r="1.1"/>
+          <circle cx="285" cy="140" r="1.2"/><circle cx="420" cy="95" r="1.4"/><circle cx="125" cy="245" r="1.3"/><circle cx="565" cy="160" r="1.8"/><circle cx="20" cy="210" r="1.5"/>
+        </g>
+        <g fill="#F3DFA0"><circle cx="230" cy="110" r="3"/><circle cx="372" cy="196" r="2.6"/><circle cx="455" cy="105" r="3.2"/></g>
+        <text x="236" y="104" fill="#8A93B5" font-size="11">배경 별 ①</text><text x="378" y="212" fill="#8A93B5" font-size="11">배경 별 ②</text><text x="461" y="99" fill="#8A93B5" font-size="11">배경 별 ③</text>
+        <g class="near" id="nearStar">
+          <circle cx="300" cy="125" r="14" fill="#E8C468" opacity=".18"/><circle cx="300" cy="125" r="5.5" fill="#FFF3C4"/>
+          <text x="300" y="104" fill="#FFF3C4" font-size="13" text-anchor="middle" font-weight="700">별 A</text>
+        </g>
+        <text x="16" y="250" fill="#E8C468" font-size="14" font-weight="700" id="skyLabel">1월의 밤하늘</text>
+      </svg>
     </div>
+    <div class="sky-btns"><button type="button" class="on" data-m="1">🌌 1월에 본 하늘</button><button type="button" data-m="7">🌌 7월에 본 하늘</button></div>
+    <div class="talk">
+      <div class="b"><span class="who">🧑</span><p><b>민준</b> · "별 A가 6개월 동안 오른쪽으로 움직였어! 별도 걸어 다니나 봐."</p></div>
+      <div class="b r"><span class="who">👩</span><p><b>서연</b> · "아니야, 별 A는 그대로야. 움직인 건 오히려 <b>우리</b>야."</p></div>
+    </div>
+    <p class="hint" style="margin:0">누구 말이 맞을까요? 정답은 아직 비밀! 오늘 학습을 마치면 스스로 판단할 수 있어요.</p>
+    <div class="fact">🔭 가장 가까운 별 <b>프록시마 센타우리</b>까지는 약 <b>40조 km</b>. 빛으로도 4년이 넘게 걸려요.<br>자로 잴 수도, 직접 가 볼 수도 없는데 과학자들은 어떻게 이 거리를 알아냈을까요?</div>
+    <div class="try">✋ <b>지금 바로 해 보기</b> — 팔을 쭉 뻗고 엄지를 세운 뒤, 왼쪽 눈과 오른쪽 눈을 번갈아 감아 보세요. 엄지가 뒤쪽 배경에 대해 어떻게 보이나요? 이번엔 엄지를 코 가까이 가져와서 다시 해 보세요.</div>
+    <details class="goals" id="goalsReveal"><summary>🎯 질문을 만든 뒤 열어 보세요 — 선생님이 준비한 오늘의 학습 목표</summary>
+      <p class="hint" style="margin:8px 0 4px">내가 만든 질문과 겹치는 목표가 있나요? 오늘 수업이 끝나면 이 목표들에 대한 나의 수준(L1~L4)이 기록돼요.</p>
+      <div id="goalList"></div>
+      <p style="font-size:14px;margin:14px 0 0"><b>오늘의 학습 순서</b></p>
+      <div class="roadmap">
+        <a href="#ph-1">1 질문 만들기</a><a href="#ph-2">2 학습 전 생각</a><a href="#ph-3">3 탐구 활동</a><a href="#ph-4">4 개념 정리·적용</a><a href="#ph-5">5 과학적 논증</a><a href="#ph-6">6 돌아보기</a><a href="#ph-7">7 피드백·재학습</a><a href="#ph-8">8 나의 다음 질문</a>
+      </div>
+    </details>
   </section>
   <section>
     <h2><span class="num"></span>학생 정보</h2>
@@ -715,11 +755,7 @@
     </div>
   </section>
   <div class="phase" id="ph-6"><b>6</b><div><span>STEP 6</span><strong>학습 후 · 돌아보기</strong><em>처음 생각과 지금 생각은?</em></div></div>
-  <section id="selfrub">
-    <h2><span class="num"></span>루브릭 자기평가 · 나는 어디까지 도달했나?</h2>
-    <p class="hint">영역마다 지금 내 모습에 가장 가까운 수준을 골라 보세요. 제출하면 선생님 평가와 비교할 수 있어요.</p>
-    <div id="selfRubric"></div>
-  </section>
+
   <div class="phase" id="ph-submit"><b>✓</b><div><span>제출</span><strong>제출하고 피드백 받기</strong><em>오늘 학습을 기록으로 남겨요</em></div></div>
   <section>
     <button class="submit-btn" id="submitBtn">제출하고 바로 피드백 받기</button>
@@ -734,13 +770,13 @@
     <div id="fbSummary"></div>
     <div id="fbRetry"></div>
   </section>
-  <div class="phase" id="ph-8"><b>8</b><div><span>STEP 8</span><strong>확장하기</strong><em>새롭게 안 것을 어디에 쓸 수 있을까?</em></div></div>
+  <div class="phase" id="ph-8"><b>8</b><div><span>STEP 8</span><strong>나의 다음 질문</strong><em>나는 무엇을 더 알고 싶은가?</em></div></div>
   <section id="extendSec">
-    <h2><span class="num"></span>확장하기 · 배운 원리를 넓혀 보기</h2>
-    <p class="hint">오늘 배운 시차의 원리를 우주 밖의 세상과 연결해 보세요.</p>
+    <h2><span class="num"></span>나의 다음 질문 · 더 넓게 생각하기</h2>
+    <p class="hint">정답이 없는 질문이에요. 처음 내 질문을 돌아보고, 더 궁금해진 것과 떠오르는 생각을 <b>떠오르는 대로 많이</b> 적어 보세요.</p>
     <div id="extendMount"></div>
     <div class="next-links"><a href="lms/student.html" target="_blank">🌱 내 학습 성장 보기</a></div>
-    <p class="teacher-note">🔁 숙달한 목표도 <b>3일 뒤 · 1주 뒤 · 3주 뒤</b> '내 학습 성장'에서 복습할 때를 알려 줘요. 다시 풀면 성장이 기록돼요.</p>
+    <p class="teacher-note">🔁 숙달한 목표도 <b>3일 뒤 · 1주 뒤 · 3주 뒤</b> '내 학습 성장'에서 복습할 때를 알려 줘요. 오늘 남은 질문은 다음 탐구의 출발점이 돼요.</p>
   </section>
 
 </main>
@@ -881,15 +917,21 @@
   // STEP 1 · 학습 목표 + 루브릭 미리보기
   $('goalList').innerHTML = LMS_DB.AREAS.filter(a => DBU.objectives.some(o => o.area === a.key)).map(a =>
     `<div class="goal-area">${escH(a.name)}</div>` + DBU.objectives.filter(o => o.area === a.key).map(o => `<div class="goal"><i>${o.no}</i><span>${escH(o.text)}</span></div>`).join('')).join('');
-  $('rubricPreview').innerHTML = '<tr><th>영역</th><th>평가 요소</th><th>우수 (3)</th><th>매우 우수 (4)</th></tr>' + DBU.rubric.map(c =>
-    `<tr><td><span class="dom ${c.domain}">${escH(LMS_DB.DOMAINS.find(d => d.key === c.domain).name)}</span></td><td><b>${escH(c.name)}</b></td><td>${escH(c.desc[3])}</td><td>${escH(c.desc[4])}</td></tr>`).join('');
 
   // 메타질문: 학습 전 → 학습 중(두 번) → 학습 후 → 확장
-  LMS.meta($('diag'), 'before');
+  LMS.meta($('goalsReveal'), 'before', { only: ['mb-question', 'mb-main'] });   // 장면을 보고 스스로 질문 만들기
+  LMS.meta($('diag'), 'before', { only: ['mb-rate', 'mb-prior'] });
   LMS.meta($('reflection').closest('section'), 'during', { position: 'after', only: ['md-why'] });
   LMS.meta($('ex2Reason').closest('section'), 'during', { position: 'after', only: ['md-strategy'] });
-  LMS.meta($('selfrub'), 'after');
+  LMS.meta($('ph-submit'), 'after');
   LMS.meta($('extendMount'), 'extend', { position: 'after' });
+  // 이상한 밤하늘: 1월 ↔ 7월
+  document.querySelectorAll('.sky-btns button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sky-btns button').forEach(x => x.classList.toggle('on', x === b));
+    const jul = b.dataset.m === '7';
+    $('nearStar').style.transform = jul ? 'translateX(96px)' : 'none';
+    $('skyLabel').textContent = jul ? '7월의 밤하늘' : '1월의 밤하늘';
+  }));
   const IT = id => LMS_DB.item('parallax-ws', id);
 
   // STEP 2 · 사전 진단 (정답은 피드백에서 공개)
@@ -910,13 +952,6 @@
     showResult($('resultClaim'), ok, '맞아요. 이제 이 주장을 뒷받침할 근거와 추론을 써 보세요.', '다시 생각해 보세요: 팔을 굽혔을 때(가까울 때) 번호 차이는 어땠나요?');
   });
 
-  // STEP 6 · 루브릭 자기평가
-  const selfSel = {};
-  $('selfRubric').innerHTML = DBU.rubric.map(c => `<div class="self-rub" data-k="${c.key}"><span class="dom ${c.domain}">${escH(LMS_DB.DOMAINS.find(d => d.key === c.domain).name)}</span> <b>${escH(c.name)}</b>
-    <div class="opts">${LMS_DB.RUBRIC_LEVELS.map(l => `<button type="button" data-v="${l.lv}"><b>${l.lv} ${escH(l.name)}</b><span>${escH(c.desc[l.lv])}</span></button>`).join('')}</div></div>`).join('');
-  document.querySelectorAll('.self-rub').forEach(box => box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-    selfSel[box.dataset.k] = +b.dataset.v; box.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-  })));
 
   const reg = (id, button, check) => LMS.item(id, { objectives: IT(id).objectives, kind: IT(id).kind, button, check });
   reg('exp-data', null, () => {
@@ -983,7 +1018,6 @@
   LMS.text('cer-evidence', { objectives: IT('cer-evidence').objectives, get: () => $('cerEvidence').value });
   LMS.text('cer-reasoning', { objectives: IT('cer-reasoning').objectives, get: () => $('cerReasoning').value });
   LMS.record('cer-self', { kind: 'check', get: () => { const n = ['cerC1', 'cerC2', 'cerC3'].filter(id => $(id).checked); return n.length ? { level: n.length, answer: '스스로 점검 ' + n.length + '/3' } : null; } });
-  DBU.rubric.forEach(c => LMS.record('self:' + c.key, { kind: 'self', objectives: c.objectives, get: () => selfSel[c.key] ? { level: selfSel[c.key], answer: LMS_DB.RUBRIC_LEVELS.find(l => l.lv === selfSel[c.key]).name } : null }));
 
   // ════════ STEP 7 · 즉시 피드백 · 재학습 ════════
   const VARIANTS = {
@@ -1040,7 +1074,7 @@
       const lines = weak.map(o => `목표 ${o.no}: ${lvb(before[o.code])} → ${lvb(after[o.code] || before[o.code])}`).join('<br>');
       const r = await LMS.submit();
       st.className = 'status show ' + (r.ok ? 'success' : 'sending');
-      st.innerHTML = `${lines}<br>${r.ok ? '✅ 재학습 결과를 내 학습 기록에 저장했어요. 이제 확장하기로 가요!' : r.reason === 'login' ? '맨 위에서 학습 기록을 연결하면 재학습 결과도 저장돼요.' : r.reason === 'empty' ? '먼저 문제를 풀고 정답 확인을 눌러 주세요.' : '인터넷이 연결되면 다시 보낼게요.'}`;
+      st.innerHTML = `${lines}<br>${r.ok ? '✅ 재학습 결과를 내 학습 기록에 저장했어요. 이제 나의 다음 질문으로 가요!' : r.reason === 'login' ? '맨 위에서 학습 기록을 연결하면 재학습 결과도 저장돼요.' : r.reason === 'empty' ? '먼저 문제를 풀고 정답 확인을 눌러 주세요.' : '인터넷이 연결되면 다시 보낼게요.'}`;
       if (r.ok){ $('retrySave').disabled = true; $('ph-8').scrollIntoView({ behavior: 'smooth' }); }
     });
     $('ph-7').scrollIntoView({ behavior: 'smooth' });

@@ -166,7 +166,7 @@
       return { stage: st, items, done };
     });
     const rateOf = key => { const st = stages.find(x => x.stage.key === key); const it = st && st.items.find(i => i.q.type === "rate" && i.value); return it ? +it.value : null; };
-    const textLen = stages.flatMap(s => s.items).filter(i => i.q.type === "text" && i.value).map(i => String(i.value).length);
+    const textLen = stages.flatMap(s => s.items).filter(i => i.q.type !== "rate" && i.value).map(i => String(i.value).length);
     return { stages, before: rateOf("before"), after: rateOf("after"), stagesDone: stages.filter(s => s.done === "done").length,
       stagesAny: stages.filter(s => s.done !== "todo").length, avgLen: textLen.length ? textLen.reduce((a, b) => a + b, 0) / textLen.length : 0, any: textLen.length > 0 };
   }
@@ -177,9 +177,16 @@
       const conf = latest(rows, "rubric:" + c.key, "rubric");
       let sug = 0;
       if (c.meta){
-        const change = meta.stages.find(s => s.stage.key === "after");
-        const hasChange = change && change.items.some(i => i.q.type === "text" && i.value && String(i.value).length >= 15);
-        sug = !meta.any ? (rows.some(r => r.kind === "core") ? 1 : 0) : meta.stagesDone >= 4 && hasChange && meta.avgLen >= 25 ? 4 : meta.stagesDone >= 3 ? 3 : meta.stagesAny >= 1 ? 2 : 1;
+        // 가치·태도 신호: ①스스로 질문 세움 ②생각의 변화 ③새 질문·적용을 여럿(발산) ④처음 질문 되돌아보기·자기 성찰
+        const it = id => meta.stages.flatMap(x => x.items).find(i => i.q.id === id);
+        const val = id => { const x = it(id); return x && x.value ? String(x.value) : ""; };
+        const count = id => { const x = it(id); return x && x.value ? (x.q.type === "ideas" ? String(x.value).split(" | ").filter(Boolean).length : 1) : 0; };
+        const sig = [count("mb-question") >= 2 || val("mb-main").length >= 5,
+          val("ma-change").length >= 15,
+          count("me-next") + count("me-apply") >= 3,
+          !!val("me-revisit") || val("me-self").length >= 10 || val("me-value").length >= 10].filter(Boolean).length;
+        const anyMeta = meta.any || meta.before != null;
+        sug = !anyMeta ? (rows.some(r => r.kind === "core") ? 1 : 0) : Math.max(1, sig);
       } else {
         const ls = c.objectives.map(o => mast[o] ? mast[o].level : 0).filter(l => l > 0);
         if (ls.length) sug = Math.max(1, Math.min(4, Math.round(ls.reduce((a, b) => a + b, 0) / ls.length)));

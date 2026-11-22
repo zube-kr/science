@@ -91,6 +91,7 @@
       return `${i ? '<div class="arr">→</div>' : ""}<div class="st ${cls}"><small>${i + 1}단계</small><b>${esc(x.c.name)}</b><span>${x.c.key === "goal" ? `목표 ${A.unit.objectives.length}개` : `${done}/${n}명${x.partial ? ` · 진행 중 ${x.partial}` : ""}`}</span><div class="bar"><i style="width:${pct * 100}%"></i></div></div>`;
     }).join("") + `<div class="arr">↻</div>`;
   }
+  const ideasHtml = v => String(v).split(" | ").filter(Boolean).map(x => esc(x)).join("<br>• ").replace(/^/, String(v).includes(" | ") ? "• " : "");
   const rlBadge = (lv, confirmed) => `<span class="rl r${lv} ${confirmed ? "" : "sug"}" title="${confirmed ? "교사 확정" : "증거 기반 제안"}">${lv ? lv : "-"}</span>`;
   const domTag = k => `<span class="dom ${k}">${esc((DB.DOMAINS.find(d => d.key === k) || {}).name || k)}</span>`;
   /* 메타질문 · 루브릭 탭 */
@@ -108,6 +109,10 @@
       <div class="alert"><span class="ic">🌱</span><div><b>과소평가</b> — 잘 모른다고 했지만(자기평가 1~2) 실제로는 숙달(L3 이상)${chips(M.under)}</div></div>
       <p class="muted" style="font-size:12.5px">자기평가와 실제 성취가 크게 다르면 메타인지 점검이 필요해요. 과대평가 학생은 '스스로 설명해 보기', 과소평가 학생은 칭찬과 자신감 피드백이 효과적이에요.</p>`;
     const ch = A.active.map(s => { const st = s.meta.stages.find(x => x.stage.key === "after"); const it = st && st.items.find(i => i.q.id && i.q.type === "text" && i.value); const b = s.meta.stages.find(x => x.stage.key === "before"); const bt = b && b.items.find(i => i.q.type === "text" && i.value); return it ? { s, a: it.value, b: bt ? bt.value : "" } : null; }).filter(Boolean);
+    const val = (s, id) => { const it = s.meta.stages.flatMap(x => x.items).find(i => i.q.id === id); return it && it.value ? String(it.value) : ""; };
+    const qs = A.active.map(s => ({ s, q: val(s, "mb-question"), main: val(s, "mb-main"), rv: val(s, "me-revisit"), next: val(s, "me-next"), apply: val(s, "me-apply") })).filter(x => x.q || x.main || x.next);
+    $("questions").innerHTML = qs.length ? `<div class="scroll"><table class="ev"><tr><th>학생</th><th>처음 만든 질문 · 탐구 질문</th><th>처음 질문 되돌아보기</th><th>다음에 탐구하고 싶은 질문 · 적용</th></tr>${qs.map(x => `<tr><td><button class="chip" data-sid="${x.s.sid}">${esc(stName(x.s))}</button></td>
+      <td>${x.q ? ideasHtml(x.q) : ""}${x.main ? `<div style="margin-top:4px">🔎 <b>${esc(x.main)}</b></div>` : ""}</td><td class="soft">${x.rv ? ideasHtml(x.rv) : ""}</td><td>${x.next ? ideasHtml(x.next) : ""}${x.apply ? `<div class="muted" style="margin-top:4px">적용: ${esc(x.apply.split(" | ").join(", "))}</div>` : ""}</td></tr>`).join("")}</table></div>` : `<div class="empty">아직 학생들이 만든 질문이 없어요.</div>`;
     $("changes").innerHTML = ch.length ? `<div class="scroll"><table class="ev"><tr><th>학생</th><th>학습 전 내 생각</th><th>처음 생각과 지금 생각은 어떻게 달라졌나?</th></tr>${ch.map(x => `<tr><td><button class="chip" data-sid="${x.s.sid}">${esc(stName(x.s))}</button></td><td class="soft">${esc(x.b)}</td><td>${esc(x.a)}</td></tr>`).join("")}</table></div>` : `<div class="empty">아직 답이 없어요.</div>`;
   }
 
@@ -126,12 +131,12 @@
     const m = s.meta;
     const metaHtml = `${m.before != null || m.after != null ? `<div class="ratechg">자기평가 <b>${m.before != null ? `${m.before} · ${esc(rateName(m.before))}` : "-"}</b> → <b>${m.after != null ? `${m.after} · ${esc(rateName(m.after))}` : "-"}</b>
         ${m.after != null && s.avgLv ? `<span class="muted">· 실제 숙달 평균 L${s.avgLv.toFixed(1)}${m.after >= 3 && s.avgLv < 2.5 ? ' <b style="color:var(--bad)">과대평가</b>' : m.after <= 2 && s.avgLv >= 3 ? ' <b style="color:var(--good)">과소평가</b>' : ""}</span>` : ""}</div>` : ""}
-      <div class="meta-grid" style="margin-top:8px">${m.stages.map(st => `<div class="mcard"><h4>${esc(st.stage.name)} <span class="muted" style="font-weight:600">· ${esc(st.stage.type)}</span></h4>${st.items.map(i => `<div class="q">${esc(i.q.q)}</div><div class="a">${i.value ? esc(i.q.type === "rate" ? `${i.value} · ${rateName(i.value)}` : i.value) : '<span class="muted">아직 답하지 않음</span>'}</div>`).join("")}</div>`).join("")}</div>`;
+      <div class="meta-grid" style="margin-top:8px">${m.stages.map(st => `<div class="mcard"><h4>${esc(st.stage.name)} <span class="muted" style="font-weight:600">· ${esc(st.stage.type)}</span></h4>${st.items.map(i => `<div class="q">${esc(i.q.q)}</div><div class="a">${i.value ? (i.q.type === "rate" ? esc(`${i.value} · ${rateName(i.value)}`) : ideasHtml(i.value)) : '<span class="muted">아직 답하지 않음</span>'}</div>`).join("")}</div>`).join("")}</div>`;
     // ③ 루브릭
     const rubHtml = s.rub.map(x => {
       const cur = x.confirmed ? x.level : x.suggested;
       return `<div class="rb" data-rk="${x.c.key}" data-lv="${cur || ""}">
-        <div class="top">${domTag(x.c.domain)}<b>${esc(x.c.name)}</b><span class="muted" style="font-size:12px">${x.c.meta ? "메타질문 답 기반" : "목표 " + x.c.objectives.map(o => DB.OBJ[o].no).join("·")} · 증거 기반 제안 ${x.suggested ? rlBadge(x.suggested, false) : "-"} · 학생 자기평가 ${x.self ? `<b>${x.self}</b>` : "-"}</span>${x.confirmed ? `<span class="pill ok" style="margin-left:auto">확정 ${x.level} · ${fmtD(x.ts)}</span>` : '<span class="pill" style="margin-left:auto">확정 전</span>'}</div>
+        <div class="top">${domTag(x.c.domain)}<b>${esc(x.c.name)}</b><span class="muted" style="font-size:12px">${x.c.meta ? "메타질문 답 기반" : "목표 " + x.c.objectives.map(o => DB.OBJ[o].no).join("·")} · 증거 기반 제안 ${x.suggested ? rlBadge(x.suggested, false) : "-"}${x.self ? ` · 학생 자기평가 <b>${x.self}</b>` : ""}</span>${x.confirmed ? `<span class="pill ok" style="margin-left:auto">확정 ${x.level} · ${fmtD(x.ts)}</span>` : '<span class="pill" style="margin-left:auto">확정 전</span>'}</div>
         <div class="lvls">${DB.RUBRIC_LEVELS.map(l => `<button type="button" data-rv="${l.lv}" class="${l.lv === cur ? "on" : ""} ${l.lv === x.suggested ? "sug" : ""}">${l.lv} ${esc(l.name)}</button>`).join("")}</div>
         <div class="desc" data-desc>${cur ? `<b>${cur} ${esc(DB.RUBRIC_LEVELS.find(l => l.lv === cur).name)}</b> — ${esc(x.c.desc[cur])}` : "수준을 골라 주세요."}</div>
         <input type="text" data-rm placeholder="이 영역 피드백 (학생 화면에 보여요)" value="${esc(x.memo)}" style="width:100%;margin-top:6px">
@@ -162,7 +167,7 @@
       <h3 style="margin:16px 2px 6px">② 메타질문 — 생각의 변화</h3>
       <div class="card">${m.any || m.before != null ? metaHtml : '<div class="empty">아직 메타질문 답이 없어요.</div>'}</div>
       <h3 style="margin:16px 2px 6px">③ 루브릭 평가 <small class="muted" style="font-weight:600;font-size:12.5px">점선 = 증거로 계산한 제안 · 고르고 저장하면 확정돼요</small></h3>
-      <div class="card">${rubHtml}<div class="bar-row" style="margin-top:6px"><button class="btn primary" id="b-rub">루브릭 평가 저장</button><span class="muted" id="rub-msg" style="font-size:12.5px"></span></div></div>
+      <div class="card">${U.rubricFocus ? `<div class="note" style="margin-bottom:6px">🎯 이 주제의 평가 초점: ${esc(U.rubricFocus)}</div>` : ""}${rubHtml}<div class="bar-row" style="margin-top:6px"><button class="btn primary" id="b-rub">루브릭 평가 저장</button><span class="muted" id="rub-msg" style="font-size:12.5px"></span></div></div>
       <h3 style="margin:16px 2px 6px">④ 피드백 · 재학습</h3>
       <div class="path ${steps.path}"><h3>🧭 추천: ${pathTxt[0]} <span class="muted" style="font-weight:600">— ${pathTxt[1]}</span></h3>${recs.length ? `<ul>${recs.map(r => `<li>${esc(r)}</li>`).join("")}</ul>` : '<span class="muted">추천할 활동이 아직 없어요.</span>'}
         <div class="muted" style="font-size:12.5px;margin-top:6px">${cyc.relearn ? "✅ 피드백 뒤에 다시 학습한 기록이 있어요." : cyc.lastFb ? "피드백을 받았어요. 재학습 기록을 기다리는 중이에요." : "루브릭 피드백이나 교사 판정 메모를 남기면 학생 화면에 보여요."}</div></div>
@@ -295,13 +300,17 @@
       if (R() < .85){
         const t1 = now - 4 * C.DAY - 4e5, sess = `${act}-demo${si}-0`, mk = (id, level, answer, t) => rows.push({ ts: t, sid: st.sid, unit: "ASTRO-PARALLAX", activity: act, session: sess, item: "meta:" + id, objectives: "", kind: "meta", correct: false, attempts: 1, level, confidence: 0, misconceptions: "", answer, aided: false });
         const rb = 1 + (R() * 2 | 0), skill = sig(ab), ra = Math.max(1, Math.min(4, Math.round(rb + skill * 2 + (R() - .3))));
+        mk("mb-question", 2, ["왜 별의 위치가 바뀌었을까? | 별도 움직일까?", "별까지 거리는 어떻게 잴까? | 6개월 동안 무엇이 변했을까?", "민준이와 서연이 중 누가 맞을까? | 다른 별들은 왜 그대로일까? | 별 A가 더 가까운 걸까?"][(R() * 3) | 0], t1);
+        mk("mb-main", 0, ["별까지의 거리는 어떻게 잴 수 있을까?", "왜 별 A만 위치가 바뀌어 보일까?", "움직인 것은 별일까 지구일까?"][(R() * 3) | 0], t1);
         mk("mb-rate", rb, DB.RATE[rb - 1].name, t1);
         mk("mb-prior", 0, ["망원경으로 보면 알 수 있을 것 같다.", "빛이 오는 시간을 재면 될 것 같다.", "모르겠다. 별이 너무 멀다.", "별의 밝기로 알 수 있지 않을까?"][(R() * 4) | 0], t1);
         if (R() < .8) mk("md-why", 0, ["팔을 굽히면 물체가 가까워져서 두 눈이 보는 방향 차이가 커졌다. 번호 차이가 근거다.", "번호 차이가 더 컸기 때문인데 근거가 충분한지는 잘 모르겠다."][(R() * 2) | 0], t1 + 2e5);
         if (R() < .75){ mk("ma-rate", ra, DB.RATE[ra - 1].name, t1 + 5e5);
           mk("ma-change", 0, ["처음엔 망원경으로 본다고 생각했는데, 지구가 공전하며 보는 위치가 바뀌는 시차로 거리를 잰다는 걸 알았다.", "시차가 클수록 멀다고 생각했는데 반대였다. 가까울수록 시차가 크다.", "별이 움직여서 위치가 바뀌는 줄 알았는데 지구가 움직인 것이었다."][(R() * 3) | 0], t1 + 5e5);
           if (R() < .7) mk("ma-check", 0, "가까운 물체일수록 두 곳에서 본 방향 차이(시차)가 크고, 먼 별은 시차가 작다.", t1 + 5e5); }
-        if (R() < .55) mk("me-apply", 0, ["우리 두 눈으로 거리를 느끼는 것", "자동차 거리 측정 카메라", "드론의 거리 센서"][(R() * 3) | 0], t1 + 6e5);
+        if (R() < .55){ mk("me-apply", 2, ["우리 두 눈 | 자동차 카메라", "드론 센서 | 3D 영화", "측량 | 로봇 눈 | VR"][(R() * 3) | 0], t1 + 6e5);
+          mk("me-next", 2, ["더 먼 별은 어떻게 재지? | 은하까지 거리는?", "가이아 망원경은 얼마나 정확할까? | 별이 진짜 움직이기도 할까?", "빛의 속도로 거리를 잴 수는 없을까?"][(R() * 3) | 0], t1 + 6e5);
+          mk("me-revisit", 0, "별까지 거리는 어떻게 잴까? → 해결됐다 | 별도 움직일까? → 아직 궁금", t1 + 6e5); }
       }
       if (R() < .4){ const ts = now - C.DAY / 2, sess = "rubric-" + si;
         for (const c of DB.UNITS["ASTRO-PARALLAX"].rubric){ const lv = Math.max(1, Math.min(4, Math.round(2.4 + ab * .8 + (R() - .5)))); rows.push({ ts, sid: st.sid, unit: "ASTRO-PARALLAX", activity: "rubric", session: sess, item: "rubric:" + c.key, objectives: c.objectives.join(","), kind: "rubric", correct: lv >= 3, attempts: 0, level: lv, confidence: 0, misconceptions: "", answer: lv <= 2 ? "다음 단계 기준을 보고 다시 도전해 보자!" : "", aided: false }); } }
