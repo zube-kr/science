@@ -96,3 +96,37 @@ ol.steps li{margin:6px 0}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .banner{background:#33290f;border-color:#6b5520;color:#ffe9b0} }
 .hidden{display:none!important}
 @media print{ .noprint{display:none!important} body{background:#fff} }
+
+/* ---------- 학습 순환 · 메타질문 · 루브릭 ---------- */
+.cycle{display:flex;align-items:stretch;gap:6px;overflow-x:auto;padding-bottom:2px}
+.cycle .st{flex:1;min-width:120px;border-radius:13px;padding:9px 11px;background:var(--chip);border:1.5px solid var(--line);position:relative}
+.cycle .st small{display:block;font-size:11px;font-weight:800;color:var(--mute)}
+.cycle .st b{display:block;font-size:14px}
+.cycle .st span{display:block;font-size:12px;color:var(--soft);margin-top:2px}
+.cycle .st.done{background:#e7f8ef;border-color:#9fe0bd}.cycle .st.partial{background:#fff6e5;border-color:#f6d28f}
+.cycle .arr{display:flex;align-items:center;color:var(--mute);font-weight:800}
+.cycle .st .bar{height:6px;border-radius:4px;background:rgba(0,0,0,.07);margin-top:6px;overflow:hidden}.cycle .st .bar i{display:block;height:100%;background:#22a06b}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .cycle .st.done{background:#123526;border-color:#2b6646} :root:not([data-theme="light"]) .cycle .st.partial{background:#33290f;border-color:#6b5520} }
+.dom{display:inline-block;font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.dom.knowledge{background:#e0ecff;color:#1d4ed8}.dom.process{background:#dcfce7;color:#166534}.dom.attitude{background:#fde7e9;color:#9f1239}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .dom.knowledge{background:#1e2f5a;color:#c7dbff} :root:not([data-theme="light"]) .dom.process{background:#173d2a;color:#b7f5cf} :root:not([data-theme="light"]) .dom.attitude{background:#4a1d28;color:#ffd1da} }
+.rl{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 6px;border-radius:7px;font-size:12px;font-weight:800;background:var(--l0);color:var(--mute)}
+.rl.r1{background:var(--l1);color:var(--l1i)}.rl.r2{background:var(--l2);color:var(--l2i)}.rl.r3{background:var(--l3);color:var(--l3i)}.rl.r4{background:var(--l4);color:var(--l4i)}
+.rl.sug{background:transparent;border:1.5px dashed var(--mute)}
+.rb{border:1px solid var(--line);border-radius:13px;padding:10px 12px;margin:8px 0}
+.rb .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rb .lvls{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0 5px}
+.rb .lvls button{font:inherit;font-size:12.5px;font-weight:800;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:4px 10px;cursor:pointer}
+.rb .lvls button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.rb .lvls button.sug{border-style:dashed;border-color:var(--accent)}
+.rb .desc{font-size:12.8px;color:var(--soft);line-height:1.5}
+.rb .desc b{color:var(--ink)}
+.meta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){ .meta-grid{grid-template-columns:1fr} }
+.mcard{border-radius:12px;padding:10px 12px;background:#f6f2ff;border:1px solid #e4dafd}
+.mcard h4{margin:0 0 4px;font-size:13px;color:#5b21b6}
+.mcard .q{font-size:12px;color:var(--soft);margin-top:6px}
+.mcard .a{font-size:13.5px;white-space:pre-wrap}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .mcard{background:#211a3a;border-color:#3b2d6b} :root:not([data-theme="light"]) .mcard h4{color:#d6c8ff} }
+.ratechg{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap}
+details.more summary{cursor:pointer;font-weight:800;color:var(--accent);margin:4px 0}

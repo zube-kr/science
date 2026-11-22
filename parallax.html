@@ -746,6 +746,11 @@
   // ── 학습 성장 관리(LMS) 연결: 문항 → 학습 목표 · 오개념 ──
   LMS.init({ unit: 'ASTRO-PARALLAX', activity: 'parallax-ws', mount: document.querySelector('main section'),
     onLogin: st => { if (!$('stuClass').value) $('stuClass').value = st.cls; if (!$('stuNumber').value) $('stuNumber').value = st.num; if (st.name && !$('stuName').value) $('stuName').value = st.name; } });
+  // 메타질문: 학습 전(생각하기) → 학습 중(점검하기) → 학습 후(돌아보기) → 확장하기
+  LMS.meta(document.querySelector('main section'), 'before');
+  LMS.meta($('reflection').closest('section'), 'during', { position: 'after' });
+  LMS.meta($('submitBtn').closest('section'), 'after');
+  LMS.meta($('submitBtn').closest('section'), 'extend');
   const IT = id => LMS_DB.item('parallax-ws', id);
   const reg = (id, button, check) => LMS.item(id, { objectives: IT(id).objectives, kind: IT(id).kind, button, check });
   reg('exp-data', null, () => {

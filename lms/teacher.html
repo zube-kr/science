@@ -35,12 +35,14 @@
   <div class="tabs noprint">
     <button class="tab on" data-tab="overview">학급 현황</button>
     <button class="tab" data-tab="student">학생별 학습 이력</button>
+    <button class="tab" data-tab="cycle">메타질문 · 루브릭</button>
     <button class="tab" data-tab="misc">오개념 · 확신도</button>
     <button class="tab" data-tab="setup">⚙️ 처음 설정</button>
   </div>
 
   <!-- 학급 현황 -->
   <section id="t-overview">
+    <div class="card" style="margin-bottom:12px"><h2>🔄 학습 순환 현황 <small>학습 목표 → 학습 활동 → 메타질문 → 루브릭 평가 → 피드백·재학습 · 단계를 마친 학생 수</small></h2><div class="cycle" id="cyclebar"></div></div>
     <div class="grid g4" id="kpis"></div>
     <div class="grid g2" style="margin-top:12px">
       <div class="card"><h2>학습 목표별 달성률 <small>숙달(L3) 이상인 학생 비율 · 기록이 있는 학생 기준</small></h2><div id="objbars"></div></div>
@@ -59,6 +61,17 @@
       <div class="card"><h2>학생</h2><div class="stlist" id="stlist"></div></div>
       <div id="stdetail"></div>
     </div>
+  </section>
+
+  <!-- 메타질문 · 루브릭 -->
+  <section id="t-cycle" class="hidden">
+    <div class="card"><h2>📋 루브릭 평가 현황 <small>진한 칸 = 교사 확정 · 점선 칸 = 증거로 계산한 제안 수준 (학생을 누르면 평가할 수 있어요)</small></h2>
+      <div class="legend" id="rlegend" style="margin-bottom:8px"></div><div class="scroll"><table class="heat" id="rheat"></table></div></div>
+    <div class="grid g2e" style="margin-top:12px">
+      <div class="card"><h2>🧠 메타질문 참여 <small>단계별로 답을 모두 쓴 학생 수</small></h2><div id="metabars"></div></div>
+      <div class="card"><h2>🪞 자기평가 vs 실제 숙달 <small>메타인지 보정 — 학습 후 '얼마나 아는지' 자기평가와 실제 성취 비교</small></h2><div id="calib"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><h2>💭 생각의 변화 <small>"처음 생각과 지금 생각은 어떻게 달라졌나?" 학생 답</small></h2><div id="changes"></div></div>
   </section>
 
   <!-- 오개념 · 확신도 -->

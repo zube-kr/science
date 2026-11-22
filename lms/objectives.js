@@ -22,6 +22,27 @@
     { lv: 3, name: "숙달",      short: "L3", desc: "도움 없이 개념을 이해하고 적용함" },
     { lv: 4, name: "심화·전이", short: "L4", desc: "새로운 상황에 적용하고 근거를 들어 설명함" },
   ];
+  /* 학습 순환: 학습 목표 → 학습 활동 → 메타질문 → 루브릭 평가 → 피드백·재학습 */
+  const CYCLE = [
+    { key: "goal",     name: "학습 목표",   q: "무엇을 배울 것인가?" },
+    { key: "activity", name: "학습 활동",   q: "지식·이해 / 과정·기능 / 가치·태도" },
+    { key: "meta",     name: "메타질문",    q: "나는 무엇을 이해했고, 어떻게 생각했는가?" },
+    { key: "rubric",   name: "루브릭 평가", q: "학습 목표에 어느 정도 도달했는가?" },
+    { key: "feedback", name: "피드백·재학습", q: "무엇을 보완하고 어떻게 성장할 것인가?" },
+  ];
+  /* 메타질문 4단계 (메타인지 · 자기조절학습 · 성찰적 사고) */
+  const META_STAGES = [
+    { key: "before", name: "학습 전 · 생각하기", type: "사전 인식", hint: "내가 이미 알고 있는 것은 무엇인가?" },
+    { key: "during", name: "학습 중 · 점검하기", type: "사고 과정 · 이해 점검", hint: "나는 왜 이렇게 판단했는가? 근거는 충분한가?" },
+    { key: "after",  name: "학습 후 · 돌아보기", type: "전략 수정", hint: "처음 생각과 지금 생각은 어떻게 달라졌는가?" },
+    { key: "extend", name: "학습 이후 · 확장하기", type: "성찰 및 전이", hint: "새롭게 알게 된 내용을 어디에 활용할 수 있을까?" },
+  ];
+  const RATE = [{ v: 1, name: "거의 몰라요" }, { v: 2, name: "조금 알아요" }, { v: 3, name: "대부분 알아요" }, { v: 4, name: "설명할 수 있어요" }];
+  /* 루브릭: 2022 개정 교육과정 교과 역량 · 학습 요소 */
+  const DOMAINS = [
+    { key: "knowledge", name: "지식·이해" }, { key: "process", name: "과정·기능" }, { key: "attitude", name: "가치·태도" },
+  ];
+  const RUBRIC_LEVELS = [{ lv: 4, name: "매우 우수" }, { lv: 3, name: "우수" }, { lv: 2, name: "보통" }, { lv: 1, name: "노력 필요" }];
   const CONFIDENCE = [
     { v: 4, name: "매우 확신함" }, { v: 3, name: "어느 정도 확신함" },
     { v: 2, name: "잘 모르겠음" }, { v: 1, name: "추측해서 답함" },
@@ -74,6 +95,35 @@
           basic: "빨대 실험의 변인(관측 지점 사이 거리, 물체까지 거리)을 표로 정리하기",
           deep: "한쪽 눈만으로 두 지점에서 관측하는 실험을 직접 설계하고 실행하기" },
       ],
+      meta: {
+        before: [
+          { id: "mb-rate",  type: "rate", q: "나는 '별까지의 거리를 재는 방법'을 지금 얼마나 알고 있나?" },
+          { id: "mb-prior", type: "text", q: "아주 멀리 있는 별까지의 거리를 어떻게 잴 수 있을까? 지금 내 생각을 적어 보세요. (틀려도 괜찮아요)" },
+        ],
+        during: [
+          { id: "md-why",   type: "text", q: "실험에서 팔을 굽혔을 때와 폈을 때 결과가 달랐다. 나는 그 까닭을 어떤 근거로 판단했나? 그 근거는 충분한가?" },
+        ],
+        after: [
+          { id: "ma-rate",   type: "rate", q: "학습을 마친 지금, 나는 이 내용을 얼마나 알고 있나?" },
+          { id: "ma-change", type: "text", q: "처음 생각과 지금 생각은 어떻게 달라졌나? 처음에 잘못 알고 있던 부분이 있다면 무엇인가?" },
+          { id: "ma-check",  type: "text", q: "내가 정말 이해했는지 어떻게 알 수 있을까? 친구에게 설명하듯 시차와 거리의 관계를 한두 문장으로 써 보세요." },
+        ],
+        extend: [
+          { id: "me-apply", type: "text", q: "시차의 원리는 별 말고 어디에 또 쓰일 수 있을까? (예: 우리 몸, 기계, 생활)" },
+        ],
+      },
+      rubric: [
+        { key: "K1", domain: "knowledge", name: "개념 이해", objectives: ["ASTRO-PARALLAX-01", "ASTRO-PARALLAX-04"],
+          desc: { 4: "시차의 뜻과 거리와의 반비례 관계를 정확히 설명하고 새로운 예에 적용함", 3: "시차의 뜻과 거리와의 관계를 정확히 설명함", 2: "시차의 뜻은 알지만 거리와의 관계 설명이 부정확함", 1: "시차의 개념 이해가 부족하거나 관계를 반대로 이해함" } },
+        { key: "K2", domain: "knowledge", name: "현상 설명·적용", objectives: ["ASTRO-PARALLAX-02", "ASTRO-PARALLAX-06"],
+          desc: { 4: "지구 공전에 따른 별의 겉보기 위치 변화와 시차 관측의 한계를 근거를 들어 설명함", 3: "관측 위치가 바뀌어 시차가 생긴다는 것을 설명함", 2: "도움을 받아 별의 겉보기 위치 변화를 설명함", 1: "별의 실제 운동과 시차를 혼동함" } },
+        { key: "P1", domain: "process", name: "자료 해석·수리적 적용", objectives: ["ASTRO-PARALLAX-05", "ASTRO-PARALLAX-07"],
+          desc: { 4: "실험 자료에서 규칙을 찾고, 연주 시차로 별까지의 거리를 정확히 계산·해석함", 3: "실험 결과를 해석하고 거리 = 1 ÷ 연주 시차로 계산함", 2: "안내에 따라 자료를 읽고 계산함", 1: "자료 해석이나 거리 계산에 어려움이 있음" } },
+        { key: "P2", domain: "process", name: "모형 표현·탐구 설계", objectives: ["ASTRO-PARALLAX-03", "ASTRO-PARALLAX-08"],
+          desc: { 4: "연주 시차를 그림(모형)으로 정확히 표현하고, 시차를 재는 새로운 실험을 스스로 설계함", 3: "연주 시차를 그림으로 표현하고 실험 방법을 제안함", 2: "안내에 따라 그림을 완성함", 1: "그림 표현과 실험 설계에 도움이 필요함" } },
+        { key: "A1", domain: "attitude", name: "성찰·탐구 태도", objectives: [], meta: true,
+          desc: { 4: "학습 전·중·후 메타질문에 근거를 들어 성실히 답하고, 생각의 변화를 스스로 설명하며 새로운 적용을 제안함", 3: "메타질문에 성실히 답하고 생각의 변화를 알아차림", 2: "메타질문에 일부만 답함", 1: "자기 성찰과 탐구 참여가 부족함" } },
+      ],
       misconceptions: {
         "M-PLX-REVERSE":   { obj: "ASTRO-PARALLAX-04", text: "시차각과 거리의 관계를 반대로 이해 (시차가 클수록 멀다고 생각)",
                              fix: "가까운 손가락과 먼 건물을 번갈아 볼 때 무엇이 더 많이 움직이는지 다시 관찰해 보세요." },
@@ -100,5 +150,5 @@
     for (const [a, A] of Object.entries(U.activities || {})) for (const [k, it] of Object.entries(A.items || {})){ it.id = k; it.activity = a; ITEM[a + ":" + k] = it; }
   }
   const area = k => AREAS.find(a => a.key === k);
-  g.LMS_DB = { AREAS, LEVELS, CONFIDENCE, UNITS, OBJ, MISC, ITEM, area, item: (act, id) => ITEM[act + ":" + id] };
+  g.LMS_DB = { AREAS, LEVELS, CONFIDENCE, CYCLE, META_STAGES, RATE, DOMAINS, RUBRIC_LEVELS, UNITS, OBJ, MISC, ITEM, area, item: (act, id) => ITEM[act + ":" + id] };
 })(window);

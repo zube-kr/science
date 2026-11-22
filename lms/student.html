@@ -70,30 +70,55 @@
   function render(){
     const U = DB.UNITS[$("unit").value];
     const mine = C.dedupe(rows.map(C.norm)).filter(r => r.unit === U.code);
+    const act0 = Object.values(U.activities)[0];
+    if (!mine.length){ $("body").innerHTML = `<div class="card empty">이 단원은 아직 기록이 없어요. <a href="../${esc(act0.url)}">${esc(act0.title)}</a>를 풀어 보세요!</div>`; return; }
     const mast = C.studentMastery(mine, U.code), list = Object.values(mast), st = C.nextSteps(mast);
-    if (!mine.length){ $("body").innerHTML = `<div class="card empty">이 단원은 아직 기록이 없어요. <a href="../${esc(Object.values(U.activities)[0].url)}">${esc(Object.values(U.activities)[0].title)}</a>를 풀어 보세요!</div>`; return; }
+    const meta = C.metaOf(mine, U.code), rub = C.rubricOf(mine, U.code, mast, meta), cyc = C.cycleOf(mine, meta, rub, mast);
+    const lv = l => `<span class="lv l${l}">${l ? "L" + l : "-"}</span>`;
+    const rl = (l, c) => `<span class="rl r${l} ${c ? "" : "sug"}">${l || "-"}</span>`;
+    const fdate = ts => { const d = new Date(ts); return `${d.getMonth() + 1}/${d.getDate()}`; };
+    const LBL = { done: "완료", partial: "진행 중", todo: "아직" };
     const know = list.filter(m => m.level >= 3), notyet = list.filter(m => m.level > 0 && m.level <= 2), blank = list.filter(m => m.level === 0);
     const grew = list.filter(m => m.hist.length >= 2 && m.hist[m.hist.length - 1].level > m.hist[0].level);
-    const lv = l => `<span class="lv l${l}">${l ? "L" + l : "-"}</span>`;
-    const actName = a => a === "teacher" ? "선생님 확인" : ((U.activities[a] || {}).title || a);
     const miscs = [...new Set(list.flatMap(m => m.misc))].map(k => DB.MISC[k]).filter(Boolean);
+    // 활동 회차
+    const ses = {}; for (const r of mine) if (r.kind === "core" || r.kind === "transfer"){ const o = ses[r.session] || (ses[r.session] = { act: r.activity, ts: 0, n: 0, ok: 0 }); o.ts = Math.max(o.ts, r.ts); o.n++; if (r.correct) o.ok++; }
+    const sesList = Object.values(ses).sort((a, b) => a.ts - b.ts);
+    // 피드백: 목표별 교사 판정 + 루브릭 피드백
+    const fb = list.flatMap(m => m.hist.filter(h => h.by === "teacher").map(h => ({ title: `${m.obj.no}. ${m.obj.text}`, note: h.note, badge: lv(h.level), ts: h.ts })))
+      .concat(rub.filter(x => x.confirmed && x.memo).map(x => ({ title: `📋 ${x.c.name}`, note: x.memo, badge: rl(x.level, true), ts: x.ts }))).sort((a, b) => b.ts - a.ts);
+    const rateName = v => (DB.RATE.find(r => r.v === +v) || {}).name || "-";
     const path = { basic: "기초를 다지는 길", core: "약한 목표를 채우는 길", deep: "심화 탐구의 길" }[st.path];
-    const nexts = (st.path === "deep" ? st.strong.slice(0, 2).map(m => "🚀 " + m.obj.deep) : st.weak.slice(0, 3).map(m => "📘 " + m.obj.basic))
+    const nexts = rub.filter(x => x.show && x.show < 4).sort((a, b) => a.show - b.show).slice(0, 2).map(x => `📋 ${x.c.name}: ${x.c.desc[x.show + 1]}`)
+      .concat(st.path === "deep" ? st.strong.slice(0, 2).map(m => "🚀 " + m.obj.deep) : st.weak.slice(0, 3).map(m => "📘 " + m.obj.basic))
       .concat(st.due.map(m => "🔁 다시 확인할 때가 됐어요: " + m.obj.text)).concat(blank.filter(m => m.obj.area !== "design").slice(0, 2).map(m => "🆕 아직 도전하지 않은 목표: " + m.obj.text));
-    const fb = list.flatMap(m => m.hist.filter(h => h.by === "teacher").map(h => ({ m, h }))).sort((a, b) => b.h.ts - a.h.ts);
-    const fdate = ts => { const d = new Date(ts); return `${d.getMonth() + 1}/${d.getDate()}`; };
+    const H = (n, t, sub) => `<h3 style="margin:18px 2px 8px">${n} ${t} ${sub ? `<small class="muted" style="font-weight:600;font-size:12.5px">${sub}</small>` : ""}</h3>`;
     $("body").innerHTML = `
-      ${fb.length ? `<div class="card" style="margin-bottom:12px;border-color:#c7c9f5"><h2>💬 선생님 피드백</h2>${fb.map(({ m, h }) => `<div class="objline" style="grid-template-columns:38px 1fr auto"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small style="color:var(--ink);font-size:13.5px;margin-top:2px">👩‍🏫 ${h.note ? esc(h.note) : "선생님이 수준을 확인했어요."} <span class="muted">· ${fdate(h.ts)}</span></small></div>${lv(h.level)}</div>`).join("")}</div>` : ""}
-      <div class="q4">
-        <div class="card"><h2>✅ 나는 무엇을 알고 있나?</h2>${know.length ? `<ul>${know.map(m => `<li>${esc(m.obj.text)} ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">아직 숙달한 목표가 없어요. 괜찮아요, 지금부터!</span>'}</div>
-        <div class="card"><h2>🤔 아직 무엇을 잘 모르나?</h2>${notyet.length ? `<ul>${notyet.map(m => `<li>${esc(m.obj.text)} ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">기록된 목표는 모두 숙달했어요!</span>'}
-          ${miscs.length ? `<div class="note" style="margin-top:8px">💡 이런 생각을 했던 적이 있어요:<br>${miscs.map(m => `• ${esc(m.text)} → ${esc(m.fix)}`).join("<br>")}</div>` : ""}</div>
-        <div class="card"><h2>📈 어떤 활동으로 발전했나?</h2>${grew.length ? `<ul>${grew.map(m => `<li>${esc(m.obj.text)}: ${lv(m.hist[0].level)} → ${lv(m.level)} <span class="muted">(${esc(actName(m.hist[m.hist.length - 1].by))})</span></li>`).join("")}</ul>` : '<span class="muted">같은 목표에 다시 도전하면 성장이 여기에 보여요.</span>'}</div>
-        <div class="card"><h2>🧭 다음에 무엇을 공부할까? <small>${esc(path)}</small></h2>${nexts.length ? `<ul>${nexts.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : '<span class="muted">멋져요! 선생님께 심화 활동을 물어보세요.</span>'}</div>
-      </div>
-      <div class="card" style="margin-top:12px"><h2>학습 목표별 나의 수준 <small>${DB.LEVELS.slice(1).map(l => `${l.short} ${l.name}`).join(" · ")}</small></h2>
-        ${list.map(m => { const t = [...m.hist].reverse().find(h => h.by === "teacher" && h.note); return `<div class="objline"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small>${esc(DB.area(m.obj.area).name)}${m.due ? " · 🔁 복습할 때" : ""}${m.pendingText ? " · ✍️ 선생님 확인 기다리는 중" : ""}</small>${t ? `<small style="color:var(--accent)">👩‍🏫 ${esc(t.note)}</small>` : ""}</div>${lv(m.level)}</div>`; }).join("")}
-      </div>`;
+      <div class="card"><h2>🔄 나의 학습 순환</h2><div class="cycle">${DB.CYCLE.map((c, i) => `${i ? '<div class="arr">→</div>' : ""}<div class="st ${cyc[c.key] === "todo" ? "" : cyc[c.key]}"><small>${i + 1}단계</small><b>${esc(c.name)}</b><span>${esc(c.q)}</span><span><b>${c.key === "goal" ? "목표 " + list.length + "개" : LBL[cyc[c.key]]}</b></span></div>`).join("")}<div class="arr">↻</div></div></div>
+      ${fb.length ? `<div class="card" style="margin-top:12px;border-color:#c7c9f5"><h2>💬 선생님 피드백</h2>${fb.map(f => `<div class="objline"><b>👩‍🏫</b><div class="t">${esc(f.title)}<small style="color:var(--ink);font-size:13.5px;margin-top:2px">${f.note ? esc(f.note) : "선생님이 수준을 확인했어요."} <span class="muted">· ${fdate(f.ts)}</span></small></div>${f.badge}</div>`).join("")}</div>` : ""}
+
+      ${H("①", "학습 목표", "무엇을 배울 것인가? · " + DB.LEVELS.slice(1).map(l => `${l.short} ${l.name}`).join(" · "))}
+      <div class="card"><div class="muted" style="margin-bottom:4px">✅ 알고 있는 목표 ${know.length}개 · 🤔 아직인 목표 ${notyet.length}개 · 🆕 도전 전 ${blank.length}개</div>
+        ${list.map(m => { const t = [...m.hist].reverse().find(h => h.by === "teacher" && h.note); return `<div class="objline"><b>${m.obj.no}</b><div class="t">${esc(m.obj.text)}<small>${esc(DB.area(m.obj.area).name)}${m.due ? " · 🔁 복습할 때" : ""}${m.pendingText ? " · ✍️ 선생님 확인 기다리는 중" : ""}</small>${t ? `<small style="color:var(--accent)">👩‍🏫 ${esc(t.note)}</small>` : ""}</div>${lv(m.level)}</div>`; }).join("")}</div>
+
+      ${H("②", "학습 활동", "어떤 활동을 했고, 무엇이 발전했나?")}
+      <div class="grid g2e"><div class="card"><h2>내가 한 활동</h2>${sesList.map(x => `<div class="objline" style="grid-template-columns:52px 1fr auto"><b>${fdate(x.ts)}</b><div class="t">${esc((U.activities[x.act] || {}).title || x.act)}</div><span class="pill">${x.ok}/${x.n} 정답</span></div>`).join("") || '<span class="muted">아직 없어요</span>'}</div>
+        <div class="card"><h2>📈 발전한 목표</h2>${grew.length ? `<ul>${grew.map(m => `<li>${esc(m.obj.text)}: ${lv(m.hist[0].level)} → ${lv(m.level)}</li>`).join("")}</ul>` : '<span class="muted">같은 목표에 다시 도전하면 성장이 여기에 보여요.</span>'}
+          ${miscs.length ? `<div class="note" style="margin-top:8px">💡 이런 생각을 했던 적이 있어요:<br>${miscs.map(m => `• ${esc(m.text)} → ${esc(m.fix)}`).join("<br>")}</div>` : ""}</div></div>
+
+      ${H("③", "메타질문", "나는 무엇을 이해했고, 어떻게 생각했는가?")}
+      <div class="card">${meta.before != null || meta.after != null ? `<div class="ratechg">'얼마나 아는지' 내 자기평가: <b>${meta.before != null ? esc(rateName(meta.before)) : "-"}</b> → <b>${meta.after != null ? esc(rateName(meta.after)) : "-"}</b></div>` : ""}
+        <div class="meta-grid" style="margin-top:8px">${meta.stages.map(x => `<div class="mcard"><h4>${esc(x.stage.name)}</h4>${x.items.map(i => `<div class="q">${esc(i.q.q)}</div><div class="a">${i.value ? esc(i.q.type === "rate" ? rateName(i.value) : i.value) : '<span class="muted">아직 답하지 않았어요</span>'}</div>`).join("")}</div>`).join("")}</div>
+        ${meta.stagesDone < 4 ? `<div class="muted" style="margin-top:8px;font-size:13px">워크시트의 🧠 메타질문 카드에서 답하면 여기에 쌓여요. <a href="../${esc(act0.url)}">${esc(act0.title)} 열기</a></div>` : ""}</div>
+
+      ${H("④", "루브릭 평가", "학습 목표에 어느 정도 도달했는가? · 점선은 선생님 확인 전 예상 수준")}
+      <div class="card">${rub.map(x => `<div class="rb"><div class="top"><span class="dom ${x.c.domain}">${esc((DB.DOMAINS.find(d => d.key === x.c.domain) || {}).name)}</span><b>${esc(x.c.name)}</b><span style="margin-left:auto">${rl(x.show, x.confirmed)} <span class="muted" style="font-size:12px">${x.show ? esc(DB.RUBRIC_LEVELS.find(l => l.lv === x.show).name) : ""}${x.confirmed ? " · 선생님 평가" : x.show ? " · 예상" : ""}</span></span></div>
+        ${x.show ? `<div class="desc">지금: ${esc(x.c.desc[x.show])}</div>${x.show < 4 ? `<div class="desc" style="margin-top:3px">⬆️ <b>다음 단계로 가려면</b>: ${esc(x.c.desc[x.show + 1])}</div>` : '<div class="desc" style="margin-top:3px">🌟 최고 수준이에요!</div>'}` : '<div class="desc">아직 평가할 기록이 없어요.</div>'}
+        ${x.memo ? `<div class="desc" style="margin-top:4px;color:var(--accent)">👩‍🏫 ${esc(x.memo)}</div>` : ""}</div>`).join("")}</div>
+
+      ${H("⑤", "피드백 · 재학습", "무엇을 보완하고 어떻게 성장할 것인가?")}
+      <div class="path ${st.path}"><h3>🧭 ${esc(path)}</h3>${nexts.length ? `<ul>${nexts.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : '<span class="muted">멋져요! 선생님께 심화 활동을 물어보세요.</span>'}
+        <div style="margin-top:8px"><a class="btn small" style="text-decoration:none" href="../${esc(act0.url)}">🔁 ${esc(act0.title)} 다시 도전하기</a></div></div>`;
   }
 })();
 </script>
