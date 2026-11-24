@@ -123,10 +123,10 @@
       <b>파일 선택 / 사진 찍기</b>
       <small>여기에 파일을 끌어다 놓아도 돼요</small>
       <input type="file" id="file" multiple class="hidden"
-        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.hwp,.hwpx,image/jpeg,image/png,application/pdf">
+        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.hwp,.hwpx,.ino,.py,.txt,.html,.htm,image/jpeg,image/png,application/pdf,text/plain,text/html">
     </label>
     <ul class="rules">
-      <li>올릴 수 있는 파일: <b>jpg · png · pdf · doc(x) · hwp(x)</b></li>
+      <li>올릴 수 있는 파일: <b>jpg · png · pdf · doc(x) · hwp(x)</b>, 코드 파일 <b>ino · py · txt · html</b></li>
       <li>파일 1개 최대 <b>10MB</b>, 한 번에 <b>5개</b>까지</li>
       <li>큰 사진은 글씨가 잘 보이도록 알맞은 크기로 자동으로 줄여서 올라가요</li>
     </ul>
@@ -161,12 +161,15 @@ const SUBMIT_API = "https://script.google.com/macros/s/AKfycbybvxe19sp0KMoIi2qKm
 
 const GRADE = "1", CLS = "1";
 const ROSTER = [ { num: "1", name: "유민석" }, { num: "2", name: "이예인" }, { num: "3", name: "이원근" } ];
-const ALLOWED = ["jpg","jpeg","png","pdf","doc","docx","hwp","hwpx"];
+const ALLOWED = ["jpg","jpeg","png","pdf","doc","docx","hwp","hwpx","ino","py","txt","html","htm"];
+const CODE_EXT = ["ino","py","txt","html","htm"];
 const MAX_BYTES = 10 * 1024 * 1024, MAX_FILES = 5;
 const IMG_MAX_SIDE = 2000, IMG_SHRINK_OVER = 1.5 * 1024 * 1024;
 const MIME = { jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", pdf:"application/pdf",
   doc:"application/msword", docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  hwp:"application/x-hwp", hwpx:"application/haansofthwpx" };
+  hwp:"application/x-hwp", hwpx:"application/haansofthwpx",
+  // 코드 파일은 모두 일반 텍스트로 저장(드라이브에서 실행되지 않고 내용만 보이게)
+  ino:"text/plain", py:"text/plain", txt:"text/plain", html:"text/plain", htm:"text/plain" };
 const LS_CODE = "science-submit-code", LS_WHO = "science-submit-who";
 
 const $ = id => document.getElementById(id);
@@ -177,7 +180,7 @@ function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; }
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function fmtSize(b){ return b >= 1048576 ? (b/1048576).toFixed(1) + "MB" : Math.max(1, Math.round(b/1024)) + "KB"; }
 function extOf(n){ const m = /\.([^.]+)$/.exec(n || ""); return m ? m[1].toLowerCase() : ""; }
-function icon(ext){ return ext === "pdf" ? "📕" : (ext === "doc" || ext === "docx") ? "📘" : (ext === "hwp" || ext === "hwpx") ? "📗" : "🖼️"; }
+function icon(ext){ return CODE_EXT.includes(ext) ? "💻" : ext === "pdf" ? "📕" : (ext === "doc" || ext === "docx") ? "📘" : (ext === "hwp" || ext === "hwpx") ? "📗" : "🖼️"; }
 
 async function api(params){
   const u = new URL(SUBMIT_API);
@@ -307,9 +310,9 @@ async function addFiles(list){
     if (st.files.filter(x => x.status !== "done" && x.status !== "bad").length >= MAX_FILES){ over++; continue; }
     const ext = extOf(f.name);
     const item = { id: Math.random().toString(36).slice(2), file: f, name: f.name || ("file." + ext), ext, size: f.size,
-      mime: f.type || MIME[ext] || "application/octet-stream", blob: null, status: "ready", note: "", thumb: "" };
+      mime: CODE_EXT.includes(ext) ? "text/plain" : (f.type || MIME[ext] || "application/octet-stream"), blob: null, status: "ready", note: "", thumb: "" };
     if (ext === "heic" || ext === "heif"){ item.status = "bad"; item.note = "아이폰 HEIC 사진은 안 돼요. 카메라로 바로 찍거나 jpg로 바꿔서 올려 주세요."; }
-    else if (!ALLOWED.includes(ext)){ item.status = "bad"; item.note = "올릴 수 없는 파일 형식이에요 (jpg·png·pdf·doc·hwp만)."; }
+    else if (!ALLOWED.includes(ext)){ item.status = "bad"; item.note = "올릴 수 없는 파일 형식이에요 (jpg·png·pdf·doc·hwp·ino·py·txt·html만)."; }
     else if (!f.size){ item.status = "bad"; item.note = "빈 파일이에요."; }
     st.files.push(item);
     if (item.status === "ready" && (ext === "jpg" || ext === "jpeg" || ext === "png")){

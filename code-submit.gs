@@ -1,7 +1,7 @@
 /**
  * 아화중학교 과학 — 과제제출방(파일 업로드) Apps Script
  * ------------------------------------------------------------------
- * assignment-submit.html 에서 학생이 올린 파일(jpg/png/pdf/doc/hwp)을
+ * assignment-submit.html 에서 학생이 올린 파일(jpg/png/pdf/doc/hwp, 코드 파일 ino/py/txt/html)을
  * 선생님 구글 드라이브의 "아화중_과제제출" 폴더에 저장하고,
  * 이 스프레드시트의 "제출기록" 탭에 한 줄씩 기록합니다.
  *
@@ -36,7 +36,8 @@ var TEACHER_CODE = "여기에_교사_확인코드";   // 예: "987654"
 
 var ROOT_FOLDER_NAME = "아화중_과제제출";
 var MAX_BYTES = 10 * 1024 * 1024; // 파일 1개 최대 10MB
-var ALLOWED_EXT = ["jpg", "jpeg", "png", "pdf", "doc", "docx", "hwp", "hwpx"];
+var ALLOWED_EXT = ["jpg", "jpeg", "png", "pdf", "doc", "docx", "hwp", "hwpx", "ino", "py", "txt", "html", "htm"];
+var CODE_EXT = ["ino", "py", "txt", "html", "htm"]; // 코드 파일: 일반 텍스트로 저장
 
 // 학년 → 반 → 번호 → 이름
 var ROSTER = {
@@ -185,7 +186,7 @@ function doPost(e) {
     var orig = safeName_(d.fileName || "file");
     var ext = (orig.split(".").pop() || "").toLowerCase();
     if (orig.indexOf(".") < 0 || ALLOWED_EXT.indexOf(ext) < 0) {
-      return json_({ ok: false, error: "jpg, png, pdf, doc(x), hwp(x) 파일만 올릴 수 있어요." });
+      return json_({ ok: false, error: "jpg, png, pdf, doc(x), hwp(x), ino, py, txt, html 파일만 올릴 수 있어요." });
     }
     var bytes = Utilities.base64Decode(String(d.data || ""));
     if (!bytes.length) return json_({ ok: false, error: "빈 파일이에요." });
@@ -201,7 +202,8 @@ function doPost(e) {
     var k = 2;
     while (folder.getFilesByName(fileName).hasNext()) fileName = base + "(" + (k++) + ")." + ext;
 
-    var blob = Utilities.newBlob(bytes, d.mimeType || "application/octet-stream", fileName);
+    var mime = CODE_EXT.indexOf(ext) >= 0 ? "text/plain" : (d.mimeType || "application/octet-stream");
+    var blob = Utilities.newBlob(bytes, mime, fileName);
     var file = folder.createFile(blob);
 
     lock = LockService.getScriptLock();
