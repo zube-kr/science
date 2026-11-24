@@ -43,7 +43,18 @@
  * 4. [배포] > [배포 관리] > 연필 아이콘 > 버전: "새 버전" > [배포]  (URL은 그대로 유지)
  * 키는 이 스크립트 안에만 저장되므로 워크시트(공개 웹페이지)에는 드러나지 않는다.
  * 학생 질문과 답변 요약은 "AI조사_기록" 시트에 남는다.
+ *
+ * [질문탐구한마당 — 교사 대시보드 설정]
+ * question-festival.html(학생 워크시트)이 보내는 질문·워크시트·AI 질문을
+ * question-festival-dashboard.html(교사 대시보드)에서 모아 볼 수 있다.
+ * 1. 아래 INQUIRY_TEACHER_CODE 에 대시보드 접속 코드(숫자·영문 4자리 이상)를 적는다.
+ *    ※ 이 저장소에 올라간 파일에는 실제 코드를 적지 않는다.
+ * 2. 저장 → [배포] > [배포 관리] > 연필 > 버전: "새 버전" > [배포]  (URL은 그대로 유지)
+ * 학생 기록은 "질문탐구_질문", "질문탐구_워크시트" 시트와 "AI조사_기록" 시트에 저장된다.
  */
+
+const INQUIRY_TEACHER_CODE = "여기에_교사코드";    // 질문탐구한마당 교사 대시보드 접속 코드
+const INQUIRY_UNIT_PREFIX = "질문탐구한마당";       // 이 이름으로 시작하는 unit 은 독서 질문탐구용 AI 지시문을 쓴다
 
 const FORMS = {
   parallax: {
@@ -222,6 +233,7 @@ const AI_UNITS = "Ⅰ. 화학 반응의 규칙과 에너지 변화, Ⅱ. 기권�
  * 예) unit: "Ⅶ. 별과 우주 — 미래에 대한 도전, 우주 탐사"
  */
 function aiSystemPrompt_(unit) {
+  if (unit && unit.indexOf(INQUIRY_UNIT_PREFIX) === 0) return inquirySystemPrompt_(unit);
   return [
     "너는 아화중학교 3학년 과학 수업의 'AI 조사 도우미'이다.",
     unit ? "이번 수업 단원: " + unit + ". 이 단원의 내용과 연결해서 답한다."
@@ -243,12 +255,80 @@ function aiSystemPrompt_(unit) {
 
 /** 학생이 정리한 글에 대한 피드백용 지시문 */
 function aiFeedbackPrompt_(unit) {
+  if (unit && unit.indexOf(INQUIRY_UNIT_PREFIX) === 0) return inquiryFeedbackPrompt_(unit);
   return [
     "너는 아화중학교 3학년 과학 수업의 'AI 조사 도우미'이다.",
     "학생이 " + (unit ? "'" + unit + "' 수업에서" : "과학 수업에서") + " 조사하고 정리한 글을 읽고 짧게 피드백한다.",
     "형식: '잘한 점' 1개, '사실 확인'(틀린 내용이 있으면 바로잡고, 없으면 '특별한 오류 없음'), '보완하면 좋을 점' 1~2개.",
     "한국어로, 중학생에게 다정하게, 전체 400자 이내로 쓴다. 학생의 글을 대신 다시 써 주지 않는다."
   ].join("\n");
+}
+
+/* ==========================================================
+ * 질문탐구한마당(독서 질문탐구) 전용 지시문
+ * unit 예) "질문탐구한마당 — 『나는 나로 살기로 했다』(김수현)"
+ * ========================================================== */
+function inquirySystemPrompt_(unit) {
+  return [
+    "너는 아화중학교 3학년 학생들의 '질문·탐구 궁금한마당' 대회 연습을 돕는 'AI 조사 도우미'이다.",
+    "연습 주제: " + unit + ". 학생들은 책의 한 부분(지문)을 읽고 탐색(관심어 찾기) → 생성(질문 만들기) → 선정(질문 2개 고르고 다듬기) → 탐구(검색·토의로 답 찾기) → 발표 순서로 활동한다.",
+    "대회 규칙상 AI는 '선정'과 '탐구' 단계에서만 쓴다. 대회는 검색하면 바로 알 수 있는 답이나 전문가의 결론보다 학생의 질문·탐구 과정과 소통·성찰을 중요하게 본다.",
+    "규칙:",
+    "1. 항상 한국어로, 중학교 3학년 눈높이에 맞춰 친절하게 답한다.",
+    "2. 정답이나 결론을 바로 정해 주지 말고, 학생이 스스로 탐구할 수 있도록 생각할 관점·근거·자료를 찾는 방향을 제시한다.",
+    "3. 3~5개의 항목(- 로 시작)으로 정리하고, 전체 700~1,000자 정도로 문장이 끊기지 않게 마무리한다.",
+    "4. 책의 문장을 지어내거나 길게 인용하지 않는다. 책의 구체적인 내용이 필요한 질문에는 '책에서 직접 확인해 보세요'라고 안내하고, 자존감·타인의 시선·비교·관계·사회의 기준처럼 널리 알려진 주제 수준에서만 이야기한다.",
+    "5. 통계·연구·용어는 확실한 것만 쓰고, 확실하지 않으면 '확인이 필요하다'고 밝힌다. 확인할 수 있는 믿을 만한 곳(통계청 국가통계포털 KOSIS, 한국청소년정책연구원, 국립국어원 표준국어대사전, 공공기관 누리집 등)이나 검색어를 제안한다.",
+    "6. 질문 선정·다듬기에 대한 질문이면, 그 질문이 '참신하면서 우리 삶에서 의미가 있는지', '90분 안에 탐구할 수 있는지'를 기준으로 조언하고, 범위를 좁히거나 대상·기준을 분명히 하는 다듬기 예시를 보여 준다. 어떤 질문을 고를지는 학생이 정하게 한다.",
+    "7. 탐구에 대한 질문이면, 용어 정리 → 자료·사례 찾기 → 비교·분석 → 잠정적인 답 순서로 탐구 방법을 안내한다.",
+    "8. 맨 마지막 줄에 '이어진 질문:'으로 시작하는 질문을 하나 써서 학생이 생각을 넓혀 보게 한다.",
+    "9. 개인 정보나 부적절한 내용은 정중히 거절한다. 학생 자신의 고민처럼 보이는 질문에는 먼저 공감하고, 필요하면 담임 선생님이나 상담 선생님과 이야기해 보도록 권한다.",
+    "10. 학생이 제출할 글이나 발표문을 통째로 써 달라고 하면 정중히 거절하고, 스스로 정리하는 방법을 안내한다."
+  ].join("\n");
+}
+function inquiryFeedbackPrompt_(unit) {
+  return [
+    "너는 '" + unit + "' 질문탐구 연습을 돕는 'AI 조사 도우미'이다.",
+    "학생이 정리한 탐구 질문, 잠정적인 답, 이어진 질문을 읽고 짧게 피드백한다.",
+    "형식: '잘한 점' 1개, '질문 점검'(참신성·삶과의 연결·90분 안 탐구 가능성 중 가장 필요한 것 한 가지), '근거 확인'(근거가 부족하거나 사실과 다른 부분, 없으면 '특별한 문제 없음'), '보완하면 좋을 점' 1~2개.",
+    "한국어로, 중학생에게 다정하게, 전체 450자 이내로 쓴다. 학생의 글을 대신 다시 써 주지 않는다."
+  ].join("\n");
+}
+
+/* ==========================================================
+ * 질문탐구한마당 교사 대시보드: { action:"inquiry_dashboard", code } (POST)
+ * 코드가 맞으면 학생 질문·워크시트·AI 질문 기록을 돌려준다.
+ * ========================================================== */
+function inquiryDashboard_(data) {
+  const cache = CacheService.getScriptCache();
+  const fails = Number(cache.get("inq_fail") || 0);
+  if (!/^\S{4,}$/.test(INQUIRY_TEACHER_CODE) || INQUIRY_TEACHER_CODE.indexOf("여기에") === 0) {
+    return json_({ result: "error", message: "Apps Script의 INQUIRY_TEACHER_CODE를 먼저 정해 주세요." });
+  }
+  if (fails >= 10) return json_({ result: "error", message: "코드가 여러 번 틀려서 10분 동안 잠겼어요." });
+  if (String(data.code || "") !== INQUIRY_TEACHER_CODE) {
+    cache.put("inq_fail", String(fails + 1), 600);
+    return json_({ result: "error", message: "교사 코드가 맞지 않아요." });
+  }
+  cache.remove("inq_fail");
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const read = function (name, filter, limit) {
+    const sh = ss.getSheetByName(name);
+    if (!sh || sh.getLastRow() < 2) return [];
+    const v = sh.getDataRange().getValues(), head = v[0].map(String), out = [];
+    for (let i = 1; i < v.length; i++) {
+      const o = {};
+      head.forEach(function (h, j) { const c = v[i][j]; o[h] = c instanceof Date ? c.toISOString() : c; });
+      if (!filter || filter(o)) out.push(o);
+    }
+    return out.slice(-(limit || 1000));
+  };
+  return json_({
+    result: "success",
+    questions: read("질문탐구_질문"),
+    worksheets: read("질문탐구_워크시트"),
+    ai: read(AI_LOG_SHEET, function (o) { return String(o["주제"] || "").indexOf(INQUIRY_UNIT_PREFIX) === 0; }, 1500)
+  });
 }
 
 function json_(obj) {
@@ -428,6 +508,7 @@ function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     if (data.action === "ai") return handleAi_(data);
+    if (data.action === "inquiry_dashboard") return inquiryDashboard_(data);
     const formKey = resolveForm_(data.form);
     const sheet = getSheet_(formKey);
 
