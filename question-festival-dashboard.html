@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>질문탐구한마당 교사 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{ --night:#1B1A3A; --gold:#F2C46B; --paper:#FAF8F3; --line:#E4DFD2; --ink:#1F2430; --soft:#5B6172; --violet:#6d5bd0; --ok:#3F7D5C; --warn:#B0522F; }
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Noto Sans KR',sans-serif; line-height:1.55; }
+  button{ font-family:inherit; }
+  header{ background:linear-gradient(120deg,#2A2560,var(--night)); color:#fff; padding:22px 20px; }
+  .hin{ max-width:1180px; margin:0 auto; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  header h1{ font-family:'Noto Serif KR',serif; margin:0; font-size:clamp(20px,3vw,27px); }
+  header p{ margin:4px 0 0; color:#D3D0E8; font-size:13.5px; }
+  main{ max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px; }
+  .login{ max-width:460px; margin:30px auto; text-align:center; padding:30px 24px; }
+  .login h2{ font-family:'Noto Serif KR',serif; margin:6px 0; }
+  .login form{ display:flex; gap:8px; margin-top:14px; }
+  input, select{ font-family:inherit; font-size:14.5px; padding:9px 12px; border:1px solid #C9C3B0; border-radius:9px; background:#fff; color:var(--ink); }
+  .login input{ flex:1; font-size:18px; letter-spacing:4px; text-align:center; }
+  .btn{ border:none; border-radius:10px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer; background:var(--night); color:#fff; white-space:nowrap; }
+  .btn.ghost{ background:#EFECE3; color:var(--ink); }
+  .btn.sm{ padding:6px 11px; font-size:12.5px; border-radius:8px; }
+  .msg{ min-height:20px; margin-top:10px; font-size:13.5px; font-weight:700; color:var(--warn); }
+  .bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .bar .grow{ flex:1; }
+  .bar label{ font-size:13px; color:var(--soft); display:flex; gap:5px; align-items:center; }
+  .upd{ font-size:12px; color:var(--soft); }
+  .kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+  .kpi{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+  .kpi .k{ font-size:12.5px; color:var(--soft); font-weight:700; }
+  .kpi .v{ font-size:26px; font-weight:900; color:var(--night); }
+  .kpi .v small{ font-size:13px; color:var(--soft); margin-left:3px; }
+  .tabs{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .tab{ border:1.5px solid var(--line); background:#fff; border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:800; cursor:pointer; color:var(--soft); }
+  .tab.on{ background:var(--night); border-color:var(--night); color:#fff; }
+  .tab .n{ font-size:11px; background:#EFECE3; color:var(--ink); border-radius:999px; padding:0 7px; margin-left:4px; }
+  .tab.on .n{ background:var(--gold); color:#2B1B00; }
+  h3{ margin:0 0 10px; font-size:16px; }
+  .types{ display:flex; height:28px; border-radius:8px; overflow:hidden; margin:4px 0 6px; }
+  .types div{ display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; }
+  .legend{ display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--soft); margin-bottom:12px; }
+  .legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+  .feed{ display:flex; flex-direction:column; gap:8px; }
+  .q{ display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#FFFEFB; }
+  .q .star{ all:unset; cursor:pointer; font-size:20px; line-height:1; color:#C9C3B0; }
+  .q .star.on{ color:#E0A63A; }
+  .q .body{ flex:1; min-width:0; }
+  .q .txt{ font-size:15px; font-weight:500; }
+  .q .who{ font-size:12px; color:var(--soft); margin-top:3px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .chip{ font-size:11px; font-weight:800; border-radius:999px; padding:1px 8px; background:#EEF0FA; color:#3b3f8f; }
+  .chip.t-가정{ background:#FFF1D6; color:#8A5A00; } .chip.t-가치{ background:#FCE7F3; color:#9D174D; } .chip.t-이유{ background:#E6F0FF; color:#1E4FA8; }
+  .chip.t-방법{ background:#E6F4EC; color:#2E7D52; } .chip.t-사실{ background:#F0F0F0; color:#555; } .chip.t-기타{ background:#F4F1EA; color:#6B5B3A; } .chip.me{ background:#EDE9FE; color:#5b21b6; }
+  .kwcloud{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .kwcloud span{ background:#F3F0FA; color:#3B2F6B; border-radius:999px; padding:4px 12px; font-weight:800; }
+  .kwcloud span small{ font-weight:700; color:var(--violet); margin-left:4px; }
+  details.ai{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#FFFEFB; }
+  details.ai summary{ cursor:pointer; list-style:none; }
+  details.ai summary::-webkit-details-marker{ display:none; }
+  details.ai .ans{ white-space:pre-wrap; font-size:13px; line-height:1.7; background:#F3F0FA; border-radius:10px; padding:10px 12px; margin-top:8px; }
+  .ws{ border:1px solid var(--line); border-radius:14px; padding:14px; background:#FFFEFB; }
+  .ws + .ws{ margin-top:10px; }
+  .ws h4{ margin:0 0 8px; font-size:15px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .ws .grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .ws .box{ background:#F7F5EE; border-radius:10px; padding:9px 11px; font-size:13px; white-space:pre-wrap; }
+  .ws .box b{ display:block; font-size:12px; color:var(--violet); margin-bottom:2px; white-space:normal; }
+  table.meta{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.meta th{ background:#F3F0E6; padding:8px; text-align:left; position:sticky; top:0; }
+  table.meta td{ border-bottom:1px solid var(--line); padding:8px; vertical-align:top; white-space:pre-wrap; }
+  .scroll{ overflow:auto; max-height:640px; }
+  .empty{ color:var(--soft); font-size:14px; padding:14px 4px; }
+  .note{ background:#FFF8E5; border:1px solid #F5E2A8; border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.7; }
+  .note code{ background:#fff; border:1px solid #EADBAE; border-radius:6px; padding:1px 6px; }
+  body.project .who .nm{ filter:blur(5px); }
+  @media (max-width:860px){ .kpis{ grid-template-columns:repeat(2,1fr); } .ws .grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="hin">
+    <div><h1>🎤 질문탐구한마당 교사 대시보드</h1><p>『나는 나로 살기로 했다』 연습 워크시트에서 학생들이 만든 질문 · AI에게 한 질문 · 제출한 워크시트를 모아 봐요.</p></div>
+  </div>
+</header>
+<main>
+  <div class="card login" id="loginCard">
+    <div style="font-size:42px">🔐</div>
+    <h2>교사 코드 입력</h2>
+    <p style="color:var(--soft);font-size:13.5px;margin:0">Apps Script(<code>code-3rd.gs</code>)에 정한 <b>INQUIRY_TEACHER_CODE</b>를 넣어 주세요.</p>
+    <form id="loginForm" autocomplete="off"><input type="password" id="code" placeholder="교사 코드" aria-label="교사 코드"><button class="btn" type="submit">열기</button></form>
+    <div class="msg" id="loginMsg"></div>
+    <button type="button" class="btn ghost sm" id="demoBtn" style="margin-top:6px">예시 데이터로 미리 보기</button>
+  </div>
+
+  <div id="dash" hidden>
+    <div class="bar">
+      <select id="fClass"><option value="">전체 반</option></select>
+      <input type="search" id="fSearch" placeholder="이름·팀·질문 검색">
+      <label><input type="checkbox" id="fStar"> ⭐만 보기</label>
+      <label><input type="checkbox" id="fProject"> 화면 띄우기용(이름 가리기)</label>
+      <span class="grow"></span>
+      <label><input type="checkbox" id="autoRef" checked> 30초마다 새로고침</label>
+      <span class="upd" id="upd"></span>
+      <button type="button" class="btn ghost sm" id="refBtn">↻ 새로고침</button>
+      <button type="button" class="btn ghost sm" id="csvBtn">⬇ 질문 CSV</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="tabs" id="tabs"></div>
+
+    <div class="card" data-pane="q">
+      <h3>❓ 학생들이 만든 질문 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생이 [질문 보내기]를 누를 때마다 모여요 (최신순)</span></h3>
+      <div class="types" id="typeBar"></div>
+      <div class="legend" id="typeLegend"></div>
+      <div class="feed" id="qFeed"></div>
+    </div>
+    <div class="card" data-pane="kw" hidden>
+      <h3>🔑 학생들이 찾은 관심어</h3>
+      <p style="font-size:13px;color:var(--soft);margin:0 0 10px">질문과 워크시트에 적힌 관심어를 모았어요. 많이 나온 관심어일수록 크게 보여요.</p>
+      <div class="kwcloud" id="kwCloud"></div>
+    </div>
+    <div class="card" data-pane="ai" hidden>
+      <h3>🤖 AI 조사 도우미에게 한 질문</h3>
+      <p style="font-size:13px;color:var(--soft);margin:0 0 10px">한 사람당 최대 10개. 질문을 누르면 AI의 답을 볼 수 있어요.</p>
+      <div class="feed" id="aiFeed"></div>
+    </div>
+    <div class="card" data-pane="ws" hidden>
+      <h3>📝 제출된 워크시트 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생별 가장 최근 제출</span></h3>
+      <div id="wsList"></div>
+    </div>
+    <div class="card" data-pane="meta" hidden>
+      <h3>🧠 메타질문 응답</h3>
+      <div class="scroll"><table class="meta" id="metaTable"></table></div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:20px">
+    <b>설정 안내</b> — 대시보드는 3학년 워크시트용 Apps Script(<code>code-3rd.gs</code>)를 함께 써요. 새 코드로 바꾼 뒤 <code>INQUIRY_TEACHER_CODE</code>에 교사 코드를 적고 <b>배포 관리 → 새 버전</b>으로 다시 배포해 주세요. 학생 기록은 구글 시트의 <b>질문탐구_질문 · 질문탐구_워크시트 · AI조사_기록</b> 탭에 저장돼요.
+  </div>
+</main>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+const STAR_KEY = 'qf-dashboard-stars';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const TYPES = [['이유', '#2F6FDB'], ['방법', '#3F9D6A'], ['가정', '#E0A63A'], ['가치', '#D0498A'], ['사실', '#8A8F99'], ['기타', '#B9A98A']];
+function qType(t){
+  if(/만약|라면|없다면|있다면/.test(t)) return '가정';
+  if(/해야|옳|좋은 걸까|좋을까|좋은가|꼭 |필요할까|필요한가|바람직|괜찮을까|맞을까|중 무엇이|중 어느|더 나을까|나은가/.test(t) && !/^왜|어떻게 하면/.test(t)) return '가치';
+  if(/왜|이유/.test(t)) return '이유';
+  if(/어떻게|방법/.test(t)) return '방법';
+  if(/무엇|무슨|누가|언제|어디|몇|뜻/.test(t)) return '사실';
+  return '기타';
+}
+const meLinked = t => /나는|내가|나의|나를|나에게|나와|나라면|우리|학교|친구|반에서|중학생|청소년/.test(t);
+
+let code = '', D = null, tab = 'q', timer = null, demo = false;
+let stars = new Set(); try{ stars = new Set(JSON.parse(localStorage.getItem(STAR_KEY) || '[]')); }catch(e){}
+const saveStars = () => { try{ localStorage.setItem(STAR_KEY, JSON.stringify([...stars])); }catch(e){} };
+
+async function load(){
+  if(demo){ D = demoData(); render(); return; }
+  const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'inquiry_dashboard', code }) });
+  const r = await res.json();
+  if(r.result !== 'success') throw new Error(r.message || '불러오지 못했어요.');
+  D = r; render();
+}
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  code = $('code').value.trim();
+  if(!code) return;
+  $('loginMsg').textContent = '불러오는 중…';
+  try{ await load(); $('code').value = ''; $('loginMsg').textContent = ''; openDash(); }
+  catch(err){ $('loginMsg').textContent = /Failed to fetch|NetworkError|JSON/.test(err.message) ? '서버에 연결하지 못했어요. Apps Script를 새 코드로 배포했는지 확인해 주세요.' : err.message; }
+});
+$('demoBtn').addEventListener('click', () => { demo = true; load(); openDash(); });
+function openDash(){ $('loginCard').hidden = true; $('dash').hidden = false; schedule(); }
+function schedule(){ clearInterval(timer); if($('autoRef').checked && !demo) timer = setInterval(() => load().catch(() => {}), 30000); }
+$('autoRef').addEventListener('change', schedule);
+$('refBtn').addEventListener('click', () => load().catch(err => alert(err.message)));
+['fClass', 'fStar', 'fSearch'].forEach(id => $(id).addEventListener('input', render));
+$('fProject').addEventListener('change', () => document.body.classList.toggle('project', $('fProject').checked));
+
+/* ---------- 자료 정리 ---------- */
+const sid = r => `${r['반']}-${r['번호']}-${r['이름']}`;
+const whoText = r => `<span class="nm">${esc(r['반'])}반 ${esc(r['번호'])}번 ${esc(r['이름'])}</span>`;
+const timeOf = r => r['제출시각'] || r['시각'] || '';
+const fmtT = v => { const d = new Date(v); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+function passes(r, text){
+  const c = $('fClass').value, q = $('fSearch').value.trim();
+  if(c && String(r['반']) !== c) return false;
+  if(q && !(`${r['이름']} ${r['팀'] || ''} ${text || ''}`.includes(q))) return false;
+  return true;
+}
+function latestWorksheets(){
+  const m = new Map();
+  (D.worksheets || []).forEach(r => { const k = sid(r); const p = m.get(k); if(!p || new Date(timeOf(r)) >= new Date(timeOf(p))) m.set(k, r); });
+  return [...m.values()];
+}
+
+function render(){
+  if(!D) return;
+  const Q = (D.questions || []).map(r => ({ ...r, _type: r['질문유형'] || qType(String(r['질문'] || '')) }));
+  const AIQ = (D.ai || []).filter(r => r['종류'] === '질문' || r['종류'] === '피드백');
+  const WS = latestWorksheets();
+  // 반 목록
+  const classes = [...new Set([...Q, ...AIQ, ...WS].map(r => String(r['반'])).filter(Boolean))].sort((a, b) => a - b);
+  const curC = $('fClass').value;
+  $('fClass').innerHTML = '<option value="">전체 반</option>' + classes.map(c => `<option value="${esc(c)}">${esc(c)}반</option>`).join('');
+  $('fClass').value = classes.includes(curC) ? curC : '';
+  const people = new Set([...Q, ...AIQ, ...WS].map(sid));
+  const aiAsk = AIQ.filter(r => r['종류'] === '질문');
+  $('kpis').innerHTML = [
+    ['👥 참여 학생', people.size, '명'], ['❓ 만든 질문', Q.length, '개'], ['💡 1인당 질문', people.size ? (Q.length / Math.max(1, new Set(Q.map(sid)).size)).toFixed(1) : '0', '개'],
+    ['🤖 AI 질문', aiAsk.length, '개'], ['📝 제출 워크시트', WS.length, '명']
+  ].map(([k, v, u]) => `<div class="kpi"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div></div>`).join('');
+  const TABS = [['q', '❓ 학생 질문', Q.length], ['kw', '🔑 관심어', null], ['ai', '🤖 AI 질문', AIQ.length], ['ws', '📝 워크시트', WS.length], ['meta', '🧠 메타질문', WS.length]];
+  $('tabs').innerHTML = TABS.map(([k, t, n]) => `<button type="button" class="tab ${tab === k ? 'on' : ''}" data-t="${k}">${t}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
+  document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== tab);
+  $('upd').textContent = demo ? '예시 데이터' : `마지막 새로고침 ${fmtT(new Date())}`;
+
+  // 질문
+  const q = Q.filter(r => passes(r, r['질문'] + ' ' + (r['관심어'] || ''))).filter(r => !$('fStar').checked || stars.has(timeOf(r) + r['질문']))
+    .sort((a, b) => new Date(timeOf(b)) - new Date(timeOf(a)));
+  const cnt = {}; q.forEach(r => cnt[r._type] = (cnt[r._type] || 0) + 1);
+  $('typeBar').innerHTML = q.length ? TYPES.filter(([t]) => cnt[t]).map(([t, c]) => `<div style="background:${c};width:${cnt[t] / q.length * 100}%">${t} ${cnt[t]}</div>`).join('') : '';
+  $('typeLegend').innerHTML = TYPES.map(([t, c]) => `<span><i style="background:${c}"></i>${t} 질문 ${cnt[t] || 0}</span>`).join('') + `<span>· 우리 삶과 연결된 질문 ${q.filter(r => meLinked(String(r['질문']))).length}개</span>`;
+  $('qFeed').innerHTML = q.length ? q.map(r => {
+    const key = timeOf(r) + r['질문'];
+    return `<div class="q"><button type="button" class="star ${stars.has(key) ? 'on' : ''}" data-star="${esc(key)}" title="좋은 질문으로 표시">★</button>
+      <div class="body"><div class="txt">${esc(r['질문'])}</div>
+      <div class="who">${whoText(r)}${r['팀'] ? `<span>· ${esc(r['팀'])}</span>` : ''}<span>· ${fmtT(timeOf(r))}</span>
+        ${r['관심어'] ? `<span class="chip">관심어 · ${esc(r['관심어'])}</span>` : ''}<span class="chip t-${esc(r._type)}">${esc(r._type)}</span>${meLinked(String(r['질문'])) ? '<span class="chip me">우리 삶 연결</span>' : ''}</div></div></div>`;
+  }).join('') : '<div class="empty">아직 학생 질문이 없어요.</div>';
+
+  // 관심어
+  const kwc = {};
+  Q.forEach(r => { const k = String(r['관심어'] || '').trim(); if(k && k !== '기타') kwc[k] = (kwc[k] || 0) + 1; });
+  WS.forEach(r => String(r['관심어'] || '').split(',').map(s => s.trim()).filter(Boolean).forEach(k => kwc[k] = (kwc[k] || 0) + 1));
+  const kws = Object.entries(kwc).sort((a, b) => b[1] - a[1]);
+  const max = kws.length ? kws[0][1] : 1;
+  $('kwCloud').innerHTML = kws.length ? kws.map(([k, n]) => `<span style="font-size:${13 + 15 * n / max}px">${esc(k)}<small>${n}</small></span>`).join('') : '<div class="empty">아직 관심어가 없어요.</div>';
+
+  // AI
+  const ai = AIQ.filter(r => passes(r, r['질문/정리한 글'])).sort((a, b) => new Date(timeOf(b)) - new Date(timeOf(a)));
+  $('aiFeed').innerHTML = ai.length ? ai.map(r => {
+    const topic = String(r['주제'] || '').split(' · ').slice(1).join(' · ');
+    return `<details class="ai"><summary><div class="txt" style="font-size:14.5px">${r['종류'] === '피드백' ? '<span class="chip" style="background:#FCE7F3;color:#9D174D">탐구 점검 요청</span> ' : ''}${esc(String(r['질문/정리한 글']).slice(0, 300))}</div>
+      <div class="who" style="font-size:12px;color:var(--soft);margin-top:3px">${whoText(r)} · ${fmtT(timeOf(r))}${topic ? ` <span class="chip">${esc(topic)}</span>` : ''}</div></summary>
+      <div class="ans">${esc(r['AI 답변'])}</div></details>`;
+  }).join('') : '<div class="empty">아직 AI에게 한 질문이 없어요.</div>';
+
+  // 워크시트
+  const ws = WS.filter(r => passes(r, Object.values(r).join(' '))).sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
+  const box = (t, v) => v ? `<div class="box"><b>${t}</b>${esc(v)}</div>` : '';
+  $('wsList').innerHTML = ws.length ? ws.map(r => `
+    <div class="ws"><h4>${whoText(r)}${r['팀'] ? `<span class="chip">${esc(r['팀'])}</span>` : ''}<span class="chip">질문 ${esc(r['생성질문수'] || 0)}개 · AI ${esc(r['AI질문수'] || 0)}회</span><span style="font-size:12px;color:var(--soft);font-weight:500">${fmtT(timeOf(r))}</span></h4>
+      <div class="grid">
+        ${box('🔑 관심어와 이유', r['관심어-이유'])}
+        ${box('📖 지문 요약 · 내 생각', [r['읽은부분'], r['지문요약'], r['내생각']].filter(Boolean).join('\n'))}
+        ${box('❓ 생성한 질문', r['생성질문'])}
+        ${box('🛠 질문 생성 과정', r['질문생성과정'])}
+        ${box('🎯 선정 질문 1', r['선정1-처음'] || r['선정1-다듬은질문'] ? `${r['선정1-처음']} → ${r['선정1-다듬은질문']}\n이유: ${r['선정1-이유']}\n방법: ${r['선정1-방법']} (${r['선정1-시간(분)'] || '-'}분)` : '')}
+        ${box('🎯 선정 질문 2', r['선정2-처음'] || r['선정2-다듬은질문'] ? `${r['선정2-처음']} → ${r['선정2-다듬은질문']}\n이유: ${r['선정2-이유']}\n방법: ${r['선정2-방법']} (${r['선정2-시간(분)'] || '-'}분)` : '')}
+        ${box('🔬 탐구 1', [r['탐구1-과정'] && '과정: ' + r['탐구1-과정'], r['탐구1-잠정답'] && '잠정적인 답: ' + r['탐구1-잠정답'], r['탐구1-이어진질문'] && '이어진 질문: ' + r['탐구1-이어진질문']].filter(Boolean).join('\n'))}
+        ${box('🔬 탐구 2', [r['탐구2-과정'] && '과정: ' + r['탐구2-과정'], r['탐구2-잠정답'] && '잠정적인 답: ' + r['탐구2-잠정답'], r['탐구2-이어진질문'] && '이어진 질문: ' + r['탐구2-이어진질문']].filter(Boolean).join('\n'))}
+        ${box('🗂 AI 활용 기록', r['AI활용기록'])}
+        ${box('🎤 예상 질문 · 즉답', r['예상질문-즉답'])}
+        ${box('✓ 체크리스트 (1~10번)', r['체크리스트'])}
+      </div></div>`).join('') : '<div class="empty">아직 제출된 워크시트가 없어요.</div>';
+
+  // 메타
+  $('metaTable').innerHTML = `<thead><tr><th>학생</th><th>학습 전 → 후<br>(생각·설명 정도)</th><th>학습 전 '나로 산다는 것'</th><th>생성·선정·근거 점검</th><th>생각 변화 · 전략 수정</th><th>다음 질문 · 진로 연결</th></tr></thead><tbody>` +
+    (ws.length ? ws.map(r => `<tr><td>${whoText(r)}</td><td>${esc(r['메타-학습전-생각정도'] || '-')} → ${esc(r['메타-학습후-설명정도'] || '-')}</td><td>${esc(r['메타-학습전-나로산다는것'])}</td>
+      <td>${esc([r['메타-생성점검'] && '생성: ' + r['메타-생성점검'], r['메타-선정점검'] && '선정: ' + r['메타-선정점검'], r['메타-근거점검'] && '근거: ' + r['메타-근거점검']].filter(Boolean).join('\n'))}</td>
+      <td>${esc([r['메타-생각변화'], r['메타-전략수정'] && '전략: ' + r['메타-전략수정']].filter(Boolean).join('\n'))}</td>
+      <td>${esc([r['메타-다음질문'], r['메타-진로연결'] && '진로: ' + r['메타-진로연결']].filter(Boolean).join('\n'))}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">아직 제출된 워크시트가 없어요.</td></tr>') + '</tbody>';
+}
+$('tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if(b){ tab = b.dataset.t; render(); } });
+$('qFeed').addEventListener('click', e => { const b = e.target.closest('[data-star]'); if(!b) return; const k = b.dataset.star; stars.has(k) ? stars.delete(k) : stars.add(k); saveStars(); render(); });
+$('csvBtn').addEventListener('click', () => {
+  if(!D) return;
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const rows = [['시각', '반', '번호', '이름', '팀', '관심어', '질문', '질문유형', '우리삶연결', '⭐']].concat((D.questions || []).map(r => [fmtT(timeOf(r)), r['반'], r['번호'], r['이름'], r['팀'], r['관심어'], r['질문'], r['질문유형'] || qType(String(r['질문'])), meLinked(String(r['질문'])) ? 'O' : '', stars.has(timeOf(r) + r['질문']) ? '⭐' : '']));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\r\n')], { type:'text/csv;charset=utf-8' }));
+  a.download = '질문탐구한마당_학생질문.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+/* ---------- 예시 데이터 ---------- */
+function demoData(){
+  const now = Date.now(), t = m => new Date(now - m * 60000).toISOString();
+  const S = [[1, 3, '예시학생가', '나로서기'], [1, 7, '예시학생나', '나로서기'], [2, 4, '예시학생다', '시선탈출'], [2, 11, '예시학생라', '시선탈출']];
+  const qs = [
+    [0, '비교', '왜 우리는 SNS 속 친구와 나를 비교하게 될까?'], [0, '비교', '비교가 나를 성장시키는 경우도 있을까?'], [1, '기준', '우리 반에서 \'평범하다\'의 기준은 누가 정할까?'],
+    [1, '기준', '만약 사회가 정한 정답이 없다면 우리는 어떻게 진로를 고를까?'], [2, '시선', '남의 시선을 신경 쓰지 않는 것이 꼭 좋은 걸까?'], [2, '시선', '어떻게 하면 친구의 말에 덜 흔들릴 수 있을까?'],
+    [3, '무례함', '무례한 말을 들었을 때 참는 것과 말하는 것 중 무엇이 나를 지키는 걸까?'], [3, '자존감', '자존감의 뜻은 무엇일까?']
+  ];
+  return {
+    result:'success',
+    questions: qs.map(([i, kw, q], n) => ({ '제출시각':t(60 - n * 5), '반':S[i][0], '번호':S[i][1], '이름':S[i][2], '팀':S[i][3], '관심어':kw, '질문':q, '질문유형':qType(q) })),
+    ai: [
+      { '시각':t(20), '반':1, '번호':3, '이름':'예시학생가', '종류':'질문', '주제':'질문탐구한마당 — 『나는 나로 살기로 했다』(김수현) · 선정 · 질문 다듬기', '질문/정리한 글':'이 질문이 너무 넓은지 봐 줘: 사람들은 왜 남과 비교할까?', 'AI 답변':'- 대상이 "사람들"이라 범위가 넓어요. "중학생"처럼 대상을 좁혀 보세요.\n- 장면을 정하면 탐구가 쉬워져요(예: SNS).\n이어진 질문: 비교를 줄이려면 무엇이 필요할까?' },
+      { '시각':t(12), '반':2, '번호':4, '이름':'예시학생다', '종류':'질문', '주제':'질문탐구한마당 — 『나는 나로 살기로 했다』(김수현) · 탐구 · 용어와 개념', '질문/정리한 글':'자존감과 자존심은 어떻게 달라?', 'AI 답변':'- 자존감: 나를 있는 그대로 가치 있게 여기는 마음\n- 자존심: 남에게 굽히지 않으려는 마음\n더 찾아볼 곳: 국립국어원 표준국어대사전' }
+    ],
+    worksheets: [
+      { '제출시각':t(5), '반':1, '번호':3, '이름':'예시학생가', '팀':'나로서기', '관심어':'비교, 기준', '관심어-이유':'비교: SNS를 보면 자꾸 친구와 나를 비교하게 된다.\n기준: 시험 점수만 기준이 되는 것 같다.', '생성질문':'1. 왜 우리는 SNS 속 친구와 나를 비교하게 될까? (이유)\n2. 비교가 나를 성장시키는 경우도 있을까? (가치)', '생성질문수':2,
+        '선정1-처음':'왜 우리는 SNS 속 친구와 나를 비교하게 될까?', '선정1-다듬은질문':'중학생은 SNS에서 어떤 장면을 볼 때 자신과 비교하게 될까?', '선정1-이유':'우리 모두 겪는 일이고 반 친구들에게 물어볼 수 있다.', '선정1-방법':'팀 토의, 친구·가족 의견 묻기(간단 설문)', '선정1-시간(분)':40,
+        '탐구1-잠정답':'친구의 성취나 여행 사진처럼 좋은 순간만 올라온 게시물을 볼 때 비교하게 된다.', '탐구1-이어진질문':'좋은 순간만 올리는 이유는 무엇일까?', 'AI질문수':3,
+        'AI활용기록':'1) 입력: 질문 범위 봐 줘 | 활용: 대상을 중학생으로 좁힘 | 수정·보완: 팀 토의로 SNS 장면을 정함', '체크리스트':'1.우수 2.보통 3.우수 4.보통 5.보통 6.미흡 7.보통 8.우수 9.보통 10.보통',
+        '메타-학습전-생각정도':'2', '메타-학습후-설명정도':'3', '메타-학습전-나로산다는것':'남 눈치 안 보고 하고 싶은 것 하기', '메타-생각변화':'나답게 사는 것은 혼자 사는 게 아니라 다른 사람과 건강한 거리를 두는 것이라고 생각이 바뀌었다.', '메타-다음질문':'비교 없는 학교는 가능할까?', '메타-진로연결':'심리학에 관심이 생겼다.' }
+    ]
+  };
+}
+</script>
+</body>
+</html>
