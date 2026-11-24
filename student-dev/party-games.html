@@ -136,30 +136,96 @@ option{color:#1d1b2e;background:#fff}
 .U{background:linear-gradient(135deg,#00b894,#55efc4)}
 </style></head><body><div id="app">불러오는 중…</div>
 <script>
-/* 사이트용 보조 저장소: Claude 공유 DB(claude.use('db'))가 없을 때 이 기기(같은 브라우저) 안에서 방을 만들고 봇과 대전할 수 있게 함.
-   같은 브라우저의 여러 탭끼리는 BroadcastChannel·storage 이벤트로 실시간 동기화됨. */
-window.PG_LOCAL=false;
-/* Claude 공유 DB가 없으면 탭마다 다른 참가자가 되도록 탭 단위 저장소에 ID 보관 */
+/* ── 사이트용 저장소 연결 ──────────────────────────────────────────
+   1) Claude 공유 DB(claude.use('db'))가 있으면 그대로 사용 (원본 방식)
+   2) 없으면 학교 Apps Script 웹 앱(code.gs의 pg 기능)으로 온라인 방 — 다른 기기끼리 함께 플레이
+   3) 서버에 연결하지 못하면 이 기기 안에서만 동작 (봇 대전, 같은 브라우저 여러 탭) */
+window.PG_API_URL="https://script.google.com/macros/s/AKfycbx-WM_F4WFDPI8U2Qne1-8WXb_l0K-NKOo9KqdOR7rxb2izcVz57Yv3rP5BQyVofmzf/exec";
+window.PG_MODE='claude';
+/* 탭마다 다른 참가자가 되도록 탭 단위 저장소에 ID 보관 (Claude 환경에서는 원래대로) */
 window.PG_PIDSTORE=function(){try{return (typeof claude!=='undefined')?localStorage:sessionStorage}catch(e){return localStorage}};
+window.pgHint=function(){return PG_MODE==='claude'?'공유 권한(기여자 이상)을 확인하세요.':'인터넷 연결을 확인하고 다시 시도하세요.'};
+window.pgBanner=function(){
+  if(PG_MODE==='online')return '<div class="box mut" style="font-size:13px">🌐 <b>온라인 방</b>이에요. 다른 기기의 친구도 같은 코드로 들어올 수 있어요. 학교 서버를 거쳐서 친구의 동작은 1~2초 늦게 보일 수 있어요. 방에서 봇도 추가할 수 있어요.</div>';
+  if(PG_MODE==='local')return '<div class="box mut" style="font-size:13px">💻 지금은 온라인 서버에 연결하지 못해서 <b>이 기기 안에서</b> 방을 만들어요. 방에서 <b>봇을 추가</b>해 대전하거나, 같은 브라우저의 새 탭에서 코드로 입장해 함께 해 보세요.</div>';
+  return '';
+};
+const pgClone=o=>o==null?o:JSON.parse(JSON.stringify(o));
+const pgSleep=ms=>new Promise(f=>setTimeout(f,ms));
+const pgParse=p=>{const a=String(p).split('/');return {code:a[1],id:a[3]}};
+
+/* 공통: 방 하나(code)에 대한 구독자 관리 */
+function pgWatch(r,mk,cb){let last;const f=()=>{if(!r.loaded&&!r.pending.length)return;const s=mk(),j=JSON.stringify(s.docs?s.docs.map(d=>[d.id,d.data()]):[s.exists,s.data()]);if(j!==last){last=j;cb(s)}};r.subs.add(f);setTimeout(f,0);return f}
+
+/* 온라인(Apps Script) 저장소 */
+window.pgRemoteDB=function(url){
+  const rooms={};
+  const R=code=>rooms[code]||(rooms[code]={v:0,main:null,players:{},subs:new Set(),pending:[],loaded:false,running:false});
+  const view=r=>{let main=r.main;const players=Object.assign({},r.players);
+    r.pending.forEach(op=>{if(op.id===undefined)main=op.data;else if(op.data==null)delete players[op.id];else players[op.id]=op.data});return {main,players}};
+  const notify=r=>r.subs.forEach(f=>{try{f()}catch(e){}});
+  const accept=(r,j)=>{if(!j||!j.ok||j.same||j.v<r.v)return false;r.v=j.v;r.main=j.main;r.players=j.players||{};r.loaded=true;return true};
+  const getJ=async q=>{const res=await fetch(url+'?'+new URLSearchParams(q),{cache:'no-store'});return res.json()};
+  const postJ=async q=>{const res=await fetch(url,{method:'POST',body:new URLSearchParams(q)});return res.json()};
+  async function poll(code){const r=R(code);if(r.running)return;r.running=true;let fail=0;
+    while(r.subs.size){
+      try{const j=await getJ({pg:'room',code,v:r.v});if(accept(r,j))notify(r);fail=0}catch(e){fail++}
+      await pgSleep(document.hidden?4000:Math.min(700+fail*700,5000));
+    }
+    r.running=false}
+  async function fetchRoom(code){const r=R(code),j=await getJ({pg:'room',code});if(!j||!j.ok)throw new Error((j&&j.error)||'서버 오류');if(accept(r,j))notify(r);r.loaded=true;return r}
+  async function write(path,data){const {code,id}=pgParse(path),r=R(code),op={id,data:pgClone(data)};
+    r.pending.push(op);notify(r);
+    try{let j=null,err=null;
+      for(let k=0;k<3&&!j;k++){
+        try{const x=await postJ({pg:'w',op:data==null?'del':'set',path,data:data==null?'':JSON.stringify(data)});if(x&&x.ok)j=x;else err=new Error((x&&x.error)||'저장 실패')}catch(e){err=e}
+        if(!j&&k<2)await pgSleep(500*(k+1));
+      }
+      if(!j)throw err;
+      accept(r,j)
+    }finally{r.pending.splice(r.pending.indexOf(op),1);notify(r)}}
+  const dsnap=p=>{const {code,id}=pgParse(p),v=view(R(code)),d=id===undefined?v.main:v.players[id];return {id:id||code,exists:d!=null,data:()=>d==null?undefined:pgClone(d)}};
+  const csnap=p=>{const {code}=pgParse(p),v=view(R(code));return {docs:Object.keys(v.players).sort().map(id=>({id,exists:true,data:()=>pgClone(v.players[id])}))}};
+  const sub=(p,mk,cb)=>{const r=R(pgParse(p).code),f=pgWatch(r,mk,cb);poll(pgParse(p).code);return ()=>r.subs.delete(f)};
+  return {
+    doc:p=>({get:async()=>{await fetchRoom(pgParse(p).code);return dsnap(p)},set:async v=>write(p,v),delete:async()=>write(p,null),onSnapshot:cb=>sub(p,()=>dsnap(p),cb)}),
+    collection:p=>({onSnapshot:cb=>sub(p,()=>csnap(p),cb)})
+  };
+};
+
+/* 이 기기 안에서만 동작하는 저장소 (localStorage + 탭 간 BroadcastChannel) */
 window.pgLocalDB=function(){
-  const K='pgdb:',mem={},subs=new Set(),bc=('BroadcastChannel' in window)?new BroadcastChannel('pgdb'):null;
+  const K='pgdb:',mem={},r={subs:new Set(),pending:[],loaded:true},bc=('BroadcastChannel' in window)?new BroadcastChannel('pgdb'):null;
   const rd=p=>{try{const v=localStorage.getItem(K+p);return v==null?null:JSON.parse(v)}catch(e){return mem[p]===undefined?null:JSON.parse(mem[p])}};
   const wr=(p,v)=>{const s=v==null?null:JSON.stringify(v);try{s==null?localStorage.removeItem(K+p):localStorage.setItem(K+p,s)}catch(e){if(s==null)delete mem[p];else mem[p]=s}};
   const keys=()=>{const out=new Set(Object.keys(mem));try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(K))out.add(k.slice(K.length))}}catch(e){}return [...out]};
-  const dsnap=p=>{const v=rd(p);return {id:p.split('/').pop(),exists:v!=null,data:()=>v==null?undefined:JSON.parse(JSON.stringify(v))}};
+  const dsnap=p=>{const v=rd(p);return {id:p.split('/').pop(),exists:v!=null,data:()=>v==null?undefined:pgClone(v)}};
   const csnap=p=>({docs:keys().filter(k=>k.startsWith(p+'/')&&!k.slice(p.length+1).includes('/')).sort().map(dsnap)});
-  const fire=()=>subs.forEach(f=>{try{f()}catch(e){}});
+  const fire=()=>r.subs.forEach(f=>{try{f()}catch(e){}});
   const changed=()=>{fire();if(bc)bc.postMessage(1)};
   if(bc)bc.onmessage=fire;
   addEventListener('storage',e=>{if(!e.key||e.key.startsWith(K))fire()});
-  const watch=(mk,cb)=>{let last;const f=()=>{const s=mk(),j=JSON.stringify(s.docs?s.docs.map(d=>[d.id,d.data()]):[s.exists,s.data()]);if(j!==last){last=j;cb(s)}};subs.add(f);setTimeout(f,0);return ()=>subs.delete(f)};
-  /* 오래된 방(하루 지난 것) 정리 */
   try{const now=Date.now();keys().filter(k=>/^parties\/[^/]+\/players\/[^/]+$/.test(k)).forEach(k=>{const v=rd(k);if(v&&v.t&&now-v.t>864e5)wr(k,null)});
     keys().filter(k=>/^parties\/[^/]+$/.test(k)).forEach(k=>{if(!keys().some(x=>x.startsWith(k+'/players/')))wr(k,null)})}catch(e){}
+  const sub=(mk,cb)=>{const f=pgWatch(r,mk,cb);return ()=>r.subs.delete(f)};
   return {
-    doc:p=>({get:async()=>dsnap(p),set:async v=>{wr(p,JSON.parse(JSON.stringify(v)));changed()},delete:async()=>{wr(p,null);changed()},onSnapshot:(cb)=>watch(()=>dsnap(p),cb)}),
-    collection:p=>({onSnapshot:(cb)=>watch(()=>csnap(p),cb)})
+    doc:p=>({get:async()=>dsnap(p),set:async v=>{wr(p,pgClone(v));changed()},delete:async()=>{wr(p,null);changed()},onSnapshot:cb=>sub(()=>dsnap(p),cb)}),
+    collection:p=>({onSnapshot:cb=>sub(()=>csnap(p),cb)})
   };
+};
+
+/* 온라인 서버 확인 → 안 되면 기기 안 모드 */
+window.pgPick=async function(){
+  if(PG_API_URL){
+    for(let k=0;k<2;k++){
+      try{const c=new AbortController(),t=setTimeout(()=>c.abort(),9000);
+        const j=await (await fetch(PG_API_URL+'?pg=ping',{signal:c.signal,cache:'no-store'})).json();clearTimeout(t);
+        if(j&&j.pg){PG_MODE='online';return pgRemoteDB(PG_API_URL)}
+        break; /* 응답은 왔지만 pg 기능이 없는 옛 배포 */
+      }catch(e){}
+    }
+  }
+  PG_MODE='local';return pgLocalDB();
 };
 </script>
 <script>
@@ -579,13 +645,13 @@ const nm=id=>players[id]?esc(players[id].name):'?';
 
 async function init(){
   try{db=await claude.use('db')}catch(e){db=null}
-  if(!db){db=pgLocalDB();PG_LOCAL=true}
+  if(!db)db=await pgPick();
   if(!db){app.innerHTML='<h1>🎮 파티 게임방</h1><div class="box">이 페이지는 로그인한 상태에서 열어야 방을 만들 수 있어요.</div>';return}
   try{myName=localStorage.getItem('nick')||''}catch(e){}
   render();
 }
 function home(){
-  app.innerHTML=`<h1>🎮 파티 게임방</h1><div class="mut">파티코드로 친구들과 카드대전과 과학*수학상식퀴즈를 즐겨요.</div>${PG_LOCAL?'<div class="box mut" style="font-size:13px">💻 이 페이지는 <b>이 기기 안에서</b> 방을 만들어요. 방에서 <b>봇을 추가</b>해 대전하거나, 같은 브라우저의 새 탭에서 코드로 입장해 함께 해 보세요. (다른 기기의 친구와 함께하는 온라인 방은 지원되지 않아요)</div>':''}
+  app.innerHTML=`<h1>🎮 파티 게임방</h1><div class="mut">파티코드로 친구들과 카드대전과 과학*수학상식퀴즈를 즐겨요.</div>${pgBanner()}
   <div class="box"><b>닉네임</b><input type="text" id="nick" maxlength="10" value="${esc(myName)}" oninput="myName=this.value"></div>
   <div class="box"><h2>방 만들기</h2><input type="text" id="ccode" maxlength="4" placeholder="코드 4자리 직접 입력 (비우면 랜덤)" style="text-transform:uppercase;margin-bottom:8px"><button onclick="create('uno')">🃏 카드대전</button><button onclick="create('quiz')">🧠 과학*수학상식퀴즈</button></div>
   <div class="box"><h2>코드로 입장</h2><div class="row"><input type="text" id="cd" maxlength="4" placeholder="4자리 코드" style="flex:1;text-transform:uppercase"><button onclick="join($('#cd').value)">입장</button></div></div>
@@ -603,7 +669,7 @@ async function create(g){
     }
   }catch(e){if(!c)for(let i=0;i<4;i++)c+=A[Math.floor(Math.random()*A.length)]}
   code=c;
-  try{let cf0={};try{cf0=JSON.parse(localStorage.getItem('cfg_'+g)||'{}')}catch(e){}await mref().set({game:g,host:pid,status:'lobby',s:null,cfg:cf0});await enter()}catch(e){code=null;msg='방을 만들지 못했어요. 공유 권한(기여자 이상)을 확인하세요.';home()}
+  try{let cf0={};try{cf0=JSON.parse(localStorage.getItem('cfg_'+g)||'{}')}catch(e){}await mref().set({game:g,host:pid,status:'lobby',s:null,cfg:cf0});await enter()}catch(e){code=null;msg='방을 만들지 못했어요. '+pgHint();home()}
 }
 async function join(c){
   c=(c||'').trim().toUpperCase();
@@ -613,7 +679,7 @@ async function join(c){
   try{const s=await mref().get();if(!s.exists){code=null;msg='없는 방이에요';return home()}
     if((s.data().kicked||{})[pid]){code=null;msg='추방된 방이라 들어갈 수 없어요';return home()}
     if(s.data().status!=='lobby'&&!(await pref(pid).get()).exists){code=null;msg='이미 시작된 방이에요';return home()}
-    await enter()}catch(e){code=null;msg='입장하지 못했어요. 공유 권한(기여자 이상)을 확인하세요.';home()}
+    await enter()}catch(e){code=null;msg='입장하지 못했어요. '+pgHint();home()}
 }
 async function enter(){
   try{localStorage.setItem('nick',myName)}catch(e){}

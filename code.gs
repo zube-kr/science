@@ -35,9 +35,15 @@
  * 업데이트하기만 하면 됩니다(주소는 그대로 유지됨):
  *   배포 → 배포 관리 → (연필 아이콘) 수정 → 버전: 새 버전 → 배포
  * 새로 설치하는 경우에는 위 1~4번 설치 방법을 그대로 따르면 됩니다.
+ *
+ * ▣ 파티게임방(student-dev/party-games.html) 온라인 방
+ * 같은 웹 앱 주소로 pg=… 요청이 오면 파티게임방의 방 상태를 주고받습니다.
+ * 방 데이터는 시트가 아니라 Apps Script 캐시(CacheService)에 저장되어
+ * 스프레드시트에 탭이 생기지 않고, 마지막 활동 후 6시간이 지나면 자동으로 사라집니다.
  */
 
 function doPost(e) {
+  if (e && e.parameter && e.parameter.pg) return pgPost_(e.parameter);
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var d = (e && e.parameter) || {};
 
@@ -96,6 +102,7 @@ function doPost(e) {
  * 안내 문구만 반환한다.
  */
 function doGet(e) {
+  if (e && e.parameter && e.parameter.pg) return pgGet_(e.parameter);
   var worksheet = (e && e.parameter && e.parameter.worksheet) || "";
   if (!worksheet) {
     return ContentService.createTextOutput(
@@ -123,4 +130,87 @@ function doGet(e) {
 
   return ContentService.createTextOutput(JSON.stringify(rows))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ===================== 파티게임방 온라인 방 ===================== */
+var PG_TTL = 21600;        // 캐시 보관 시간(초) — 6시간(최대값), 활동할 때마다 연장
+var PG_MAX = 60000;        // 방 하나의 최대 크기(글자 수, 캐시 한도 100KB 안쪽)
+var PG_MAX_PLAYERS = 12;
+
+function pgOut_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function pgCode_(c) {
+  c = String(c || "").toUpperCase();
+  if (!/^[A-Z0-9가-힣]{4}$/.test(c)) throw new Error("방 코드가 올바르지 않아요");
+  return c;
+}
+function pgLoad_(code) {
+  var s = CacheService.getScriptCache().get("pg_" + code);
+  return s ? JSON.parse(s) : null;
+}
+function pgRoomOut_(room) {
+  return pgOut_({ ok: true, v: room.v, main: room.main, players: room.players });
+}
+
+// GET ?pg=ping  /  GET ?pg=room&code=ABCD&v=마지막버전
+function pgGet_(p) {
+  try {
+    if (p.pg === "ping") return pgOut_({ ok: true, pg: 1 });
+    var room = pgLoad_(pgCode_(p.code));
+    if (!room) return pgOut_({ ok: true, v: 0, main: null, players: {} });
+    if (p.v && Number(p.v) === room.v) return pgOut_({ ok: true, same: 1, v: room.v });
+    return pgRoomOut_(room);
+  } catch (err) {
+    return pgOut_({ ok: false, error: String(err && err.message || err) });
+  }
+}
+
+// POST pg=w, op=set|del, path=parties/CODE 또는 parties/CODE/players/ID, data=JSON
+function pgPost_(p) {
+  try {
+    var parts = String(p.path || "").split("/");
+    if (parts[0] !== "parties" || !(parts.length === 2 || (parts.length === 4 && parts[2] === "players")))
+      throw new Error("경로가 올바르지 않아요");
+    var code = pgCode_(parts[1]);
+    var id = parts[3];
+    if (id !== undefined && !/^[A-Za-z0-9_-]{1,20}$/.test(id)) throw new Error("참가자 ID가 올바르지 않아요");
+    var data = null;
+    if (p.op === "set") {
+      if (String(p.data || "").length > PG_MAX) throw new Error("데이터가 너무 커요");
+      data = JSON.parse(p.data);
+      if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("데이터 형식이 올바르지 않아요");
+    } else if (p.op !== "del") {
+      throw new Error("알 수 없는 요청이에요");
+    }
+    var lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      var cache = CacheService.getScriptCache();
+      var room = pgLoad_(code) || { v: 0, main: null, players: {} };
+      if (id === undefined) {
+        room.main = data;
+      } else if (data) {
+        if (!room.players[id] && Object.keys(room.players).length >= PG_MAX_PLAYERS)
+          throw new Error("방이 꽉 찼어요");
+        room.players[id] = data;
+      } else {
+        delete room.players[id];
+      }
+      room.v = Math.max((room.v || 0) + 1, Date.now()); // 방을 지웠다 다시 만들어도 버전이 거꾸로 가지 않게
+      if (!room.main && Object.keys(room.players).length === 0) {
+        cache.remove("pg_" + code);
+      } else {
+        var s = JSON.stringify(room);
+        if (s.length > PG_MAX) throw new Error("방 데이터가 너무 커요");
+        cache.put("pg_" + code, s, PG_TTL);
+      }
+      return pgRoomOut_(room);
+    } finally {
+      lock.releaseLock();
+    }
+  } catch (err) {
+    return pgOut_({ ok: false, error: String(err && err.message || err) });
+  }
 }
