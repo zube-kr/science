@@ -490,7 +490,8 @@
 </main>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+// code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
+const APPS_SCRIPT_URL = "";
 const AI_UNIT = '질문탐구한마당 — 『나는 나로 살기로 했다』(김수현)';
 const DRAFT_KEY = 'qf-naro-draft-v1';
 const $ = id => document.getElementById(id);
@@ -586,6 +587,7 @@ function needStudent(msgEl){
   return s;
 }
 async function post(payload){
+  if(!APPS_SCRIPT_URL) throw new Error('no server');
   await fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(payload) });
 }
 async function sendQuestion(q){
@@ -609,7 +611,7 @@ async function addQuestion(){
   renderQuestions(); saveDraft();
   msg.textContent = '보내는 중…'; msg.className = 'msg';
   await sendQuestion(q);
-  msg.textContent = q.sent ? `✉ 질문을 선생님께 보냈어요! (지금까지 ${S.questions.length}개)` : '보내지 못했어요. 인터넷 연결을 확인해 주세요. (제출할 때 다시 보내져요)';
+  msg.textContent = q.sent ? `✉ 질문을 선생님께 보냈어요! (지금까지 ${S.questions.length}개)` : (APPS_SCRIPT_URL ? '보내지 못했어요. 인터넷 연결을 확인해 주세요. (제출할 때 다시 보내져요)' : '질문을 목록에 담았어요. 선생님이 서버를 연결하면 제출할 때 함께 보내져요.');
   msg.className = 'msg ' + (q.sent ? 'ok' : 'err');
   renderQuestions(); saveDraft();
 }
@@ -721,6 +723,7 @@ const AI = (function(){
   function bubble(cls, html){ const d = document.createElement('div'); d.className = 'ai-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
   function updateCount(){ $('aiCount').textContent = ready ? `남은 질문 ${MAX_Q - S.aiUsed} / ${MAX_Q}` : ''; }
   async function call(body, onTick){
+    if(!APPS_SCRIPT_URL) return { result:'error', message:'선생님이 아직 서버를 연결하지 않았어요.' };
     const ctrl = new AbortController(), t0 = Date.now();
     const timer = setInterval(() => onTick && onTick(Math.floor((Date.now() - t0) / 1000)), 1000);
     const stop = setTimeout(() => ctrl.abort(), 60000);
@@ -783,7 +786,8 @@ const AI = (function(){
   $('aiQ').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing) ask($('aiQ').value); });
   $('aiFeedback').addEventListener('click', feedback);
   setTopic('');
-  fetch(APPS_SCRIPT_URL + '?action=ai_status').then(r => r.json()).then(r => {
+  if(!APPS_SCRIPT_URL){ $('aiState').textContent = '선생님이 아직 서버를 연결하지 않았어요'; }
+  else fetch(APPS_SCRIPT_URL + '?action=ai_status').then(r => r.json()).then(r => {
     if(r && r.ai === true){ ready = true; $('aiState').textContent = r.search ? 'Gemini 연결됨 · 구글 검색 출처와 함께 답해요' : 'Gemini 연결됨'; }
     else if(r && r.ai === false){ $('aiState').textContent = '선생님이 아직 AI 키를 설정하지 않았어요'; }
     else { $('aiState').textContent = '선생님이 Apps Script를 업데이트하면 사용할 수 있어요'; }
@@ -902,7 +906,7 @@ $('submitBtn').addEventListener('click', async () => {
     await post(payload);
     msg.textContent = '제출했어요! 선생님 화면에 전달되었어요. 고친 뒤 다시 제출해도 돼요.'; msg.className = 'msg ok';
   }catch(e){
-    msg.textContent = '제출하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'; msg.className = 'msg err';
+    msg.textContent = APPS_SCRIPT_URL ? '제출하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.' : '선생님이 아직 서버를 연결하지 않아서 제출할 수 없어요. 적은 내용은 이 기기에 저장되어 있어요.'; msg.className = 'msg err';
   }finally{ $('submitBtn').disabled = false; saveDraft(); }
 });
 $('clearBtn').addEventListener('click', () => {
