@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중2 Ⅶ 아두이노 실험 — 옴의 법칙 측정</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../../../g1/materials/g1-3/livebook.css">
+<style>
+.meter{ display:inline-flex; gap:10px; flex-wrap:wrap; margin:6px 0; }
+.meter div{ background:#1d2733; color:#ff6e40; font:700 20px/1 "Consolas",monospace; padding:8px 12px; border-radius:8px; min-width:110px; text-align:right; }
+.meter div small{ display:block; color:#9fb3bd; font:600 11px Pretendard,sans-serif; text-align:left; margin-bottom:4px; }
+</style>
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 2학년 Ⅶ. 전기와 자기</a>
+
+  <div class="lb-hero" style="min-height:180px">
+    <img class="bg" src="img/c2-setup.jpg" alt="">
+    <div class="in">
+      <span class="chip">아두이노 실험 보고서 · Ⅶ. 전기와 자기 · 교과서 238~245쪽 연계</span>
+      <h1>아두이노 전압계·전류계로<br><span>옴의 법칙 확인하기</span></h1>
+      <p>가변 저항을 돌려 전압을 바꾸면서 저항에 흐르는 전류를 아두이노로 재어 보자. 전압–전류 그래프의 기울기로 저항을 구하고, 저항을 직렬·병렬로 연결했을 때 전체 저항이 어떻게 달라지는지 확인해요.</p>
+      
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">실험 정보</span>실험 보고서</div>
+    <div class="report-head"><div><b>실험 제목</b>아두이노로 전압과 전류를 재어 옴의 법칙 확인하기</div><div><b>관련 단원</b>Ⅶ-2-02 전압과 저항 · Ⅶ-2-03 저항의 연결</div><div><b>실험 형태</b>2~3인 1조</div><div><b>측정 도구</b>아두이노 UNO (아날로그 입력 A0·A1) + 가변 저항 + 저항</div></div>
+    <div class="q"><div class="q-text"><span class="q-num">·</span>실험 날짜와 실험자 이름</div><textarea class="free" data-key="team" rows="1" placeholder="예) 12월 3일 / 김OO, 이OO"></textarea></div>
+    <div class="tip-box"><b>실험 목표</b> 아두이노를 전압계·전류계로 사용하여 저항에 걸리는 전압과 흐르는 전류를 측정하고, 전압–전류 그래프로 옴의 법칙(전류 = 전압 ÷ 저항)을 확인한다. 저항을 직렬·병렬로 연결했을 때 전체 저항이 어떻게 달라지는지도 비교한다.</div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">1</span>가설 세우기</div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span>같은 저항에 걸리는 전압을 2 배, 3 배로 높이면 전류는 어떻게 될지, 그리고 저항이 클수록 같은 전압에서 전류가 어떻게 될지 예상해 보자.</div><textarea class="free" data-key="hypo" rows="2" data-keywords="비례,2 배,작아,저항" data-model="전압을 2 배, 3 배로 높이면 전류도 2 배, 3 배가 될 것이다. 저항이 클수록 같은 전압에서 흐르는 전류는 작아질 것이다."></textarea><span class="fb"></span></div>
+    <div class="q" data-why="직렬 — 길이가 길어진 것처럼 전체 저항 증가, 병렬 — 굵기가 굵어진 것처럼 전체 저항 감소. 실험 결과로 확인해 보자.">
+      <div class="q-text"><span class="q-num">2</span><b>예상</b> 저항 A와 B를 직렬로 연결하면 전체 저항은 A보다 <span class="choice-group" data-key="hy_s" data-answer="크"><button type="button" class="choice-btn" data-value="크">클</button><button type="button" class="choice-btn" data-value="작">작을</button></span> 것이고, 병렬로 연결하면 B보다 <span class="choice-group" data-key="hy_p" data-answer="작"><button type="button" class="choice-btn" data-value="크">클</button><button type="button" class="choice-btn" data-value="작">작을</button></span> 것이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">2</span>준비물과 회로 연결</div>
+    <div class="book" style="font-size:14px"><p><b>준비물</b> 아두이노 UNO, USB 케이블, 브레드보드, 가변 저항(10 kΩ), 저항 1 kΩ 2 개(하나는 기준 저항, 하나는 저항 A), 220 Ω 저항(저항 B), 점퍼선, 노트북(크롬)</p></div>
+    <table class="data-t pin-t" style="max-width:600px"><tr><th>부품</th><th>연결</th></tr>
+      <tr><td>가변 저항(10 kΩ)</td><td>양쪽 다리 → 5V, GND / 가운데 다리 → <b>A0</b> (전원 전압)</td></tr>
+      <tr><td>측정할 저항 Rx</td><td>가변 저항 가운데 다리 ↔ 브레드보드 한 줄(이 줄을 <b>A1</b>에 연결)</td></tr>
+      <tr><td>기준 저항(1 kΩ)</td><td>A1 줄 ↔ GND — 여기에 걸리는 전압으로 전류를 계산해요</td></tr></table>
+    <div class="tip-box">📐 <b>측정 원리</b> Rx와 기준 저항은 직렬이라 같은 전류가 흘러요. 전류 = A1 전압 ÷ 1 kΩ, Rx에 걸리는 전압 = A0 − A1. 가변 저항을 돌리면 전압이 바뀌어요. (전원 장치의 전압을 바꾸는 것과 같은 역할)</div>
+    <div class="al-code"><div class="btn-row" style="margin:0 0 6px"><button type="button" class="btn small" id="oh-copy">📋 코드 복사</button><a class="btn ghost small" href="arduino/ohm.ino" download>⬇️ ohm.ino 내려받기</a></div><pre id="oh-src">코드를 불러오는 중…</pre></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">3</span>실험 방법</div>
+    <div class="steps-box"><ol>
+      <li>Rx 자리에 저항 A(1 kΩ)를 꽂고, 코드를 업로드한 뒤 [아두이노 연결하기]를 누른다.</li>
+      <li>측정 대상을 ‘저항 A’로 고르고, 가변 저항을 조금씩 돌려 가며 [📌 이 값 기록]을 5 번 이상 누른다(전압이 골고루 퍼지게).</li>
+      <li>저항 B(220 Ω)로 바꾸어 2를 반복한다.</li>
+      <li>A와 B를 직렬로, 병렬로 연결하여 Rx 자리에 꽂고 각각 2를 반복한다.</li>
+      <li>아두이노가 없으면 [📎 예시 값]으로 결과 정리를 연습한다.</li>
+    </ol></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge sim">4</span>측정하기</div>
+    <div class="al-conn"><button type="button" class="btn main small" id="oh-connect">🔌 아두이노 연결하기</button><span class="al-dot" id="oh-dot"></span><span id="oh-ctext" style="font-size:13px;font-weight:700">연결 안 됨</span><span style="font-size:12px;color:var(--ink-soft)">크롬·엣지에서 연결돼요.</span></div>
+    <div class="btn-row" style="align-items:center"><b style="font-size:13px">측정 대상</b><button type="button" class="btn small main" data-set="A">저항 A (1 kΩ)</button><button type="button" class="btn small" data-set="B">저항 B (220 Ω)</button><button type="button" class="btn small" data-set="S">A와 B 직렬</button><button type="button" class="btn small" data-set="P">A와 B 병렬</button></div>
+    <div class="meter"><div><small>Rx에 걸리는 전압</small><span id="oh-v">-.--- V</span></div><div><small>Rx에 흐르는 전류</small><span id="oh-i">-.--- mA</span></div></div>
+    <div class="btn-row"><button type="button" class="btn primary small" id="oh-rec">📌 이 값 기록</button><button type="button" class="btn ghost small" id="oh-sample">📎 예시 값</button><button type="button" class="btn ghost small" id="oh-undo">↩ 마지막 기록 지우기</button><button type="button" class="btn ghost small" id="oh-clear">🧹 표 초기화</button></div>
+    <div class="light-stage"><canvas id="oh-g"></canvas></div>
+    <div class="scroll-x"><table class="data-t" id="oh-tb"></table></div>
+  </section>
+
+  <section class="card" data-part="lab">
+    <div class="card-title"><span class="badge lab">5</span>결과 정리</div>
+    <div class="q" data-why="그래프의 기울기(전류 ÷ 전압)의 역수가 저항이에요. 자동 분석 값과 5 % 안에서 같으면 정답이에요.">
+      <div class="q-text">각 측정 대상의 저항을 <b>저항 = 전압 ÷ 전류</b>로 구해 kΩ 단위로 적어 보자. (전압 V ÷ 전류 mA = kΩ)</div>
+      <table class="data-t" style="max-width:560px"><tr><th>측정 대상</th><th>기록 수</th><th>계산한 저항(kΩ)</th></tr><tr><td>저항 A (1 kΩ)</td><td id="n-A">0</td><td><input class="blank w-s" id="r-A" style="width:80px"></td></tr><tr><td>저항 B (220 Ω)</td><td id="n-B">0</td><td><input class="blank w-s" id="r-B" style="width:80px"></td></tr><tr><td>A와 B 직렬</td><td id="n-S">0</td><td><input class="blank w-s" id="r-S" style="width:80px"></td></tr><tr><td>A와 B 병렬</td><td id="n-P">0</td><td><input class="blank w-s" id="r-P" style="width:80px"></td></tr></table>
+      <div class="q-text" style="margin-top:6px;font-size:12.5px;color:var(--ink-soft)">자동 분석: <span id="r-auto">기록 없음</span></div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="기울기가 가파를수록 저항이 작아요. 220 Ω인 B의 그래프가 1 kΩ인 A보다 훨씬 가팔라요.">
+      <div class="q-text"><span class="q-num">1</span>전압–전류 그래프는 각 저항마다 원점을 지나는 <span class="choice-group" data-key="g1" data-answer="직"><button type="button" class="choice-btn" data-value="직">직선</button><button type="button" class="choice-btn" data-value="곡">곡선</button></span>이므로 전류는 전압에 <span class="choice-group" data-key="g2" data-answer="비"><button type="button" class="choice-btn" data-value="비">비례</button><button type="button" class="choice-btn" data-value="반">반비례</button></span>한다. 같은 전압에서 저항이 큰 A가 B보다 전류가 <span class="choice-group" data-key="g3" data-answer="작"><button type="button" class="choice-btn" data-value="크">크다</button><button type="button" class="choice-btn" data-value="작">작다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="직렬은 저항이 더해져 1 + 0.22 ≈ 1.22 kΩ, 병렬은 가장 작은 B(0.22 kΩ)보다도 작은 약 0.18 kΩ이 돼요.">
+      <div class="q-text"><span class="q-num">2</span>직렬연결한 A와 B의 전체 저항은 약 <span class="choice-group" data-key="g4" data-answer="12"><button type="button" class="choice-btn" data-value="12">1.2 kΩ (A + B)</button><button type="button" class="choice-btn" data-value="02">0.18 kΩ</button><button type="button" class="choice-btn" data-value="10">1 kΩ</button></span>, 병렬연결한 전체 저항은 약 <span class="choice-group" data-key="g5" data-answer="02"><button type="button" class="choice-btn" data-value="12">1.2 kΩ</button><button type="button" class="choice-btn" data-value="02">0.18 kΩ (B보다 작음)</button><button type="button" class="choice-btn" data-value="10">1 kΩ</button></span>이었다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">6</span>결론과 토의</div>
+    <div class="q"><div class="q-text"><span class="q-num">1</span><b>결론</b> 측정 결과를 바탕으로 전압, 전류, 저항 사이의 관계를 설명해 보자.</div><textarea class="free" data-key="concl" rows="2" data-keywords="비례,반비례,전압,저항,옴의 법칙" data-model="같은 저항에서는 전압이 커질수록 전류가 일정한 비율로 커지므로 전류는 전압에 비례한다. 같은 전압에서는 저항이 클수록 전류가 작아지므로 전류는 저항에 반비례한다. 이것이 옴의 법칙이다."></textarea><span class="fb"></span></div>
+    <div class="q"><div class="q-text"><span class="q-num">2</span><b>저항의 연결</b> 직렬·병렬연결의 측정 결과를 교과서의 전구 실험(직렬 — 어두워짐, 병렬 — 밝기 같음)과 연결 지어 설명해 보자.</div><textarea class="free" data-key="conn" rows="2" data-keywords="직렬,병렬,전체 저항,전류" data-model="직렬연결하면 전체 저항이 커져서 같은 전압에서 전류가 작아지므로 전구가 어두워진다. 병렬연결하면 전체 저항이 작아져 회로 전체 전류가 커지고, 각 저항에는 같은 전압이 걸리므로 전구의 밝기가 같다."></textarea><span class="fb"></span></div>
+    <div class="q"><div class="q-text"><span class="q-num">3</span><b>오차 분석</b> 계산한 저항이 저항에 표시된 값과 조금 다른 까닭을 2 가지 써 보자.</div><textarea class="free" data-key="err" rows="2" data-keywords="오차,허용,도선,아날로그,반올림,온도" data-model="저항에는 ±5 % 정도의 허용 오차가 있고, 아두이노의 아날로그 입력은 약 5 mV 단위로만 읽을 수 있다. 기준 저항(1 kΩ) 자체의 오차와 도선·접촉 부분의 저항도 영향을 준다."></textarea><span class="fb"></span></div>
+  </section>
+
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">7</span>스스로 평가 · 선생님께 한마디</div>
+    <table class="data-t"><tr><th style="text-align:left">평가 항목</th><th>스스로 평가</th></tr><tr><td style="text-align:left">회로를 바르게 연결하고 전압과 전류를 여러 번 측정했다.</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr><tr><td style="text-align:left">그래프를 해석하여 옴의 법칙과 저항의 연결에 따른 특징을 설명했다.</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr><tr><td style="text-align:left">역할을 나누어 협력하며 안전하게 실험했다.</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr></table>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>실험하면서 어려웠던 점, 새로 알게 된 점, 선생님께 하고 싶은 말을 자유롭게 써 주세요.</div><textarea class="free" data-key="feedback" placeholder="느낀 점과 피드백"></textarea></div>
+  </section>
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">보고서를 다 쓰면 제출해요. 측정 기록도 함께 선생님 스프레드시트(중2 탭)에 저장돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="2">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 2 Ⅶ. 전기와 자기 · 아두이노 실험 보고서 · 교과서 238~245쪽(옴의 법칙, 저항의 연결)을 아날로그 입력 측정으로 재구성 · <a href="jeonap-jeohang.html">워크시트로 돌아가기</a></footer>
+</div>
+
+<script src="../../../g1/materials/g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중2 Ⅶ 아두이노 옴의 법칙";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+document.querySelectorAll(".choice-group[id^=self]").forEach(g => WS.custom(g.id, { el: g, value: picked(g.id) }));
+
+fetch("arduino/ohm.ino").then(r => r.text()).then(t => $("oh-src").textContent = t).catch(() => $("oh-src").textContent = "코드를 불러오지 못했어요. 위의 내려받기 버튼을 눌러 주세요.");
+$("oh-copy").addEventListener("click", () => { const t = $("oh-src").textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { $("oh-copy").textContent = "✅ 복사됨"; setTimeout(() => $("oh-copy").textContent = "📋 코드 복사", 1500); }).catch(() => {}); });
+const NM = { A: "저항 A", B: "저항 B", S: "직렬", P: "병렬" }, COL = { A: "#2f7fd6", B: "#e4572e", S: "#7b1fa2", P: "#2e9d6a" };
+let set = "A", rows = [], live = null;   // rows: [set, V, mA]
+document.querySelectorAll("[data-set]").forEach(b => b.addEventListener("click", () => { set = b.dataset.set; document.querySelectorAll("[data-set]").forEach(x => x.classList.toggle("main", x === b)); }));
+const fitR = k => { const r = rows.filter(x => x[0] === k); const sx = r.reduce((s, x) => s + x[1] * x[2], 0), sv = r.reduce((s, x) => s + x[1] * x[1], 0); return r.length && sx > 0 ? sv / sx : null; };   // kΩ = V/mA
+function draw() {
+  $("oh-tb").innerHTML = "<tr><th>회</th><th>측정 대상</th><th>전압(V)</th><th>전류(mA)</th><th>전압÷전류(kΩ)</th></tr>" + (rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td>${NM[r[0]]}</td><td>${r[1].toFixed(3)}</td><td>${r[2].toFixed(3)}</td><td>${r[2] > 0.005 ? (r[1] / r[2]).toFixed(3) : "-"}</td></tr>`).join("") : '<tr><td colspan="5" style="color:#8a9a9c">아직 기록이 없어요</td></tr>');
+  Object.keys(NM).forEach(k => $("n-" + k).textContent = rows.filter(x => x[0] === k).length);
+  $("r-auto").textContent = rows.length ? Object.keys(NM).map(k => fitR(k) ? `${NM[k]} ${fitR(k).toFixed(3)} kΩ` : "").filter(Boolean).join(" · ") : "기록 없음";
+  const yMax = Math.max(6, ...rows.map(r => r[2] * 1.15)), xMax = Math.max(1, ...rows.map(r => r[1] * 1.1));
+  const ser = Object.keys(NM).filter(k => rows.some(r => r[0] === k)).map(k => ({ color: COL[k], dots: true, width: 0.001, label: NM[k], pts: rows.filter(r => r[0] === k).map(r => [r[1], r[2]]) }));
+  Object.keys(NM).forEach(k => { const R = fitR(k); if (R) ser.push({ color: COL[k], pts: [[0, 0], [Math.min(xMax, yMax * R), Math.min(xMax, yMax * R) / R]] }); });
+  if (live) ser.push({ color: "#999", dots: true, width: 0.001, pts: [[live[0], live[1]]] });
+  LB.graph($("oh-g"), { h: 240, xMax: Math.ceil(xMax * 2) / 2, yMin: 0, yMax: Math.ceil(yMax), xStep: xMax > 3 ? 1 : 0.5, yStep: yMax > 12 ? 2 : 1, xLabel: "전압(V)", yLabel: "전류(mA)", series: ser.length ? ser : [{ color: "#ccc", pts: [[0, 0]] }] }); }
+draw(); window.addEventListener("resize", draw);
+$("oh-rec").addEventListener("click", () => { if (!live) { alert("아두이노를 연결하면 실시간 값이 나타나요. 연결이 어렵다면 [예시 값]을 눌러 보세요."); return; } rows.push([set, live[0], live[1]]); draw(); });
+$("oh-undo").addEventListener("click", () => { rows.pop(); draw(); });
+$("oh-clear").addEventListener("click", () => { if (rows.length && !confirm("기록을 모두 지울까요?")) return; rows = []; draw(); });
+$("oh-sample").addEventListener("click", () => { rows = []; const RT = { A: 1.0, B: 0.22, S: 1.22, P: 0.18 }; Object.keys(RT).forEach(k => { const R = RT[k] * (1 + (Math.random() - .5) * .04); for (let i = 1; i <= 5; i++) { const Vs = i * 0.9, I = Vs / (R + 1); rows.push([k, +(I * R + (Math.random() - .5) * .006).toFixed(3), +(I + (Math.random() - .5) * .006).toFixed(3)]); } }); draw(); });
+WS.custom("oh_log", { el: $("oh-tb"), value: () => rows.map(r => `${r[0]}:${r[1]}:${r[2]}`).join(" ") });
+function dyn(key, el, ans, check) { const c = { el, value: () => el.value, check }; Object.defineProperty(c, "answer", { get: ans }); WS.custom(key, c); }
+Object.keys(NM).forEach(k => dyn("r_" + k, $("r-" + k), () => fitR(k) ? fitR(k).toFixed(3) : "기록 필요", v => fitR(k) ? Math.abs(WS.toNumber(v) - fitR(k)) <= fitR(k) * 0.05 : null));
+// ── Web Serial: "OHM,mV0,mV1" ──
+let port = null, reader = null, reading = false;
+function setUI(on) { $("oh-dot").classList.toggle("on", on); $("oh-ctext").textContent = on ? "실시간 연결됨" : "연결 안 됨"; $("oh-connect").textContent = on ? "🔌 연결 끊기" : "🔌 아두이노 연결하기"; }
+$("oh-connect").addEventListener("click", async () => {
+  if (reading) { reading = false; try { if (reader) await reader.cancel(); } catch (e) {} try { if (port) await port.close(); } catch (e) {} port = reader = null; live = null; setUI(false); draw(); return; }
+  if (!("serial" in navigator)) { alert("이 브라우저는 아두이노 직접 연결(Web Serial)을 지원하지 않아요. 크롬이나 엣지를 사용해 주세요."); return; }
+  try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 9600 }); reading = true; setUI(true); readLoop(); }
+  catch (e) { if (e && e.name !== "NotFoundError") alert("아두이노 연결에 실패했어요. USB와 시리얼 모니터를 확인해 주세요."); }
+});
+let lastDraw = 0;
+async function readLoop() { const dec = new TextDecoderStream(); port.readable.pipeTo(dec.writable).catch(() => {}); reader = dec.readable.getReader(); let buf = "";
+  try { while (reading) { const r = await reader.read(); if (r.done) break; buf += r.value || ""; let i; while ((i = buf.indexOf("\n")) >= 0) { const p = buf.slice(0, i).trim().split(","); buf = buf.slice(i + 1);
+    if (p[0] === "OHM" && p.length >= 3) { const v0 = +p[1], v1 = +p[2]; if (isFinite(v0) && isFinite(v1)) { live = [Math.max(0, (v0 - v1) / 1000), Math.max(0, v1 / 1000)]; $("oh-v").textContent = live[0].toFixed(3) + " V"; $("oh-i").textContent = live[1].toFixed(3) + " mA"; if (performance.now() - lastDraw > 500) { lastDraw = performance.now(); draw(); } } } } } }
+  catch (e) { console.error(e); } finally { try { reader.releaseLock(); } catch (e) {} } }
+
+</script>
+</body>
+</html>

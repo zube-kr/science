@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중2 Ⅶ-1-02 — 가까이 하면 생기는 전기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../../../g1/materials/g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 2학년 Ⅶ. 전기와 자기</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/g2-induct.jpg" alt="">
+    <img class="lb-qmark" src="img/g2-hero.jpg" alt="마찰하지 않은 금속 공이 끌려가는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 전기와 자기 · 1. 전기의 발생 · 02 <span class="pg" style="margin:0">232~234쪽</span></span>
+      <h1>가까이 하면 생기는<br><span>전기</span></h1>
+      <p>마찰하지 않은 금속 공이 끌려가는 까닭은 무엇일까? 대전된 빨대를 가상 알루미늄 캔에 가까이 하여 캔이 굴러오는 모습과 캔 속 전자의 이동을 관찰하고, 정전기 유도를 설명해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 정전기 유도 현상을 관찰하고, 이를 전기력과 원자 모형을 이용하여 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기 · 과학적 증거에 기반하여 주장하기</span>대전체를 가까이 한 알루미늄 캔 관찰하기 <span class="pg">232쪽</span></div>
+    <div class="book"><p>마찰하여 전기를 띠는 두 물체 사이에는 전기력이 작용한다. 그런데 전기를 띠지 않은 물체에 대전체를 가까이 했을 때에도 전기력이 작용한다. 전기를 띠지 않은 알루미늄 캔에 대전체를 가까이 할 때 일어나는 현상을 관찰하고, 이를 전기력과 관련지어 생각해 보자.</p></div>
+<figure class="fig"><img src="img/g2-act.jpg" alt="① 책상 위에 빈 알루미늄 캔을 눕혀 놓는다. ② 빨대를 털가죽으로 여러 번 마찰한다. ③ (-)전하로 대전된 빨대를 빈 알루미늄 캔에 가까이 한다."><figcaption><span class="tb">232쪽</span>① 책상 위에 빈 알루미늄 캔을 눕혀 놓는다. ② 빨대를 털가죽으로 여러 번 마찰한다. ③ (-)전하로 대전된 빨대를 빈 알루미늄 캔에 가까이 한다.</figcaption></figure>
+    <div class="tip-box">빨대와 알루미늄 캔을 나란히 한 상태에서 빨대를 가까이 한다. 이때 빨대가 알루미늄 캔에 닿지 않도록 한다.</div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>굴러오는 알루미늄 캔</div>
+    <div class="card-hint">가까이 할 물체를 고르고 슬라이더로 캔에 다가가 보자. 캔 속 전자(파란 −)가 어떻게 움직이는지 살펴보세요.</div>
+    <div class="btn-row"><button type="button" class="btn main small" data-rod="straw">🥤 털가죽으로 문지른 빨대 (-)</button><button type="button" class="btn small" data-rod="fur">🦊 빨대를 문지른 털가죽 (+)</button><button type="button" class="btn small" data-rod="none">🥤 문지르지 않은 빨대</button><button type="button" class="btn ghost small" id="cn-reset">↺ 캔 제자리로</button></div>
+    <div class="btn-row" style="align-items:center"><b style="font-size:13px">대전체 위치</b><input type="range" id="cn-d" min="0" max="100" value="0" style="flex:1;min-width:160px"><span id="cn-dv" style="font-size:13px;font-weight:700">멀리</span></div>
+    <div class="light-stage"><canvas id="cn-cv"></canvas></div>
+    <div class="tip-box" id="cn-msg">빨대를 캔 쪽으로 천천히 가까이 해 보세요.</div>
+    <div class="q" data-why="(-) 빨대가 캔의 전자를 밀어 내어 전자가 먼 쪽으로 이동해요. 가까운 쪽은 (+)가 되어 빨대와 끌어당겨요." data-hint="가상 실험에서 문지른 빨대를 가까이 해 보세요.">
+      <div class="q-text"><span class="q-num">1</span>(-)전하로 대전된 빨대를 가까이 하면 빈 알루미늄 캔은 <span class="choice-group" data-key="cn1" data-answer="끌"><button type="button" class="choice-btn" data-value="끌">빨대 쪽으로 굴러 온다</button><button type="button" class="choice-btn" data-value="밀">빨대 반대쪽으로 굴러 간다</button><button type="button" class="choice-btn" data-value="그">움직이지 않는다</button></span>. 이때 캔 속 전자는 빨대에서 <span class="choice-group" data-key="cn2" data-answer="먼"><button type="button" class="choice-btn" data-value="먼">먼 쪽</button><button type="button" class="choice-btn" data-value="가">가까운 쪽</button></span>으로 이동하여, 빨대와 가까운 부분은 <span class="choice-group" data-key="cn3" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>(-)전하를 띤 빨대를 가까이 할 때 빈 알루미늄 캔에서 빨대와 가까운 부분은 어떤 전하를 띠는지 전기력과 관련지어 이야기해 보자.</div><textarea class="free" data-key="cn_why" rows="2" data-keywords="전자,먼 쪽,(+),끌어당" data-model="빨대의 (-)전하가 캔 속 전자를 밀어 내어 전자가 빨대에서 먼 쪽으로 이동하므로, 빨대와 가까운 부분은 (+)전하를 띤다. 그래서 빨대와 캔 사이에 끌어당기는 전기력이 작용해 캔이 빨대 쪽으로 굴러 온다."></textarea><span class="fb"></span></div>
+  </section>
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>마찰하지 않은 물체에 전기력이 작용하는 까닭 <span class="pg">233쪽</span></div>
+    <div class="book"><p>알루미늄과 같은 금속에는 비교적 자유롭게 움직일 수 있는 <b>전자</b>가 많다. (-)전하로 대전된 빨대를 알루미늄 캔에 가까이 하면 알루미늄 캔의 전자가 전기력을 받아 빨대에서 먼 쪽으로 이동한다. 그 결과 알루미늄 캔에서 빨대와 가까운 부분은 (+)전하를 띠게 되어 알루미늄 캔이 빨대 쪽으로 끌려 온다.</p></div>
+<figure class="fig"><img src="img/g2-induct.jpg" alt="정전기 유도 — 대전체를 가까이 하기 전과 가까이 할 때"><figcaption><span class="tb">그림 7-3</span>정전기 유도 — 대전체를 가까이 하기 전과 가까이 할 때</figcaption></figure>
+    <div class="book"><p>전기를 띠지 않은 물체에 대전체를 가까이 할 때 대전체와 가까운 쪽은 대전체와 다른 종류의 전하를 띠고, 대전체와 먼 쪽은 대전체와 같은 종류의 전하를 띤다. 이러한 현상을 <span class="key">정전기 유도</span>라고 한다. 대전된 고무풍선을 종잇조각에 가까이 할 때 종잇조각들이 풍선에 달라붙는 것처럼 정전기 유도 현상은 고무나 종이 등 금속이 아닌 물체에서도 관찰할 수 있다.</p></div>
+<figure class="fig" style="max-width:420px"><img src="img/g2-paper.jpg" alt="정전기 유도 현상으로 풍선에 끌려 오는 종잇조각"><figcaption><span class="tb">그림 7-4</span>정전기 유도 현상으로 풍선에 끌려 오는 종잇조각</figcaption></figure>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 조각</b>
+      <div class="q" style="border-top:none;padding:0" data-why="">
+        <div class="q-text" style="color:#3a1600">미세 먼지는 <input class="blank w-s" data-key="blk2" data-answer="정전기 유도"> 현상으로 대전된 공기 청정기의 필터에 끌려 온다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">정전기 유도 돋보기</span>금속 막대 A–B의 전하 분포</div>
+    <div class="card-hint">대전체의 전하 종류를 고르고 금속 막대에 가까이 해 보자. A는 대전체와 가까운 끝, B는 먼 끝이에요.</div>
+    <div class="btn-row"><button type="button" class="btn main small" data-mr="-1">(-) 대전체</button><button type="button" class="btn small" data-mr="1">(+) 대전체</button><button type="button" class="btn small" id="mr-near">↔ 가까이 / 멀리</button></div>
+    <div class="light-stage"><canvas id="mr-cv"></canvas></div>
+    <div class="q" data-why="(-) 대전체가 전자를 밀어 내므로 전자는 A → B로 이동해요. A는 전자가 부족해 (+), B는 전자가 많아 (-). A(+)와 대전체(-)는 서로 끌어당겨요." data-hint="정전기 유도 돋보기에서 (-) 대전체를 가까이 해 보세요.">
+      <div class="q-text"><span class="q-num">1</span>(-) 대전체를 대전되지 않은 금속 막대의 A 쪽에 가까이 하면 전자는 <span class="choice-group" data-key="mr1" data-answer="AB"><button type="button" class="choice-btn" data-value="AB">A → B</button><button type="button" class="choice-btn" data-value="BA">B → A</button></span> 방향으로 이동한다. 그 결과 A 부분은 <span class="choice-group" data-key="mr2" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하, B 부분은 <span class="choice-group" data-key="mr3" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띠고, A 부분과 (-) 대전체 사이에는 서로 <span class="choice-group" data-key="mr4" data-answer="끌"><button type="button" class="choice-btn" data-value="끌">끌어당기는</button><button type="button" class="choice-btn" data-value="밀">밀어 내는</button></span> 전기력이 작용한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="금속 속에서 이동하는 것은 전자뿐이에요. (+) 대전체는 전자를 끌어당기므로 A 쪽에 전자가 모여 (-)를 띠어요.">
+      <div class="q-text"><span class="q-num">2</span>(+) 대전체를 가까이 하면 금속 막대의 전자는 대전체 <span class="choice-group" data-key="mr5" data-answer="가"><button type="button" class="choice-btn" data-value="가">쪽으로 끌려 와</button><button type="button" class="choice-btn" data-value="먼">에서 먼 쪽으로 밀려나</button></span> A는 <span class="choice-group" data-key="mr6" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다. 이때 금속 막대 속에서 움직이는 것은 <span class="choice-group" data-key="mr7" data-answer="e"><button type="button" class="choice-btn" data-value="e">전자</button><button type="button" class="choice-btn" data-value="p">(+)전하(원자핵)</button></span>이다.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>232쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">233쪽</span></div>
+    <div class="q" data-why="가까운 쪽 — 다른 전하, 먼 쪽 — 같은 전하, 정전기 유도">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 대전되지 않은 물체에 대전체를 가까이 할 때 대전체와 가까운 쪽은 <span class="choice-group" data-key="sc1" data-answer="다른"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="다른">다른</button></span> 종류의 전하를 띠고 대전체와 먼 쪽은 <span class="choice-group" data-key="sc2" data-answer="같은"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="다른">다른</button></span> 종류의 전하를 띠는 현상을 <input class="blank w-s" data-key="sc3" data-answer="정전기 유도"> (이)라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">2</span><b>사고력</b> 플라스틱 빨대를 털가죽으로 여러 번 마찰한 후 털가죽을 빈 알루미늄 캔에 가까이 하면 어떻게 될지 설명해 보자.</div><textarea class="free" data-key="sc_fur" rows="2" data-keywords="(+),전자,가까운,끌려" data-model="털가죽은 전자를 잃어 (+)전하를 띤다. 털가죽을 가까이 하면 캔 속 전자가 털가죽 쪽으로 끌려 와 가까운 쪽이 (-)전하를 띠므로, 캔은 털가죽 쪽으로 끌려 온다."></textarea><span class="fb"></span></div>
+  </section>
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>가까이 하면 생기는 전기</div>
+    <div class="q" data-why="전자">
+      <div class="q-text"><span class="q-num">1</span>알루미늄과 같은 금속에는 비교적 자유롭게 움직일 수 있는 <input class="blank w-s" data-key="t1" data-answer="전자"> 가 많다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="다른, 같은, 정전기 유도">
+      <div class="q-text"><span class="q-num">2</span>전기를 띠지 않은 물체에 대전체를 가까이 할 때 대전체와 가까운 쪽은 대전체와 <span class="choice-group" data-key="t2a" data-answer="다른"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="다른">다른</button></span>, 먼 쪽은 <span class="choice-group" data-key="t2b" data-answer="같은"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="다른">다른</button></span> 종류의 전하를 띠는 현상을 <input class="blank w-s" data-key="t2c" data-answer="정전기 유도"> 라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="먼 쪽 (-), 가까운 쪽 (+)">
+      <div class="q-text"><span class="q-num">3</span>(-) 대전체를 알루미늄 캔에 가까이 하면 캔에서 대전체와 먼 부분은 <span class="choice-group" data-key="t3a" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하, 가까운 부분은 <span class="choice-group" data-key="t3b" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="금속에서 움직이는 것은 전자예요. (+)전하(원자핵)는 움직이지 않아요(⑥ X).">
+      <div class="q-text"><span class="q-num">✔</span>옳으면 O, 옳지 않으면 X</div>
+      <table class="data-t" style="margin-top:6px"><tr><td style="text-align:left">④ 정전기 유도는 금속 내부에서 전자가 이동하여 나타나는 현상이다.</td><td><span class="choice-group" data-key="t4" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr><tr><td style="text-align:left">⑤ 금속에 (+) 대전체를 가까이 하면 금속 내부의 전자들이 대전체 쪽으로 끌려 온다.</td><td><span class="choice-group" data-key="t5" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr><tr><td style="text-align:left">⑥ 금속에 (-) 대전체를 가까이 하면 금속 내부의 (+)전하들이 대전체 쪽으로 끌려 온다.</td><td><span class="choice-group" data-key="t6" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr></table>
+      <span class="fb"></span>
+    </div>
+  </section>
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>정전기 유도 · 첫 번째 블록 찾기 <span class="pg">234쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">3</span>정전기 유도</h4>
+      <div class="q" style="border-top:none" data-why="가까운 쪽이 다른 전하를 띠므로 대전체와 항상 끌어당겨요.">
+        <div class="q-text">⑴ 정전기 유도: 전기를 띠지 않은 물체에 대전체를 가까이 할 때 대전체와 가까운 쪽은 대전체와 <span class="choice-group" data-key="s1" data-answer="다른"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="다른">다른</button></span> 종류의 전하를, 먼 쪽은 <span class="choice-group" data-key="s2" data-answer="같은"><button type="button" class="choice-btn" data-value="같은">같은</button><button type="button" class="choice-btn" data-value="다른">다른</button></span> 종류의 전하를 띠는 현상<br>⑵ 전기를 띠지 않은 금속에 대전체를 가까이 하면 금속과 대전체 사이에는 서로 <span class="choice-group" data-key="s3" data-answer="끌"><button type="button" class="choice-btn" data-value="끌">끌어당기는</button><button type="button" class="choice-btn" data-value="밀">밀어 내는</button></span> 방향으로 힘이 작용한다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <div class="alt-box"><h4>🧩 첫 번째 블록 찾기 — 공기 청정기의 필터에 미세 먼지가 달라붙는 까닭은 무엇일까?</h4><p style="margin:0;font-size:14px">231쪽 조각: 대전된 공기 청정기 필터와 미세 먼지 사이에 작용하는 힘은 전기력이다. · 233쪽 조각: 미세 먼지는 정전기 유도 현상으로 대전된 공기 청정기의 필터에 끌려 온다.</p></div>
+    <div class="q"><div class="q-text"><span class="q-num">🧩</span>두 블록 조각을 이어서 첫 번째 블록 질문에 답해 보자.</div><textarea class="free" data-key="blk_ans" rows="3" data-keywords="대전,정전기 유도,전기력,끌려" data-model="공기 청정기의 필터는 대전되어 있어서, 전기를 띠지 않은 미세 먼지가 가까이 오면 정전기 유도로 필터와 가까운 쪽이 필터와 다른 종류의 전하를 띤다. 그래서 필터와 미세 먼지 사이에 끌어당기는 전기력이 작용해 먼지가 필터에 달라붙는다."></textarea><span class="fb"></span></div>
+    <table class="data-t" style="margin-top:10px">
+      <tr><th style="text-align:left">평가 기준</th><th>스스로 평가</th></tr><tr><td style="text-align:left"><b>지식·이해</b> 정전기 유도 현상을 전기력과 원자 모형을 이용하여 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr><tr><td style="text-align:left"><b>과정·기능</b> 대전체를 가까이 한 알루미늄 캔을 관찰하고 결과를 해석할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr><tr><td style="text-align:left"><b>가치·태도</b> 일상생활의 전기 현상을 과학적으로 설명하며 흥미를 느꼈는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+  </section>
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중2 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="2">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 2 Ⅶ. 전기와 자기 · 1. 전기의 발생 · 02 가까이 하면 생기는 전기 · 비상교육 중학 과학 2 교과서(232~234쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../../g1/materials/g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중2 Ⅶ-1-02 가까이 하면 생기는 전기";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+document.querySelectorAll(".choice-group[id^=self]").forEach(g => WS.custom(g.id, { el: g, value: picked(g.id) }));
+
+function chg(c, x, y, plus) { c.fillStyle = plus ? "#d2453b" : "#2f7fd6"; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); c.fillStyle = "#fff"; c.font = "bold 12px sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(plus ? "+" : "−", x, y + .5); c.textBaseline = "alphabetic"; }
+/* ── 굴러오는 캔 ── */
+const CN = { rod: "straw", x: 0, v: 0, seen: new Set() }, ROD = { straw: -1, fur: 1, none: 0 }, RNM = { straw: "빨대(-)", fur: "털가죽(+)", none: "문지르지 않은 빨대" };
+document.querySelectorAll("[data-rod]").forEach(b => b.addEventListener("click", () => { CN.rod = b.dataset.rod; document.querySelectorAll("[data-rod]").forEach(x => x.classList.toggle("main", x === b)); }));
+$("cn-reset").addEventListener("click", () => { CN.x = 0; CN.v = 0; });
+$("cn-d").addEventListener("input", () => { const d = +$("cn-d").value; $("cn-dv").textContent = d < 30 ? "멀리" : d < 70 ? "조금 가까이" : "아주 가까이"; });
+WS.custom("cn_seen", { el: $("cn-cv"), value: () => [...CN.seen].sort().join(",") });
+LB.loop($("cn-cv"), dt => {
+  const H = 210, sc = Math.min(1, $("cn-cv").clientWidth / 360), g = LB.fit($("cn-cv"), H * sc), c = g.c, W = g.w / sc; c.scale(sc, sc); c.fillStyle = "#f6fafa"; c.fillRect(0, 0, W, H); c.fillStyle = "#d9c7a7"; c.fillRect(0, 160, W, 50);
+  const R = 46, cx0 = W * .3, s = ROD[CN.rod], d = +$("cn-d").value;
+  const rodX = W + 60 - d / 100 * (W + 60 - cx0 - R - 30);           // 대전체 왼쪽 끝
+  let cx = cx0 + CN.x, gap = rodX - (cx + R);
+  const F = s ? 20000 / Math.max(14, gap) ** 2 : 0;               // 끌어당기는 힘(정전기 유도는 항상 인력)
+  if (F > 0.6 && gap > 8) { CN.v += (F - 0.3) * dt * 60; } else CN.v *= 0.85;
+  CN.x += CN.v * dt; cx = cx0 + CN.x; gap = rodX - (cx + R); if (gap < 8) { CN.x -= 8 - gap; CN.v = 0; cx = cx0 + CN.x; gap = 8; }
+  if (F > 0.6) CN.seen.add(CN.rod);
+  // 캔
+  const shift = s ? -s * Math.min(1, 40 / Math.max(10, gap)) : 0;  // 전자 이동량(+: 오른쪽)
+  c.save(); c.translate(cx, 112); const gr = c.createLinearGradient(0, -R, 0, R); gr.addColorStop(0, "#eef1f3"); gr.addColorStop(.5, "#b8c0c6"); gr.addColorStop(1, "#e2e6e9"); c.fillStyle = gr; c.beginPath(); c.arc(0, 0, R, 0, 7); c.fill(); c.strokeStyle = "#8d989f"; c.stroke();
+  const ang = CN.x / R; c.strokeStyle = "#9aa4aa"; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(ang) * R * .9, Math.sin(ang) * R * .9); c.stroke();
+  for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + .3, px = Math.cos(a) * R * .55, py = Math.sin(a) * R * .55; chg(c, px - 7, py, true); chg(c, Math.max(-R * .8, Math.min(R * .8, px + 7 + shift * (R * .55 + px * .2))), py, false); }
+  c.restore(); c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("빈 알루미늄 캔(옆에서 본 모습)", cx, 178);
+  // 대전체
+  c.save(); c.translate(rodX, 112); c.fillStyle = CN.rod === "fur" ? "#b08a5a" : "#f48fb1"; if (CN.rod === "fur") { c.beginPath(); c.ellipse(36, 0, 36, 22, 0, 0, 7); c.fill(); } else c.fillRect(0, -8, 140, 16);
+  if (s) for (let i = 0; i < 5; i++) chg(c, 10 + i * 13, (i % 2 ? 4 : -4) * (CN.rod === "fur" ? 2 : 0.4), s > 0);
+  c.restore(); c.fillStyle = "#26393b"; c.fillText(RNM[CN.rod], rodX + 50, 92);
+  if (F > 0.6) { c.strokeStyle = c.fillStyle = "#2f7fd6"; c.lineWidth = 3; c.beginPath(); c.moveTo(cx, 52); c.lineTo(cx + 36, 52); c.stroke(); c.beginPath(); c.moveTo(cx + 44, 52); c.lineTo(cx + 34, 46); c.lineTo(cx + 34, 58); c.fill(); c.lineWidth = 1; c.fillText("끌어당기는 전기력", cx + 20, 38); }
+  $("cn-msg").textContent = !s ? "문지르지 않은 빨대는 전기를 띠지 않아 캔이 움직이지 않아요." : gap <= 9 ? "닿기 직전! 실제 실험에서는 빨대가 캔에 닿지 않도록 해요." : F > 0.6 ? (s < 0 ? "캔 속 전자가 빨대에서 먼 쪽으로 밀려나고, 가까운 쪽이 (+)가 되어 캔이 굴러 와요!" : "캔 속 전자가 털가죽(+) 쪽으로 끌려 와 가까운 쪽이 (-)가 되고, 캔이 굴러 와요!") : "조금 더 가까이 해 보세요. 캔 속 전자가 조금씩 움직이기 시작해요.";
+});
+/* ── 금속 막대 ── */
+const MR = { s: -1, near: true, seen: new Set() };
+document.querySelectorAll("[data-mr]").forEach(b => b.addEventListener("click", () => { MR.s = +b.dataset.mr; document.querySelectorAll("[data-mr]").forEach(x => x.classList.toggle("main", x === b)); }));
+$("mr-near").addEventListener("click", () => MR.near = !MR.near);
+let mrK = 0;
+LB.loop($("mr-cv"), dt => { mrK += ((MR.near ? 1 : 0) - mrK) * Math.min(1, dt * 3); if (MR.near) MR.seen.add(MR.s);
+  const H = 150, sc = Math.min(1, $("mr-cv").clientWidth / 360), g = LB.fit($("mr-cv"), H * sc), c = g.c, W = g.w / sc; c.scale(sc, sc); c.fillStyle = "#f6fafa"; c.fillRect(0, 0, W, H);
+  const x0 = Math.max(90, W * .25), x1 = W - 30, y = 80; c.fillStyle = "#c6ced3"; c.fillRect(x0, y - 18, x1 - x0, 36); c.strokeStyle = "#8d989f"; c.strokeRect(x0, y - 18, x1 - x0, 36);
+  c.fillStyle = "#26393b"; c.font = "bold 14px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("A", x0 + 14, y + 40); c.fillText("B", x1 - 14, y + 40);
+  const n = 8; for (let i = 0; i < n; i++) { const px = x0 + 18 + i * (x1 - x0 - 36) / (n - 1); chg(c, px, y - 8, true); const t = i / (n - 1), pull = -MR.s * mrK; const ex = pull > 0 ? x0 + 18 + (t * .45 + .55) * (x1 - x0 - 36) : x0 + 18 + (t * .45) * (x1 - x0 - 36); chg(c, px + (ex - px) * Math.abs(pull), y + 8, false); }
+  const rx = x0 - 20 - (1 - mrK) * 50; c.fillStyle = MR.s < 0 ? "#2f7fd6" : "#d2453b"; c.beginPath(); c.arc(rx - 20, y, 18, 0, 7); c.fill(); c.fillStyle = "#fff"; c.font = "bold 18px sans-serif"; c.fillText(MR.s < 0 ? "−" : "+", rx - 20, y + 6);
+  c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.fillText("대전체", rx - 20, y + 34);
+  if (mrK > .5) { c.font = "bold 13px Pretendard, sans-serif"; const a = MR.s < 0; c.fillStyle = a ? "#d2453b" : "#2f7fd6"; c.fillText(a ? "A: (+)" : "A: (-)", x0 + 30, 22); c.fillStyle = a ? "#2f7fd6" : "#d2453b"; c.fillText(a ? "B: (-)" : "B: (+)", x1 - 30, 22); c.fillStyle = "#26393b"; c.fillText(a ? "전자 이동 A → B" : "전자 이동 B → A", (x0 + x1) / 2, 22); }
+});
+WS.custom("mr_seen", { el: $("mr-cv"), value: () => [...MR.seen].join(",") });
+
+</script>
+</body>
+</html>

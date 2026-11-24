@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="../../js/config.js"></script>
+<script src="../../js/part-view.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중2 Ⅶ-1-01 — 마찰하면 생기는 전기</title>
+<link rel="stylesheet" href="../../js/ws-kit.css">
+<link rel="stylesheet" href="../../../g1/materials/g1-3/livebook.css">
+</head>
+<body data-submit="full">
+<div class="wrap">
+  <a class="kispp-back" href="../../../index.html" target="_top">← 아화중학교 과학 · 중학교 2학년 Ⅶ. 전기와 자기</a>
+
+  <div class="lb-hero">
+    <img class="bg" src="img/g1-charge.jpg" alt="">
+    <img class="lb-qmark" src="img/g1-hero.jpg" alt="옷을 갈아입을 때 스웨터에 머리카락이 달라붙는 까닭은 무엇일까?">
+    <div class="in">
+      <span class="chip">살아있는 교과서 · Ⅶ. 전기와 자기 · 1. 전기의 발생 · 01 <span class="pg" style="margin:0">229~231쪽</span></span>
+      <h1>마찰하면 생기는<br><span>전기</span></h1>
+      <p>옷을 갈아입을 때 스웨터에 머리카락이 달라붙는 까닭은 무엇일까? 가상 풍선을 면장갑으로 문질러 서로 밀고 당기는 모습을 관찰하고, 원자 돋보기로 전자가 어떻게 이동하는지 확인해 보자.</p>
+      <div class="goal">🎯 이 단원을 배우면 — 마찰 전기 현상을 관찰하고, 이를 전기력과 원자 모형을 이용하여 설명할 수 있다.</div>
+    </div>
+  </div>
+
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">첫 번째 블록</span>공기 청정기의 필터에 미세 먼지가 달라붙는 까닭은 무엇일까? <span class="pg">229쪽</span></div>
+    <div class="book"><p>“공기 청정기는 주변의 미세 먼지를 걸러 주어 깨끗한 공기를 마실 수 있게 해 줘.” “공기 청정기를 열어 먼지가 달라붙어 있는 필터를 새 필터로 교체해 줬어.” 이 단원의 힌트 조각(마찰하면 생기는 전기 · 가까이 하면 생기는 전기)을 모으면 전기력과 정전기 유도 현상을 이해하여 첫 번째 블록 질문에 답할 수 있다.</p></div>
+    <p style="font-size:13.5px;font-weight:800;margin:6px 0">이 단원과 관련해 이미 알고 있는 것에 표시해 보자.</p>
+    <div class="multi-group" id="know"><button type="button" class="multi-btn" data-value="1">원자는 전기적으로 중성이다.</button><button type="button" class="multi-btn" data-value="2">원자는 원자핵과 전자로 이루어져 있다.</button><button type="button" class="multi-btn" data-value="3">양성자는 (+)전하를 띠고, 전자는 (-)전하를 띤다.</button></div>
+  </section>
+  <section class="card" data-part="lab sim">
+    <div class="card-title"><span class="badge lab">해 보기 · 탐구 결과를 해석하여 결론 도출하기</span>마찰 전기 현상 관찰하기 <span class="pg">230쪽</span></div>
+    <div class="book"><p>겨울철에 옷을 갈아입으면 머리카락이 옷에 달라붙을 때가 있다. 이 현상은 옷과 머리카락이 마찰하면서 발생하는 전기 때문에 나타난다. 이처럼 종류가 다른 두 물체가 마찰하여 발생하는 전기를 <span class="key">마찰 전기</span>라고 한다.</p></div>
+<figure class="fig"><img src="img/g1-act.jpg" alt="① 면장갑으로 두 고무풍선을 각각 문지른다. ② 한 고무풍선을 스탠드에 매단 다음 다른 고무풍선을 가까이 한다. ③ 면장갑을 매달린 고무풍선에 가까이 한다."><figcaption><span class="tb">230쪽</span>① 면장갑으로 두 고무풍선을 각각 문지른다. ② 한 고무풍선을 스탠드에 매단 다음 다른 고무풍선을 가까이 한다. ③ 면장갑을 매달린 고무풍선에 가까이 한다.</figcaption></figure>
+    <div class="tip-box">풍선을 문지르는 도구로 면장갑 외에도 헝겊이나 부직포 등을 이용할 수 있다.</div>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">가상 실험</span>풍선과 면장갑</div>
+    <div class="card-hint">① 먼저 [문지르기]를 여러 번 눌러 두 풍선을 대전시킨 뒤 ② 풍선이나 ③ 면장갑을 매달린 풍선에 가까이 해 보자. [원자 돋보기]를 켜면 전하가 보여요.</div>
+    <div class="btn-row"><button type="button" class="btn main small" id="rb-rub">🧤 면장갑으로 두 풍선 문지르기</button><button type="button" class="btn small" data-near="b">🎈 풍선 가까이 (과정 2)</button><button type="button" class="btn small" data-near="g">🧤 면장갑 가까이 (과정 3)</button><button type="button" class="btn small" id="rb-eye">🔍 원자 돋보기 켜기</button><button type="button" class="btn ghost small" id="rb-reset">↺ 처음으로</button></div>
+    <div class="light-stage"><canvas id="rb-cv"></canvas></div>
+    <div class="tip-box" id="rb-msg">문지르기 전에는 풍선도 면장갑도 전기를 띠지 않아요.</div>
+    <div class="q" data-why="같은 면장갑으로 문지른 두 풍선은 같은 종류의 전하를 띠어 서로 밀어 내고, 풍선과 면장갑은 다른 종류의 전하를 띠어 서로 끌어당겨요." data-hint="가상 실험에서 ②, ③을 모두 해 보세요.">
+      <div class="q-text"><span class="q-num">1</span>스탠드에 매단 고무풍선은 각각 어떻게 움직이는가?</div>
+      <table class="data-t" style="margin-top:6px"><tr><td style="text-align:left">과정 2 — 문지른 다른 풍선을 가까이 할 때</td><td><span class="choice-group" data-key="rb1" data-answer="밀"><button type="button" class="choice-btn" data-value="밀">밀려난다</button><button type="button" class="choice-btn" data-value="끌">끌려 온다</button><button type="button" class="choice-btn" data-value="그">움직이지 않는다</button></span></td></tr><tr><td style="text-align:left">과정 3 — 문지른 면장갑을 가까이 할 때</td><td><span class="choice-group" data-key="rb2" data-answer="끌"><button type="button" class="choice-btn" data-value="밀">밀려난다</button><button type="button" class="choice-btn" data-value="끌">끌려 온다</button><button type="button" class="choice-btn" data-value="그">움직이지 않는다</button></span></td></tr></table>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">💬</span>과정 2와 3에서 스탠드에 매달린 고무풍선에 작용하는 힘의 방향이 어떻게 다른지 이야기해 보자.</div><textarea class="free" data-key="rb_why" rows="2" data-keywords="밀어,끌어당,같은,다른,전하" data-model="과정 2에서는 두 풍선이 같은 종류의 전하를 띠어 서로 밀어 내는 방향으로, 과정 3에서는 풍선과 면장갑이 다른 종류의 전하를 띠어 서로 끌어당기는 방향으로 힘이 작용한다."></textarea><span class="fb"></span></div>
+  </section>
+  <section class="card" data-part="concept">
+    <div class="card-title"><span class="badge concept">교과서</span>전기력 <span class="pg">231쪽</span></div>
+    <div class="book"><p>면장갑으로 문지른 두 고무풍선을 서로 가까이 하거나 면장갑으로 문지른 고무풍선에 면장갑을 가까이 하면 두 물체 사이에 힘이 작용한다. 이처럼 물체를 마찰하여 전기를 띠면 물체 사이에 힘이 작용하게 된다. 전기를 띠는 두 물체 사이에 작용하는 힘을 <span class="key">전기력</span>이라고 한다. 전기력은 같은 종류의 전하 사이에는 서로 밀어 내는 방향으로 작용하고, 다른 종류의 전하 사이에는 서로 끌어당기는 방향으로 작용한다.</p></div>
+<figure class="fig"><img src="img/g1-force.jpg" alt="전기를 띠는 물체 사이에 작용하는 전기력의 방향"><figcaption><span class="tb">그림 7-1</span>전기를 띠는 물체 사이에 작용하는 전기력의 방향</figcaption></figure>
+    <div class="block-q">
+      <b>🧩 첫 번째 블록 조각</b>
+      <div class="q" style="border-top:none;padding:0" data-why="">
+        <div class="q-text" style="color:#3a1600">대전된 공기 청정기 필터와 미세 먼지 사이에 작용하는 힘은 <input class="blank w-s" data-key="blk1" data-answer="전기력"> (이)다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+  </section>
+  <section class="card" data-part="concept sim">
+    <div class="card-title"><span class="badge concept">교과서</span>마찰한 물체는 어떻게 전기를 띠는 것일까? <span class="pg">231쪽</span></div>
+    <div class="book"><p>마찰한 물체가 전기를 띠는 것은 원자 모형을 이용하여 설명할 수 있다. 원자는 전기적으로 중성이므로, 원자로 이루어진 물체도 전기를 띠지 않는다. 그러나 두 물체를 서로 마찰하면 한 물체에서 다른 물체로 <b>전자</b>가 이동한다. 이때 전자를 잃은 물체는 (+)전하를 띠고, 전자를 얻은 물체는 (-)전하를 띤다. 이처럼 물체가 (+)전하나 (-)전하를 띠는 현상을 <span class="key">대전</span>이라 하고, 대전된 물체를 <span class="key">대전체</span>라고 한다.</p></div>
+<figure class="fig"><img src="img/g1-charge.jpg" alt="물체가 대전되는 과정 — (가) 마찰하는 중 (나) 마찰 후"><figcaption><span class="tb">그림 7-2</span>물체가 대전되는 과정 — (가) 마찰하는 중 (나) 마찰 후</figcaption></figure>
+    <div class="card-title" style="margin-top:12px"><span class="badge sim">마찰 실험실</span>무엇과 무엇을 문지를까?</div>
+    <div class="card-hint">두 물체를 고르고 [문지르기]를 눌러 보자. 물체마다 전자를 끌어당기는 정도가 달라서, 전자를 더 잘 끌어당기는 쪽이 전자를 얻어 (-)전하를 띠어요. (+) 털가죽 · 유리 · 면 · 고무 · 플라스틱 (-) 순서로 갈수록 전자를 잘 얻어요.</div>
+    <div class="btn-row" style="align-items:center"><b style="font-size:13px">물체 ㉠</b> <button type="button" class="btn small" data-a="fur">털가죽</button><button type="button" class="btn small" data-a="glass">유리 막대</button><button type="button" class="btn small" data-a="cotton">면장갑</button><button type="button" class="btn small" data-a="rubber">고무풍선</button><button type="button" class="btn small" data-a="pvc">플라스틱 빨대</button></div>
+    <div class="btn-row" style="align-items:center"><b style="font-size:13px">물체 ㉡</b> <button type="button" class="btn small" data-b="fur">털가죽</button><button type="button" class="btn small" data-b="glass">유리 막대</button><button type="button" class="btn small" data-b="cotton">면장갑</button><button type="button" class="btn small" data-b="rubber">고무풍선</button><button type="button" class="btn small" data-b="pvc">플라스틱 빨대</button><button type="button" class="btn main small" id="tr-rub">✋ 문지르기</button></div>
+    <div class="light-stage"><canvas id="tr-cv"></canvas></div>
+    <div class="tip-box" id="tr-msg">두 물체를 골라 보세요.</div>
+    <div class="q" data-why="털가죽보다 플라스틱이 전자를 더 잘 끌어당겨서 전자가 털가죽에서 빨대로 이동해요. 전자를 얻은 빨대는 (-), 잃은 털가죽은 (+)." data-hint="마찰 실험실에서 털가죽과 플라스틱 빨대를 골라 보세요.">
+      <div class="q-text"><span class="q-num">1</span>털가죽으로 플라스틱 빨대를 문지르면 전자는 <span class="choice-group" data-key="tr1" data-answer="털"><button type="button" class="choice-btn" data-value="털">털가죽 → 빨대</button><button type="button" class="choice-btn" data-value="빨">빨대 → 털가죽</button></span>로 이동하여 빨대는 <span class="choice-group" data-key="tr2" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하, 털가죽은 <span class="choice-group" data-key="tr3" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="마찰 전기는 종류가 다른 두 물체를 마찰할 때 잘 생겨요. 같은 물질끼리는 전자를 끌어당기는 정도가 같아요.">
+      <div class="q-text"><span class="q-num">2</span>같은 물체 두 개(예: 고무풍선과 고무풍선)를 문지르면 <span class="choice-group" data-key="tr4" data-answer="x"><button type="button" class="choice-btn" data-value="x">전자가 거의 이동하지 않아 대전되지 않는다</button><button type="button" class="choice-btn" data-value="o">둘 다 (-)전하를 띤다</button></span>.</div>
+      <span class="fb"></span>
+    </div>
+  </section>
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 확인하기</span>230쪽 학습 목표를 달성했는지 확인해 보자 <span class="pg">231쪽</span></div>
+    <div class="q" data-why="전자는 (-)전하를 띠므로, 잃으면 (+), 얻으면 (-)">
+      <div class="q-text"><span class="q-num">1</span><b>개념 확인</b> 두 물체를 서로 마찰했을 때 전자를 잃은 물체는 <span class="choice-group" data-key="sc1" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띠고, 전자를 얻은 물체는 <span class="choice-group" data-key="sc2" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q"><div class="q-text"><span class="q-num">2</span><b>사고력</b> 플라스틱 빗으로 머리를 빗으면 머리카락이 빗에 달라붙는다. 그 까닭을 마찰 전기와 관련지어 설명해 보자.</div><textarea class="free" data-key="sc_comb" rows="2" data-keywords="마찰,전자,다른,끌어당" data-model="빗과 머리카락이 마찰하면서 전자가 이동하여 빗과 머리카락이 서로 다른 종류의 전하로 대전되고, 다른 종류의 전하 사이에는 끌어당기는 전기력이 작용하기 때문이다."></textarea><span class="fb"></span></div>
+  </section>
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">5분 테스트</span>마찰하면 생기는 전기</div>
+    <div class="q" data-why="마찰 전기, 전기력">
+      <div class="q-text"><span class="q-num">1</span>종류가 다른 두 물체가 마찰하여 발생하는 전기를 <input class="blank w-s" data-key="t1" data-answer="마찰 전기"> 라고 하고, 전기를 띠는 두 물체 사이에 작용하는 힘을 <input class="blank w-s" data-key="t2" data-answer="전기력"> 이라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="같은 전하는 척력, 다른 전하는 인력">
+      <div class="q-text"><span class="q-num">3</span>전기력은 같은 종류의 전하 사이에는 서로 <span class="choice-group" data-key="t3a" data-answer="밀"><button type="button" class="choice-btn" data-value="밀">밀어 내는</button><button type="button" class="choice-btn" data-value="끌">끌어당기는</button></span>, 다른 종류의 전하 사이에는 서로 <span class="choice-group" data-key="t3b" data-answer="끌"><button type="button" class="choice-btn" data-value="밀">밀어 내는</button><button type="button" class="choice-btn" data-value="끌">끌어당기는</button></span> 방향으로 작용한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="A와 밀어 내므로 B는 A와 같은 (+), B와 끌어당기므로 C는 (-)">
+      <div class="q-text"><span class="q-num">4</span>전기를 띠는 물체 A, B, C를 실에 매달았다. A는 (+)전하를 띠고, A와 B는 서로 밀어 내며, B와 C는 서로 끌어당긴다. → B는 <span class="choice-group" data-key="t4" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하, C는 <span class="choice-group" data-key="t5" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="대전">
+      <div class="q-text"><span class="q-num">6</span>물체가 전기를 띠는 현상을 <input class="blank w-s" data-key="t6" data-answer="대전"> 이라고 한다.</div>
+      <span class="fb"></span>
+    </div>
+    <div class="q" data-why="전자를 잃으면 (-)전하가 (+)전하보다 적어져 (+)전하를 띠고(⑧ X, ⑩ O), 전자를 얻으면 (-)전하를 띠어요(⑨ X).">
+      <div class="q-text"><span class="q-num">✔</span>옳으면 O, 옳지 않으면 X</div>
+      <table class="data-t" style="margin-top:6px"><tr><td style="text-align:left">⑦ 서로 다른 두 물체를 마찰하면 (-)전하를 띤 전자가 이동한다.</td><td><span class="choice-group" data-key="t7" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr><tr><td style="text-align:left">⑧ 전자를 잃은 물체는 (-)전하를 띤다.</td><td><span class="choice-group" data-key="t8" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr><tr><td style="text-align:left">⑨ 전자를 얻은 물체는 (+)전하를 띤다.</td><td><span class="choice-group" data-key="t9" data-answer="X"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr><tr><td style="text-align:left">⑩ 전자를 잃은 물체에는 (-)전하의 양이 (+)전하의 양보다 적다.</td><td><span class="choice-group" data-key="t10" data-answer="O"><button type="button" class="choice-btn" data-value="O">O</button><button type="button" class="choice-btn" data-value="X">X</button></span></td></tr></table>
+      <span class="fb"></span>
+    </div>
+  </section>
+  <section class="card" data-part="quiz">
+    <div class="card-title"><span class="badge quiz">스스로 정리하기</span>마찰 전기와 대전 <span class="pg">234쪽</span></div>
+    <div class="sum-sheet">
+      <h4><span class="n">1</span>전기력</h4>
+      <div class="q" style="border-top:none" data-why="전기력 — 같은 전하는 밀어 내고, 다른 전하는 끌어당겨요.">
+        <div class="q-text">⑴ <input class="blank w-s" data-key="s1" data-answer="전기력"> : 전기를 띠는 두 물체 사이에 작용하는 힘<br>⑵ 전기력의 방향: 같은 종류의 전하 사이에는 서로 <input class="blank w-s" data-key="s2" data-answer="밀어 내는"> 방향, 다른 종류의 전하 사이에는 서로 <input class="blank w-s" data-key="s3" data-answer="끌어당기는"> 방향으로 힘이 작용한다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <div class="sum-sheet">
+      <h4><span class="n">2</span>대전</h4>
+      <div class="q" style="border-top:none" data-why="마찰 전기, 잃으면 (+), 얻으면 (-)">
+        <div class="q-text">⑴ <input class="blank w-s" data-key="s4" data-answer="마찰 전기"> : 종류가 다른 두 물체가 마찰되어 발생하는 전기<br>⑵ 대전: 물체가 (+)전하나 (-)전하를 띠는 현상 — 전자를 잃으면 <span class="choice-group" data-key="s5" data-answer="+"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를, 전자를 얻으면 <span class="choice-group" data-key="s6" data-answer="-"><button type="button" class="choice-btn" data-value="+">+</button><button type="button" class="choice-btn" data-value="-">-</button></span>전하를 띤다.</div>
+        <span class="fb"></span>
+      </div>
+    </div>
+    <table class="data-t" style="margin-top:10px">
+      <tr><th style="text-align:left">평가 기준</th><th>스스로 평가</th></tr><tr><td style="text-align:left"><b>지식·이해</b> 마찰 전기 현상을 전기력과 원자 모형을 이용하여 설명할 수 있는가?</td><td><span class="choice-group" id="self1"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr><tr><td style="text-align:left"><b>과정·기능</b> 마찰 전기 현상을 관찰하고 결과를 해석할 수 있는가?</td><td><span class="choice-group" id="self2"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr><tr><td style="text-align:left"><b>가치·태도</b> 일상생활의 전기 현상에 호기심을 느꼈는가?</td><td><span class="choice-group" id="self3"><button type="button" class="choice-btn" data-value="상">잘함</button><button type="button" class="choice-btn" data-value="중">보통</button><button type="button" class="choice-btn" data-value="하">노력 필요</button></span></td></tr>
+    </table>
+  </section>
+  <section class="card" data-part="submit">
+    <div class="card-title"><span class="badge">제출</span>학생 정보 · 제출하기</div>
+    <div class="card-hint">모든 활동을 마친 뒤 제출하면 전체가 한 번에 채점되고 피드백이 나타나요. 답안은 선생님 스프레드시트(중2 탭)에 기록돼요.</div>
+    <div class="ws-student">
+      <input id="ws-grade" placeholder="학년" inputmode="numeric" value="2">
+      <input id="ws-class" placeholder="반" inputmode="numeric">
+      <input id="ws-number" placeholder="번호" inputmode="numeric">
+      <input class="name" id="ws-name" placeholder="이름">
+    </div>
+    <div class="check-row" style="border-top:none;padding-top:0;margin-top:0">
+      <button class="btn primary" id="ws-submit">제출하고 채점받기</button>
+      <button class="btn ghost" id="ws-reset">처음부터 다시 풀기</button>
+      <span class="score" id="ws-result"></span>
+    </div>
+    <div class="ws-status" id="ws-status"></div>
+    <div class="summary" id="ws-summary"></div>
+  </section>
+
+  <footer>아화중학교 과학 · 중학교 과학 2 Ⅶ. 전기와 자기 · 1. 전기의 발생 · 01 마찰하면 생기는 전기 · 비상교육 중학 과학 2 교과서(229~231쪽)·해 보기 활동지·5분 테스트 바탕, 교과서 그림 수록</footer>
+</div>
+
+<script src="../../../g1/materials/g1-3/livebook.js"></script>
+<script src="../../js/ws-kit.js"></script>
+<script>
+WS.worksheet = "중2 Ⅶ-1-01 마찰하면 생기는 전기";
+const $ = id => document.getElementById(id);
+const picked = id => () => { const b = $(id).querySelector(".picked"); return b ? b.dataset.value : ""; };
+document.querySelectorAll(".choice-group[id^=self]").forEach(g => WS.custom(g.id, { el: g, value: picked(g.id) }));
+if ($("know")) WS.custom("know", { el: $("know"), value: () => [...$("know").querySelectorAll(".picked")].map(b => b.dataset.value).join(",") });
+/* ── 풍선과 면장갑 ── */
+const RB = { q: 0, near: null, eye: false, ang: 0, seen: new Set(), rubT: 0 };
+const rbMsg = t => $("rb-msg").textContent = t;
+$("rb-rub").addEventListener("click", () => { RB.q = Math.min(6, RB.q + 2); RB.rubT = performance.now(); RB.seen.add("rub"); rbMsg(RB.q >= 6 ? "충분히 문질렀어요! 면장갑의 전자가 풍선으로 옮겨 가 풍선은 (-), 면장갑은 (+)전하를 띠어요." : "문지르는 중… 전자가 면장갑에서 풍선으로 이동하고 있어요."); });
+document.querySelectorAll("[data-near]").forEach(b => b.addEventListener("click", () => { RB.near = RB.near === b.dataset.near ? null : b.dataset.near; if (RB.near) RB.seen.add(RB.near);
+  if (!RB.near) rbMsg("멀리 치웠어요."); else if (!RB.q) rbMsg("아직 문지르지 않아서 전기를 띠지 않으므로 거의 움직이지 않아요.");
+  else rbMsg(RB.near === "b" ? "같은 종류(-)의 전하끼리 → 매달린 풍선이 밀려나요!" : "다른 종류의 전하(+와 -) → 매달린 풍선이 면장갑 쪽으로 끌려 와요!"); }));
+$("rb-eye").addEventListener("click", () => { RB.eye = !RB.eye; $("rb-eye").textContent = RB.eye ? "🔍 원자 돋보기 끄기" : "🔍 원자 돋보기 켜기"; });
+$("rb-reset").addEventListener("click", () => { Object.assign(RB, { q: 0, near: null, ang: 0 }); rbMsg("문지르기 전에는 풍선도 면장갑도 전기를 띠지 않아요."); });
+WS.custom("rb_seen", { el: $("rb-cv"), value: () => [...RB.seen].sort().join(",") });
+function charges(c, x, y, r, plus, minus) { c.font = "bold 12px sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; const n = plus + minus;
+  for (let i = 0; i < n; i++) { const a = i * 2.399, rr = r * Math.sqrt((i + .5) / n) * .8, px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr, p = i < plus;
+    c.fillStyle = p ? "#d2453b" : "#2f7fd6"; c.beginPath(); c.arc(px, py, 6, 0, 7); c.fill(); c.fillStyle = "#fff"; c.fillText(p ? "+" : "−", px, py + .5); } c.textBaseline = "alphabetic"; }
+LB.loop($("rb-cv"), dt => {
+  const H = 260, sc = Math.min(1, $("rb-cv").clientWidth / 360), g = LB.fit($("rb-cv"), H * sc), c = g.c, W = g.w / sc; c.scale(sc, sc); c.fillStyle = "#f6fafa"; c.fillRect(0, 0, W, H);
+  const px = Math.min(W * .4, 200), top = 20, L = 150;
+  let target = 0; if (RB.near && RB.q) target = RB.near === "b" ? -0.35 * RB.q / 6 : 0.32 * RB.q / 6; RB.ang += (target - RB.ang) * Math.min(1, dt * 4);
+  c.fillStyle = "#777"; c.fillRect(px - 100, top - 6, 140, 6); c.fillRect(px - 104, top - 6, 6, H - 20);
+  const bx = px + Math.sin(RB.ang) * L, by = top + Math.cos(RB.ang) * L;
+  c.strokeStyle = "#999"; c.beginPath(); c.moveTo(px, top); c.lineTo(bx, by - 36); c.stroke();
+  function balloon(x, y, col) { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, 32, 38, 0, 0, 7); c.fill(); c.beginPath(); c.moveTo(x - 5, y + 40); c.lineTo(x + 5, y + 40); c.lineTo(x, y + 34); c.fill(); }
+  balloon(bx, by, "#8bc34a");
+  const nb = 4, extra = RB.q / 2; if (RB.eye) charges(c, bx, by, 34, nb, nb + extra);
+  // 가까이 할 물체
+  const ox = RB.near ? Math.min(px + 120, W - 40) : W - 70, oy = by;
+  if (RB.near === "g" || !RB.near) { const gx = RB.near === "g" ? ox : W - 70, gy = RB.near === "g" ? oy : 70; c.fillStyle = "#f3e7b6"; c.beginPath(); c.roundRect ? c.roundRect(gx - 28, gy - 30, 56, 64, 12) : c.rect(gx - 28, gy - 30, 56, 64); c.fill(); c.strokeStyle = "#cdb978"; c.stroke(); c.fillStyle = "#7a6a30"; c.font = "11px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("면장갑", gx, gy + 48); if (RB.eye) charges(c, gx, gy, 26, nb, nb - extra); }
+  if (RB.near === "b" || !RB.near) { const gx = RB.near === "b" ? ox : W - 70, gy = RB.near === "b" ? oy : 185; balloon(gx, gy, "#ef5350"); c.fillStyle = "#26393b"; c.font = "11px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText("다른 고무풍선", gx, gy + 58); if (RB.eye) charges(c, gx, gy, 34, nb, nb + extra); }
+  if (performance.now() - RB.rubT < 700) { c.font = "28px sans-serif"; c.fillText("🧤", bx + 20 * Math.sin(performance.now() / 50), by); }
+  if (RB.near && RB.q) { const s = RB.near === "b" ? -1 : 1; c.strokeStyle = c.fillStyle = s < 0 ? "#d2453b" : "#2f7fd6"; c.lineWidth = 3; c.beginPath(); c.moveTo(bx, by - 50); c.lineTo(bx + s * 36, by - 50); c.stroke(); c.beginPath(); c.moveTo(bx + s * 44, by - 50); c.lineTo(bx + s * 34, by - 56); c.lineTo(bx + s * 34, by - 44); c.fill(); c.lineWidth = 1; c.font = "12px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(s < 0 ? "밀어 내는 힘" : "끌어당기는 힘", bx, by - 62); }
+  c.textAlign = "left"; c.fillStyle = "#26393b"; c.font = "12px Pretendard, sans-serif"; c.fillText(RB.q ? `대전 정도 ${"■".repeat(RB.q / 2)}${"□".repeat(3 - RB.q / 2)}` : "대전 전 (중성)", 8, H - 10);
+  if (RB.eye) { c.fillText("빨간 + : 원자핵의 (+)전하   파란 − : 전자", W - 230 > 120 ? W - 230 : 120, H - 10); }
+});
+
+/* ── 마찰 실험실 ── */
+const ORDER = { fur: 0, glass: 1, cotton: 2, rubber: 3, pvc: 4 }, NM = { fur: "털가죽", glass: "유리 막대", cotton: "면장갑", rubber: "고무풍선", pvc: "플라스틱 빨대" }, COL = { fur: "#b08a5a", glass: "#bfe3ef", cotton: "#f3e7b6", rubber: "#8bc34a", pvc: "#f48fb1" };
+const TR = { a: null, b: null, res: null, t: 0, pairs: new Set() };
+function trSel() { document.querySelectorAll("[data-a]").forEach(b => b.classList.toggle("main", b.dataset.a === TR.a)); document.querySelectorAll("[data-b]").forEach(b => b.classList.toggle("main", b.dataset.b === TR.b)); }
+document.querySelectorAll("[data-a]").forEach(b => b.addEventListener("click", () => { TR.a = b.dataset.a; TR.res = null; trSel(); }));
+document.querySelectorAll("[data-b]").forEach(b => b.addEventListener("click", () => { TR.b = b.dataset.b; TR.res = null; trSel(); }));
+$("tr-rub").addEventListener("click", () => { if (!TR.a || !TR.b) { $("tr-msg").textContent = "물체 ㉠과 ㉡을 모두 골라 주세요."; return; } TR.t = performance.now(); TR.pairs.add([TR.a, TR.b].sort().join("-"));
+  const d = ORDER[TR.b] - ORDER[TR.a]; TR.res = d; if (!d) $("tr-msg").textContent = `같은 물질끼리 문지르면 전자를 끌어당기는 정도가 같아 거의 대전되지 않아요.`;
+  else { const neg = d > 0 ? TR.b : TR.a, pos = d > 0 ? TR.a : TR.b; $("tr-msg").textContent = `전자가 ${NM[pos]} → ${NM[neg]}(으)로 이동! ${NM[neg]}: (-)전하, ${NM[pos]}: (+)전하로 대전돼요.`; } });
+WS.custom("tr_pairs", { el: $("tr-cv"), value: () => [...TR.pairs].join(",") });
+LB.loop($("tr-cv"), () => {
+  const H = 170, sc = Math.min(1, $("tr-cv").clientWidth / 360), g = LB.fit($("tr-cv"), H * sc), c = g.c, W = g.w / sc; c.scale(sc, sc); c.fillStyle = "#f6fafa"; c.fillRect(0, 0, W, H);
+  const k = Math.min(1, (performance.now() - TR.t) / 1200), shake = k < 1 ? Math.sin(performance.now() / 40) * 6 : 0;
+  [[TR.a, W * .3 + shake, 1], [TR.b, W * .7 - shake, -1]].forEach(([m, x, s], i) => { if (!m) { c.fillStyle = "#c5d0d2"; c.font = "13px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(i ? "물체 ㉡" : "물체 ㉠", x, 80); return; }
+    c.fillStyle = COL[m]; c.beginPath(); c.ellipse(x, 75, 60, 48, 0, 0, 7); c.fill(); c.fillStyle = "#26393b"; c.font = "bold 13px Pretendard, sans-serif"; c.textAlign = "center"; c.fillText(NM[m], x, 145);
+    let e = 0; if (TR.res) { const gain = (i === 0 ? -TR.res : TR.res) > 0; e = Math.round(Math.min(4, Math.abs(TR.res) + 1) * k) * (gain ? 1 : -1); }
+    charges(c, x, 75, 44, 7, 7 + e); if (TR.res && k >= 1) { c.font = "bold 16px Pretendard, sans-serif"; c.fillStyle = e > 0 ? "#2f7fd6" : e < 0 ? "#d2453b" : "#888"; c.fillText(e > 0 ? "(-)전하" : e < 0 ? "(+)전하" : "중성", x, 20); } });
+  if (TR.res && k < 1) { const dir = TR.res > 0 ? 1 : -1, x = W / 2 + dir * (k - .5) * W * .3; c.fillStyle = "#2f7fd6"; c.beginPath(); c.arc(x, 75, 7, 0, 7); c.fill(); c.fillStyle = "#fff"; c.font = "bold 12px sans-serif"; c.fillText("−", x, 79); }
+});
+
+</script>
+</body>
+</html>
