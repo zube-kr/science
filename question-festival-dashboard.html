@@ -90,7 +90,7 @@
   <div class="card login" id="loginCard">
     <div style="font-size:42px">🔐</div>
     <h2>교사 코드 입력</h2>
-    <p style="color:var(--soft);font-size:13.5px;margin:0">Apps Script(<code>code-3rd.gs</code>)에 정한 <b>INQUIRY_TEACHER_CODE</b>를 넣어 주세요.</p>
+    <p style="color:var(--soft);font-size:13.5px;margin:0">Apps Script(<code>code-question-festival.gs</code>)에 정한 <b>INQUIRY_TEACHER_CODE</b>를 넣어 주세요.</p>
     <form id="loginForm" autocomplete="off"><input type="password" id="code" placeholder="교사 코드" aria-label="교사 코드"><button class="btn" type="submit">열기</button></form>
     <div class="msg" id="loginMsg"></div>
     <button type="button" class="btn ghost sm" id="demoBtn" style="margin-top:6px">예시 데이터로 미리 보기</button>
@@ -138,12 +138,13 @@
   </div>
 
   <div class="note" style="margin-top:20px">
-    <b>설정 안내</b> — 대시보드는 3학년 워크시트용 Apps Script(<code>code-3rd.gs</code>)를 함께 써요. 새 코드로 바꾼 뒤 <code>INQUIRY_TEACHER_CODE</code>에 교사 코드를 적고 <b>배포 관리 → 새 버전</b>으로 다시 배포해 주세요. 학생 기록은 구글 시트의 <b>질문탐구_질문 · 질문탐구_워크시트 · AI조사_기록</b> 탭에 저장돼요.
+    <b>설정 안내</b> — 질문탐구한마당은 3학년 과학 워크시트와 <b>따로</b> 동작해요. 새 구글 시트에 <code>code-question-festival.gs</code>를 붙여넣고 <code>INQUIRY_TEACHER_CODE</code>와 Gemini 키를 정한 뒤 웹 앱으로 배포해 주세요. 학생 기록은 그 시트의 <b>질문탐구_질문 · 질문탐구_워크시트 · AI조사_기록</b> 탭에 저장돼요.
   </div>
 </main>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec";
+// code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
+const APPS_SCRIPT_URL = "";
 const STAR_KEY = 'qf-dashboard-stars';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -164,6 +165,7 @@ const saveStars = () => { try{ localStorage.setItem(STAR_KEY, JSON.stringify([..
 
 async function load(){
   if(demo){ D = demoData(); render(); return; }
+  if(!APPS_SCRIPT_URL) throw new Error('아직 서버 주소가 연결되지 않았어요. code-question-festival.gs를 배포한 뒤 주소를 알려 주세요.');
   const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'inquiry_dashboard', code }) });
   const r = await res.json();
   if(r.result !== 'success') throw new Error(r.message || '불러오지 못했어요.');
