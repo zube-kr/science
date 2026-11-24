@@ -203,9 +203,24 @@
   table.check input{ width:18px; height:18px; accent-color:var(--violet); }
 
   .submit-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .stepsave{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:16px; padding-top:12px; border-top:1px dashed var(--paper-line); }
+  .stepsave .btn{ background:#EDE9FE; color:#4B3A8C; }
+  .stepsave .btn:hover:not(:disabled){ background:#DDD3FB; }
+  .stepsave span{ font-size:12.5px; font-weight:700; color:var(--ink-soft); }
+  .stepsave span.ok{ color:var(--ok); } .stepsave span.err{ color:var(--warn); }
+  .savebar{ position:fixed; right:16px; bottom:16px; z-index:40; display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid #C4B5FD; border-radius:999px; padding:6px 8px 6px 14px; box-shadow:0 10px 26px rgba(31,36,48,.18); }
+  .savebar small{ font-size:12px; color:var(--ink-soft); font-weight:700; }
+  .savebar small.ok{ color:var(--ok); } .savebar small.err{ color:var(--warn); }
+  .savebar .btn{ border-radius:999px; padding:8px 14px; background:var(--violet); }
+  .progress{ display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 12px; }
+  .progress span{ font-size:12.5px; font-weight:800; border-radius:999px; padding:4px 11px; background:#F3F0E6; color:#9A927E; }
+  .progress span.half{ background:#FFF1D6; color:#8A5A00; }
+  .progress span.done{ background:#E6F4EC; color:#2E7D52; }
+  main{ padding-bottom:110px; }
   .save-note{ font-size:12px; color:var(--ink-soft); }
 
   @media (max-width:700px){
+    .savebar{ left:12px; right:12px; bottom:10px; justify-content:space-between; }
     section{ padding:18px 15px; }
     .flow{ grid-template-columns:repeat(3,1fr); }
     .rules, .grid2, .crit{ grid-template-columns:1fr; }
@@ -310,6 +325,7 @@
     <p class="hint">지문에서 <b>깊이 생각해 볼 단어</b>를 찾아요. 그리고 왜 그 단어에 관심이 생겼는지 <b>우리의 삶과 관련 지어</b> 적어요.</p>
     <div id="kwRows"></div>
     <div class="try">💡 좋은 관심어는 '무슨 뜻이지?'에서 끝나지 않고, <b>'나와 우리 반·우리 사회에서는 어떨까?'</b>로 이어지는 단어예요. 예) 비교, 기준, 눈치, 무례함, 평범함…</div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 1 탐색">💾 STEP 1 탐색 마치고 — 선생님께 중간 저장</button><span></span></div>
   </section>
 
   <!-- STEP 2 생성 -->
@@ -334,6 +350,7 @@
     <div class="msg" id="qMsg"></div>
     <ul class="qlist" id="qList"></ul>
     <div style="margin-top:12px"><label class="lb" for="genProcess">질문을 만든 과정이나 이유 (어떤 생각에서 이 질문들이 나왔나?)</label><textarea id="genProcess" placeholder="예) '비교'라는 관심어에서 시작해, 내가 SNS를 볼 때 느낀 감정을 떠올리며 질문을 만들었다."></textarea></div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 2 생성">💾 STEP 2 생성 마치고 — 선생님께 중간 저장</button><span></span></div>
   </section>
 
   <div class="meta" data-stage="during1">
@@ -355,6 +372,7 @@
       <div><b>🤝 의사소통·조정</b>친구 의견을 존중하며 더 좋은 질문으로 다듬었나?</div>
     </div>
     <div class="stack" id="picks"></div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 3 선정">💾 STEP 3 선정 마치고 — 선생님께 중간 저장</button><span></span></div>
   </section>
 
   <div class="meta" data-stage="during2">
@@ -406,6 +424,7 @@
     <div id="inqs"></div>
     <button type="button" class="btn violet" id="aiFeedback">✦ AI에게 우리 탐구 점검받기</button>
     <div class="ai-feedback" id="aiFeedbackBox" hidden></div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 4 탐구">💾 STEP 4 탐구 마치고 — 선생님께 중간 저장</button><span></span></div>
   </section>
 
   <div class="meta" data-stage="during3">
@@ -438,6 +457,7 @@
       <div class="grid2"><div><label class="lb" for="expQ2">예상 질문 ②</label><input type="text" id="expQ2" placeholder="예) 잠정적인 답의 근거는 무엇인가요?"></div><div><label class="lb" for="expA2">우리의 1분 답</label><textarea id="expA2" style="min-height:60px"></textarea></div></div>
       <div><label class="lb" for="toOthers">다른 팀 발표를 듣고 패들렛에 올릴 '좋은 질문'의 조건은? (경청)</label><input type="text" id="toOthers" placeholder="예) 발표 팀이 더 생각해 볼 수 있게 돕는 질문, 비난이 아닌 궁금증"></div>
     </div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 5 발표">💾 STEP 5 발표 준비 마치고 — 선생님께 중간 저장</button><span></span></div>
   </section>
 
   <!-- 학습 후 -->
@@ -479,15 +499,18 @@
   </section>
 
   <section>
-    <h2><span class="num">✉</span>제출하기</h2>
-    <p class="hint">반·번호·이름을 확인하고 제출해요. 제출해도 이 화면의 내용은 남아 있어서, 고친 뒤 다시 제출할 수 있어요(가장 최근 제출이 기준).</p>
+    <h2><span class="num">✉</span>최종 제출하기</h2>
+    <p class="hint">활동 중간에는 각 STEP 끝이나 화면 오른쪽 아래의 <b>💾 중간 저장</b>을 누르면 선생님이 진행 상황을 확인하고 도와줄 수 있어요. 모두 마치면 <b>최종 제출</b>을 눌러요. 제출한 뒤에도 고쳐서 다시 제출할 수 있어요(가장 최근 것이 기준).</p>
+    <div class="progress" id="progress"></div>
     <div class="submit-row">
-      <button type="button" class="btn" id="submitBtn">선생님께 제출하기</button>
+      <button type="button" class="btn" id="submitBtn">✅ 최종 제출하기</button>
       <button type="button" class="btn ghost sm" id="clearBtn">새로 시작(지우기)</button>
     </div>
     <div class="msg" id="submitMsg"></div>
   </section>
 </main>
+
+<div class="savebar" id="savebar"><small id="lastSaved">아직 선생님께 저장하지 않았어요</small><button type="button" class="btn sm" id="floatSave">💾 중간 저장</button></div>
 
 <script>
 // code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
@@ -869,20 +892,36 @@ function renderChecks(){
 }
 $('checkTable').addEventListener('change', e => { if(e.target.name){ S.checks[e.target.name] = e.target.value; saveDraft(); } });
 
-/* ---------- 제출 ---------- */
-$('submitBtn').addEventListener('click', async () => {
-  const msg = $('submitMsg');
-  const s = needStudent(msg); if(!s) return;
-  const kwOk = S.kws.some(k => k.w.trim());
-  if(!kwOk){ msg.textContent = 'STEP 1에서 관심어를 하나 이상 적어 주세요.'; msg.className = 'msg err'; return; }
-  if(S.questions.length < 1){ msg.textContent = 'STEP 2에서 질문을 하나 이상 만들어 주세요.'; msg.className = 'msg err'; return; }
-  $('submitBtn').disabled = true; msg.textContent = '제출하는 중…'; msg.className = 'msg';
-  // 아직 못 보낸 질문은 다시 보내기
-  for(const q of S.questions) if(!q.sent) await sendQuestion(q);
-  renderQuestions();
+/* ---------- 진행 상황 · 중간 저장 · 최종 제출 ---------- */
+// 단계별 진행: 'O' 완료, '△' 하는 중, '' 아직
+function progress(){
+  const v = id => $(id).value.trim();
+  const kw = S.kws.filter(k => k.w.trim()), kwWhy = kw.filter(k => k.why.trim());
+  const picked = S.picks.filter(p => (p.to || p.from).trim()), pickedFull = S.picks.filter(p => (p.to || p.from).trim() && p.reason.trim());
+  const ans = S.inqs.filter(q => q.answer.trim()), anyInq = S.inqs.filter(q => q.answer.trim() || q.process.trim());
+  const META_IDS = ['mb-rate', 'mb-prior', 'md-question', 'md-select', 'md-evidence', 'ma-rate', 'ma-change', 'ma-strategy', 'me-career'];
+  return {
+    '탐색': kwWhy.length ? 'O' : kw.length ? '△' : '',
+    '생성': S.questions.length >= 3 ? 'O' : S.questions.length ? '△' : '',
+    '선정': pickedFull.length >= 2 ? 'O' : picked.length ? '△' : '',
+    '탐구': ans.length >= 2 ? 'O' : anyInq.length ? '△' : '',
+    '발표': v('expQ1') && v('expA1') ? 'O' : (v('expQ1') || v('expA1') || v('expQ2') || v('toOthers')) ? '△' : '',
+    '메타': META_IDS.filter(id => String(S.meta[id] || '').trim()).length
+  };
+}
+function renderProgress(){
+  const pr = progress();
+  $('progress').innerHTML = ['탐색', '생성', '선정', '탐구', '발표'].map(k => `<span class="${pr[k] === 'O' ? 'done' : pr[k] ? 'half' : ''}">${pr[k] === 'O' ? '✓' : pr[k] ? '…' : '○'} ${k}</span>`).join('') +
+    `<span class="${pr['메타'] >= 6 ? 'done' : pr['메타'] ? 'half' : ''}">🧠 메타질문 ${pr['메타']}/9</span>`;
+}
+function buildPayload(kind, where){
+  const s = student();
+  const pr = progress();
   const kwText = S.kws.filter(k => k.w.trim()).map(k => `${k.w.trim()}: ${k.why.trim()}`).join('\n');
-  const payload = {
+  return {
     form:'질문탐구_워크시트', submittedAt:new Date().toISOString(), ...s,
+    '저장종류':kind, '저장위치':where,
+    '진행-탐색':pr['탐색'], '진행-생성':pr['생성'], '진행-선정':pr['선정'], '진행-탐구':pr['탐구'], '진행-발표':pr['발표'], '메타응답수':pr['메타'],
     '팀':$('team').value.trim(), '팀원':$('mates').value.trim(),
     '읽은부분':$('passageWhere').value.trim(), '인상깊은문장':$('passageQuote').value.trim(), '지문요약':$('passageSummary').value.trim(), '내생각':$('passageThought').value.trim(),
     '관심어':S.kws.map(k => k.w.trim()).filter(Boolean).join(', '), '관심어-이유':kwText,
@@ -902,13 +941,55 @@ $('submitBtn').addEventListener('click', async () => {
     '메타-다음질문':S.next.join(' / '), '메타-진로연결':S.meta['me-career'] || '',
     '체크리스트':CHECKS.map(([st, id, q], i) => `${i + 1}.${S.checks[id] || '-'}`).join(' ')
   };
+}
+const hhmm = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+function showLastSaved(){
+  const el = $('lastSaved');
+  if(S.lastSaved){ el.textContent = `${S.lastSaved.kind} ${S.lastSaved.time} ✓`; el.className = 'ok'; }
+}
+// 안내 글자: 제출 칸은 .msg, 나머지(STEP 끝·화면 아래)는 ok/err 색만
+function setState(el, text, state){ el.textContent = text; el.className = (el.id === 'submitMsg' ? 'msg ' : '') + (state || ''); }
+let sending = false;
+async function sendWorksheet(kind, where, msgEl, btn){
+  const st = student();
+  if(!st.stuClass || !st.stuNumber || !st.name){ setState(msgEl, '맨 위 "우리 팀 정보"에 반·번호·이름을 먼저 적어 주세요.', 'err'); $('stuClass').focus(); return false; }
+  if(sending) return false;
+  sending = true; if(btn) btn.disabled = true; $('floatSave').disabled = true;
+  setState(msgEl, kind === '최종 제출' ? '제출하는 중…' : '저장하는 중…', '');
   try{
-    await post(payload);
-    msg.textContent = '제출했어요! 선생님 화면에 전달되었어요. 고친 뒤 다시 제출해도 돼요.'; msg.className = 'msg ok';
+    for(const q of S.questions) if(!q.sent) await sendQuestion(q);   // 아직 못 보낸 질문도 함께
+    renderQuestions();
+    await post(buildPayload(kind, where));
+    S.lastSaved = { kind, time: hhmm(new Date()) }; showLastSaved();
+    if(msgEl.id !== 'lastSaved') setState(msgEl, kind === '최종 제출' ? '최종 제출했어요! 선생님 화면에 전달되었어요. 고친 뒤 다시 제출해도 돼요.' : `💾 ${S.lastSaved.time} 중간 저장했어요. 선생님이 진행 상황을 볼 수 있어요.`, 'ok');
+    return true;
   }catch(e){
-    msg.textContent = APPS_SCRIPT_URL ? '제출하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.' : '선생님이 아직 서버를 연결하지 않아서 제출할 수 없어요. 적은 내용은 이 기기에 저장되어 있어요.'; msg.className = 'msg err';
-  }finally{ $('submitBtn').disabled = false; saveDraft(); }
+    setState(msgEl, APPS_SCRIPT_URL ? '저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.' : '선생님이 아직 서버를 연결하지 않았어요. 적은 내용은 이 기기에 저장되어 있어요.', 'err');
+    return false;
+  }finally{ sending = false; if(btn) btn.disabled = false; $('floatSave').disabled = false; saveDraft(); renderProgress(); }
+}
+// STEP 끝의 중간 저장 버튼
+document.querySelectorAll('[data-save]').forEach(btn => btn.addEventListener('click', () => {
+  sendWorksheet('중간 저장', btn.dataset.save, btn.nextElementSibling, btn);
+}));
+// 오른쪽 아래 중간 저장
+$('floatSave').addEventListener('click', async () => {
+  await sendWorksheet('중간 저장', '화면 아래 버튼', $('lastSaved'), $('floatSave'));
 });
+// 최종 제출
+$('submitBtn').addEventListener('click', async () => {
+  const msg = $('submitMsg');
+  const st = student();
+  if(!st.stuClass || !st.stuNumber || !st.name){ setState(msg, '맨 위 "우리 팀 정보"에 반·번호·이름을 먼저 적어 주세요.', 'err'); return; }
+  if(!S.kws.some(k => k.w.trim())){ msg.textContent = 'STEP 1에서 관심어를 하나 이상 적어 주세요.'; msg.className = 'msg err'; return; }
+  if(S.questions.length < 1){ msg.textContent = 'STEP 2에서 질문을 하나 이상 만들어 주세요.'; msg.className = 'msg err'; return; }
+  const pr = progress(), left = ['탐색', '생성', '선정', '탐구', '발표'].filter(k => pr[k] !== 'O');
+  if(left.length && !confirm(`아직 덜 채운 단계가 있어요: ${left.join(', ')}\n그래도 최종 제출할까요? (나중에 다시 제출할 수 있어요)`)) return;
+  sendWorksheet('최종 제출', '최종 제출 버튼', msg, $('submitBtn'));
+});
+document.addEventListener('input', () => { clearTimeout(window.__prT); window.__prT = setTimeout(renderProgress, 400); });
+document.addEventListener('click', e => { if(e.target.closest('.rate, #qAdd, #nextAdd, .x, [data-ni]')) setTimeout(renderProgress, 50); });
+
 $('clearBtn').addEventListener('click', () => {
   if(!confirm('이 기기에 저장된 내용을 모두 지우고 새로 시작할까요? (이미 선생님께 보낸 질문과 제출은 남아 있어요)')) return;
   try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
@@ -917,7 +998,7 @@ $('clearBtn').addEventListener('click', () => {
 
 /* ---------- 시작 ---------- */
 loadDraft();
-renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); AI.refresh();
+renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); AI.refresh(); renderProgress(); showLastSaved();
 </script>
 </body>
 </html>
