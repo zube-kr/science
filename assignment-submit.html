@@ -280,7 +280,7 @@ async function loadTasks(){
 }
 function renderTasks(){
   const box = $("tasks");
-  if (!st.tasks.length){ box.innerHTML = '<div class="msg">지금 제출할 과제가 없어요.</div>'; refreshLocks(); return; }
+  if (!st.tasks.length){ box.innerHTML = `<div class="msg">아직 열린 ${GRADE}학년 과제가 없어요. 선생님이 과제를 열면 여기에 나타나고, 과제를 골라야 ④ 파일 올리기를 쓸 수 있어요.</div>`; refreshLocks(); return; }
   box.innerHTML = st.tasks.map((t, i) =>
     `<button type="button" class="task ${st.task && st.task.title === t.title ? "sel" : ""}" data-i="${i}">
       <div class="t">${esc(t.title)}${dueBadge(t.due)}</div>${t.desc ? `<div class="d">${esc(t.desc)}</div>` : ""}</button>`).join("");
