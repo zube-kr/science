@@ -40,6 +40,12 @@ const DEFAULT_UNIT = "질문탐구한마당 — 『나는 나로 살기로 했�
 const ALLOWED_FORMS = ["질문탐구_질문", "질문탐구_워크시트"];
 const ROSTER_SHEET = "학생명단";
 const SAVE_SHEET = "질문탐구_저장";
+// 책마다 따로 저장한다 (같은 학생이 두 책 워크시트를 써도 서로 덮어쓰지 않게)
+const BOOKS = {
+  naro:   { title: "나는 나로 살기로 했다", save: SAVE_SHEET },
+  spring: { title: "침묵의 봄", save: "질문탐구_저장_침묵의봄" }
+};
+const bookOf_ = function (data) { return BOOKS[String(data && data.book || "")] ? String(data.book) : "naro"; };
 const ROSTER_HEAD = ["반", "번호", "이름", "코드", "마지막로그인"];
 const SAVE_HEAD = ["반", "번호", "이름", "저장시각", "저장종류", "진행-탐색", "진행-생성", "진행-선정", "진행-탐구", "진행-발표", "메타응답수", "상태"];
 
@@ -95,6 +101,7 @@ const AI_MODELS = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-
 const AI_TIME_BUDGET_MS = 25000;    // 한 질문에 다른 모델로 다시 시도하는 시간 한도
 
 function inquirySystemPrompt_(unit) {
+  if (String(unit).indexOf("침묵의 봄") >= 0) return springSystemPrompt_(unit);
   return [
     "너는 아화중학교 3학년 학생들의 '질문·탐구 궁금한마당' 대회 연습을 돕는 'AI 조사 도우미'이다.",
     "연습 주제: " + unit + ". 학생들은 책의 한 부분(지문)을 읽고 탐색(관심어 찾기) → 생성(질문 만들기) → 선정(질문 2개 고르고 다듬기) → 탐구(검색·토의로 답 찾기) → 발표 순서로 활동한다.",
@@ -110,6 +117,24 @@ function inquirySystemPrompt_(unit) {
     "8. 맨 마지막 줄에 '이어진 질문:'으로 시작하는 질문을 하나 써서 학생이 생각을 넓혀 보게 한다.",
     "9. 개인 정보나 부적절한 내용은 정중히 거절한다. 학생 자신의 고민처럼 보이는 질문에는 먼저 공감하고, 필요하면 담임 선생님이나 상담 선생님과 이야기해 보도록 권한다.",
     "10. 학생이 제출할 글이나 발표문을 통째로 써 달라고 하면 정중히 거절하고, 스스로 정리하는 방법을 안내한다."
+  ].join("\n");
+}
+
+/* 『침묵의 봄』(레이첼 카슨) 독서 튜터: 책 내용을 근거로 생각할 거리를 던진다 */
+function springSystemPrompt_(unit) {
+  return [
+    "너는 레이첼 카슨의 『침묵의 봄』(Silent Spring, 1962)을 깊이 알고 있는 '독서 튜터'이자 'AI 조사 도우미'이다.",
+    "대상: 아화중학교 3학년. 연습 주제: " + unit + ". 학생들은 질문·탐구 궁금한마당(탐색 → 생성 → 선정 → 탐구 → 발표)을 연습한다.",
+    "규칙:",
+    "1. 한국어로, 중학교 3학년 눈높이에 맞춰 친절하게 답한다.",
+    "2. 책의 장(章) 내용과 실제 사례(예: 클리어 호의 DDD와 논병아리, 미시간의 느릅나무 방제와 울새·지렁이, 미라미치 강의 연어, 불개미 박멸 계획, 생물학적 방제 등)를 근거로 설명하고, 어느 장의 이야기인지 밝힌다.",
+    "3. 원문을 인용할 때는 1~2문장만, 확실히 아는 문장만 '원문 번역'이라고 밝혀 쓴다. 확실하지 않으면 인용하지 말고 요약한다. 책에 없는 문장을 지어내지 않는다.",
+    "4. 연도·수치·이름은 확실한 것만 쓰고, 불확실하면 '책에서 확인해 보세요'라고 안내한다.",
+    "5. 학생이 책 내용을 물으면 핵심을 설명한 뒤, 학생이 스스로 생각하도록 '튜터의 질문'을 1~2개 던진다. 정답이나 결론을 대신 정해 주지 않는다.",
+    "6. 오늘날과 연결할 때(예: 농약과 꿀벌, 미세플라스틱, 잔류성 유기오염물질, 우리 동네 방역)는 여러 관점을 함께 소개하고, 논쟁이 있는 내용은 그렇다고 밝힌다. 카슨이 '모든 화학 살충제를 쓰지 말자'고 한 것이 아니라 위험을 모른 채 무차별로 쓰는 것을 비판했다는 점을 정확히 전한다.",
+    "7. 관련 과학 개념(먹이 사슬과 생물 농축, 지용성 물질의 축적, 해충의 내성과 자연 선택, 천적과 생물학적 방제, 세포와 유전)을 중학생 수준으로 연결한다.",
+    "8. 3~5개 항목(- 로 시작), 전체 700~1,000자로 문장이 끊기지 않게 마무리하고, 마지막 줄에 '튜터의 질문:'으로 시작하는 질문을 하나 쓴다.",
+    "9. 개인 정보나 부적절한 내용은 정중히 거절한다. 학생이 제출할 글이나 발표문을 통째로 써 달라고 하면 거절하고 정리 방법을 안내한다."
   ].join("\n");
 }
 
@@ -331,7 +356,9 @@ function inquiryDashboard_(data) {
     worksheets: readRows_("질문탐구_워크시트"),
     ai: readRows_(AI_LOG_SHEET, null, 1500),
     roster: readRows_(ROSTER_SHEET),
-    saves: readRows_(SAVE_SHEET).map(function (o) { delete o["상태"]; return o; })   // 진행 요약만 (긴 상태 글은 빼고)
+    saves: Object.keys(BOOKS).reduce(function (all, k) {   // 진행 요약만 (긴 상태 글은 빼고), 책 이름 표시
+      return all.concat(readRows_(BOOKS[k].save).map(function (o) { delete o["상태"]; o["도서"] = BOOKS[k].title; return o; }));
+    }, [])
   });
 }
 
@@ -416,8 +443,8 @@ function studentCheck_(data) {
   cache.remove(kOne);
   return { me: me };
 }
-function saveRowOf_(me) {
-  const sh = sheetWithHead_(SAVE_SHEET, SAVE_HEAD), n = sh.getLastRow() - 1;
+function saveRowOf_(me, book) {
+  const sh = sheetWithHead_(BOOKS[book || "naro"].save, SAVE_HEAD), n = sh.getLastRow() - 1;
   if (n < 1) return { sh: sh, row: 0, values: null };
   const v = sh.getRange(2, 1, n, SAVE_HEAD.length).getValues();
   for (let i = 0; i < v.length; i++) if (String(v[i][0]) === me.cls && String(v[i][1]) === me.num) return { sh: sh, row: i + 2, values: v[i] };
@@ -429,13 +456,13 @@ function studentLogin_(data) {
   if (c.error) return json_({ result: "error", message: c.error });
   const me = c.me;
   try { SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ROSTER_SHEET).getRange(me.row, 5).setValue(new Date()); } catch (e) {}
-  const s = saveRowOf_(me);
+  const s = saveRowOf_(me, bookOf_(data));
   let saved = null;
   if (s.values) {
     const at = s.values[3];
     saved = { at: at instanceof Date ? at.toISOString() : String(at), kind: String(s.values[4]), state: String(s.values[11] || "") };
   }
-  return json_({ result: "success", student: { cls: me.cls, num: me.num, name: me.name }, saved: saved });
+  return json_({ result: "success", book: bookOf_(data), student: { cls: me.cls, num: me.num, name: me.name }, saved: saved });
 }
 // { action:"student_save", cls, num, stuCode, kind, progress:{...}, state:"JSON", row:{...워크시트 한 줄(중간·최종일 때)} }
 function studentSave_(data) {
@@ -446,7 +473,7 @@ function studentSave_(data) {
   const pr = data.progress || {}, now = new Date(), kind = String(data.kind || "자동 저장").slice(0, 20);
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    const s = saveRowOf_(me);
+    const s = saveRowOf_(me, bookOf_(data));
     const line = [me.cls, me.num, me.name, now, kind, pr["탐색"] || "", pr["생성"] || "", pr["선정"] || "", pr["탐구"] || "", pr["발표"] || "", pr["메타"] || 0, state];
     if (s.row) s.sh.getRange(s.row, 1, 1, SAVE_HEAD.length).setValues([line]);
     else s.sh.appendRow(line);

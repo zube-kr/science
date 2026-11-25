@@ -111,7 +111,7 @@
 <body>
 <header>
   <div class="hin">
-    <div><h1>🎤 질문탐구한마당 교사 대시보드</h1><p>『나는 나로 살기로 했다』 연습 워크시트에서 학생들이 만든 질문 · AI에게 한 질문 · 제출한 워크시트를 모아 봐요.</p></div>
+    <div><h1>🎤 질문탐구한마당 교사 대시보드</h1><p>『침묵의 봄』 · 『나는 나로 살기로 했다』 연습 워크시트에서 학생들이 만든 질문 · AI에게 한 질문 · 제출한 워크시트를 모아 봐요.</p></div>
   </div>
 </header>
 <main>
@@ -126,6 +126,7 @@
 
   <div id="dash" hidden>
     <div class="bar">
+      <select id="fBook" aria-label="도서"><option value="침묵의 봄">🌱 『침묵의 봄』</option><option value="나는 나로 살기로 했다">📗 『나는 나로 살기로 했다』</option></select>
       <select id="fClass"><option value="">전체 반</option></select>
       <input type="search" id="fSearch" placeholder="이름·팀·질문 검색">
       <label><input type="checkbox" id="fStar"> ⭐만 보기</label>
@@ -227,18 +228,25 @@ $('loginForm').addEventListener('submit', async e => {
   try{ await load(); $('code').value = ''; $('loginMsg').textContent = ''; openDash(); }
   catch(err){ $('loginMsg').textContent = /Failed to fetch|NetworkError|JSON/.test(err.message) ? '서버에 연결하지 못했어요. Apps Script를 새 코드로 배포했는지 확인해 주세요.' : err.message; }
 });
-$('demoBtn').addEventListener('click', () => { demo = true; load(); openDash(); });
+$('demoBtn').addEventListener('click', () => { demo = true; $('fBook').value = '나는 나로 살기로 했다'; load(); openDash(); });
 function openDash(){ $('loginCard').hidden = true; $('dash').hidden = false; schedule(); }
 function schedule(){ clearInterval(timer); if($('autoRef').checked && !demo) timer = setInterval(() => load().catch(() => {}), 30000); }
 $('autoRef').addEventListener('change', schedule);
 $('refBtn').addEventListener('click', () => load().catch(err => alert(err.message)));
 ['fClass', 'fStar', 'fSearch'].forEach(id => $(id).addEventListener('input', render));
+$('fBook').addEventListener('change', () => { try{ localStorage.setItem('qf-dashboard-book', $('fBook').value); }catch(e){} render(); });
+try{ const b = localStorage.getItem('qf-dashboard-book'); if(b != null && [...$('fBook').options].some(o => o.value === b)) $('fBook').value = b; }catch(e){}
 $('fProject').addEventListener('change', () => document.body.classList.toggle('project', $('fProject').checked));
 
 /* ---------- 자료 정리 ---------- */
 const sid = r => `${r['반']}-${r['번호']}-${r['이름']}`;
 const whoText = r => `<span class="nm">${esc(r['반'])}반 ${esc(r['번호'])}번 ${esc(r['이름'])}</span>`;
 const timeOf = r => r['제출시각'] || r['시각'] || r['저장시각'] || '';
+// 도서: 예전 기록(도서 칸 없음)은 『나는 나로 살기로 했다』, AI 기록은 '주제' 칸의 책 이름으로 구분
+const NARO = '나는 나로 살기로 했다';
+const bookOf = r => r['도서'] || (String(r['주제'] || '').includes('침묵의 봄') ? '침묵의 봄' : NARO);
+const BK = arr => { const b = $('fBook').value; return (arr || []).filter(r => bookOf(r) === b); };   // 책마다 따로 본다 (같은 학생이 두 책을 할 수 있어서)
+
 const isFinal = r => r['저장종류'] === '최종 제출';
 const kindChip = r => !r ? '<span class="kind qonly">질문만 보냄</span>' : isFinal(r) ? '<span class="kind final">✅ 최종 제출</span>' : `<span class="kind mid">💾 중간 저장${r['저장위치'] && /^STEP/.test(r['저장위치']) ? ' · ' + esc(r['저장위치']) : ''}</span>`;
 const ago = v => { const m = Math.floor((Date.now() - new Date(v)) / 60000); return isNaN(m) ? '' : m < 1 ? '방금' : m < 60 ? `${m}분 전` : `${Math.floor(m / 60)}시간 ${m % 60}분 전`; };
@@ -251,14 +259,14 @@ function passes(r, text){
 }
 function latestWorksheets(){
   const m = new Map();
-  (D.worksheets || []).forEach(r => { const k = sid(r); const p = m.get(k); if(!p || new Date(timeOf(r)) >= new Date(timeOf(p))) m.set(k, r); });
+  BK(D.worksheets).forEach(r => { const k = sid(r); const p = m.get(k); if(!p || new Date(timeOf(r)) >= new Date(timeOf(p))) m.set(k, r); });
   return [...m.values()];
 }
 
 function render(){
   if(!D) return;
-  const Q = (D.questions || []).map(r => ({ ...r, _type: r['질문유형'] || qType(String(r['질문'] || '')) }));
-  const AIQ = (D.ai || []).filter(r => r['종류'] === '질문' || r['종류'] === '피드백');
+  const Q = BK(D.questions).map(r => ({ ...r, _type: r['질문유형'] || qType(String(r['질문'] || '')) }));
+  const AIQ = BK(D.ai).filter(r => r['종류'] === '질문' || r['종류'] === '피드백');
   const WS = latestWorksheets();
   // 반 목록
   const classes = [...new Set([...Q, ...AIQ, ...WS].map(r => String(r['반'])).filter(Boolean))].sort((a, b) => a - b);
@@ -315,7 +323,7 @@ function render(){
   AIQ.filter(r => r['종류'] === '질문').forEach(r => { const o = byStu.get(sid(r)); o.ai++; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); });
   WS.forEach(r => { const k = sid(r); const o = byStu.get(k) || { r, q:0, ai:0, last:timeOf(r) }; o.ws = r; o.r = r; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); byStu.set(k, o); });
   // 자동 저장(질문탐구_저장): 학생마다 한 줄, 가장 최근 진행 상태
-  (D.saves || []).forEach(r => { const k = sid(r); const o = byStu.get(k) || { r, q:0, ai:0, last:timeOf(r) }; o.sv = r; if(!o.ws) o.r = r; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); byStu.set(k, o); });
+  BK(D.saves).forEach(r => { const k = sid(r); const o = byStu.get(k) || { r, q:0, ai:0, last:timeOf(r) }; o.sv = r; if(!o.ws) o.r = r; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); byStu.set(k, o); });
   // 명단에 있지만 아직 시작하지 않은 학생
   roster.forEach(r => { const k = sid(r); if(!byStu.has(k)) byStu.set(k, { r, q:0, ai:0, last:'', none:true }); });
   const stCell = v => `<span class="st ${v === 'O' ? 'done' : v === '△' ? 'half' : ''}">${v === 'O' ? '✓' : v === '△' ? '…' : '○'}</span>`;
@@ -354,8 +362,8 @@ function render(){
       </div></div>`).join('') : '<div class="empty">아직 제출된 워크시트가 없어요.</div>';
 
   // 메타
-  $('metaTable').innerHTML = `<thead><tr><th>학생</th><th>학습 전 → 후<br>(생각·설명 정도)</th><th>학습 전 '나로 산다는 것'</th><th>생성·선정·근거 점검</th><th>생각 변화 · 전략 수정</th><th>다음 질문 · 진로 연결</th></tr></thead><tbody>` +
-    (ws.length ? ws.map(r => `<tr><td>${whoText(r)}</td><td>${esc(r['메타-학습전-생각정도'] || '-')} → ${esc(r['메타-학습후-설명정도'] || '-')}</td><td>${esc(r['메타-학습전-나로산다는것'])}</td>
+  $('metaTable').innerHTML = `<thead><tr><th>학생</th><th>학습 전 → 후<br>(생각·설명 정도)</th><th>학습 전 생각</th><th>생성·선정·근거 점검</th><th>생각 변화 · 전략 수정</th><th>다음 질문 · 진로 연결</th></tr></thead><tbody>` +
+    (ws.length ? ws.map(r => `<tr><td>${whoText(r)}</td><td>${esc(r['메타-학습전-생각정도'] || '-')} → ${esc(r['메타-학습후-설명정도'] || '-')}</td><td>${esc(r['메타-학습전-나로산다는것'] || r['메타-학습전-생각'])}</td>
       <td>${esc([r['메타-생성점검'] && '생성: ' + r['메타-생성점검'], r['메타-선정점검'] && '선정: ' + r['메타-선정점검'], r['메타-근거점검'] && '근거: ' + r['메타-근거점검']].filter(Boolean).join('\n'))}</td>
       <td>${esc([r['메타-생각변화'], r['메타-전략수정'] && '전략: ' + r['메타-전략수정']].filter(Boolean).join('\n'))}</td>
       <td>${esc([r['메타-다음질문'], r['메타-진로연결'] && '진로: ' + r['메타-진로연결']].filter(Boolean).join('\n'))}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">아직 제출된 워크시트가 없어요.</td></tr>') + '</tbody>';
@@ -446,7 +454,7 @@ $('qFeed').addEventListener('click', e => { const b = e.target.closest('[data-st
 $('csvBtn').addEventListener('click', () => {
   if(!D) return;
   const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const rows = [['시각', '반', '번호', '이름', '팀', '관심어', '질문', '질문유형', '우리삶연결', '⭐']].concat((D.questions || []).map(r => [fmtT(timeOf(r)), r['반'], r['번호'], r['이름'], r['팀'], r['관심어'], r['질문'], r['질문유형'] || qType(String(r['질문'])), meLinked(String(r['질문'])) ? 'O' : '', stars.has(timeOf(r) + r['질문']) ? '⭐' : '']));
+  const rows = [['시각', '반', '번호', '이름', '팀', '관심어', '질문', '질문유형', '우리삶연결', '⭐']].concat(BK(D.questions).map(r => [fmtT(timeOf(r)), r['반'], r['번호'], r['이름'], r['팀'], r['관심어'], r['질문'], r['질문유형'] || qType(String(r['질문'])), meLinked(String(r['질문'])) ? 'O' : '', stars.has(timeOf(r) + r['질문']) ? '⭐' : '']));
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\r\n')], { type:'text/csv;charset=utf-8' }));
   a.download = '질문탐구한마당_학생질문.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
