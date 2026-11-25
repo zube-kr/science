@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>질문탐구한마당 — 『생명이 있는 것은 다 아름답다』</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#1B1A3A; --night-deep:#100F24; --gold:#F2C46B; --gold-soft:#F8DFA9;
+    --paper:#FAF8F3; --paper-line:#E4DFD2; --ink:#1F2430; --ink-soft:#5B6172;
+    --violet:#6d5bd0; --ok:#3F7D5C; --warn:#B0522F; --blue:#2F6FDB;
+  }
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Noto Sans KR',sans-serif; line-height:1.6; }
+  button{ font-family:inherit; }
+
+  header.hero{ background:radial-gradient(ellipse at 20% -10%, #3A2F6B 0%, var(--night) 45%, var(--night-deep) 100%); color:var(--paper); padding:44px 24px 38px; position:relative; overflow:hidden; }
+  header.hero::before{ content:""; position:absolute; inset:0; opacity:.75;
+    background-image:radial-gradient(1.5px 1.5px at 12% 24%, var(--gold-soft) 99%, transparent), radial-gradient(1px 1px at 78% 18%, #fff 99%, transparent),
+      radial-gradient(1.5px 1.5px at 64% 62%, var(--gold-soft) 99%, transparent), radial-gradient(1px 1px at 30% 78%, #fff 99%, transparent), radial-gradient(1px 1px at 90% 74%, #fff 99%, transparent); }
+  .hero-inner{ max-width:800px; margin:0 auto; position:relative; }
+  .eyebrow{ font-size:13px; letter-spacing:.14em; color:var(--gold); margin-bottom:10px; font-weight:700; }
+  h1{ font-family:'Noto Serif KR',serif; font-size:clamp(24px,4vw,34px); margin:0 0 10px; font-weight:700; line-height:1.35; }
+  h1 small{ display:block; font-size:.55em; color:var(--gold-soft); font-weight:500; margin-top:4px; }
+  .hero p{ color:#D3D0E8; max-width:60ch; margin:0; font-size:15px; }
+  .hero .slogan{ display:inline-block; margin-top:14px; border:1px solid rgba(242,196,107,.5); border-radius:999px; padding:4px 14px; font-size:13px; color:var(--gold-soft); }
+
+  main{ max-width:800px; margin:0 auto; padding:28px 18px 80px; }
+  section{ background:#fff; border:1px solid var(--paper-line); border-radius:14px; padding:24px 22px; margin-bottom:20px; }
+  section h2{ font-family:'Noto Serif KR',serif; font-size:19px; margin:0 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  section h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--night); color:var(--gold); font-size:13px; font-family:'Noto Sans KR',sans-serif; font-weight:700; flex:none; }
+  .hint{ color:var(--ink-soft); font-size:13.5px; margin:0 0 14px; }
+  .ai-tag{ font-family:'Noto Sans KR',sans-serif; font-size:11.5px; font-weight:800; border-radius:999px; padding:2px 10px; }
+  .ai-tag.no{ background:#FCE7E3; color:#A63A2A; }
+  .ai-tag.yes{ background:#E6F4EC; color:#2E7D52; }
+  .ai-tag.slide{ background:#EEF0FA; color:#3b3f8f; }
+
+  .phase{ display:flex; align-items:center; gap:12px; margin:34px 0 12px; scroll-margin-top:12px; }
+  .phase b{ flex:none; width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg,#6d5bd0,#2b2a6a); color:#fff; display:grid; place-items:center; font-size:17px; }
+  .phase div{ line-height:1.3; }
+  .phase span{ display:block; font-size:12px; letter-spacing:.08em; color:var(--violet); font-weight:700; }
+  .phase strong{ font-family:'Noto Serif KR',serif; font-size:19px; color:var(--night); }
+  .phase em{ font-style:normal; font-size:13px; color:var(--ink-soft); margin-left:6px; }
+
+  /* 대회 흐름 */
+  .flow{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:8px 0 4px; }
+  .flow a{ text-decoration:none; color:var(--ink); background:#F7F5EE; border:1px solid var(--paper-line); border-radius:12px; padding:9px 8px; font-size:12px; line-height:1.45; position:relative; }
+  .flow a b{ display:block; font-size:14px; color:var(--night); }
+  .flow a i{ font-style:normal; display:inline-block; margin-top:4px; font-size:10.5px; font-weight:800; border-radius:999px; padding:0 7px; }
+  .flow a i.no{ background:#FCE7E3; color:#A63A2A; } .flow a i.yes{ background:#E6F4EC; color:#2E7D52; }
+  .rules{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  .rule{ background:#F7F5EE; border-radius:12px; padding:11px 13px; font-size:13px; line-height:1.65; }
+  .rule b{ color:var(--night); }
+  table.mini{ width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+  table.mini th, table.mini td{ border:1px solid var(--paper-line); padding:7px 9px; text-align:left; vertical-align:top; }
+  table.mini th{ background:#F3F0E6; font-weight:700; }
+
+  /* 입력 */
+  .id-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .id-row .field{ flex:1; min-width:150px; }
+  .id-row .field.narrow{ flex:0 1 86px; min-width:72px; }
+  label.lb{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:5px; font-weight:500; }
+  textarea, input[type=text], input[type=number], select{ width:100%; padding:10px 12px; border:1px solid #C9C3B0; border-radius:8px; font-family:inherit; font-size:14.5px; background:#fff; color:var(--ink); }
+  textarea{ min-height:84px; resize:vertical; line-height:1.6; }
+  textarea:focus, input:focus, select:focus{ outline:2px solid #C4B5FD; border-color:#A897EA; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stack{ display:flex; flex-direction:column; gap:12px; }
+  .btn{ border:none; border-radius:10px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer; background:var(--night); color:#fff; white-space:nowrap; }
+  .btn:hover:not(:disabled){ background:#2C2A5A; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .btn.ghost{ background:#F3F0E6; color:var(--ink); }
+  .btn.violet{ background:var(--violet); }
+  .btn.gold{ background:#E0A63A; color:#2B1B00; }
+  .btn.sm{ padding:6px 11px; font-size:12.5px; border-radius:8px; }
+  .msg{ font-size:13px; font-weight:700; margin-top:8px; min-height:18px; }
+  .msg.ok{ color:var(--ok); } .msg.err{ color:var(--warn); }
+
+  /* 책 */
+  .book{ display:grid; grid-template-columns:120px 1fr; gap:18px; align-items:center; }
+  .cover{ aspect-ratio:3/4.2; border-radius:6px 12px 12px 6px; background:linear-gradient(150deg,#FFE9C7,#F7C9B6 55%,#D9C7F2); box-shadow:inset 6px 0 0 rgba(0,0,0,.08), 0 8px 18px rgba(31,36,48,.18); display:flex; flex-direction:column; justify-content:space-between; padding:12px 10px; }
+  .cover b{ font-family:'Noto Serif KR',serif; font-size:15px; line-height:1.35; color:#3B2A5A; }
+  .cover small{ font-size:11px; color:#5E4A7E; }
+  .themes{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px; }
+  .themes button{ border:1.5px solid #DCD3F7; background:#F7F4FF; color:#4B3A8C; border-radius:999px; padding:5px 12px; font-size:13px; cursor:pointer; }
+  .themes button:hover{ background:#EDE7FF; }
+  .fact{ background:linear-gradient(135deg,#1B1A3A,#3A2F6B); color:#E9E6F7; border-radius:12px; padding:13px 15px; font-size:14px; line-height:1.7; margin:12px 0; }
+  .fact b{ color:var(--gold); }
+  .try{ border:1.5px dashed #C9C3B0; border-radius:12px; padding:11px 14px; font-size:13.5px; margin:12px 0; background:#FFFDF7; }
+
+  /* 관심어 */
+  .kw-row{ display:grid; grid-template-columns:150px 1fr; gap:10px; margin-bottom:10px; align-items:start; }
+  .kw-row .kw-num{ font-size:12px; font-weight:800; color:var(--violet); margin-bottom:4px; }
+
+  /* 질문 */
+  .stems{ display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+  .stems button{ border:1px dashed #BFB2EA; background:#FAF8FF; color:#4B3A8C; border-radius:10px; padding:5px 10px; font-size:12.5px; cursor:pointer; }
+  .stems button b{ color:#7c3aed; }
+  .q-input{ display:grid; grid-template-columns:150px 1fr auto; gap:8px; }
+  .qlist{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .qlist li{ display:flex; gap:10px; align-items:flex-start; background:#F7F5EE; border:1px solid var(--paper-line); border-radius:12px; padding:9px 12px; font-size:14px; }
+  .qlist li .qt{ flex:1; }
+  .qlist li .meta{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .chip{ font-size:11px; font-weight:800; border-radius:999px; padding:1px 8px; background:#EEF0FA; color:#3b3f8f; }
+  .chip.t-가정{ background:#FFF1D6; color:#8A5A00; } .chip.t-가치{ background:#FCE7F3; color:#9D174D; } .chip.t-이유{ background:#E6F0FF; color:#1E4FA8; }
+  .chip.t-방법{ background:#E6F4EC; color:#2E7D52; } .chip.t-사실{ background:#F0F0F0; color:#555; } .chip.me{ background:#EDE9FE; color:#5b21b6; }
+  .chip.sent{ background:#E6F4EC; color:#2E7D52; }
+  .qlist li button.x{ all:unset; cursor:pointer; color:#999; font-size:16px; padding:0 4px; }
+  .empty{ color:var(--ink-soft); font-size:13px; }
+
+  /* 선정 카드 */
+  .pick{ border:1.5px solid #D8CCFB; border-radius:14px; padding:14px; background:#FCFBFF; }
+  .pick h3{ margin:0 0 8px; font-size:15px; color:#4B3A8C; }
+  .arrow-row{ display:grid; grid-template-columns:1fr 26px 1fr; gap:6px; align-items:center; }
+  .arrow-row .ar{ text-align:center; color:var(--violet); font-weight:900; }
+  .checks{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13.5px; }
+  .checks label{ display:flex; gap:5px; align-items:center; cursor:pointer; }
+  .checks input{ width:16px; height:16px; accent-color:var(--violet); }
+  .crit{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+  .crit div{ background:#F7F5EE; border-radius:10px; padding:9px 11px; font-size:12.5px; line-height:1.55; }
+  .crit b{ display:block; color:var(--night); font-size:13px; }
+
+  /* AI 조사 도우미 */
+  .topic-row{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:2px 0 12px; }
+  .topic-row .tlabel{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+  .topic{ font-size:12.5px; font-weight:700; cursor:pointer; border:1.5px solid #CFE0EC; background:#EEF6FB; color:#245A7A; border-radius:999px; padding:6px 13px; }
+  .topic.active{ background:#2A7AA8; border-color:#2A7AA8; color:#fff; }
+  .ai-box{ border:1.5px solid #CFC5F0; border-radius:16px; overflow:hidden; background:#fff; margin-bottom:14px; }
+  .ai-head{ display:flex; align-items:center; gap:10px; padding:10px 14px; background:linear-gradient(90deg,#F2EDFF,#EAF4FF); border-bottom:1px solid #E1D9F7; }
+  .ai-head .grow{ flex:1; }
+  .ai-logo{ width:32px; height:32px; border-radius:10px; display:grid; place-items:center; color:#fff; font-size:16px; background:linear-gradient(135deg,#4F7BF7,#9B5CF0 60%,#E8638C); }
+  .ai-head b{ display:block; font-size:13.5px; }
+  .ai-head span#aiState{ font-size:11px; color:var(--ink-soft); }
+  .ai-count{ font-size:11.5px; font-weight:800; color:var(--violet); }
+  .ai-starters{ display:flex; flex-wrap:wrap; gap:6px; padding:10px 14px 0; }
+  .ai-starters button{ font-size:12px; cursor:pointer; border:1px dashed #BFB2EA; background:#FAF8FF; color:#4B3A8C; border-radius:10px; padding:5px 10px; }
+  .ai-log{ max-height:380px; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+  .ai-msg{ max-width:88%; font-size:13px; line-height:1.7; padding:9px 12px; border-radius:14px; word-break:keep-all; overflow-wrap:anywhere; }
+  .ai-msg.me{ align-self:flex-end; background:var(--night); color:#fff; border-bottom-right-radius:4px; }
+  .ai-msg.bot{ align-self:flex-start; background:#F3F0FA; color:var(--ink); border-bottom-left-radius:4px; }
+  .ai-msg.bot small{ display:block; color:var(--ink-soft); font-size:11px; margin-top:4px; }
+  .ai-msg.err{ background:#FBE6E2; color:#8A2A1F; }
+  .ai-msg ul{ padding-left:18px; margin:4px 0; } .ai-msg p{ margin:2px 0; }
+  .ai-src{ margin-top:6px; font-size:11px; }
+  .ai-src a{ display:inline-block; margin:2px 6px 0 0; color:var(--blue); text-decoration:none; background:#fff; border:1px solid #D5DEEF; border-radius:999px; padding:1px 8px; }
+  .ai-typing::after{ content:"…"; animation:blink 1s infinite; }
+  @keyframes blink{ 50%{ opacity:.2; } }
+  .ai-input{ display:flex; gap:8px; padding:10px 14px 12px; border-top:1px solid #EEE9F8; }
+  .ai-input input{ flex:1; min-width:0; font-size:13.5px; }
+  .ai-feedback{ background:#F3F0FA; border:1px solid #DCD2F5; border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.75; margin-top:10px; }
+  .ai-feedback ul{ padding-left:20px; margin:4px 0; } .ai-feedback p{ margin:2px 0; }
+
+  /* AI 활용 기록 */
+  table.ailog{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.ailog th{ background:#EEF0FA; color:#3b3f8f; padding:7px 8px; text-align:left; font-weight:800; }
+  table.ailog td{ border-bottom:1px solid var(--paper-line); padding:6px; vertical-align:top; }
+  table.ailog td textarea{ min-height:56px; font-size:13px; padding:7px 9px; }
+  table.ailog td:first-child{ width:32%; }
+
+  /* 탐구 */
+  .inq{ border:1px solid var(--paper-line); border-radius:14px; padding:14px; margin-bottom:12px; background:#FFFEFB; }
+  .inq h3{ margin:0 0 10px; font-size:15px; color:var(--night); }
+  .inq h3 span{ color:var(--violet); }
+
+  /* 발표 */
+  .slides{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .slides div{ border:1px solid var(--paper-line); border-radius:12px; padding:10px; background:#F7F5EE; font-size:12.5px; line-height:1.55; }
+  .slides div b{ display:block; color:var(--night); font-size:13.5px; }
+  .slides div i{ font-style:normal; font-size:11px; color:var(--violet); font-weight:800; }
+  pre.outline{ white-space:pre-wrap; background:#F7F5EE; border:1px solid var(--paper-line); border-radius:12px; padding:12px 14px; font-family:inherit; font-size:13px; line-height:1.7; max-height:360px; overflow:auto; }
+
+  /* 메타질문 (시차 측정하기와 같은 모양) */
+  .meta{ border:2px solid #c4b5fd; background:linear-gradient(180deg,#faf7ff,#f3efff); border-radius:16px; padding:14px 16px; margin:16px 0 20px; color:#1f2a44; }
+  .meta .mh{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+  .meta .mh b{ font-size:16px; }
+  .meta .tag{ font-size:11.5px; font-weight:800; padding:2px 9px; border-radius:999px; background:#ede9fe; color:#5b21b6; }
+  .meta .mhint{ font-size:12.5px; color:#6b5b95; margin-bottom:6px; }
+  .meta .mq{ margin:10px 0 5px; font-size:14px; font-weight:700; line-height:1.5; }
+  .meta textarea{ min-height:64px; border:1.5px solid #d8ccfb; border-radius:10px; font-size:14px; }
+  .meta .rate{ display:flex; flex-wrap:wrap; gap:6px; }
+  .meta .rate button{ border:1.5px solid #d8ccfb; background:#fff; color:#3b2f6b; border-radius:999px; padding:5px 12px; font-size:13px; font-weight:700; cursor:pointer; }
+  .meta .rate button.on{ background:#7c3aed; border-color:#7c3aed; color:#fff; }
+  .meta .ideas-in{ display:flex; gap:6px; }
+  .meta .ideas-in input{ flex:1; border:1.5px solid #d8ccfb; border-radius:10px; font-size:14px; }
+  .meta .ideas-in button{ border:1.5px solid #c4b5fd; background:#fff; color:#5b21b6; border-radius:10px; padding:6px 12px; font-weight:800; cursor:pointer; font-size:13px; }
+  .meta .chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
+  .meta .chips span{ background:#ede9fe; color:#3b2f6b; border-radius:999px; padding:4px 6px 4px 12px; font-size:13.5px; display:inline-flex; align-items:center; gap:4px; }
+  .meta .chips span button{ all:unset; cursor:pointer; width:18px; height:18px; border-radius:50%; text-align:center; line-height:18px; color:#7c3aed; }
+  .meta .save{ margin-top:10px; border:none; border-radius:10px; padding:9px 16px; background:#7c3aed; color:#fff; font-weight:800; cursor:pointer; font-size:14px; }
+  .meta .saved{ font-size:12.5px; color:#5b21b6; font-weight:700; margin-left:8px; }
+  .rv{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 0; border-bottom:1px dashed #e4dafd; font-size:14px; }
+  .rv .q{ flex:1; min-width:180px; }
+  .rv select{ width:auto; padding:5px 8px; font-size:13px; }
+
+  /* 체크리스트 */
+  table.check{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.check th{ background:#F3F0E6; padding:8px; font-weight:800; }
+  table.check td{ border-bottom:1px solid var(--paper-line); padding:8px 6px; vertical-align:middle; }
+  table.check td.c{ text-align:center; width:54px; }
+  table.check td.st{ font-weight:800; color:var(--violet); width:48px; text-align:center; }
+  table.check input{ width:18px; height:18px; accent-color:var(--violet); }
+
+  .submit-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .stepsave{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:16px; padding-top:12px; border-top:1px dashed var(--paper-line); }
+  .stepsave .btn{ background:#EDE9FE; color:#4B3A8C; }
+  .stepsave .btn:hover:not(:disabled){ background:#DDD3FB; }
+  .stepsave span{ font-size:12.5px; font-weight:700; color:var(--ink-soft); }
+  .stepsave span.ok{ color:var(--ok); } .stepsave span.err{ color:var(--warn); }
+  .savebar{ position:fixed; right:16px; bottom:16px; z-index:40; display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid #C4B5FD; border-radius:999px; padding:6px 8px 6px 14px; box-shadow:0 10px 26px rgba(31,36,48,.18); }
+  .savebar small{ font-size:12px; color:var(--ink-soft); font-weight:700; }
+  .savebar small.ok{ color:var(--ok); } .savebar small.err{ color:var(--warn); }
+  .savebar .btn{ border-radius:999px; padding:8px 14px; background:var(--violet); }
+  .progress{ display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 12px; }
+  .progress span{ font-size:12.5px; font-weight:800; border-radius:999px; padding:4px 11px; background:#F3F0E6; color:#9A927E; }
+  .progress span.half{ background:#FFF1D6; color:#8A5A00; }
+  .progress span.done{ background:#E6F4EC; color:#2E7D52; }
+  main{ padding-bottom:110px; }
+  .save-note{ font-size:12px; color:var(--ink-soft); }
+  .login-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .login-row .field{ flex:0 1 96px; min-width:80px; }
+  .login-row .field.code{ flex:0 1 150px; }
+  .login-row input#loginCode{ letter-spacing:6px; font-weight:800; text-align:center; }
+  .me-line{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:#F3F0FA; border:1px solid #DCD2F5; border-radius:12px; padding:10px 14px; margin-bottom:12px; font-size:14.5px; }
+  .me-line .grow{ flex:1; }
+  .me-line small{ color:var(--ink-soft); font-size:12.5px; }
+  body:not(.in) main > .locked{ opacity:.45; pointer-events:none; filter:grayscale(.3); user-select:none; }
+  body:not(.in) .savebar{ display:none; }
+  .lock-tip{ background:#FFF8E5; border:1px solid #F5E2A8; border-radius:12px; padding:10px 14px; font-size:13.5px; margin:-6px 0 18px; }
+  body.in .lock-tip{ display:none; }
+
+  @media (max-width:700px){
+    .savebar{ left:12px; right:12px; bottom:10px; justify-content:space-between; }
+    section{ padding:18px 15px; }
+    .flow{ grid-template-columns:repeat(3,1fr); }
+    .rules, .grid2, .crit{ grid-template-columns:1fr; }
+    .book{ grid-template-columns:90px 1fr; gap:12px; }
+    .kw-row{ grid-template-columns:1fr; }
+    .q-input{ grid-template-columns:1fr; }
+    .slides{ grid-template-columns:1fr 1fr; }
+    .arrow-row{ grid-template-columns:1fr; } .arrow-row .ar{ transform:rotate(90deg); }
+    table.ailog, table.ailog tbody, table.ailog tr, table.ailog td{ display:block; width:100% !important; }
+    table.ailog thead{ display:none; }
+    table.ailog tr{ border:1px solid var(--paper-line); border-radius:10px; padding:6px; margin-bottom:8px; }
+    table.ailog td{ border:none; }
+    table.ailog td::before{ content:attr(data-h); display:block; font-size:11.5px; font-weight:800; color:#3b3f8f; margin-bottom:2px; }
+  }
+  /* 책 튜터 읽기 */
+  .cover.bookcover{ background:linear-gradient(160deg,#FFF1DC,#F9CFA0 50%,#E79A6B); }
+  .cover.bookcover b{ color:#5A2A10; font-size:14px; }
+  .cover.bookcover small{ color:#6E3B1D; }
+  .tutor-hello{ display:flex; gap:12px; align-items:flex-start; background:#F2F7EE; border:1px solid #D5E6CB; border-radius:14px; padding:12px 14px; margin:14px 0 4px; font-size:14px; line-height:1.7; }
+  .tutor-hello .th{ display:block; color:#2E5A3A; font-weight:800; }
+  .tutor-face{ font-size:26px; line-height:1; }
+  .epi{ background:#FBFAF6; border:1px solid var(--paper-line); border-left:4px solid #8FB59A; border-radius:10px; padding:10px 13px; font-size:13.5px; }
+  .epi small{ color:var(--ink-soft); font-size:12px; }
+  .epi .en{ font-family:'Noto Serif KR',serif; font-style:italic; margin:4px 0 2px; color:#2E3B33; }
+  .epi .ko{ margin:0; }
+  .epi .why{ display:block; margin-top:4px; font-size:12.5px; color:#3F7D5C; }
+  details.timeline{ margin:12px 0; border:1px solid var(--paper-line); border-radius:12px; padding:10px 14px; background:#fff; }
+  details.timeline summary{ cursor:pointer; font-weight:700; font-size:14px; }
+  details.timeline ol{ list-style:none; padding:0; margin:10px 0 0; border-left:2px solid #D5E6CB; }
+  details.timeline li{ padding:3px 0 3px 12px; font-size:13.5px; position:relative; }
+  details.timeline li::before{ content:""; position:absolute; left:-5px; top:11px; width:8px; height:8px; border-radius:50%; background:#8FB59A; }
+  details.timeline li b{ color:#2E5A3A; margin-right:4px; }
+  .trans-note{ background:#FFFDF7; border:1.5px dashed #C9C3B0; border-radius:12px; padding:10px 13px; font-size:13px; margin:12px 0; }
+  .en-badge{ display:inline-block; background:#EEF0FA; color:#3b3f8f; border-radius:6px; padding:0 6px; font-size:11.5px; font-weight:800; }
+  .read-bar{ display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; color:#2E5A3A; margin:14px 0 8px; }
+  .read-track{ flex:1; height:8px; border-radius:99px; background:#E8EEE3; overflow:hidden; }
+  .read-track i{ display:block; height:100%; width:0; background:#5E9A6E; border-radius:99px; transition:width .3s; }
+  .part-title{ font-size:12.5px; letter-spacing:.06em; color:#3F7D5C; font-weight:800; margin:14px 0 6px; }
+  details.ch{ border:1px solid var(--paper-line); border-radius:12px; margin-bottom:8px; background:#fff; }
+  details.ch[open]{ border-color:#BFD8B0; box-shadow:0 4px 14px rgba(46,90,58,.08); }
+  details.ch > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; padding:10px 13px; }
+  details.ch > summary::-webkit-details-marker{ display:none; }
+  .ch-n{ flex:none; width:30px; height:30px; border-radius:9px; background:#E8EEE3; color:#2E5A3A; display:grid; place-items:center; font-weight:800; font-size:13px; }
+  details.ch.read .ch-n{ background:#5E9A6E; color:#fff; }
+  .ch-t{ flex:1; line-height:1.35; }
+  .ch-t b{ font-size:14.5px; color:var(--ink); }
+  .ch-t small{ display:block; font-size:11.5px; color:var(--ink-soft); font-style:italic; }
+  .ch-flag{ font-size:11.5px; color:#3F7D5C; font-weight:700; white-space:nowrap; }
+  .ch-body{ padding:2px 14px 14px; font-size:14px; line-height:1.75; }
+  .ch-body .lbl{ display:inline-block; font-size:11.5px; font-weight:800; color:#2E5A3A; background:#E8EEE3; border-radius:6px; padding:0 7px; margin:10px 0 4px; }
+  .ch-body p.sum{ margin:0; }
+  blockquote.q{ margin:8px 0; padding:9px 13px; background:#F7F8FC; border-left:4px solid #7D86C9; border-radius:0 10px 10px 0; }
+  blockquote.q .en{ font-family:'Noto Serif KR',serif; font-style:italic; color:#2D3266; font-size:13.5px; }
+  blockquote.q .ko{ margin-top:4px; }
+  blockquote.q small{ display:block; font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .ch-qs{ margin:4px 0 0; padding-left:0; list-style:none; counter-reset:tq; }
+  .ch-qs li{ counter-increment:tq; position:relative; padding:7px 10px 7px 34px; background:#FFF8E8; border-radius:10px; margin-bottom:6px; }
+  .ch-qs li::before{ content:"Q" counter(tq); position:absolute; left:9px; top:7px; font-weight:800; color:#B07A1F; font-size:12.5px; }
+  .ch-find{ background:#F2F7EE; border-radius:10px; padding:8px 11px; margin-top:6px; font-size:13.5px; }
+  .ch-sci{ font-size:13px; color:#2F6FDB; margin-top:6px; }
+  .ch-kws{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+  .ch-kws button{ border:1.5px solid #CFE3C3; background:#F4FAF0; color:#2E5A3A; border-radius:999px; padding:3px 11px; font-size:13px; cursor:pointer; }
+  .ch-kws button:hover{ background:#E6F2DE; }
+  .ch-body textarea{ min-height:64px; }
+  .ch-acts{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .ch-acts .btn.done{ background:#5E9A6E; border-color:#5E9A6E; color:#fff; }
+  .ch-msg{ font-size:12.5px; color:#3F7D5C; min-height:1em; margin-top:4px; }
+  /* 생물 농축 그래프 */
+  .bio{ border:1px solid #D5E6CB; border-radius:12px; padding:12px 14px; margin:10px 0 4px; background:#FBFDF9; }
+  .bio h4{ margin:0 0 2px; font-size:14px; color:#2E5A3A; }
+  .bio .sub{ font-size:12px; color:var(--ink-soft); margin:0 0 10px; }
+  .bio-row{ display:grid; grid-template-columns:128px 1fr; gap:10px; align-items:center; margin:6px 0; cursor:default; }
+  .bio-row .nm{ font-size:13px; line-height:1.3; }
+  .bio-row .nm small{ display:block; color:var(--ink-soft); font-size:11px; }
+  .bio-bar{ position:relative; height:22px; }
+  .bio-bar i{ position:absolute; left:0; top:3px; height:16px; background:#5E9A6E; border-radius:0 4px 4px 0; transition:width .5s; }
+  .bio-bar i.rng{ background:#A9CBAF; }
+  .bio-bar span{ position:absolute; top:1px; font-size:12.5px; font-weight:700; color:var(--ink); white-space:nowrap; }
+  .bio-row:hover i:not(.rng), .bio-row:focus i:not(.rng){ background:#3F7D5C; }
+  .bio-axis{ display:grid; grid-template-columns:128px 1fr; gap:10px; font-size:11px; color:var(--ink-soft); }
+  .bio-axis div{ display:flex; justify-content:space-between; border-top:1px solid #DCE5D6; padding-top:2px; }
+  .bio-tip{ min-height:2.6em; font-size:13px; background:#F2F7EE; border-radius:8px; padding:6px 10px; margin-top:8px; }
+  .bio details{ margin-top:6px; font-size:12.5px; }
+  .bio table{ border-collapse:collapse; margin-top:4px; }
+  .bio td, .bio th{ border:1px solid #DCE5D6; padding:3px 8px; text-align:left; }
+  .today{ background:#F7F5EE; border-radius:12px; padding:12px 14px; margin:14px 0 4px; font-size:13.5px; }
+  .today ul{ margin:6px 0 0; padding-left:18px; }
+  .today li{ margin-bottom:4px; }
+  @media (max-width:640px){
+    .bio-row, .bio-axis{ grid-template-columns:92px 1fr; }
+    .ch-body{ padding:2px 11px 12px; }
+  }
+  body:not(.in) .needs-login{ opacity:.5; pointer-events:none; }
+  .login-only{ font-size:12.5px; color:#B0522F; margin:6px 0 0; }
+  body.in .login-only{ display:none; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">각종행사운영 · 질문탐구한마당 연습</div>
+    <h1>질문·탐구 궁금한마당<small>지정 도서 『생명이 있는 것은 다 아름답다』 (최재천)</small></h1>
+    <p>개미, 꿀벌, 거미, 반딧불이… 동물의 삶 속에서 사람의 모습을 비춰 보는 글들을 튜터와 함께 읽고, 관심어를 찾고, 나만의 질문을 만들고, 팀과 함께 질문을 골라 다듬고, 탐구해서 발표하는 대회의 전 과정을 미리 연습해 봐요.</p>
+    <span class="slogan">「질문, 생각을 만나 진로를 열다」 · 2026 경주·영천 예선 12. 4.(금) 13:00</span>
+  </div>
+</header>
+
+<main>
+  <!-- 대회 한눈에 보기 -->
+  <section>
+    <h2><span class="num">i</span>대회 한눈에 보기</h2>
+    <p class="hint">팀(학생 2~4명)이 90분 동안 아래 순서로 질문·탐구를 하고, 2부에서 <b>3분 발표 + 1분 즉답</b>을 해요. 이 워크시트도 같은 순서예요.</p>
+    <div class="flow">
+      <a href="#ph-1"><b>① 탐색</b>지문에서 관심어 찾기<br><i class="no">AI 금지</i></a>
+      <a href="#ph-2"><b>② 생성</b>개인별 의미 있는 질문<br><i class="no">AI 금지</i></a>
+      <a href="#ph-3"><b>③ 선정</b>질문 2가지 고르고 다듬기<br><i class="yes">AI 가능</i></a>
+      <a href="#ph-4"><b>④ 탐구</b>검색·토의로 답 찾기<br><i class="yes">AI 가능</i></a>
+      <a href="#ph-5"><b>⑤ 발표</b>3분 발표 · 1분 즉답<br><i class="no">AI 금지</i></a>
+    </div>
+    <div class="rules">
+      <div class="rule">🎯 <b>대회가 중요하게 보는 것</b><br>검색하면 바로 나오는 답이나 전문가의 결론보다, <b>질문·탐구의 과정</b>과 <b>소통·성찰</b>이에요.</div>
+      <div class="rule">🤖 <b>AI 활용 규칙</b><br>선정·탐구 단계에서만 쓸 수 있어요(대회 당일은 <b>뤼튼</b>만). 쓴 슬라이드에는 <b>입력 검색어 · 실제 활용 · 수정·보완</b>을 메모로 꼭 적어요.</div>
+    </div>
+  </section>
+
+  <section id="loginSec">
+    <h2><span class="num">🔑</span>로그인 · 우리 팀 정보</h2>
+    <div id="loginBox">
+      <p class="hint">선생님께 받은 <b>나만의 코드 4자리</b>로 로그인해요. 쓰던 내용이 선생님 시트에 저장되어서, <b>내일 다른 컴퓨터에서 로그인해도 이어서</b> 할 수 있어요.</p>
+      <form class="login-row" id="loginForm" autocomplete="off">
+        <div class="field"><label class="lb" for="grade">학년</label><input type="text" id="grade" value="3" readonly></div>
+        <div class="field"><label class="lb" for="loginCls">반</label><input type="text" id="loginCls" inputmode="numeric" value="1" maxlength="2"></div>
+        <div class="field"><label class="lb" for="loginNum">번호</label><input type="text" id="loginNum" inputmode="numeric" maxlength="2" placeholder="번호"></div>
+        <div class="field code"><label class="lb" for="loginCode">나의 코드</label><input type="password" id="loginCode" inputmode="numeric" maxlength="4" placeholder="••••"></div>
+        <button type="submit" class="btn" id="loginBtn">로그인 · 불러오기</button>
+      </form>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+    <div id="meBox" hidden>
+      <div class="me-line">👋 <span><b id="meName"></b> 학생, 반가워요!</span><small id="meSaved"></small><span class="grow"></span><button type="button" class="btn ghost sm" id="logoutBtn">저장하고 로그아웃</button></div>
+      <div class="id-row">
+        <div class="field"><label class="lb" for="team">팀 이름</label><input type="text" id="team" placeholder="예) 알면 사랑한다 팀"></div>
+        <div class="field"><label class="lb" for="mates">함께하는 팀원</label><input type="text" id="mates" placeholder="예) 김OO, 이OO, 박OO"></div>
+      </div>
+      <p class="save-note" style="margin:10px 0 0">💾 쓰는 내용은 <b>1분마다 자동으로 저장</b>돼요. 선생님께 진행 상황을 보여 주려면 STEP 끝의 <b>중간 저장</b>을, 모두 마치면 <b>최종 제출</b>을 눌러요. 함께 쓰는 컴퓨터에서는 끝나고 꼭 <b>로그아웃</b>해요.</p>
+    </div>
+    <input type="hidden" id="stuClass"><input type="hidden" id="stuNumber"><input type="hidden" id="stuName">
+  </section>
+  <div class="lock-tip">🔒 위에서 로그인하면 아래 활동을 시작할 수 있어요.</div>
+
+  <!-- 학습 전 메타질문 -->
+  <div class="meta" data-stage="before">
+    <div class="mh"><b>🧠 메타질문 · 학습 전 · 생각하기</b><span class="tag">사전 인식</span></div>
+    <div class="mhint">내가 이미 알고 있는 것, 지금 내 생각은 무엇인가?</div>
+    <div class="mq">나는 <b>동물의 행동과 사람의 행동(사랑, 경쟁, 협동, 따돌림)</b>을 비교해 지금 얼마나 생각해 보았나?</div>
+    <div class="rate" data-meta="mb-rate"><button type="button" data-v="1">거의 안 해 봤어요</button><button type="button" data-v="2">조금 해 봤어요</button><button type="button" data-v="3">자주 생각해요</button><button type="button" data-v="4">내 생각을 설명할 수 있어요</button></div>
+    <div class="mq">책을 읽기 전, 지금 내 생각은? <b>사람은 다른 동물과 얼마나 비슷하고 얼마나 다를까? 동물에게서 사람이 배울 점이 있을까?</b> 틀려도 괜찮아요.</div>
+    <textarea data-meta="mb-prior" placeholder="예) 사람은 생각하고 말할 수 있어서 동물과 많이 다르다고 생각한다. 그런데 개미처럼 협동하는 동물도 있다고 들었다…"></textarea>
+    <button type="button" class="save">내 생각 저장</button><span class="saved"></span>
+  </div>
+
+  <!-- 지정 도서 -->
+  <section class="open-read" id="bookSec">
+    <h2><span class="num">📖</span>지정 도서 『생명이 있는 것은 다 아름답다』 — 튜터와 함께 읽기</h2>
+    <div class="book">
+      <div class="cover bookcover"><b>생명이<br>있는 것은<br>다 아름답다</b><small>최재천<br>2001 · 효형출판</small></div>
+      <div>
+        <p style="margin:0 0 6px;font-size:14.5px">『생명이 있는 것은 다 아름답다』는 동물행동학자 <b>최재천</b>이 신문에 연재한 짧은 동물 이야기들을 모은 책이에요(부제: 최재천의 동물과 인간 이야기). 개미, 꿀벌, 거미, 반딧불이, 갈매기 같은 동물의 삶을 소개하면서 <b>그 속에 비친 사람의 모습</b>을 이야기해요. 짧은 글이 여러 편이라 한 편씩 읽기 좋아요.</p>
+        <p class="hint" style="margin:0">대회 당일에는 이 책에서 뽑은 <b>지문</b>(짧은 글 한두 편)이 팀별로 주어져요. 아래 <b>튜터 카드</b>로 네 부의 흐름을 먼저 잡고, 내가 가진 책에서 그 글을 찾아 읽어요.</p>
+      </div>
+    </div>
+
+    <div class="tutor-hello">
+      <span class="tutor-face">🧑‍🏫</span>
+      <div><span class="th">튜터의 한마디</span>
+        이 책의 글들은 <b>동물 이야기로 시작해서 사람 이야기로 끝나는</b> 경우가 많아요. 그러니 읽을 때 두 가지를 찾아보세요. ① 이 동물은 <b>왜</b> 이렇게 행동할까? (과학) ② 지은이는 이 동물을 통해 <b>사람 사회에 무엇을</b> 말하고 싶을까? (주장) 카드마다 <b>이어지는 과학 이야기</b>와 <b>튜터의 질문</b>, 그리고 <b>책에서 찾아보기</b> 과제를 준비했어요.
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div class="epi"><small>지은이가 오랫동안 해 온 말</small>
+        <p class="ko" style="font-size:17px;font-family:'Noto Serif KR',serif"><b>"알면 사랑한다"</b></p>
+        <span class="why">→ 1부의 제목이기도 해요. 책을 다 읽은 뒤 이 말에 동의하는지 다시 생각해 보세요.</span></div>
+      <div class="epi"><small>책의 네 부</small>
+        <p class="ko">1부 알면 사랑한다<br>2부 동물 속에 인간이 보인다<br>3부 생명, 그 아름다움에 대하여<br>4부 함께 사는 세상을 꿈꾼다</p>
+        <span class="why">→ 부의 제목만 이어 읽어도 지은이의 생각이 보여요.</span></div>
+    </div>
+
+    <details class="timeline">
+      <summary>🕰 최재천과 이 책 (연표 펼치기)</summary>
+      <ol>
+        <li><b>1954</b> 강원도 강릉에서 태어남. 서울대학교 동물학과 졸업</li>
+        <li><b>1980~90년대</b> 미국 하버드 대학교에서 생물학 박사. 중남미 열대 우림에서 개미·곤충의 사회 행동을 연구</li>
+        <li><b>1999</b> 『개미제국의 발견』 출간</li>
+        <li><b>2001</b> 『생명이 있는 것은 다 아름답다』 출간 (효형출판) — 신문 연재 글 모음</li>
+        <li><b>2005</b> 에드워드 윌슨의 『통섭』을 우리말로 옮김 — 과학과 인문학의 만남을 강조</li>
+        <li><b>2013</b> 국립생태원 초대 원장</li>
+      </ol>
+      <p class="hint" style="margin:6px 0 0">🔎 찾아보기 — 이 책의 글들은 언제, 어느 신문에 연재되었을까요? 책의 머리말에서 찾아 적어 보세요.</p>
+    </details>
+
+    <div class="trans-note">📘 <b>카드 읽는 법</b> — 이 책은 짧은 글이 많아서, 카드는 목차에서 확인한 <b>글 제목</b>과 각 부의 <b>주제</b>로 만들었어요. 카드의 설명은 그 주제와 이어지는 <b>과학 이야기를 AI 튜터가 정리</b>한 것이고, 책 속 글이 실제로 무엇을 말하는지는 <b>🔎 책에서 찾아보기</b>로 직접 확인해요. 찾은 글의 제목과 쪽수를 메모 칸에 적어 두면 지문 찾기가 쉬워요. (판본에 따라 글 순서와 제목이 조금 달라요)</div>
+
+    <div class="read-bar"><span id="readCount">읽은 장 0 / 17</span><span class="read-track"><i id="readFill"></i></span></div>
+    <div id="chapters"></div>
+
+    <div class="today">
+      <b>🌍 오늘로 이어지는 질문들</b> <span class="hint" style="font-weight:400">— 탐구 질문을 만들 때 참고해요 (여러 관점이 있는 주제예요)</span>
+      <ul>
+        <li><b>꿀벌이 사라진다면?</b> 꿀벌 수가 줄어드는 원인과, 꿀벌이 사라졌을 때 우리 식탁에 생길 변화는?</li>
+        <li><b>동물원과 동물 복지</b> 동물원은 동물을 지키는 곳일까, 가두는 곳일까?</li>
+        <li><b>동물에게서 배운 기술</b> 거미줄, 반딧불이의 빛, 개미의 길 찾기를 흉내 낸 기술(생체 모방)은 어디에 쓰일까?</li>
+        <li><b>"동물도 그러니까 자연스럽다"?</b> 경쟁, 서열, 따돌림을 동물에 빗대 정당화하는 말은 옳을까?</li>
+      </ul>
+    </div>
+
+    <p style="margin:16px 0 2px;font-size:13.5px;font-weight:700">💬 이 책을 읽으며 떠올려 볼 만한 이야기 <span class="hint" style="font-weight:400">— 누르면 아래 '내 생각' 칸에 넣어져요</span></p>
+    <div class="themes needs-login" id="themes">
+      <button type="button">알면 사랑한다</button><button type="button">협동과 공생</button><button type="button">경쟁과 서열</button><button type="button">가족과 돌봄</button>
+      <button type="button">동물 속 사람의 모습</button><button type="button">다름과 존중</button><button type="button">생명의 아름다움</button><button type="button">함께 사는 세상</button>
+    </div>
+    <div class="fact">📌 <b>읽기 팁</b> — 대회는 책 내용을 외우는 시험이 아니에요. 지문의 <b>맥락</b>(어떤 사건, 어떤 주장, 어떤 근거)을 이해하고, 그 속에서 <b>깊이 생각해 볼 단어(관심어)</b>를 찾는 것이 첫걸음이에요. 튜터 카드의 <b>관심어 후보</b>를 눌러 STEP 1에 바로 넣을 수도 있어요.</div>
+    <p class="login-only">🔒 튜터 카드는 로그인하지 않아도 읽을 수 있어요. 메모·관심어 넣기·지문 정리는 로그인한 뒤에 할 수 있어요.</p>
+    <div class="stack needs-login" id="passageBox">
+      <div class="grid2">
+        <div><label class="lb" for="passageWhere">읽은 부분 (장·쪽수)</label><input type="text" id="passageWhere" placeholder="예) 1부 「꿀벌 사회의 민주주의」, 40~43쪽"></div>
+        <div><label class="lb" for="passageQuote">인상 깊은 문장 (내가 가진 책에서 한두 문장만 옮겨 적기)</label><input type="text" id="passageQuote" placeholder="내가 가진 책을 보고 직접 옮겨 적어요"></div>
+      </div>
+      <div><label class="lb" for="passageSummary">지문의 핵심 내용을 내 말로 정리하기 (2~3문장)</label><textarea id="passageSummary" placeholder="이 글에서 지은이가 소개하는 동물의 행동은… 그것으로 사람 사회에 대해 말하고 싶은 것은…"></textarea></div>
+      <div><label class="lb" for="passageThought">읽고 난 내 생각</label><textarea id="passageThought" placeholder="놀란 점, 동의하지 않는 점, 우리 반·우리 사회와 닮은 점, 떠오른 경험…"></textarea></div>
+    </div>
+  </section>
+
+  <!-- STEP 1 탐색 -->
+  <div class="phase" id="ph-1"><b>1</b><div><span>STEP 1 · 탐색</span><strong>관심어 찾기</strong><em>지문 속 어떤 단어가 마음에 걸리나?</em></div></div>
+  <section>
+    <h2><span class="num">1</span>관심어와 관심을 갖게 된 이유 <span class="ai-tag no">AI 금지</span><span class="ai-tag slide">슬라이드 1장</span></h2>
+    <p class="hint">지문에서 <b>깊이 생각해 볼 단어</b>를 찾아요. 그리고 왜 그 단어에 관심이 생겼는지 <b>우리의 삶과 관련 지어</b> 적어요.</p>
+    <div id="kwRows"></div>
+    <div class="try">💡 좋은 관심어는 '무슨 뜻이지?'에서 끝나지 않고, <b>'나와 우리 반·우리 사회에서는 어떨까?'</b>로 이어지는 단어예요. 예) 협동, 공생, 서열, 따돌림, 세습, 알면 사랑한다…</div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 1 탐색">💾 STEP 1 탐색 마치고 — 선생님께 중간 저장</button><span></span></div>
+  </section>
+
+  <!-- STEP 2 생성 -->
+  <div class="phase" id="ph-2"><b>2</b><div><span>STEP 2 · 생성</span><strong>나만의 질문 만들기</strong><em>참신하면서도 우리 삶에서 의미 있는 질문</em></div></div>
+  <section>
+    <h2><span class="num">2</span>개인별로 의미 있는 질문 만들기 <span class="ai-tag no">AI 금지</span><span class="ai-tag slide">슬라이드 1~3장</span></h2>
+    <p class="hint">관심어를 넣어 질문을 <b>3개 이상</b> 만들어요. [질문 보내기]를 누르면 선생님 화면에 바로 모여요.</p>
+    <p style="margin:0;font-size:13px;font-weight:700">질문 틀 — 누르면 입력칸에 넣어져요</p>
+    <div class="stems" id="stems">
+      <button type="button" data-s="왜 ○○일까?"><b>이유</b> 왜 ~일까?</button>
+      <button type="button" data-s="어떻게 하면 ○○할 수 있을까?"><b>방법</b> 어떻게 하면 ~할 수 있을까?</button>
+      <button type="button" data-s="만약 ○○가 없다면 어떻게 될까?"><b>가정</b> 만약 ~라면?</button>
+      <button type="button" data-s="○○하는 것은 꼭 필요할까?"><b>가치</b> ~해야 할까? 옳을까?</button>
+      <button type="button" data-s="우리 학교(우리 반)에서 ○○는 어떤 모습일까?"><b>우리 삶</b> 우리에게는 어떨까?</button>
+      <button type="button" data-s="○○와 □□는 무엇이 다를까?"><b>비교</b> ~와 ~는 무엇이 다를까?</button>
+    </div>
+    <div class="q-input">
+      <select id="qKw" aria-label="관심어 고르기"><option value="">관심어 고르기</option></select>
+      <input type="text" id="qText" maxlength="160" placeholder="예) 꿀벌처럼 여럿이 함께 정하면 정말 더 좋은 결정을 내릴 수 있을까?">
+      <button type="button" class="btn violet" id="qAdd">질문 보내기 ✉</button>
+    </div>
+    <div class="msg" id="qMsg"></div>
+    <ul class="qlist" id="qList"></ul>
+    <div style="margin-top:12px"><label class="lb" for="genProcess">질문을 만든 과정이나 이유 (어떤 생각에서 이 질문들이 나왔나?)</label><textarea id="genProcess" placeholder="예) 「꿀벌 사회의 민주주의」를 읽고 '의사 결정'이라는 관심어에서 시작해, 우리 학급 회의를 떠올리며 질문을 만들었다."></textarea></div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 2 생성">💾 STEP 2 생성 마치고 — 선생님께 중간 저장</button><span></span></div>
+  </section>
+
+  <div class="meta" data-stage="during1">
+    <div class="mh"><b>🧠 메타질문 · 학습 중 · 점검하기</b><span class="tag">사고 과정 · 이해 점검</span></div>
+    <div class="mhint">내가 만든 질문은 정말 '생각이 필요한 질문'인가?</div>
+    <div class="mq">내 질문 중 <b>검색하면 바로 답이 나오는 질문</b>은 무엇인가? 그 질문을 우리 삶과 이어지는 '생각이 필요한 질문'으로 바꾸면?</div>
+    <textarea data-meta="md-question" placeholder="예) '꿀벌은 어떻게 춤을 추나?' → '꿀벌의 의사 결정 방식을 우리 학급 회의에 적용하면 더 좋은 결정을 내릴 수 있을까?'"></textarea>
+    <button type="button" class="save">내 생각 저장</button><span class="saved"></span>
+  </div>
+
+  <!-- STEP 3 선정 -->
+  <div class="phase" id="ph-3"><b>3</b><div><span>STEP 3 · 선정</span><strong>질문 2가지 고르고 다듬기</strong><em>90분 안에 탐구할 수 있는가?</em></div></div>
+  <section>
+    <h2><span class="num">3</span>팀 질문 선정하고 다듬기 <span class="ai-tag yes">AI 가능</span><span class="ai-tag slide">슬라이드 1~3장</span></h2>
+    <p class="hint">팀원들이 만든 질문을 모아 <b>2가지</b>를 골라요. 탐구 시간(90분)과 방법을 생각해서 질문을 <b>더 의미 있게 다듬어요</b>.</p>
+    <div class="crit">
+      <div><b>✨ 창의성·유의미성</b>참신하면서도 우리 삶에서 의미가 있나?</div>
+      <div><b>⏱ 탐구 가능성</b>주어진 시간 안에 실제로 탐구할 수 있나?</div>
+      <div><b>🤝 의사소통·조정</b>친구 의견을 존중하며 더 좋은 질문으로 다듬었나?</div>
+    </div>
+    <div class="stack" id="picks"></div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 3 선정">💾 STEP 3 선정 마치고 — 선생님께 중간 저장</button><span></span></div>
+  </section>
+
+  <div class="meta" data-stage="during2">
+    <div class="mh"><b>🧠 메타질문 · 학습 중 · 점검하기</b><span class="tag">사고 과정 · 의사소통</span></div>
+    <div class="mhint">나는 어떤 기준으로 판단했는가? 친구의 생각을 어떻게 받아들였는가?</div>
+    <div class="mq">우리 팀이 질문 2개를 고를 때 나는 어떤 기준으로 판단했나? 친구 의견 중 받아들인 것은 무엇인가?</div>
+    <textarea data-meta="md-select" placeholder="예) 탐구할 수 있는지를 기준으로 봤다. ○○의 의견대로 범위를 '우리 학교 화단의 곤충'으로 좁혔다."></textarea>
+    <button type="button" class="save">내 생각 저장</button><span class="saved"></span>
+  </div>
+
+  <!-- STEP 4 탐구 -->
+  <div class="phase" id="ph-4"><b>4</b><div><span>STEP 4 · 탐구</span><strong>함께 탐구하기</strong><em>검색하고, 토의하고, 잠정적인 답 세우기</em></div></div>
+  <section>
+    <h2><span class="num">4</span>배움 활동 · AI 조사 도우미와 함께 탐구하기 <span class="ai-tag yes">AI 가능</span></h2>
+    <p class="hint"><b>목표</b> 선정한 질문의 답을 찾기 위해 자료를 모으고, 비교·분석해서 우리 팀의 잠정적인 답을 세울 수 있다.</p>
+    <div class="topic-row" id="topicRow">
+      <span class="tlabel">무엇을 도와줄까?</span>
+      <button type="button" class="topic" data-topic="책 읽기 · 튜터에게 묻기">📖 책 읽기 · 튜터에게 묻기</button>
+      <button type="button" class="topic" data-topic="선정 · 질문 다듬기">선정 · 질문 다듬기</button>
+      <button type="button" class="topic" data-topic="탐구 · 용어와 개념">탐구 · 용어와 개념</button>
+      <button type="button" class="topic" data-topic="탐구 · 자료와 사례 찾기">탐구 · 자료와 사례 찾기</button>
+      <button type="button" class="topic" data-topic="탐구 · 다른 관점 살펴보기">탐구 · 다른 관점 살펴보기</button>
+    </div>
+    <div class="ai-box">
+      <div class="ai-head">
+        <span class="ai-logo">✦</span>
+        <div><b>AI 조사 도우미</b><span id="aiState">연결 확인 중…</span></div>
+        <span class="grow"></span>
+        <span class="ai-count" id="aiCount"></span>
+      </div>
+      <div class="ai-starters" id="aiStarters"></div>
+      <div class="ai-log" id="aiLog">
+        <div class="ai-msg bot">안녕하세요! 저는 『생명이 있는 것은 다 아름답다』를 함께 읽는 <b>AI 튜터</b>예요. 책에 나오는 동물의 행동이 궁금하거나 지은이의 생각을 더 알고 싶으면 물어보세요. 저는 답을 정해 주기보다 과학적 근거와 다른 관점을 보여 주고 <b>튜터의 질문</b>을 되돌려 드려요. 위에서 도움 종류를 고르면 질문 예시가 나타나요.<br><small>📖 '책 읽기'는 연습용이에요. 대회 당일 탐색·생성 단계에서는 AI를 쓸 수 없어요.</small></div>
+      </div>
+      <div class="ai-input">
+        <input type="text" id="aiQ" maxlength="300" placeholder="예) 꿀벌이 8자 춤으로 먹이 위치를 알리는 방법을 쉽게 설명해 줘">
+        <button type="button" class="btn" id="aiSend">질문하기</button>
+      </div>
+    </div>
+
+    <h3 style="font-size:15px;margin:18px 0 6px">🗂 AI 활용 기록 <span class="ai-tag slide">슬라이드 메모 필수</span></h3>
+    <p class="hint" style="margin-bottom:8px">AI에게 질문하면 '입력 검색어'가 자동으로 적혀요. 답을 <b>실제로 어떻게 활용했는지</b>와 <b>팀이 어떻게 확인·수정했는지</b>를 채워요. (인터넷 검색을 했다면 [줄 추가]로 적어요.)</p>
+    <table class="ailog"><thead><tr><th>입력 검색어(프롬프트)</th><th>실제 활용 (활용한 내용·사이트 주소)</th><th>수정·보완 (팀이 확인·검토한 내용)</th></tr></thead><tbody id="aiLogRows"></tbody></table>
+    <button type="button" class="btn ghost sm" id="addLogRow" style="margin-top:8px">＋ 줄 추가</button>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>질문별 탐구 정리 <span class="ai-tag slide">슬라이드 3~6장</span></h2>
+    <p class="hint">질문마다 <b>해결 과정 → 잠정적인 답 → 이어진 질문</b>을 정리해요. 검색해서 찾은 결론보다 <b>우리 팀이 어떻게 생각했는지</b>가 중요해요.</p>
+    <div id="inqs"></div>
+    <button type="button" class="btn violet" id="aiFeedback">✦ AI에게 우리 탐구 점검받기</button>
+    <div class="ai-feedback" id="aiFeedbackBox" hidden></div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 4 탐구">💾 STEP 4 탐구 마치고 — 선생님께 중간 저장</button><span></span></div>
+  </section>
+
+  <div class="meta" data-stage="during3">
+    <div class="mh"><b>🧠 메타질문 · 학습 중 · 점검하기</b><span class="tag">탐구 윤리 · 근거 점검</span></div>
+    <div class="mhint">나는 왜 이렇게 판단했는가? 근거는 충분한가?</div>
+    <div class="mq">우리 팀의 잠정적인 답을 뒷받침하는 근거는 충분한가? AI나 인터넷의 답을 그대로 믿지 않고 어떻게 확인했나?</div>
+    <textarea data-meta="md-evidence" placeholder="예) AI가 알려 준 꿀벌 8자 춤 내용을 과학 교과서와 믿을 만한 누리집에서 직접 확인했다."></textarea>
+    <button type="button" class="save">내 생각 저장</button><span class="saved"></span>
+  </div>
+
+  <!-- STEP 5 발표 -->
+  <div class="phase" id="ph-5"><b>5</b><div><span>STEP 5 · 발표</span><strong>3분 발표 · 1분 즉답 준비</strong><em>상대가 이해하고 성장할 수 있도록</em></div></div>
+  <section>
+    <h2><span class="num">6</span>발표 자료 개요와 즉답 준비 <span class="ai-tag no">AI 금지</span></h2>
+    <p class="hint">발표 보조 자료는 단계별 활동을 하면서 <b>동시에</b> 만들어요. 아래 분량과 필수 요소를 지켜요.</p>
+    <div class="slides">
+      <div><b>탐색</b><i>슬라이드 1장</i><br>관심어, 관심을 갖게 된 이유(우리 삶과 관련 짓기)</div>
+      <div><b>생성</b><i>슬라이드 1~3장</i><br>팀 내에서 생성한 1차 질문, 질문 생성의 과정이나 이유</div>
+      <div><b>선정</b><i>슬라이드 1~3장</i><br>선정하고 다듬은 2가지 질문, 선정 이유와 다듬은 과정</div>
+      <div><b>탐구</b><i>슬라이드 3~6장</i><br>해결 과정, 잠정적인 답, 이어진 질문 + AI 활용 메모</div>
+    </div>
+    <div class="submit-row" style="margin:12px 0 6px">
+      <button type="button" class="btn gold" id="makeOutline">📑 내가 적은 내용으로 발표 개요 만들기</button>
+      <button type="button" class="btn ghost sm" id="copyOutline" hidden>복사하기</button>
+    </div>
+    <pre class="outline" id="outline" hidden></pre>
+    <h3 style="font-size:15px;margin:16px 0 6px">🎤 1분 즉답 연습 — 다른 팀이 패들렛에 올릴 만한 질문 예상하기</h3>
+    <div class="stack">
+      <div class="grid2"><div><label class="lb" for="expQ1">예상 질문 ①</label><input type="text" id="expQ1" placeholder="예) 왜 하필 그 질문을 골랐나요?"></div><div><label class="lb" for="expA1">우리의 1분 답</label><textarea id="expA1" style="min-height:60px"></textarea></div></div>
+      <div class="grid2"><div><label class="lb" for="expQ2">예상 질문 ②</label><input type="text" id="expQ2" placeholder="예) 잠정적인 답의 근거는 무엇인가요?"></div><div><label class="lb" for="expA2">우리의 1분 답</label><textarea id="expA2" style="min-height:60px"></textarea></div></div>
+      <div><label class="lb" for="toOthers">다른 팀 발표를 듣고 패들렛에 올릴 '좋은 질문'의 조건은? (경청)</label><input type="text" id="toOthers" placeholder="예) 발표 팀이 더 생각해 볼 수 있게 돕는 질문, 비난이 아닌 궁금증"></div>
+    </div>
+    <div class="stepsave"><button type="button" class="btn sm" data-save="STEP 5 발표">💾 STEP 5 발표 준비 마치고 — 선생님께 중간 저장</button><span></span></div>
+  </section>
+
+  <!-- 학습 후 -->
+  <div class="meta" data-stage="after">
+    <div class="mh"><b>🧠 메타질문 · 학습 후 · 돌아보기</b><span class="tag">전략 수정</span></div>
+    <div class="mhint">처음 생각과 지금 생각은 어떻게 달라졌는가?</div>
+    <div class="mq">질문탐구를 마친 지금, 나는 우리 팀의 탐구 질문에 대해 얼마나 설명할 수 있나?</div>
+    <div class="rate" data-meta="ma-rate"><button type="button" data-v="1">거의 몰라요</button><button type="button" data-v="2">조금 알아요</button><button type="button" data-v="3">대부분 알아요</button><button type="button" data-v="4">설명할 수 있어요</button></div>
+    <div class="mq">처음에 적은 '사람과 동물은 얼마나 비슷하고 다른가'에 대한 생각과 지금 생각은 어떻게 달라졌나?</div>
+    <textarea data-meta="ma-change" placeholder="처음에는 ~라고 생각했는데, 지금은 ~"></textarea>
+    <div class="mq">다음 탐구에서 바꾸고 싶은 나의 질문 방법·탐구 방법은?</div>
+    <textarea data-meta="ma-strategy" placeholder="예) 질문 범위를 처음부터 좁게 잡겠다. 자료를 찾을 때 출처를 먼저 적겠다."></textarea>
+    <button type="button" class="save">내 생각 저장</button><span class="saved"></span>
+  </div>
+
+  <div class="meta" data-stage="extend">
+    <div class="mh"><b>🧠 메타질문 · 나의 다음 질문</b><span class="tag">가치·태도 · 진로</span></div>
+    <div class="mhint">배운 것을 넘어, 나는 무엇을 더 알고 싶고 어떤 사람이 되고 싶은가?</div>
+    <div class="mq">처음에 만든 내 질문을 다시 보자. 해결된 질문과 아직 남은 질문은?</div>
+    <div id="revisit"><p class="empty">STEP 2에서 질문을 만들면 여기에 나타나요.</p></div>
+    <div class="mq">탐구하면서 새로 생긴 질문은? 떠오르는 대로 늘어놓아 보세요. (많을수록 좋아요)</div>
+    <div class="ideas-in"><input type="text" id="nextIn" placeholder="새 질문을 쓰고 Enter"><button type="button" id="nextAdd">추가</button></div>
+    <div class="chips" id="nextChips"></div>
+    <div class="mq">이번 질문탐구는 나의 관심 분야나 진로와 어떻게 이어질까? (「질문, 생각을 만나 진로를 열다」)</div>
+    <textarea data-meta="me-career" placeholder="예) 동물의 행동에 관심이 생겨 동물행동학, 생태학, 수의학, 동물 복지, 생체 모방 공학 분야를 더 알아보고 싶다."></textarea>
+    <button type="button" class="save">내 생각 저장</button><span class="saved"></span>
+  </div>
+
+  <!-- 체크리스트 -->
+  <section>
+    <h2><span class="num">✓</span>궁금한마당 학생 활동 체크리스트 (스스로 점검)</h2>
+    <p class="hint">대회 심사에서 보는 기준이에요. 지금 우리 팀은 어느 정도인지 솔직하게 골라요.</p>
+    <div style="overflow-x:auto">
+      <table class="check" id="checkTable">
+        <thead><tr><th>단계</th><th style="text-align:left">평가 기준</th><th>우수</th><th>보통</th><th>미흡</th><th>매우<br>미흡</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">✉</span>최종 제출하기</h2>
+    <p class="hint">활동 중간에는 각 STEP 끝이나 화면 오른쪽 아래의 <b>💾 중간 저장</b>을 누르면 선생님이 진행 상황을 확인하고 도와줄 수 있어요. 모두 마치면 <b>최종 제출</b>을 눌러요. 제출한 뒤에도 고쳐서 다시 제출할 수 있어요(가장 최근 것이 기준).</p>
+    <div class="progress" id="progress"></div>
+    <div class="submit-row">
+      <button type="button" class="btn" id="submitBtn">✅ 최종 제출하기</button>
+      <button type="button" class="btn ghost sm" id="logoutBtn2">저장하고 로그아웃</button>
+    </div>
+    <div class="msg" id="submitMsg"></div>
+  </section>
+</main>
+
+<div class="savebar" id="savebar"><small id="lastSaved">아직 선생님께 저장하지 않았어요</small><button type="button" class="btn sm" id="floatSave">💾 중간 저장</button></div>
+
+<script src="question-festival-life-data.js"></script>
+<script>
+// code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfB37iEFnaX7xN8iwzPqxsbD6Tz68Ij8DUUr62aB6LJrzyY32Y-JWpi53bMsiGhoEF/exec";
+const BOOK = { id:'life', title:'생명이 있는 것은 다 아름답다' };
+const BOOKD = BOOKDATA[BOOK.id], { PARTS, CHAPTERS } = BOOKD;   // 책 자료 (question-festival-○○-data.js)   // 서버가 책마다 따로 저장
+const AI_UNIT = '질문탐구한마당 — 『생명이 있는 것은 다 아름답다』(최재천)';
+const DRAFT_KEY = 'qf-life-draft-v1';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
+/* ---------- 상태 ---------- */
+const freshS = () => ({
+  kws: [{ w:'', why:'' }, { w:'', why:'' }, { w:'', why:'' }],
+  questions: [],            // { id, kw, text, type, sent }
+  picks: [ { from:'', to:'', reason:'', methods:[], minutes:'' }, { from:'', to:'', reason:'', methods:[], minutes:'' } ],
+  inqs: [ { process:'', answer:'', next:'' }, { process:'', answer:'', next:'' } ],
+  aiLog: [],                // { prompt, use, fix }
+  meta: {},                 // id → value
+  revisit: {},              // question id → 해결/진행 중/아직
+  next: [],
+  checks: {},
+  aiUsed: 0,
+  read: {},                 // 장 번호 → 다 읽음
+  chNotes: {}               // 장 번호 → 튜터의 질문에 대한 내 생각
+});
+let S = freshS();
+let LOGIN = null;           // { cls, num, code, name }
+let dirty = false;          // 마지막 서버 저장 뒤에 바뀐 내용이 있나
+
+/* ---------- 질문 유형 (대시보드와 같은 규칙) ---------- */
+function qType(t){
+  if(/만약|라면|없다면|있다면/.test(t)) return '가정';
+  if(/해야|옳|좋은 걸까|좋을까|좋은가|꼭 |필요할까|필요한가|바람직|괜찮을까|맞을까|중 무엇이|중 어느|더 나을까|나은가/.test(t) && !/^왜|어떻게 하면/.test(t)) return '가치';
+  if(/왜|이유/.test(t)) return '이유';
+  if(/어떻게|방법/.test(t)) return '방법';
+  if(/무엇|무슨|누가|언제|어디|몇|뜻/.test(t)) return '사실';
+  return '기타';
+}
+const meLinked = t => /나는|내가|나의|나를|나에게|나와|나라면|우리|학교|친구|반에서|중학생|청소년/.test(t);
+
+/* ---------- 임시 저장 ---------- */
+// 로그인한 학생의 내용은 이 기기에도(학생별로) 잠깐 보관하고, 1분마다 선생님 시트에 저장한다
+const FIELDS = ['team','mates','passageWhere','passageQuote','passageSummary','passageThought','genProcess','expQ1','expA1','expQ2','expA2','toOthers'];
+const draftKey = () => LOGIN ? `${DRAFT_KEY}:${LOGIN.cls}-${LOGIN.num}` : null;
+const snapshot = () => { const f = {}; FIELDS.forEach(id => f[id] = $(id).value); return { S, f, savedAt: Date.now() }; };
+let saveTimer = null;
+function saveDraft(){
+  if(!LOGIN) return;
+  dirty = true;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { try{ localStorage.setItem(draftKey(), JSON.stringify(snapshot())); }catch(e){} }, 300);
+}
+function applyState(st){
+  S = Object.assign(freshS(), (st && st.S) || {});
+  FIELDS.forEach(id => { $(id).value = (st && st.f && st.f[id] != null) ? st.f[id] : ''; });
+  renderAll();
+}
+FIELDS.forEach(id => $(id).addEventListener('input', saveDraft));
+
+/* ---------- 책 주제 칩 ---------- */
+$('themes').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const ta = $('passageThought');
+  ta.value = (ta.value ? ta.value.trim() + '\n' : '') + `[${b.textContent}] `;
+  ta.focus(); saveDraft();
+});
+
+/* ---------- 장 속 그래프 (책마다 데이터 파일의 CHARTS) ---------- */
+const CHARTS = BOOKD.CHARTS || {};
+function chartX(cf, v){
+  const lg = cf.scale === 'log', a = lg ? Math.log10(cf.min) : cf.min, b = lg ? Math.log10(cf.max) : cf.max, x = lg ? Math.log10(v) : v;
+  return +Math.max(0, Math.min(100, (x - a) / (b - a) * 100)).toFixed(1);
+}
+function bookChart(key){
+  const cf = CHARTS[key]; if(!cf) return '';
+  return `<div class="bio" data-chart="${key}"><h4>${cf.title}</h4><p class="sub">${cf.sub}</p>
+    ${cf.rows.map((r, i) => { const hi = r.hi ?? r.lo, xl = chartX(cf, r.lo), xh = chartX(cf, hi), rng = hi !== r.lo;
+      return `<div class="bio-row" tabindex="0" data-bar="${i}"><div class="nm">${r.nm}<small>${r.sub || ''}</small></div>
+        <div class="bio-bar">${rng ? `<i class="rng" style="width:${xh}%"></i>` : ''}<i style="width:${xl}%"></i>
+        <span style="${xh > 60 ? `right:calc(${(100 - xh).toFixed(1)}% + 6px);color:${rng ? 'var(--ink)' : '#fff'}` : `left:calc(${xh}% + 6px)`}">${r.v}</span></div></div>`; }).join('')}
+    <div class="bio-axis"><span></span><div>${cf.ticks.map(t => `<span>${t}</span>`).join('')}</div></div>
+    <div class="bio-tip" data-biotip>${cf.first}</div>
+    <details><summary>표로 보기</summary><table><tr>${cf.table.head.map(h => `<th>${h}</th>`).join('')}</tr>${cf.table.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</table>${cf.note ? `<p class="hint" style="margin:4px 0 0">${cf.note}</p>` : ''}</details>
+  </div>`;
+}
+const barTip = el => { const bar = el.closest('[data-bar]'); if(!bar) return false; const box = bar.closest('[data-chart]'); box.querySelector('[data-biotip]').textContent = CHARTS[box.dataset.chart].rows[+bar.dataset.bar].tip; return true; };
+
+/* ---------- 장별 튜터 카드 ---------- */
+function renderChapters(){
+  const openNow = [...document.querySelectorAll('details.ch[open]')].map(d => d.dataset.ch);
+  $('chapters').innerHTML = PARTS.map(p => `<div class="part-title">${p.t}</div>` + CHAPTERS.filter(c => c.n >= p.from && c.n <= p.to).map(c => {
+    const read = !!S.read[c.n], note = S.chNotes[c.n] || '';
+    return `<details class="ch${read ? ' read' : ''}" data-ch="${c.n}"${openNow.includes(String(c.n)) ? ' open' : ''}>
+      <summary><span class="ch-n">${read ? '✓' : (c.mark || c.n)}</span><span class="ch-t"><b>${c.lab || c.n + '장'} · ${c.ko}</b><small>${c.en}</small></span><span class="ch-flag">${note.trim() ? '✏️ 메모' : ''}</span></summary>
+      <div class="ch-body">
+        <span class="lbl">${c.sumLabel || BOOKD.SUM_LABEL || '📖 이 장에서는'}</span><p class="sum">${c.sum}</p>
+        ${c.chart ? bookChart(c.chart) : ''}
+        ${c.quotes.length ? `<span class="lbl">❝ 책 속 문장</span>` + c.quotes.map(q => `<blockquote class="q">${q.en ? `<div class="en"><span class="en-badge">원문</span> ${esc(q.en)}</div>` : ''}<div class="ko">${esc(q.ko)}</div><small>${esc(q.note || 'AI 튜터 번역 — 번역본에서 같은 문장을 찾아 비교해 보세요')}</small></blockquote>`).join('') : ''}
+        <span class="lbl">🧑‍🏫 튜터의 질문</span><ol class="ch-qs">${c.qs.map(q => `<li>${q}</li>`).join('')}</ol>
+        ${c.find ? `<div class="ch-find">🔎 <b>책에서 찾아보기</b> — ${c.find}</div>` : ''}
+        <div class="ch-sci">🔬 과학과 이어지는 개념: ${c.sci}</div>
+        <span class="lbl">🔑 관심어 후보 — 누르면 STEP 1에 넣어져요</span>
+        <div class="ch-kws needs-login">${c.kws.map(k => `<button type="button" data-addkw="${esc(k)}">＋ ${esc(k)}</button>`).join('')}</div>
+        <span class="lbl">✏️ 튜터의 질문에 대한 내 생각 (책 쪽수도 적어 두면 좋아요)</span>
+        <textarea class="needs-login" data-chnote="${c.n}" placeholder="Q1: … / Q2: … / 책 ○○쪽">${esc(note)}</textarea>
+        <div class="ch-acts needs-login">
+          <button type="button" class="btn sm ${read ? 'done' : 'ghost'}" data-read="${c.n}">${read ? '✓ 읽었어요' : '☐ 다 읽었어요'}</button>
+          <button type="button" class="btn ghost sm" data-passage="${c.n}">📌 이 장을 오늘의 지문으로</button>
+          <button type="button" class="btn ghost sm" data-tutor="${c.n}">✦ AI 튜터에게 더 묻기</button>
+        </div>
+        <div class="ch-msg" data-chmsg="${c.n}"></div>
+      </div>
+    </details>`;
+  }).join('')).join('');
+  const n = Object.values(S.read).filter(Boolean).length;
+  $('readCount').textContent = `읽은 장 ${n} / ${CHAPTERS.length}`;
+  $('readFill').style.width = (n / CHAPTERS.length * 100) + '%';
+}
+const chMsg = (n, t) => { const el = document.querySelector(`[data-chmsg="${n}"]`); if(el){ el.textContent = t; clearTimeout(el._t); el._t = setTimeout(() => { el.textContent = ''; }, 4000); } };
+$('chapters').addEventListener('click', e => {
+  if(barTip(e.target)) return;
+  const b = e.target.closest('button'); if(!b) return;
+  const card = b.closest('details.ch'), n = card && +card.dataset.ch, c = CHAPTERS.find(x => x.n === n);
+  if(!c) return;
+  if(!LOGIN){ chMsg(n, '로그인하면 쓸 수 있어요.'); return; }
+  if(b.dataset.addkw){
+    const w = b.dataset.addkw;
+    if(S.kws.some(k => k.w.trim() === w)){ chMsg(n, `"${w}"은(는) 이미 관심어에 있어요.`); return; }
+    const slot = S.kws.find(k => !k.w.trim());
+    if(slot) slot.w = w; else if(S.kws.length < 6) S.kws.push({ w, why:'' }); else { chMsg(n, '관심어 칸이 가득 찼어요. STEP 1에서 하나를 지우고 다시 눌러요.'); return; }
+    renderKws(); renderKwSelect(); saveDraft(); renderProgress();
+    chMsg(n, `"${w}"을(를) STEP 1 관심어에 넣었어요. 관심을 갖게 된 이유도 적어 주세요.`);
+  } else if(b.dataset.read){
+    S.read[n] = !S.read[n]; saveDraft(); renderChapters();
+  } else if(b.dataset.passage){
+    $('passageWhere').value = `${c.lab || n + '장'} 「${c.ko}」` + (c.en && !/^「|목차에서/.test(c.en) ? ` (${c.en})` : '');
+    saveDraft();
+    $('passageBox').scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => $('passageQuote').focus({ preventScroll:true }), 400);
+  } else if(b.dataset.tutor){
+    AI.setTopic('책 읽기 · 튜터에게 묻기');
+    $('aiQ').value = `${c.lab || n + '장'} 「${c.ko}」에서 `;
+    document.querySelector('.ai-box').scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => { $('aiQ').focus({ preventScroll:true }); const L = $('aiQ').value.length; $('aiQ').setSelectionRange(L, L); }, 400);
+  }
+});
+$('chapters').addEventListener('mouseover', e => barTip(e.target));
+$('chapters').addEventListener('focusin', e => barTip(e.target));
+$('chapters').addEventListener('input', e => {
+  const el = e.target; if(el.dataset.chnote == null) return;
+  S.chNotes[el.dataset.chnote] = el.value; saveDraft();
+  const flag = el.closest('details.ch').querySelector('.ch-flag'); flag.textContent = el.value.trim() ? '✏️ 메모' : '';
+});
+
+/* ---------- STEP 1 관심어 ---------- */
+function renderKws(){
+  $('kwRows').innerHTML = S.kws.map((k, i) => `
+    <div class="kw-row">
+      <div><div class="kw-num">관심어 ${i + 1}</div><input type="text" data-kw="${i}" data-f="w" maxlength="20" value="${esc(k.w)}" placeholder="${['예) 협동', '예) 공생', '예) 서열'][i] || '관심어'}"></div>
+      <div><div class="kw-num">관심을 갖게 된 이유 (우리 삶과 관련 짓기)</div><textarea data-kw="${i}" data-f="why" style="min-height:60px" placeholder="이 단어가 나·우리 반·우리 사회와 어떤 관련이 있나?">${esc(k.why)}</textarea></div>
+    </div>`).join('');
+}
+$('kwRows').addEventListener('input', e => {
+  const el = e.target; if(el.dataset.kw == null) return;
+  S.kws[+el.dataset.kw][el.dataset.f] = el.value;
+  if(el.dataset.f === 'w') renderKwSelect();
+  saveDraft();
+});
+function renderKwSelect(){
+  const cur = $('qKw').value;
+  const ws = S.kws.map(k => k.w.trim()).filter(Boolean);
+  $('qKw').innerHTML = '<option value="">관심어 고르기</option>' + ws.map(w => `<option>${esc(w)}</option>`).join('') + '<option value="기타">기타</option>';
+  if([...ws, '기타'].includes(cur)) $('qKw').value = cur;
+}
+
+/* ---------- STEP 2 질문 ---------- */
+$('stems').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  $('qText').value = b.dataset.s;
+  $('qText').focus();
+  const i = $('qText').value.indexOf('○○'); if(i < 0){ const j = $('qText').value.indexOf('□□'); if(j >= 0) $('qText').setSelectionRange(j, j + 2); }
+  else $('qText').setSelectionRange(i, i + 2);
+});
+function student(){ return { stuClass:$('stuClass').value.trim(), stuNumber:$('stuNumber').value.trim(), name:$('stuName').value.trim() }; }
+function needStudent(msgEl){
+  if(!LOGIN){ msgEl.textContent = '먼저 맨 위에서 로그인해 주세요.'; msgEl.className = 'msg err'; $('loginNum').focus(); return null; }
+  return student();
+}
+async function post(payload){
+  if(!APPS_SCRIPT_URL) throw new Error('no server');
+  await fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(payload) });
+}
+async function sendQuestion(q){
+  const s = student();
+  try{
+    await post({ form:'질문탐구_질문', submittedAt:new Date().toISOString(), ...s, '도서':BOOK.title, '팀':$('team').value.trim(), '관심어':q.kw, '질문':q.text, '질문유형':q.type, '우리삶연결':meLinked(q.text) ? 'O' : '' });
+    q.sent = true;
+  }catch(e){ q.sent = false; }
+}
+$('qAdd').addEventListener('click', addQuestion);
+$('qText').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); addQuestion(); } });
+async function addQuestion(){
+  const msg = $('qMsg');
+  const text = $('qText').value.trim();
+  if(!needStudent(msg)) return;
+  if(text.length < 6){ msg.textContent = '질문을 조금 더 구체적으로 적어 주세요.'; msg.className = 'msg err'; return; }
+  if(/○○|□□/.test(text)){ msg.textContent = '질문 틀의 ○○·□□ 부분을 내 말로 바꿔 주세요.'; msg.className = 'msg err'; return; }
+  if(S.questions.some(q => q.text === text)){ msg.textContent = '이미 보낸 질문이에요.'; msg.className = 'msg err'; return; }
+  const q = { id:'q' + Date.now(), kw:$('qKw').value, text, type:qType(text), sent:false };
+  S.questions.push(q); $('qText').value = '';
+  renderQuestions(); saveDraft();
+  msg.textContent = '보내는 중…'; msg.className = 'msg';
+  await sendQuestion(q);
+  msg.textContent = q.sent ? `✉ 질문을 선생님께 보냈어요! (지금까지 ${S.questions.length}개)` : (APPS_SCRIPT_URL ? '보내지 못했어요. 인터넷 연결을 확인해 주세요. (제출할 때 다시 보내져요)' : '질문을 목록에 담았어요. 선생님이 서버를 연결하면 제출할 때 함께 보내져요.');
+  msg.className = 'msg ' + (q.sent ? 'ok' : 'err');
+  renderQuestions(); saveDraft();
+}
+function renderQuestions(){
+  $('qList').innerHTML = S.questions.length ? S.questions.map((q, i) => `
+    <li><span class="chip" style="background:#1B1A3A;color:#F2C46B">${i + 1}</span>
+      <div class="qt">${esc(q.text)}
+        <div class="meta">${q.kw ? `<span class="chip">관심어 · ${esc(q.kw)}</span>` : ''}<span class="chip t-${q.type}">${q.type} 질문</span>${meLinked(q.text) ? '<span class="chip me">우리 삶과 연결</span>' : ''}<span class="chip ${q.sent ? 'sent' : ''}">${q.sent ? '보냄 ✓' : '보내기 전'}</span></div>
+      </div>
+      <button type="button" class="x" data-del="${q.id}" aria-label="삭제">✕</button></li>`).join('')
+    : '<li class="empty" style="background:none;border:none;padding:0">아직 만든 질문이 없어요. 위에서 질문을 만들어 보내 보세요.</li>';
+  renderPickSelects(); renderRevisit();
+}
+$('qList').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if(!b) return;
+  if(!confirm('이 질문을 내 목록에서 지울까요? (선생님께 이미 보낸 질문은 그대로 남아요)')) return;
+  S.questions = S.questions.filter(q => q.id !== b.dataset.del); renderQuestions(); saveDraft();
+});
+
+/* ---------- STEP 3 선정 ---------- */
+const METHODS = ['인터넷 검색', 'AI 활용', '팀 토의', '책 다시 읽기', '친구·가족 의견 묻기(간단 설문)', '통계·자료 비교'];
+function renderPicks(){
+  $('picks').innerHTML = S.picks.map((p, i) => `
+    <div class="pick">
+      <h3>선정 질문 ${i + 1}</h3>
+      <label class="lb">처음 질문 (팀원 질문 중에서 고르거나 직접 적기)</label>
+      <select data-pk="${i}" data-f="pickSel" style="margin-bottom:6px"></select>
+      <div class="arrow-row">
+        <textarea data-pk="${i}" data-f="from" style="min-height:60px" placeholder="처음 질문">${esc(p.from)}</textarea>
+        <div class="ar">➜</div>
+        <textarea data-pk="${i}" data-f="to" style="min-height:60px" placeholder="다듬은 질문 (범위 좁히기, 대상·기준 정하기)">${esc(p.to)}</textarea>
+      </div>
+      <label class="lb" style="margin-top:8px">선정 이유와 다듬은 과정</label>
+      <textarea data-pk="${i}" data-f="reason" style="min-height:60px" placeholder="왜 이 질문을 골랐나? 어떻게 다듬었나?">${esc(p.reason)}</textarea>
+      <label class="lb" style="margin-top:8px">탐구 방법</label>
+      <div class="checks">${METHODS.map(m => `<label><input type="checkbox" data-pk="${i}" data-m="${esc(m)}" ${p.methods.includes(m) ? 'checked' : ''}>${esc(m)}</label>`).join('')}</div>
+      <label class="lb" style="margin-top:8px">탐구 시간 계획 (90분 중 몇 분?)</label>
+      <input type="number" min="5" max="90" step="5" data-pk="${i}" data-f="minutes" value="${esc(p.minutes)}" style="max-width:140px" placeholder="예) 35">
+    </div>`).join('');
+  renderPickSelects();
+}
+function renderPickSelects(){
+  document.querySelectorAll('select[data-f=pickSel]').forEach(sel => {
+    sel.innerHTML = '<option value="">— 내가 만든 질문에서 고르기 —</option>' + S.questions.map(q => `<option value="${esc(q.text)}">${esc(q.text)}</option>`).join('');
+  });
+}
+function onPickEvent(e){
+  const el = e.target, i = el.dataset.pk; if(i == null) return;
+  const p = S.picks[+i];
+  if(el.dataset.f === 'pickSel'){ if(el.value){ p.from = el.value; if(!p.to) p.to = el.value; renderPicks(); renderInqs(); } }
+  else if(el.dataset.m){ p.methods = el.checked ? [...new Set([...p.methods, el.dataset.m])] : p.methods.filter(m => m !== el.dataset.m); }
+  else { p[el.dataset.f] = el.value; if(el.dataset.f === 'to' || el.dataset.f === 'from') renderInqTitles(); }
+  saveDraft();
+}
+$('picks').addEventListener('input', onPickEvent);
+$('picks').addEventListener('change', e => { if(e.target.dataset.m || e.target.dataset.f === 'pickSel') onPickEvent(e); });
+
+/* ---------- STEP 4 탐구 정리 ---------- */
+const pickTitle = i => (S.picks[i].to || S.picks[i].from || '').trim();
+function renderInqs(){
+  $('inqs').innerHTML = S.inqs.map((q, i) => `
+    <div class="inq">
+      <h3>질문 ${i + 1} · <span data-title="${i}">${esc(pickTitle(i) || 'STEP 3에서 질문을 선정하면 여기에 나타나요')}</span></h3>
+      <div class="stack">
+        <div><label class="lb">질문 해결을 위한 과정 (무엇을 찾고, 어떻게 토의했나?)</label><textarea data-iq="${i}" data-f="process" placeholder="① 용어 뜻 정리 → ② 자료·사례 찾기 → ③ 비교·토의 …">${esc(q.process)}</textarea></div>
+        <div><label class="lb">잠정적인 답 (1차 탐구 결과)</label><textarea data-iq="${i}" data-f="answer" placeholder="지금까지 탐구한 결과, 우리 팀은 ~라고 생각한다. 그 근거는 ~">${esc(q.answer)}</textarea></div>
+        <div><label class="lb">이어진 질문 (탐구 과정에서 나타난 또 다른 질문)</label><input type="text" data-iq="${i}" data-f="next" value="${esc(q.next)}" placeholder="예) 그렇다면 ~할 때는 어떨까?"></div>
+      </div>
+    </div>`).join('');
+}
+function renderInqTitles(){ document.querySelectorAll('[data-title]').forEach(el => { el.textContent = pickTitle(+el.dataset.title) || 'STEP 3에서 질문을 선정하면 여기에 나타나요'; }); }
+$('inqs').addEventListener('input', e => { const el = e.target; if(el.dataset.iq == null) return; S.inqs[+el.dataset.iq][el.dataset.f] = el.value; saveDraft(); });
+
+/* ---------- AI 활용 기록 ---------- */
+function renderAiLog(){
+  if(!S.aiLog.length) S.aiLog.push({ prompt:'', use:'', fix:'' });
+  $('aiLogRows').innerHTML = S.aiLog.map((r, i) => `
+    <tr><td data-h="입력 검색어(프롬프트)"><textarea data-al="${i}" data-f="prompt" placeholder="AI·검색창에 입력한 말">${esc(r.prompt)}</textarea></td>
+      <td data-h="실제 활용"><textarea data-al="${i}" data-f="use" placeholder="답 중 실제로 활용한 내용, 사이트 주소">${esc(r.use)}</textarea></td>
+      <td data-h="수정·보완"><textarea data-al="${i}" data-f="fix" placeholder="출처를 직접 확인했나? 무엇을 고쳤나?">${esc(r.fix)}</textarea></td></tr>`).join('');
+}
+$('aiLogRows').addEventListener('input', e => { const el = e.target; if(el.dataset.al == null) return; S.aiLog[+el.dataset.al][el.dataset.f] = el.value; saveDraft(); });
+$('addLogRow').addEventListener('click', () => { S.aiLog.push({ prompt:'', use:'', fix:'' }); renderAiLog(); saveDraft(); });
+
+/* ---------- AI 조사 도우미 ---------- */
+const AI = (function(){
+  const MAX_Q = 15;
+  let ready = false, busy = false, topic = '';
+  const STARTERS = {
+    '': ['질문탐구에서 좋은 질문의 조건은 뭐야?', '우리 팀 질문을 90분 안에 탐구하려면 어떻게 범위를 좁혀야 해?'],
+    '책 읽기 · 튜터에게 묻기': ['이 책의 네 부는 각각 어떤 이야기를 담고 있어?', '"알면 사랑한다"는 말은 무슨 뜻이야?', '꿀벌은 어떻게 여럿이 함께 새 집을 정해?', '반딧불이는 어떻게 빛을 내고, 왜 다른 종의 신호를 흉내 내?'],
+    '선정 · 질문 다듬기': ['이 질문이 너무 넓은지 봐 줘: 동물은 왜 협동할까?', '동물 이야기를 우리 삶과 연결되게 질문을 다듬는 방법을 알려 줘', '두 질문 중 어떤 기준으로 고르면 좋을까?'],
+    '탐구 · 용어와 개념': ['공생, 기생, 경쟁은 어떻게 달라?', '성선택이 뭐야?', '사회성 곤충은 무엇이 특별해?'],
+    '탐구 · 자료와 사례 찾기': ['우리 학교 주변에서 관찰할 수 있는 동물의 협동 사례는 뭐가 있어?', '동물의 따돌림이나 서열에 관한 믿을 만한 연구를 찾을 검색어를 추천해 줘', '믿을 만한 자료인지 확인하는 방법은?'],
+    '탐구 · 다른 관점 살펴보기': ['동물의 행동을 사람 사회에 빗대어 설명할 때 조심할 점은 뭐야?', '"동물도 그러니까 자연스럽다"는 말을 반박해 줘', '동물원은 필요할까? 찬성과 반대 의견을 알려 줘']
+  };
+  const log = $('aiLog');
+  function format(text){
+    const lines = esc(text).split(/\n+/);
+    let html = '', inList = false;
+    lines.forEach(line => {
+      const l = line.trim().replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+      const m = l.match(/^([-*•]|\d+[.)])\s+(.*)$/);
+      if(m){ if(!inList){ html += '<ul>'; inList = true; } html += `<li>${m[2]}</li>`; }
+      else { if(inList){ html += '</ul>'; inList = false; } if(l) html += `<p>${l}</p>`; }
+    });
+    if(inList) html += '</ul>';
+    return html;
+  }
+  function bubble(cls, html){ const d = document.createElement('div'); d.className = 'ai-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
+  function updateCount(){ $('aiCount').textContent = ready ? `남은 질문 ${MAX_Q - S.aiUsed} / ${MAX_Q}` : ''; }
+  async function call(body, onTick){
+    if(!APPS_SCRIPT_URL) return { result:'error', message:'선생님이 아직 서버를 연결하지 않았어요.' };
+    const ctrl = new AbortController(), t0 = Date.now();
+    const timer = setInterval(() => onTick && onTick(Math.floor((Date.now() - t0) / 1000)), 1000);
+    const stop = setTimeout(() => ctrl.abort(), 60000);
+    try{
+      const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body), signal:ctrl.signal });
+      return await res.json();
+    }catch(err){
+      if(err.name === 'AbortError') return { result:'error', message:'AI의 답이 너무 오래 걸려서 멈췄어요. 잠시 뒤 다시 질문해 주세요.' };
+      throw err;
+    }finally{ clearInterval(timer); clearTimeout(stop); }
+  }
+  async function ask(q){
+    q = q.trim();
+    if(!q || busy) return;
+    if(!needStudent($('qMsg'))){ bubble('bot err', '먼저 맨 위에서 로그인해 주세요.'); return; }
+    if(!ready){ bubble('bot err', 'AI 조사 도우미가 아직 준비되지 않았어요. 책과 믿을 만한 누리집으로 탐구해 보세요.'); return; }
+    if(S.aiUsed >= MAX_Q){ bubble('bot err', `이 화면에서는 질문을 ${MAX_Q}번까지 할 수 있어요. 이제 팀이 찾은 내용을 내 말로 정리해 볼까요?`); return; }
+    busy = true; $('aiSend').disabled = true;
+    bubble('me', esc(q)); $('aiQ').value = '';
+    const wait = bubble('bot', '<span class="ai-typing">생각하는 중</span>');
+    try{
+      const r = await call({ action:'ai', mode:'ask', unit:AI_UNIT, topic: topic || '탐구', question:q, ...student() },
+        s => { wait.innerHTML = `<span class="ai-typing">생각하는 중 (${s}초)</span>`; });
+      if(r.result === 'success'){
+        S.aiUsed++;
+        const src = (r.sources || []).map(s => `<a href="${esc(s.uri)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join('');
+        wait.innerHTML = format(r.text) + (src ? `<div class="ai-src">출처: ${src}</div>` : '') + '<small>AI의 답은 틀릴 수 있어요. 출처를 확인하고, 아래 AI 활용 기록에 어떻게 썼는지 적어요.</small>';
+        // AI 활용 기록에 자동으로 한 줄
+        const empty = S.aiLog.find(x => !x.prompt && !x.use && !x.fix);
+        if(empty) empty.prompt = q; else S.aiLog.push({ prompt:q, use:'', fix:'' });
+        renderAiLog(); saveDraft();
+      } else { wait.classList.add('err'); wait.textContent = r.message || 'AI 응답을 받지 못했어요.'; }
+    }catch(err){
+      wait.classList.add('err'); wait.textContent = 'AI 조사 도우미에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.';
+    }finally{ busy = false; $('aiSend').disabled = false; updateCount(); log.scrollTop = log.scrollHeight; }
+  }
+  async function feedback(){
+    const box = $('aiFeedbackBox'); box.hidden = false;
+    const parts = [0, 1].map(i => pickTitle(i) || S.inqs[i].answer ? `질문 ${i + 1}: ${pickTitle(i)}\n해결 과정: ${S.inqs[i].process}\n잠정적인 답: ${S.inqs[i].answer}\n이어진 질문: ${S.inqs[i].next}` : '').filter(Boolean);
+    if(!ready){ box.textContent = 'AI 조사 도우미가 아직 준비되지 않았어요.'; return; }
+    if(!parts.length || !S.inqs.some(x => x.answer.trim())){ box.textContent = '먼저 질문별 탐구 정리에 잠정적인 답을 적어 주세요.'; return; }
+    if(busy) return;
+    busy = true; $('aiFeedback').disabled = true;
+    box.innerHTML = '<span class="ai-typing">AI가 탐구 정리를 읽는 중</span>';
+    try{
+      const r = await call({ action:'ai', mode:'feedback', unit:AI_UNIT, topic:'탐구 점검', summary:parts.join('\n\n'), ...student() },
+        s => { box.innerHTML = `<span class="ai-typing">AI가 탐구 정리를 읽는 중 (${s}초)</span>`; });
+      box.innerHTML = r.result === 'success' ? `<b>✦ AI 피드백</b>${format(r.text)}<small style="display:block;color:#6b5b95;margin-top:4px">피드백도 AI 활용이에요. 반영했다면 AI 활용 기록에 적어 두세요.</small>` : esc(r.message || 'AI 응답을 받지 못했어요.');
+    }catch(err){ box.textContent = 'AI 조사 도우미에 연결하지 못했어요.'; }
+    finally{ busy = false; $('aiFeedback').disabled = false; }
+  }
+  function setTopic(tp){
+    topic = tp;
+    document.querySelectorAll('#topicRow .topic').forEach(b => b.classList.toggle('active', b.dataset.topic === tp));
+    $('aiStarters').innerHTML = [...STARTERS[''], ...(tp ? STARTERS[tp] || [] : [])].map(q => `<button type="button">${esc(q)}</button>`).join('');
+  }
+  $('topicRow').addEventListener('click', e => { const b = e.target.closest('.topic'); if(b) setTopic(b.dataset.topic); });
+  $('aiStarters').addEventListener('click', e => { const b = e.target.closest('button'); if(b) ask(b.textContent); });
+  $('aiSend').addEventListener('click', () => ask($('aiQ').value));
+  $('aiQ').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing) ask($('aiQ').value); });
+  $('aiFeedback').addEventListener('click', feedback);
+  setTopic('');
+  if(!APPS_SCRIPT_URL){ $('aiState').textContent = '선생님이 아직 서버를 연결하지 않았어요'; }
+  else fetch(APPS_SCRIPT_URL + '?action=ai_status').then(r => r.json()).then(r => {
+    if(r && r.ai === true){ ready = true; $('aiState').textContent = r.search ? 'Gemini 연결됨 · 구글 검색 출처와 함께 답해요' : 'Gemini 연결됨'; }
+    else if(r && r.ai === false){ $('aiState').textContent = '선생님이 아직 AI 키를 설정하지 않았어요'; }
+    else { $('aiState').textContent = '선생님이 Apps Script를 업데이트하면 사용할 수 있어요'; }
+    updateCount();
+  }).catch(() => { $('aiState').textContent = '연결할 수 없어요 — 인터넷 연결을 확인해 주세요'; });
+  return { refresh: updateCount, setTopic };
+})();
+
+/* ---------- 발표 개요 ---------- */
+$('makeOutline').addEventListener('click', () => {
+  const kw = S.kws.filter(k => k.w.trim());
+  const lines = [];
+  lines.push(`[탐색 · 슬라이드 1장] 관심어`);
+  kw.forEach(k => lines.push(`  · ${k.w} — ${k.why.trim() || '(관심을 갖게 된 이유를 적어요)'}`));
+  if(!kw.length) lines.push('  · (STEP 1에서 관심어를 적어요)');
+  lines.push('', `[생성 · 슬라이드 1~3장] 팀 내에서 생성한 1차 질문`);
+  S.questions.forEach((q, i) => lines.push(`  ${i + 1}. ${q.text}  (${q.type})`));
+  if(!S.questions.length) lines.push('  (STEP 2에서 질문을 만들어요)');
+  lines.push(`  · 질문 생성 과정: ${$('genProcess').value.trim() || '(적어요)'}`);
+  lines.push('', `[선정 · 슬라이드 1~3장] 선정하고 다듬은 2가지 질문`);
+  S.picks.forEach((p, i) => { lines.push(`  질문 ${i + 1}: ${p.from || '?'}  →  ${p.to || '?'}`); lines.push(`    선정 이유·다듬은 과정: ${p.reason || '(적어요)'}`); lines.push(`    탐구 방법: ${p.methods.join(', ') || '-'} / 시간: ${p.minutes || '-'}분`); });
+  lines.push('', `[탐구 · 슬라이드 3~6장]`);
+  S.inqs.forEach((q, i) => { lines.push(`  질문 ${i + 1}. ${pickTitle(i) || '?'}`); lines.push(`    해결 과정: ${q.process || '(적어요)'}`); lines.push(`    잠정적인 답: ${q.answer || '(적어요)'}`); lines.push(`    이어진 질문: ${q.next || '(적어요)'}`); });
+  const used = S.aiLog.filter(r => r.prompt.trim());
+  if(used.length){ lines.push('', '[슬라이드 메모 — AI·인터넷 활용 (필수 표기)]'); used.forEach((r, i) => lines.push(`  ${i + 1}) 입력 검색어: ${r.prompt}\n     실제 활용: ${r.use || '(적어요)'}\n     수정·보완: ${r.fix || '(적어요)'}`)); }
+  $('outline').textContent = lines.join('\n'); $('outline').hidden = false; $('copyOutline').hidden = false;
+});
+$('copyOutline').addEventListener('click', async () => { try{ await navigator.clipboard.writeText($('outline').textContent); $('copyOutline').textContent = '복사했어요 ✓'; }catch(e){ $('copyOutline').textContent = '직접 선택해서 복사해 주세요'; } });
+
+/* ---------- 메타질문 ---------- */
+document.querySelectorAll('.meta').forEach(box => {
+  box.querySelectorAll('.rate').forEach(r => {
+    const id = r.dataset.meta;
+    r.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.meta[id] = b.dataset.v; paintRate(r); saveDraft(); });
+  });
+  box.querySelectorAll('textarea[data-meta]').forEach(t => t.addEventListener('input', () => { S.meta[t.dataset.meta] = t.value; saveDraft(); }));
+  const save = box.querySelector('.save'), saved = box.querySelector('.saved');
+  save.addEventListener('click', () => { saveDraft(); saved.textContent = '저장했어요 ✓ (제출할 때 함께 보내져요)'; setTimeout(() => saved.textContent = '', 3000); });
+});
+function paintRate(r){ r.querySelectorAll('button').forEach(b => b.classList.toggle('on', S.meta[r.dataset.meta] === b.dataset.v)); }
+function renderMeta(){
+  document.querySelectorAll('.meta .rate').forEach(paintRate);
+  document.querySelectorAll('.meta textarea[data-meta]').forEach(t => { t.value = S.meta[t.dataset.meta] || ''; });
+}
+function renderRevisit(){
+  $('revisit').innerHTML = S.questions.length ? S.questions.map(q => `
+    <div class="rv"><span class="q">${esc(q.text)}</span>
+      <select data-rv="${q.id}"><option value="">— 고르기 —</option>${['해결됐어요', '일부 해결', '아직 남았어요'].map(v => `<option ${S.revisit[q.id] === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div>`).join('')
+    : '<p class="empty">STEP 2에서 질문을 만들면 여기에 나타나요.</p>';
+}
+$('revisit').addEventListener('change', e => { const el = e.target; if(el.dataset.rv){ S.revisit[el.dataset.rv] = el.value; saveDraft(); } });
+function renderNext(){ $('nextChips').innerHTML = S.next.map((t, i) => `<span>${esc(t)}<button type="button" data-ni="${i}" aria-label="삭제">✕</button></span>`).join(''); }
+function addNext(){ const v = $('nextIn').value.trim(); if(!v) return; S.next.push(v); $('nextIn').value = ''; renderNext(); saveDraft(); }
+$('nextAdd').addEventListener('click', addNext);
+$('nextIn').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); addNext(); } });
+$('nextChips').addEventListener('click', e => { const b = e.target.closest('[data-ni]'); if(b){ S.next.splice(+b.dataset.ni, 1); renderNext(); saveDraft(); } });
+
+/* ---------- 체크리스트 ---------- */
+const CHECKS = [
+  ['탐색', 'c1', '글이나 상황 등의 맥락을 이해하고, 깊이 생각할 단어(관심어)를 발견했는가?'],
+  ['생성', 'c2', '질문이 참신하면서도 우리 삶에서 의미가 있는가?'],
+  ['선정', 'c3', '질문이 주어진 시간 안에 실현 가능한 탐구로 연결되는가?'],
+  ['선정', 'c4', '여러 질문 중 2개를 선정하는 과정에서 타인의 의견을 이해하고 존중하는가?'],
+  ['선정', 'c5', '선정한 질문을 더 의미 있는 질문으로 재구성, 심화, 조정하였는가?'],
+  ['탐구', 'c6', '탐구에 필요한 자료를 적절히 수집하고 활용했는가?'],
+  ['탐구', 'c7', '수집한 자료를 논리적으로 분석하고 의미를 도출했는가?'],
+  ['탐구', 'c8', '출처를 명확히 밝히고 윤리적으로 탐구를 수행했는가?'],
+  ['발표', 'c9', '상대가 이해하고 성장할 수 있도록 배려하는 표현(대화, 자료 제작, 발표, 질문 등)을 하였는가?'],
+  ['발표', 'c10', '타인의 표현을 이해하고 의미와 가치를 찾을 수 있는가?']
+];
+const LEVELS = ['우수', '보통', '미흡', '매우 미흡'];
+function renderChecks(){
+  let prev = '';
+  $('checkTable').querySelector('tbody').innerHTML = CHECKS.map(([st, id, q]) => {
+    const head = st !== prev ? `<td class="st" rowspan="${CHECKS.filter(c => c[0] === st).length}">${st}</td>` : '';
+    prev = st;
+    return `<tr>${head}<td>${q}</td>${LEVELS.map(l => `<td class="c"><input type="radio" name="${id}" value="${l}" ${S.checks[id] === l ? 'checked' : ''} aria-label="${l}"></td>`).join('')}</tr>`;
+  }).join('');
+}
+$('checkTable').addEventListener('change', e => { if(e.target.name){ S.checks[e.target.name] = e.target.value; saveDraft(); } });
+
+/* ---------- 진행 상황 · 중간 저장 · 최종 제출 ---------- */
+// 단계별 진행: 'O' 완료, '△' 하는 중, '' 아직
+function progress(){
+  const v = id => $(id).value.trim();
+  const kw = S.kws.filter(k => k.w.trim()), kwWhy = kw.filter(k => k.why.trim());
+  const picked = S.picks.filter(p => (p.to || p.from).trim()), pickedFull = S.picks.filter(p => (p.to || p.from).trim() && p.reason.trim());
+  const ans = S.inqs.filter(q => q.answer.trim()), anyInq = S.inqs.filter(q => q.answer.trim() || q.process.trim());
+  const META_IDS = ['mb-rate', 'mb-prior', 'md-question', 'md-select', 'md-evidence', 'ma-rate', 'ma-change', 'ma-strategy', 'me-career'];
+  return {
+    '탐색': kwWhy.length ? 'O' : kw.length ? '△' : '',
+    '생성': S.questions.length >= 3 ? 'O' : S.questions.length ? '△' : '',
+    '선정': pickedFull.length >= 2 ? 'O' : picked.length ? '△' : '',
+    '탐구': ans.length >= 2 ? 'O' : anyInq.length ? '△' : '',
+    '발표': v('expQ1') && v('expA1') ? 'O' : (v('expQ1') || v('expA1') || v('expQ2') || v('toOthers')) ? '△' : '',
+    '메타': META_IDS.filter(id => String(S.meta[id] || '').trim()).length
+  };
+}
+function renderProgress(){
+  const pr = progress();
+  $('progress').innerHTML = ['탐색', '생성', '선정', '탐구', '발표'].map(k => `<span class="${pr[k] === 'O' ? 'done' : pr[k] ? 'half' : ''}">${pr[k] === 'O' ? '✓' : pr[k] ? '…' : '○'} ${k}</span>`).join('') +
+    `<span class="${pr['메타'] >= 6 ? 'done' : pr['메타'] ? 'half' : ''}">🧠 메타질문 ${pr['메타']}/9</span>`;
+}
+function buildPayload(kind, where){
+  const s = student();
+  const pr = progress();
+  const kwText = S.kws.filter(k => k.w.trim()).map(k => `${k.w.trim()}: ${k.why.trim()}`).join('\n');
+  return {
+    form:'질문탐구_워크시트', submittedAt:new Date().toISOString(), ...s, '도서':BOOK.title,
+    '저장종류':kind, '저장위치':where,
+    '진행-탐색':pr['탐색'], '진행-생성':pr['생성'], '진행-선정':pr['선정'], '진행-탐구':pr['탐구'], '진행-발표':pr['발표'], '메타응답수':pr['메타'],
+    '팀':$('team').value.trim(), '팀원':$('mates').value.trim(),
+    '읽은부분':$('passageWhere').value.trim(), '인상깊은문장':$('passageQuote').value.trim(), '지문요약':$('passageSummary').value.trim(), '내생각':$('passageThought').value.trim(),
+    '읽은장':CHAPTERS.filter(c => S.read[c.n]).map(c => c.n).join(', '), '튜터질문-내생각':CHAPTERS.filter(c => String(S.chNotes[c.n] || '').trim()).map(c => `${c.n}장: ${S.chNotes[c.n].trim()}`).join('\n'),
+    '관심어':S.kws.map(k => k.w.trim()).filter(Boolean).join(', '), '관심어-이유':kwText,
+    '생성질문':S.questions.map((q, i) => `${i + 1}. ${q.text} (${q.type})`).join('\n'), '생성질문수':S.questions.length, '질문생성과정':$('genProcess').value.trim(),
+    '선정1-처음':S.picks[0].from, '선정1-다듬은질문':S.picks[0].to, '선정1-이유':S.picks[0].reason, '선정1-방법':S.picks[0].methods.join(', '), '선정1-시간(분)':S.picks[0].minutes,
+    '선정2-처음':S.picks[1].from, '선정2-다듬은질문':S.picks[1].to, '선정2-이유':S.picks[1].reason, '선정2-방법':S.picks[1].methods.join(', '), '선정2-시간(분)':S.picks[1].minutes,
+    '탐구1-과정':S.inqs[0].process, '탐구1-잠정답':S.inqs[0].answer, '탐구1-이어진질문':S.inqs[0].next,
+    '탐구2-과정':S.inqs[1].process, '탐구2-잠정답':S.inqs[1].answer, '탐구2-이어진질문':S.inqs[1].next,
+    'AI활용기록':S.aiLog.filter(r => r.prompt.trim() || r.use.trim()).map((r, i) => `${i + 1}) 입력: ${r.prompt} | 활용: ${r.use} | 수정·보완: ${r.fix}`).join('\n'),
+    'AI질문수':S.aiUsed,
+    '예상질문-즉답':[1, 2].map(n => $('expQ' + n).value.trim() ? `Q${n}. ${$('expQ' + n).value.trim()} → ${$('expA' + n).value.trim()}` : '').filter(Boolean).join('\n'),
+    '좋은질문조건':$('toOthers').value.trim(),
+    '메타-학습전-생각정도':S.meta['mb-rate'] || '', '메타-학습전-생각':S.meta['mb-prior'] || '',
+    '메타-생성점검':S.meta['md-question'] || '', '메타-선정점검':S.meta['md-select'] || '', '메타-근거점검':S.meta['md-evidence'] || '',
+    '메타-학습후-설명정도':S.meta['ma-rate'] || '', '메타-생각변화':S.meta['ma-change'] || '', '메타-전략수정':S.meta['ma-strategy'] || '',
+    '메타-질문다시보기':S.questions.map(q => `${q.text} → ${S.revisit[q.id] || '-'}`).join('\n'),
+    '메타-다음질문':S.next.join(' / '), '메타-진로연결':S.meta['me-career'] || '',
+    '체크리스트':CHECKS.map(([st, id, q], i) => `${i + 1}.${S.checks[id] || '-'}`).join(' ')
+  };
+}
+const hhmm = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+function showLastSaved(){
+  const el = $('lastSaved');
+  if(S.lastSaved){ el.textContent = `${S.lastSaved.kind} ${S.lastSaved.time} ✓`; el.className = 'ok'; }
+}
+// 안내 글자: 제출 칸은 .msg, 나머지(STEP 끝·화면 아래)는 ok/err 색만
+function setState(el, text, state){ el.textContent = text; el.className = (el.id === 'submitMsg' ? 'msg ' : '') + (state || ''); }
+let sending = false;
+// 선생님 시트에 저장: 내 상태(불러오기용) + 중간·최종일 때는 워크시트 기록 한 줄
+async function serverSave(kind, row){
+  if(!APPS_SCRIPT_URL || !LOGIN) throw new Error('no server');
+  const body = { action:'student_save', book:BOOK.id, cls:LOGIN.cls, num:LOGIN.num, stuCode:LOGIN.code, kind, progress:progress(), state:JSON.stringify(snapshot()) };
+  if(row) body.row = row;
+  const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body) });
+  const r = await res.json();
+  if(r.result !== 'success') throw Object.assign(new Error(r.message || '저장 실패'), { server:true });
+  dirty = false;
+  $('meSaved').textContent = `· ${kind} ${hhmm(new Date())} ✓`;
+  return r;
+}
+async function sendWorksheet(kind, where, msgEl, btn){
+  if(!LOGIN){ setState(msgEl, '먼저 맨 위에서 로그인해 주세요.', 'err'); $('loginNum').focus(); return false; }
+  if(sending) return false;
+  sending = true; if(btn) btn.disabled = true; $('floatSave').disabled = true;
+  setState(msgEl, kind === '최종 제출' ? '제출하는 중…' : '저장하는 중…', '');
+  try{
+    for(const q of S.questions) if(!q.sent) await sendQuestion(q);   // 아직 못 보낸 질문도 함께
+    renderQuestions();
+    S.lastSaved = { kind, time: hhmm(new Date()) };
+    await serverSave(kind, buildPayload(kind, where));
+    showLastSaved();
+    if(msgEl.id !== 'lastSaved') setState(msgEl, kind === '최종 제출' ? '최종 제출했어요! 선생님 화면에 전달되었어요. 고친 뒤 다시 제출해도 돼요.' : `💾 ${S.lastSaved.time} 중간 저장했어요. 선생님이 진행 상황을 볼 수 있어요.`, 'ok');
+    return true;
+  }catch(e){
+    setState(msgEl, e.server ? e.message : APPS_SCRIPT_URL ? '저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.' : '선생님이 아직 서버를 연결하지 않았어요. 적은 내용은 이 기기에 저장되어 있어요.', 'err');
+    return false;
+  }finally{ sending = false; if(btn) btn.disabled = false; $('floatSave').disabled = false; saveDraft(); renderProgress(); }
+}
+// STEP 끝의 중간 저장 버튼
+document.querySelectorAll('[data-save]').forEach(btn => btn.addEventListener('click', () => {
+  sendWorksheet('중간 저장', btn.dataset.save, btn.nextElementSibling, btn);
+}));
+// 오른쪽 아래 중간 저장
+$('floatSave').addEventListener('click', async () => {
+  await sendWorksheet('중간 저장', '화면 아래 버튼', $('lastSaved'), $('floatSave'));
+});
+// 최종 제출
+$('submitBtn').addEventListener('click', async () => {
+  const msg = $('submitMsg');
+  if(!LOGIN){ setState(msg, '먼저 맨 위에서 로그인해 주세요.', 'err'); return; }
+  if(!S.kws.some(k => k.w.trim())){ msg.textContent = 'STEP 1에서 관심어를 하나 이상 적어 주세요.'; msg.className = 'msg err'; return; }
+  if(S.questions.length < 1){ msg.textContent = 'STEP 2에서 질문을 하나 이상 만들어 주세요.'; msg.className = 'msg err'; return; }
+  const pr = progress(), left = ['탐색', '생성', '선정', '탐구', '발표'].filter(k => pr[k] !== 'O');
+  if(left.length && !confirm(`아직 덜 채운 단계가 있어요: ${left.join(', ')}\n그래도 최종 제출할까요? (나중에 다시 제출할 수 있어요)`)) return;
+  sendWorksheet('최종 제출', '최종 제출 버튼', msg, $('submitBtn'));
+});
+document.addEventListener('input', () => { clearTimeout(window.__prT); window.__prT = setTimeout(renderProgress, 400); });
+document.addEventListener('click', e => { if(e.target.closest('.rate, #qAdd, #nextAdd, .x, [data-ni]')) setTimeout(renderProgress, 50); });
+
+/* ---------- 로그인 · 불러오기 · 자동 저장 · 로그아웃 ---------- */
+const LOGIN_KEY = 'qf-life-login';     // 같은 창을 새로고침해도 로그인 유지 (창을 닫으면 사라짐)
+function renderAll(){
+  renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); renderChapters(); AI.refresh(); renderProgress();
+  $('lastSaved').textContent = '아직 선생님께 저장하지 않았어요'; $('lastSaved').className = ''; showLastSaved();
+}
+const fmtAt = v => { const d = new Date(v); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${hhmm(d)}`; };
+async function doLogin(cls, num, code, silent){
+  const msg = $('loginMsg');
+  if(!APPS_SCRIPT_URL){ msg.textContent = '선생님이 아직 서버를 연결하지 않았어요.'; msg.className = 'msg err'; return; }
+  if(!/^\d{1,2}$/.test(cls) || !/^\d{1,2}$/.test(num) || !/^\d{4}$/.test(code)){ msg.textContent = '반·번호와 4자리 코드를 확인해 주세요.'; msg.className = 'msg err'; return; }
+  msg.textContent = '불러오는 중…'; msg.className = 'msg'; $('loginBtn').disabled = true;
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'student_login', book:BOOK.id, cls, num, stuCode:code }) });
+    const r = await res.json();
+    if(r.result !== 'success'){ msg.textContent = r.message || '로그인하지 못했어요.'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
+    // 예전 서버는 책을 구분하지 못해 『나는 나로』 저장을 덮어쓸 수 있으므로 막는다
+    if(r.book !== BOOK.id){ msg.textContent = '선생님이 Apps Script를 새 버전으로 업데이트하면 이 책 워크시트를 쓸 수 있어요. (지금은 튜터 카드 읽기만 가능해요)'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
+    LOGIN = { cls:String(r.student.cls), num:String(r.student.num), code, name:r.student.name };
+    $('stuClass').value = LOGIN.cls; $('stuNumber').value = LOGIN.num; $('stuName').value = LOGIN.name;
+    try{ sessionStorage.setItem(LOGIN_KEY, JSON.stringify({ cls, num, code })); }catch(e){}
+    // 어떤 내용으로 이어서 할지: 선생님 시트에 저장된 것 vs 이 기기에 남은 것 중 더 최근 것
+    let server = null, local = null, anon = null;
+    try{ server = r.saved && r.saved.state ? JSON.parse(r.saved.state) : null; }catch(e){}
+    const serverAt = r.saved ? Date.parse(r.saved.at) || 0 : 0;
+    try{ local = JSON.parse(localStorage.getItem(draftKey()) || 'null'); }catch(e){}
+    try{ anon = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); }catch(e){}
+    let note = '';
+    if(local && local.savedAt > serverAt + 5000){ applyState(local); dirty = true; note = '이 기기에 남아 있던 최근 내용으로 이어서 해요.'; }
+    else if(server){ applyState(server); note = `${fmtAt(r.saved.at)}에 저장한 내용을 불러왔어요.`; }
+    else if(anon && confirm('이 기기에 로그인 전에 쓰던 내용이 있어요. 그 내용으로 이어서 할까요?')){ applyState(anon); dirty = true; try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} note = '로그인 전에 쓰던 내용을 가져왔어요.'; }
+    else { applyState(null); note = '처음 시작해요. 쓰는 내용은 자동으로 저장돼요.'; }
+    $('meName').textContent = `${LOGIN.cls}반 ${LOGIN.num}번 ${LOGIN.name}`;
+    $('meSaved').textContent = '· ' + note;
+    $('loginBox').hidden = true; $('meBox').hidden = false; $('loginCode').value = ''; msg.textContent = '';
+    document.body.classList.add('in');
+    if(dirty) autoSave();
+  }catch(err){
+    msg.textContent = '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'; msg.className = 'msg err';
+  }finally{ $('loginBtn').disabled = false; }
+}
+$('loginForm').addEventListener('submit', e => { e.preventDefault(); doLogin($('loginCls').value.trim(), $('loginNum').value.trim(), $('loginCode').value.trim()); });
+['loginCls', 'loginNum', 'loginCode'].forEach(id => $(id).addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); }));
+async function autoSave(){
+  if(!LOGIN || !dirty || sending) return;
+  try{ await serverSave('자동 저장'); }catch(e){ $('meSaved').textContent = '· 자동 저장 실패 — 인터넷 연결을 확인해 주세요 (이 기기에는 보관돼요)'; }
+}
+setInterval(autoSave, 60000);
+// 창을 닫거나 다른 탭으로 갈 때 바로 저장
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState !== 'hidden' || !LOGIN || !dirty || !APPS_SCRIPT_URL) return;
+  try{
+    fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', keepalive:true, headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body:JSON.stringify({ action:'student_save', book:BOOK.id, cls:LOGIN.cls, num:LOGIN.num, stuCode:LOGIN.code, kind:'자동 저장', progress:progress(), state:JSON.stringify(snapshot()) }) });
+  }catch(e){}
+});
+async function logout(){
+  if(!LOGIN) return;
+  if(dirty){
+    try{ await serverSave('자동 저장'); }
+    catch(e){ if(!confirm('저장하지 못했어요. 그래도 로그아웃할까요? (마지막 저장 뒤에 쓴 내용은 사라질 수 있어요)')) return; }
+  }
+  try{ localStorage.removeItem(draftKey()); sessionStorage.removeItem(LOGIN_KEY); }catch(e){}
+  location.reload();
+}
+$('logoutBtn').addEventListener('click', logout);
+$('logoutBtn2').addEventListener('click', logout);
+
+/* ---------- 시작 ---------- */
+// 로그인 섹션 뒤의 활동은 로그인 전에는 흐리게
+(function(){ let after = false; document.querySelectorAll('main > *').forEach(el => { if(after && !el.classList.contains('lock-tip') && !el.classList.contains('open-read')) el.classList.add('locked'); if(el.id === 'loginSec') after = true; }); })();
+renderAll();
+try{ const saved = JSON.parse(sessionStorage.getItem(LOGIN_KEY) || 'null'); if(saved) doLogin(saved.cls, saved.num, saved.code, true); }catch(e){}
+</script>
+</body>
+</html>
