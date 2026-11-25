@@ -36,6 +36,8 @@
  *   - GALLERY_NEED_APPROVAL = true 이면 선생님이 '공개'를 체크해야 게시판에 보입니다.
  *     (게시판 페이지 아래 '선생님용 관리'에서 교사 코드로 공개/숨김을 바꾸거나, 시트의 '공개' 칸을 체크)
  *   - GALLERY_NAME_STYLE: "mask"(유○석) / "full"(유민석) / "none"(이름 숨김)
+ *   - 삭제: '선생님용 관리'에서 🗑 삭제를 누르면 시트의 행이 지워지고 드라이브 파일은 휴지통으로 이동
+ *     (30일 안에는 드라이브 휴지통에서 되살릴 수 있어요)
  *   - 입장 코드: 코드를 입력해야 목록을 보고 실행·다운로드할 수 있어요(서버에서 확인).
  *     GALLERY_VIEW_CODE 를 비워 두면 제출코드로 입장, 따로 적으면 그 코드로도 입장
  *   - 선생님 자료: 게시판의 '선생님용 관리'에서 교사 코드로 올리면 바로 공개되고 목록 맨 위에 고정됩니다.
@@ -225,6 +227,7 @@ function doPost(e) {
     var d = JSON.parse((e && e.postData && e.postData.contents) || "{}");
     if (d.action === "gallery_upload") return galleryUpload_(d);
     if (d.action === "gallery_set") return gallerySet_(d);
+    if (d.action === "gallery_delete") return galleryDelete_(d);
     if (String(d.code) !== SUBMIT_CODE) return json_({ ok: false, error: "제출코드가 맞지 않아요." });
 
     var grade = String(d.grade), cls = String(d.cls), num = String(d.num);
@@ -457,5 +460,26 @@ function galleryTeacherUpload_(d) {
     return json_({ ok: false, error: "저장 중 오류: " + String(err) });
   } finally {
     if (lock) try { lock.releaseLock(); } catch (x) {}
+  }
+}
+
+// POST {action:"gallery_delete", tcode, id}
+// 시트에서 게시물 행을 지우고, 드라이브 파일은 휴지통으로 옮김(30일 안에 드라이브 휴지통에서 복구 가능)
+function galleryDelete_(d) {
+  if (String(d.tcode) !== TEACHER_CODE) return json_({ ok: false, error: "교사 코드가 맞지 않아요." });
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
+    var r = null;
+    galleryRows_().forEach(function (x) { if (x.id === String(d.id)) r = x; });  // 잠근 뒤 다시 찾아 행 번호가 어긋나지 않게
+    if (!r) return json_({ ok: false, error: "게시물을 찾지 못했어요. 이미 삭제됐을 수 있어요." });
+    var trashed = false;
+    try { if (r.fileId) { DriveApp.getFileById(r.fileId).setTrashed(true); trashed = true; } } catch (x) {}
+    gallerySheet_().deleteRow(r.row);
+    return json_({ ok: true, id: r.id, trashed: trashed });
+  } catch (err) {
+    return json_({ ok: false, error: "삭제 중 오류: " + String(err) });
+  } finally {
+    try { lock.releaseLock(); } catch (y) {}
   }
 }

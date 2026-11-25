@@ -45,6 +45,8 @@
   .badge.g{background:var(--pri-soft);color:var(--pri)}
   .badge.wait{background:var(--amber-soft);color:var(--amber)}
   .badge.open{background:var(--green-soft);color:var(--green)}
+  .btn.del{background:#fff;color:var(--red);border:1.5px solid #F0B8B0}
+  .btn.del:hover{background:var(--red-soft)}
   .badge.tch{background:#FFE9C7;color:#9A5B00}
   .badge.ft{background:#F1EFF7;color:var(--ink-soft)}
   .post.pin{border:1.5px solid #F2C46B;background:linear-gradient(180deg,#FFFBF1,#fff 60%)}
@@ -172,7 +174,7 @@
 
   <!-- 교사용 -->
   <details class="teacher" id="teacher">
-    <summary>👩‍🏫 선생님용 관리 (자료 올리기 · 공개·숨김)</summary>
+    <summary>👩‍🏫 선생님용 관리 (자료 올리기 · 공개·숨김 · 삭제)</summary>
     <div class="card" style="margin-top:10px">
       <div style="display:flex;gap:8px">
         <input type="password" id="tcode" class="search" inputmode="numeric" autocomplete="off" placeholder="교사 확인 코드">
@@ -502,11 +504,22 @@ async function loadAdmin(){
         <span class="tm">${x.teacher ? "📌 선생님 자료 · " + gradeLabel(x.grade) : esc(x.grade) + "학년 " + esc(x.who)} · ${fileIcon(x.file)} ${esc(x.file)} · ${esc(x.time)} · ${fmtKB(x.kb)} · ⬇ ${x.dl || 0}회${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">드라이브</a>` : ""}</span>
         ${x.desc ? `<br><span class="tm">${esc(x.desc)}</span>` : ""}</div>
         ${isHtml(x.file) ? '<button class="btn sm ghost" type="button" data-act="run">▶ 실행</button>' : '<button class="btn sm ghost" type="button" data-act="dl">⬇ 받기</button>'}
-        <button class="btn sm ${x.open ? "ghost" : ""}" type="button" data-act="toggle">${x.open ? "숨기기" : "공개하기"}</button></li>`).join("") || "<li>아직 올라온 작품이 없어요.</li>";
+        <button class="btn sm ${x.open ? "ghost" : ""}" type="button" data-act="toggle">${x.open ? "숨기기" : "공개하기"}</button>
+        <button class="btn sm del" type="button" data-act="del" title="게시물과 파일 삭제">🗑 삭제</button></li>`).join("") || "<li>아직 올라온 작품이 없어요.</li>";
     $("t-out").querySelectorAll("li[data-id]").forEach(li => {
       const it = Object.assign(items.find(x => x.id === li.dataset.id), { _admin: true });
       const rb = li.querySelector("[data-act=run]"); if (rb) rb.onclick = e => runItem(it, e.currentTarget);
       const db = li.querySelector("[data-act=dl]"); if (db) db.onclick = e => downloadItem(it, e.currentTarget);
+      li.querySelector("[data-act=del]").onclick = async e => {
+        if (!confirm(`'${it.title}' 게시물과 파일(${it.file})을 삭제할까요?\n\n· 게시판과 시트에서 바로 사라져요.\n· 드라이브 파일은 휴지통으로 옮겨져 30일 안에는 되살릴 수 있어요.`)) return;
+        const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spin"></span>';
+        try{
+          const r = await apiPost({ action: "gallery_delete", tcode: st.tcode, id: it.id });
+          if (!r.ok) throw new Error(r.error);
+          delete st.cache[it.id];
+          await loadAdmin(); loadList();
+        }catch(err){ alert("삭제하지 못했어요. " + (err.message || "")); b.disabled = false; b.textContent = "🗑 삭제"; }
+      };
       li.querySelector("[data-act=toggle]").onclick = async e => {
         const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spin"></span>';
         try{
