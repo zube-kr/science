@@ -36,6 +36,8 @@
  *   - GALLERY_NEED_APPROVAL = true 이면 선생님이 '공개'를 체크해야 게시판에 보입니다.
  *     (게시판 페이지 아래 '선생님용 관리'에서 교사 코드로 공개/숨김을 바꾸거나, 시트의 '공개' 칸을 체크)
  *   - GALLERY_NAME_STYLE: "mask"(유○석) / "full"(유민석) / "none"(이름 숨김)
+ *   - 입장 코드: 코드를 입력해야 목록을 보고 실행·다운로드할 수 있어요(서버에서 확인).
+ *     GALLERY_VIEW_CODE 를 비워 두면 제출코드로 입장, 따로 적으면 그 코드로도 입장
  *   - 선생님 자료: 게시판의 '선생님용 관리'에서 교사 코드로 올리면 바로 공개되고 목록 맨 위에 고정됩니다.
  *     html·pdf·hwp·ppt·엑셀·zip·사진 등 20MB까지 (드라이브 "개발자료게시판/선생님" 폴더)
  *
@@ -194,7 +196,10 @@ function doGet(e) {
         folder: getRootFolder_().getUrl()
       });
     }
-    if (p.action === "gallery") return json_({ ok: true, items: galleryList_(false) });
+    if (p.action === "gallery") {
+      if (!galleryCodeOk_(p.code)) return json_({ ok: false, locked: true, error: "입장 코드가 맞지 않아요." });
+      return json_({ ok: true, items: galleryList_(false) });
+    }
     if (p.action === "gallery_file") return galleryFile_(p);
     if (p.action === "gallery_mine") {
       if (String(p.code) !== SUBMIT_CODE) return json_({ ok: false, error: "제출코드가 맞지 않아요." });
@@ -270,6 +275,9 @@ function doPost(e) {
 /* =================== 학생 개발자료 게시판 =================== */
 var GALLERY_NEED_APPROVAL = true;      // true: 선생님이 공개해야 보임 / false: 올리면 바로 공개
 var GALLERY_NAME_STYLE = "mask";       // "mask" 유○석 / "full" 유민석 / "none" 이름 숨김
+// 게시판 입장 코드: 이 코드(또는 제출코드·교사코드)를 입력해야 목록을 보고 내려받을 수 있어요.
+// 비워 두면 제출코드(SUBMIT_CODE)로 입장합니다.
+var GALLERY_VIEW_CODE = "";
 var GALLERY_MAX_BYTES = 5 * 1024 * 1024;
 var GALLERY_FOLDER = "개발자료게시판";
 var GALLERY_SHEET = "개발자료게시판";
@@ -309,6 +317,12 @@ function galleryRows_() {
   }).filter(function (r) { return r.id; });
 }
 
+function galleryCodeOk_(c) {
+  c = String(c || "");
+  if (!c) return false;
+  return c === SUBMIT_CODE || c === TEACHER_CODE || (!!GALLERY_VIEW_CODE && c === GALLERY_VIEW_CODE);
+}
+
 function galleryName_(name) {
   name = String(name || "");
   if (GALLERY_NAME_STYLE === "full") return name;
@@ -334,6 +348,7 @@ function galleryFile_(p) {
   var rows = galleryRows_(), r = null;
   rows.forEach(function (x) { if (x.id === String(p.id)) r = x; });
   var teacher = p.tcode && String(p.tcode) === TEACHER_CODE;
+  if (!teacher && !galleryCodeOk_(p.code)) return json_({ ok: false, locked: true, error: "입장 코드가 맞지 않아요." });
   if (!r || (!r.open && !teacher)) return json_({ ok: false, error: "공개된 자료가 아니에요." });
   var blob = DriveApp.getFileById(r.fileId).getBlob();
   var ext = (r.file.split(".").pop() || "").toLowerCase();
