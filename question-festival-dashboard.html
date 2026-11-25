@@ -144,11 +144,11 @@
       <p style="font-size:13px;color:var(--soft);margin:0 0 10px">명단을 붙여넣고 저장하면 학생마다 겹치지 않는 <b>4자리 코드</b>가 만들어져요. 학생은 워크시트에서 <b>반·번호·코드</b>로 로그인해 쓰던 내용을 이어서 해요. 이름과 코드는 선생님 구글 시트("학생명단" 탭)에만 저장돼요.</p>
       <div class="roster-in">
         <div>
-          <div class="bar" style="margin-bottom:8px"><label>반 <input type="text" id="rCls" value="1" style="width:56px" inputmode="numeric"></label><span style="font-size:12.5px;color:var(--soft)">한 줄에 한 명씩: <b>번호 이름</b> (예: <code>1 김상환</code> 또는 <code>1. 김상환</code>)</span></div>
-          <textarea id="rText" placeholder="1 김상환&#10;2 김서빈&#10;3 김서현"></textarea>
+          <div class="bar" style="margin-bottom:8px"><label>반 <input type="text" id="rCls" value="1" style="width:56px" inputmode="numeric"></label><span style="font-size:12.5px;color:var(--soft)">한 줄에 한 명씩: <b>번호 이름</b> (예: <code>1 김상환</code>) · 코드를 직접 정하려면 <b>번호 이름 코드</b> (예: <code>1 김상환 0428</code>)</span></div>
+          <textarea id="rText" placeholder="1 김상환&#10;2 김서빈 2580&#10;3 김서현"></textarea>
           <div class="bar" style="margin-top:8px"><button type="button" class="btn" id="rSave">명단 저장 · 코드 만들기</button><span class="msg" id="rMsg" style="margin:0"></span></div>
         </div>
-        <div class="note" style="margin:0">💡 같은 반·번호를 다시 저장하면 <b>이름만 고치고 코드는 그대로</b>예요. 코드를 잃어버린 학생은 표에서 [새 코드]를 눌러 다시 만들어 주세요.<br><br>🖨 [코드표 인쇄]로 학생에게 나눠 줄 쪽지를 뽑을 수 있어요.</div>
+        <div class="note" style="margin:0">💡 코드를 적지 않으면 <b>자동으로</b> 만들어져요. 같은 반·번호를 다시 저장하면 이름만 고치고, 코드를 함께 적었을 때만 코드가 바뀌어요.<br><br>✏️ 표의 <b>[코드 정하기]</b>로 한 명씩 원하는 4자리로 바꿀 수 있어요. (구글 시트 "학생명단" 탭의 코드 칸을 직접 고쳐도 돼요)<br><br>🖨 [코드표 인쇄]로 학생에게 나눠 줄 쪽지를 뽑을 수 있어요.</div>
       </div>
       <div class="bar" style="margin:14px 0 8px"><label><input type="checkbox" id="rShow"> 코드 보기</label><span class="grow"></span><button type="button" class="btn ghost sm" id="rPrint">🖨 코드표 인쇄</button></div>
       <div class="scroll"><table class="roster" id="rTable"></table></div>
@@ -361,21 +361,22 @@ function render(){
       <td>${esc([r['메타-다음질문'], r['메타-진로연결'] && '진로: ' + r['메타-진로연결']].filter(Boolean).join('\n'))}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">아직 제출된 워크시트가 없어요.</td></tr>') + '</tbody>';
 }
 /* ---------- 명단 · 코드 ---------- */
+const code4 = v => { const t = String(v ?? '').trim(); return /^\d{1,4}$/.test(t) ? t.padStart(4, '0') : t.replace(/^'/, ''); };
 function renderRoster(){
   const list = (D.roster || []).slice().sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
   const show = $('rShow').checked;
   $('rTable').innerHTML = `<thead><tr><th>반</th><th>번호</th><th>이름</th><th>코드</th><th>마지막 로그인</th><th></th></tr></thead><tbody>` +
     (list.length ? list.map(r => `<tr><td>${esc(r['반'])}</td><td>${esc(r['번호'])}</td><td><span class="nm">${esc(r['이름'])}</span></td>
-      <td class="cd">${show ? esc(r['코드']) : '••••'}</td><td class="ago">${r['마지막로그인'] ? fmtT(r['마지막로그인']) : '-'}</td>
-      <td style="white-space:nowrap"><button type="button" class="btn ghost sm" data-newcode="${esc(r['반'] + '-' + r['번호'])}">새 코드</button> <button type="button" class="btn ghost sm" data-remove="${esc(r['반'] + '-' + r['번호'])}">빼기</button></td></tr>`).join('')
+      <td class="cd">${show ? esc(code4(r['코드'])) : '••••'}</td><td class="ago">${r['마지막로그인'] ? fmtT(r['마지막로그인']) : '-'}</td>
+      <td style="white-space:nowrap"><button type="button" class="btn ghost sm" data-setcode="${esc(r['반'] + '-' + r['번호'])}">✏️ 코드 정하기</button> <button type="button" class="btn ghost sm" data-newcode="${esc(r['반'] + '-' + r['번호'])}">자동 새 코드</button> <button type="button" class="btn ghost sm" data-remove="${esc(r['반'] + '-' + r['번호'])}">빼기</button></td></tr>`).join('')
       : '<tr><td colspan="6" class="empty">아직 명단이 없어요. 위에 붙여넣고 저장해 주세요.</td></tr>') + '</tbody>';
 }
 async function rosterCall(extra){
   if(demo){
     // 예시 모드: 이 화면에서만 바뀜
     const r = D.roster = D.roster || [];
-    (extra.rows || []).forEach(x => { const o = r.find(y => String(y['반']) === x.cls && String(y['번호']) === x.num); if(o) o['이름'] = x.name; else r.push({ '반':x.cls, '번호':x.num, '이름':x.name, '코드':String(1000 + Math.floor(Math.random() * 9000)) }); });
-    if(extra.newCodeFor){ const o = r.find(y => y['반'] + '-' + y['번호'] === extra.newCodeFor); if(o) o['코드'] = String(1000 + Math.floor(Math.random() * 9000)); }
+    (extra.rows || []).forEach(x => { const o = r.find(y => String(y['반']) === x.cls && String(y['번호']) === x.num); if(o){ o['이름'] = x.name; if(x.code) o['코드'] = x.code; } else r.push({ '반':x.cls, '번호':x.num, '이름':x.name, '코드':x.code || String(1000 + Math.floor(Math.random() * 9000)) }); });
+    if(extra.newCodeFor){ const o = r.find(y => y['반'] + '-' + y['번호'] === extra.newCodeFor); if(o) o['코드'] = extra.setCode || String(1000 + Math.floor(Math.random() * 9000)); }
     if(extra.remove) D.roster = r.filter(y => y['반'] + '-' + y['번호'] !== extra.remove);
     render(); return;
   }
@@ -386,8 +387,10 @@ async function rosterCall(extra){
 }
 function parseRoster(text, cls){
   return text.split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => {
-    const m = l.match(/^(\d{1,2})\s*[.)번]?\s*(?:번\s*)?([가-힣A-Za-z][가-힣A-Za-z\s]{0,18})$/);
-    return m ? { cls, num:String(+m[1]), name:m[2].trim() } : { bad:l };
+    const m = l.match(/^(\d{1,2})\s*[.)번]?\s*(?:번\s*)?([가-힣A-Za-z][가-힣A-Za-z\s]{0,18}?)(?:\s+(\d+))?$/);
+    if(!m) return { bad:l };
+    if(m[3] && !/^\d{4}$/.test(m[3])) return { bad:l + ' (코드는 숫자 4자리)' };
+    return { cls, num:String(+m[1]), name:m[2].trim(), code:m[3] || '' };
   });
 }
 $('rSave').addEventListener('click', async () => {
@@ -395,17 +398,30 @@ $('rSave').addEventListener('click', async () => {
   msg.style.color = '';
   if(!/^\d{1,2}$/.test(cls)){ msg.textContent = '반을 숫자로 적어 주세요.'; return; }
   const rows = parseRoster($('rText').value, cls), bad = rows.filter(r => r.bad);
+  const codes = rows.map(r => r.code).filter(Boolean);
+  if(new Set(codes).size !== codes.length && !confirm('같은 코드를 쓰는 학생이 있어요. (번호가 달라서 로그인은 되지만 헷갈릴 수 있어요) 그래도 저장할까요?')) return;
   if(!rows.length){ msg.textContent = '명단을 붙여넣어 주세요.'; return; }
-  if(bad.length){ msg.textContent = `읽지 못한 줄: ${bad.slice(0, 3).map(b => b.bad).join(', ')} — "번호 이름" 모양으로 적어 주세요.`; return; }
+  if(bad.length){ msg.textContent = `읽지 못한 줄: ${bad.slice(0, 3).map(b => b.bad).join(', ')} — "번호 이름" 또는 "번호 이름 코드(4자리)" 모양으로 적어 주세요.`; return; }
   msg.textContent = '저장하는 중…';
   try{ await rosterCall({ rows }); msg.textContent = `${rows.length}명 저장했어요. 코드가 만들어졌어요.`; msg.style.color = 'var(--ok)'; $('rText').value = ''; }
   catch(e){ msg.textContent = e.message; }
 });
 $('rShow').addEventListener('change', renderRoster);
 $('rTable').addEventListener('click', async e => {
-  const nb = e.target.closest('[data-newcode]'), rb = e.target.closest('[data-remove]');
+  const nb = e.target.closest('[data-newcode]'), rb = e.target.closest('[data-remove]'), sb = e.target.closest('[data-setcode]');
   try{
-    if(nb && confirm(`${nb.dataset.newcode.replace('-', '반 ')}번 학생의 코드를 새로 만들까요? 예전 코드로는 로그인할 수 없게 돼요.`)) await rosterCall({ newCodeFor: nb.dataset.newcode });
+    if(sb){
+      const who = sb.dataset.setcode.replace('-', '반 ') + '번';
+      const v = (prompt(`${who} 학생의 새 코드(숫자 4자리)를 적어 주세요.`) || '').trim();
+      if(!v) return;
+      if(!/^\d{4}$/.test(v)) return alert('코드는 숫자 4자리로 적어 주세요. (예: 0428)');
+      const same = (D.roster || []).find(r => code4(r['코드']) === v && r['반'] + '-' + r['번호'] !== sb.dataset.setcode);
+      if(same && !confirm(`${same['번호']}번 학생과 같은 코드예요. 그래도 쓸까요?`)) return;
+      await rosterCall({ newCodeFor: sb.dataset.setcode, setCode: v });
+      $('rShow').checked = true; renderRoster();
+      return;
+    }
+    if(nb && confirm(`${nb.dataset.newcode.replace('-', '반 ')}번 학생의 코드를 자동으로 새로 만들까요? 예전 코드로는 로그인할 수 없게 돼요.`)) await rosterCall({ newCodeFor: nb.dataset.newcode });
     if(rb && confirm(`${rb.dataset.remove.replace('-', '반 ')}번 학생을 명단에서 뺄까요? (저장된 내용은 시트에 남아요)`)) await rosterCall({ remove: rb.dataset.remove });
   }catch(err){ alert(err.message); }
 });
@@ -413,7 +429,7 @@ $('rPrint').addEventListener('click', () => {
   const list = (D.roster || []).slice().sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
   if(!list.length) return alert('인쇄할 명단이 없어요.');
   $('printArea').innerHTML = '<div class="slips">' + list.map(r => `<div class="slip"><div class="t">🎤 질문탐구한마당 연습 워크시트 · 로그인 코드</div>
-    <div class="n">3학년 ${esc(r['반'])}반 ${esc(r['번호'])}번 ${esc(r['이름'])}</div><div class="c">${esc(r['코드'])}</div>
+    <div class="n">3학년 ${esc(r['반'])}반 ${esc(r['번호'])}번 ${esc(r['이름'])}</div><div class="c">${esc(code4(r['코드']))}</div>
     <div class="h">워크시트 맨 위 [로그인]에 반·번호·코드를 넣으면 쓰던 내용을 이어서 할 수 있어요. 코드는 친구에게 알려 주지 마세요!</div></div>`).join('') + '</div>';
   window.print();
 });

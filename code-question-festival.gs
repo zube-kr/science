@@ -26,7 +26,8 @@
  *
  * ▣ 학생 로그인(고유코드)
  *   교사 대시보드의 [👥 학생 명단·코드]에 명단을 붙여넣고 저장하면 "학생명단" 탭에
- *   학생마다 겹치지 않는 4자리 코드가 만들어진다. 학생은 워크시트에서 반·번호·코드로
+ *   학생마다 겹치지 않는 4자리 코드가 만들어진다. 선생님이 정한 4자리로 바꿀 수도 있다
+ *   (명단에 "번호 이름 코드"로 적거나, 대시보드 표의 [코드 정하기], 또는 이 탭의 코드 칸을 직접 고쳐도 된다). 학생은 워크시트에서 반·번호·코드로
  *   로그인해서, 저장해 둔 내용을 다른 날·다른 기기에서도 이어서 할 수 있다.
  *   학생이 쓰던 내용은 "질문탐구_저장" 탭에 학생마다 한 줄로 저장된다(자동 저장 포함).
  *   ※ 학생 이름과 코드는 이 시트에만 저장되고 웹페이지 파일에는 들어가지 않는다.
@@ -348,9 +349,13 @@ function rosterAll_() {
   const n = sh.getLastRow() - 1;
   if (n < 1) return [];
   return sh.getRange(2, 1, n, ROSTER_HEAD.length).getValues().map(function (r, i) {
-    return { row: i + 2, cls: String(r[0]).trim(), num: String(r[1]).trim(), name: String(r[2]).trim(), code: String(r[3]).trim() };
+    return { row: i + 2, cls: String(r[0]).trim(), num: String(r[1]).trim(), name: String(r[2]).trim(), code: code4_(r[3]) };
   }).filter(function (x) { return x.name; });
 }
+// 시트가 0123 을 123 으로 바꿔 저장해도 4자리로 맞춰 읽는다
+function code4_(v) { const t = String(v).trim(); return /^\d{1,4}$/.test(t) ? ("0000" + t).slice(-4) : t; }
+// 0으로 시작하는 코드도 글자 그대로 저장되도록 앞에 ' 를 붙인다
+const codeCell_ = function (c) { return "'" + c; };
 function newCode_(taken) {
   for (let i = 0; i < 5000; i++) {
     const c = String(1000 + Math.floor(Math.random() * 9000));
@@ -368,14 +373,22 @@ function rosterSave_(data) {
     list.forEach(function (x) { taken[x.code] = true; byKey[x.cls + "-" + x.num] = x; });
     (Array.isArray(data.rows) ? data.rows : []).slice(0, 200).forEach(function (r) {
       const cls = String(r.cls || "").trim(), num = String(r.num || "").trim(), name = String(r.name || "").trim().slice(0, 20);
+      const want = /^\d{4}$/.test(String(r.code || "").trim()) ? String(r.code).trim() : "";   // 선생님이 정한 코드(선택)
       if (!cls || !num || !name) return;
       const old = byKey[cls + "-" + num];
-      if (old) { if (old.name !== name) sh.getRange(old.row, 3).setValue(name); }
-      else { sh.appendRow([cls, num, name, newCode_(taken), ""]); byKey[cls + "-" + num] = { cls: cls, num: num, name: name }; }
+      if (old) {
+        if (old.name !== name) sh.getRange(old.row, 3).setValue(name);
+        if (want && old.row && want !== old.code) { sh.getRange(old.row, 4).setValue(codeCell_(want)); taken[want] = true; }
+      } else {
+        sh.appendRow([cls, num, name, codeCell_(want || newCode_(taken)), ""]);
+        if (want) taken[want] = true;
+        byKey[cls + "-" + num] = { cls: cls, num: num, name: name };
+      }
     });
-    if (data.newCodeFor) {   // 코드 다시 만들기 { newCodeFor: "1-3" }
+    if (data.newCodeFor) {   // 코드 다시 만들기 { newCodeFor: "1-3", code: "선생님이 정한 4자리(없으면 자동)" }
       const x = rosterAll_().filter(function (y) { return y.cls + "-" + y.num === String(data.newCodeFor); })[0];
-      if (x) sh.getRange(x.row, 4).setValue(newCode_(taken));
+      const want = /^\d{4}$/.test(String(data.setCode || "").trim()) ? String(data.setCode).trim() : "";
+      if (x) sh.getRange(x.row, 4).setValue(codeCell_(want || newCode_(taken)));
     }
     if (data.remove) {       // 명단에서 빼기 { remove: "1-3" }
       const y = rosterAll_().filter(function (z) { return z.cls + "-" + z.num === String(data.remove); })[0];
