@@ -45,6 +45,11 @@
   .badge.g{background:var(--pri-soft);color:var(--pri)}
   .badge.wait{background:var(--amber-soft);color:var(--amber)}
   .badge.open{background:var(--green-soft);color:var(--green)}
+  .badge.tch{background:#FFE9C7;color:#9A5B00}
+  .badge.ft{background:#F1EFF7;color:var(--ink-soft)}
+  .post.pin{border:1.5px solid #F2C46B;background:linear-gradient(180deg,#FFFBF1,#fff 60%)}
+  .tup{border-top:1px dashed var(--line);margin-top:14px;padding-top:14px}
+  .tup h3{font-size:16px;margin:0 0 10px}
   .empty{text-align:center;color:var(--ink-soft);padding:30px 10px;font-size:15px}
   .msg{font-size:14px;margin-top:8px}
   .msg.err{color:var(--red)} .msg.ok{color:var(--green)}
@@ -94,7 +99,7 @@
       <button class="btn" id="open-up" type="button">＋ 내 작품 올리기</button>
     </div>
   </header>
-  <p class="sub">친구들이 만든 HTML 게임·시뮬레이션·도구를 실행해 보고 내려받아요. 내가 만든 작품도 올릴 수 있어요.</p>
+  <p class="sub">친구들이 만든 HTML 게임·시뮬레이션·도구와 📌 선생님 자료를 실행해 보고 내려받아요. 내가 만든 작품도 올릴 수 있어요.</p>
 
   <div class="notice hidden" id="not-ready">🛠️ 게시판을 준비하고 있어요. 선생님이 설정을 마치면 바로 쓸 수 있어요.</div>
 
@@ -153,13 +158,31 @@
 
   <!-- 교사용 -->
   <details class="teacher" id="teacher">
-    <summary>👩‍🏫 선생님용 관리 (공개·숨김)</summary>
+    <summary>👩‍🏫 선생님용 관리 (자료 올리기 · 공개·숨김)</summary>
     <div class="card" style="margin-top:10px">
       <div style="display:flex;gap:8px">
         <input type="password" id="tcode" class="search" inputmode="numeric" autocomplete="off" placeholder="교사 확인 코드">
         <button class="btn" id="tcode-btn" type="button">불러오기</button>
       </div>
       <div class="msg" id="t-msg"></div>
+      <div class="tup hidden" id="tup">
+        <h3>📌 선생님 자료 올리기 <small style="font-weight:500;color:var(--ink-soft)">— 바로 공개되고 목록 맨 위에 고정돼요</small></h3>
+        <div class="field">
+          <label class="l">보여 줄 학년</label>
+          <div class="chips" id="tgrade"></div>
+        </div>
+        <div class="field"><label class="l" for="ttitle">자료 제목</label><input type="text" id="ttitle" maxlength="80" placeholder="예: 행성 시뮬레이션 예시 코드"></div>
+        <div class="field"><label class="l" for="tdesc">설명</label><textarea id="tdesc" maxlength="1000" placeholder="예: 이 코드를 내려받아 중력 상수를 바꿔 보세요."></textarea></div>
+        <div class="field">
+          <label class="drop" id="tdrop">
+            <b id="tdrop-b">📎 파일 고르기</b>
+            <small id="tdrop-s">html · pdf · hwp · ppt · 엑셀 · zip · 사진 등, 20MB까지</small>
+            <input type="file" id="tfile" class="hidden">
+          </label>
+        </div>
+        <button class="btn" id="tsubmit" type="button" style="width:100%;padding:11px">선생님 자료 올리기</button>
+        <div id="tresult"></div>
+      </div>
       <ul class="rows" id="t-out"></ul>
     </div>
   </details>
@@ -195,6 +218,12 @@ function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; }
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function fmtKB(kb){ kb = Number(kb) || 0; return kb >= 1024 ? (kb / 1024).toFixed(1) + "MB" : Math.max(1, kb) + "KB"; }
 function day(t){ return String(t || "").slice(0, 10); }
+function extOf(n){ const m = /\.([^.]+)$/.exec(n || ""); return m ? m[1].toLowerCase() : ""; }
+function isHtml(n){ return /^html?$/.test(extOf(n)); }
+function gradeLabel(g){ return g === "all" ? "전체 학년" : esc(g) + "학년"; }
+function fileIcon(n){ const e = extOf(n);
+  return /^html?$/.test(e) ? "💻" : e === "pdf" ? "📕" : /^hwpx?$/.test(e) ? "📗" : /^docx?$/.test(e) ? "📘" : /^pptx?$/.test(e) ? "📙" : /^(xlsx?|csv)$/.test(e) ? "📊"
+    : e === "zip" ? "🗜️" : /^(jpe?g|png|gif)$/.test(e) ? "🖼️" : /^(mp3|mp4)$/.test(e) ? "🎬" : "📄"; }
 
 async function api(params){
   const u = new URL(API);
@@ -211,7 +240,7 @@ async function apiPost(body){
 
 /* ---------- 목록 ---------- */
 function renderFilter(){
-  const opts = [["all", "전체"], ["1", "1학년"], ["2", "2학년"], ["3", "3학년"]];
+  const opts = [["all", "전체"], ["teacher", "📌 선생님 자료"], ["1", "1학년"], ["2", "2학년"], ["3", "3학년"]];
   $("filter").innerHTML = opts.map(([v, t]) => `<button type="button" class="chip ${st.grade === v ? "sel" : ""}" data-v="${v}">${t}</button>`).join("");
   $("filter").querySelectorAll("button").forEach(b => b.onclick = () => { st.grade = b.dataset.v; renderFilter(); renderList(); });
 }
@@ -228,27 +257,28 @@ async function loadList(){
 }
 function renderList(){
   const q = st.q.trim().toLowerCase();
-  let arr = st.items.filter(x => (st.grade === "all" || x.grade === st.grade) &&
+  let arr = st.items.filter(x => (st.grade === "all" || (st.grade === "teacher" ? x.teacher : (x.grade === st.grade || x.grade === "all"))) &&
     (!q || (x.title + " " + x.desc).toLowerCase().includes(q)));
   if (st.sort === "dl") arr = arr.slice().sort((a, b) => (b.dl || 0) - (a.dl || 0));
+  arr = arr.filter(x => x.teacher).concat(arr.filter(x => !x.teacher)); // 선생님 자료는 맨 위에 고정
   if (!arr.length){
     $("list").innerHTML = `<div class="empty">${st.items.length ? "조건에 맞는 작품이 없어요." : "아직 공개된 작품이 없어요. 첫 번째 작품을 올려 보세요! 🚀"}</div>`;
     return;
   }
   $("list").innerHTML = '<div class="list">' + arr.map(x => `
-    <article class="post" data-id="${esc(x.id)}">
-      <div><span class="badge g">${esc(x.grade)}학년</span></div>
+    <article class="post ${x.teacher ? "pin" : ""}" data-id="${esc(x.id)}">
+      <div>${x.teacher ? '<span class="badge tch">📌 선생님 자료</span> ' : ""}<span class="badge g">${gradeLabel(x.grade)}</span> <span class="badge ft">${fileIcon(x.file)} ${esc(extOf(x.file).toUpperCase())}</span></div>
       <div class="t">${esc(x.title)}</div>
       ${x.desc ? `<div class="d" title="눌러서 전체 보기">${esc(x.desc)}</div>` : ""}
       <div class="m">${x.who ? "👤 " + esc(x.who) + " · " : ""}${esc(day(x.time))} · ${fmtKB(x.kb)} · ⬇ ${x.dl || 0}회</div>
       <div class="acts">
-        <button class="btn sm" type="button" data-act="run">▶ 실행해 보기</button>
+        ${isHtml(x.file) ? '<button class="btn sm" type="button" data-act="run">▶ 실행해 보기</button>' : ""}
         <button class="btn sm ghost" type="button" data-act="dl">⬇ 다운로드</button>
       </div>
     </article>`).join("") + "</div>";
   $("list").querySelectorAll(".post").forEach(el => {
     const it = st.items.find(x => x.id === el.dataset.id);
-    el.querySelector("[data-act=run]").onclick = e => runItem(it, e.currentTarget);
+    const rb = el.querySelector("[data-act=run]"); if (rb) rb.onclick = e => runItem(it, e.currentTarget);
     el.querySelector("[data-act=dl]").onclick = e => downloadItem(it, e.currentTarget);
     const d = el.querySelector(".d"); if (d) d.onclick = () => d.classList.toggle("full");
   });
@@ -296,10 +326,15 @@ $("m-dl").onclick = e => curItem && downloadItem(curItem, e.currentTarget);
 async function downloadItem(it, btn){
   const res = await getContent(it, !it._admin, btn);
   if (!res) return;
-  const blob = new Blob([res.content], { type: "text/html;charset=utf-8" });
+  let blob;
+  if (res.b64 != null){
+    const bin = atob(res.b64), u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    blob = new Blob([u8], { type: res.mime || "application/octet-stream" });
+  } else blob = new Blob([res.content], { type: (isHtml(res.fileName) ? "text/html" : "text/plain") + ";charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = res.fileName || (it.title + ".html");
+  a.download = res.fileName || it.file || (it.title + ".html");
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   if (!it._admin){ it.dl = (it.dl || 0) + 1; renderList(); }
@@ -408,18 +443,20 @@ async function loadAdmin(){
     const res = await api({ action: "gallery_admin", tcode });
     if (!res.ok){ m.className = "msg err"; m.textContent = res.error || "확인하지 못했어요."; return; }
     st.tcode = tcode;
+    $("tup").classList.remove("hidden");
     const items = (res.items || []).slice().reverse();
     const wait = items.filter(x => !x.open).length;
     m.className = "msg ok"; m.textContent = `전체 ${items.length}개 · 확인 대기 ${wait}개` + (res.needApproval ? "" : " (지금은 올리면 바로 공개되는 설정이에요)");
     $("t-out").innerHTML = items.map(x => `
       <li data-id="${esc(x.id)}"><div class="info"><b>${esc(x.title)}</b> ${x.open ? '<span class="badge open">공개</span>' : '<span class="badge wait">대기·숨김</span>'}<br>
-        <span class="tm">${esc(x.grade)}학년 ${esc(x.who)} · ${esc(x.time)} · ${fmtKB(x.kb)} · ⬇ ${x.dl || 0}회${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">드라이브</a>` : ""}</span>
+        <span class="tm">${x.teacher ? "📌 선생님 자료 · " + gradeLabel(x.grade) : esc(x.grade) + "학년 " + esc(x.who)} · ${fileIcon(x.file)} ${esc(x.file)} · ${esc(x.time)} · ${fmtKB(x.kb)} · ⬇ ${x.dl || 0}회${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">드라이브</a>` : ""}</span>
         ${x.desc ? `<br><span class="tm">${esc(x.desc)}</span>` : ""}</div>
-        <button class="btn sm ghost" type="button" data-act="run">▶ 실행</button>
+        ${isHtml(x.file) ? '<button class="btn sm ghost" type="button" data-act="run">▶ 실행</button>' : '<button class="btn sm ghost" type="button" data-act="dl">⬇ 받기</button>'}
         <button class="btn sm ${x.open ? "ghost" : ""}" type="button" data-act="toggle">${x.open ? "숨기기" : "공개하기"}</button></li>`).join("") || "<li>아직 올라온 작품이 없어요.</li>";
     $("t-out").querySelectorAll("li[data-id]").forEach(li => {
       const it = Object.assign(items.find(x => x.id === li.dataset.id), { _admin: true });
-      li.querySelector("[data-act=run]").onclick = e => runItem(it, e.currentTarget);
+      const rb = li.querySelector("[data-act=run]"); if (rb) rb.onclick = e => runItem(it, e.currentTarget);
+      const db = li.querySelector("[data-act=dl]"); if (db) db.onclick = e => downloadItem(it, e.currentTarget);
       li.querySelector("[data-act=toggle]").onclick = async e => {
         const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spin"></span>';
         try{
@@ -433,6 +470,55 @@ async function loadAdmin(){
 }
 $("tcode-btn").onclick = loadAdmin;
 $("tcode").addEventListener("keydown", e => { if (e.key === "Enter") loadAdmin(); });
+
+/* ---------- 선생님 자료 올리기 ---------- */
+const T_EXT = ["html","htm","pdf","hwp","hwpx","doc","docx","ppt","pptx","xls","xlsx","zip","jpg","jpeg","png","gif","txt","py","ino","csv","mp3","mp4"];
+const T_MAX = 20 * 1024 * 1024;
+const tst = { grade: "all", file: null, busy: false };
+function renderTGrade(){
+  $("tgrade").innerHTML = [["all","전체 학년"],["1","1학년"],["2","2학년"],["3","3학년"]].map(([v,t]) =>
+    `<button type="button" class="chip ${tst.grade === v ? "sel" : ""}" data-v="${v}">${t}</button>`).join("");
+  $("tgrade").querySelectorAll("button").forEach(b => b.onclick = () => { tst.grade = b.dataset.v; renderTGrade(); });
+}
+function tResult(ok, html){ $("tresult").innerHTML = `<div class="result ${ok ? "ok" : "err"}">${html}</div>`; }
+function setTFile(f){
+  $("tresult").innerHTML = "";
+  if (!f) return;
+  const e = extOf(f.name);
+  if (!T_EXT.includes(e)) return tResult(false, "올릴 수 없는 파일 형식이에요 (" + esc(e || "확장자 없음") + ").");
+  if (f.size > T_MAX) return tResult(false, `파일이 너무 커요 (${(f.size / 1048576).toFixed(1)}MB). 20MB 이하만 올릴 수 있어요.`);
+  if (!f.size) return tResult(false, "빈 파일이에요.");
+  tst.file = f;
+  $("tdrop-b").textContent = fileIcon(f.name) + " " + f.name;
+  $("tdrop-s").textContent = fmtKB(Math.round(f.size / 1024)) + " · 다른 파일을 고르려면 다시 누르세요";
+  if (!$("ttitle").value.trim()) $("ttitle").value = f.name.replace(/\.[^.]+$/, "");
+}
+$("tfile").addEventListener("change", e => { setTFile(e.target.files[0]); e.target.value = ""; });
+const tdrop = $("tdrop");
+["dragenter","dragover"].forEach(t => tdrop.addEventListener(t, e => { e.preventDefault(); tdrop.classList.add("over"); }));
+["dragleave","drop"].forEach(t => tdrop.addEventListener(t, e => { e.preventDefault(); tdrop.classList.remove("over"); }));
+tdrop.addEventListener("drop", e => setTFile(e.dataTransfer.files[0]));
+$("tsubmit").onclick = async () => {
+  if (tst.busy) return;
+  const title = $("ttitle").value.trim();
+  if (!st.tcode) return tResult(false, "먼저 교사 코드로 [불러오기]를 해 주세요.");
+  if (!title) return tResult(false, "자료 제목을 적어 주세요.");
+  if (!tst.file) return tResult(false, "파일을 골라 주세요.");
+  tst.busy = true; const b = $("tsubmit"); b.disabled = true; b.innerHTML = '<span class="spin"></span> 올리는 중…';
+  try{
+    const data = await toBase64(tst.file);
+    const res = await apiPost({ action: "gallery_upload", tcode: st.tcode, grade: tst.grade, title, desc: $("tdesc").value.trim(),
+      fileName: tst.file.name, mimeType: tst.file.type || "", data });
+    if (res && res.ok){
+      tResult(true, `📌 <b>${esc(title)}</b> 자료를 올렸어요. 게시판 맨 위에 바로 보여요.`);
+      tst.file = null; $("ttitle").value = ""; $("tdesc").value = "";
+      $("tdrop-b").textContent = "📎 파일 고르기"; $("tdrop-s").textContent = "html · pdf · hwp · ppt · 엑셀 · zip · 사진 등, 20MB까지";
+      loadList(); loadAdmin();
+    } else tResult(false, esc((res && res.error) || "올리지 못했어요."));
+  }catch(e){ tResult(false, "연결이 끊겼어요. 다시 눌러 주세요. (파일이 크면 시간이 걸릴 수 있어요)"); }
+  finally{ tst.busy = false; b.disabled = false; b.textContent = "선생님 자료 올리기"; }
+};
+renderTGrade();
 
 /* ---------- 시작 ---------- */
 (function init(){
