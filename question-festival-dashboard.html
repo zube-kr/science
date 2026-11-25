@@ -143,7 +143,7 @@
 
   <div id="dash" hidden>
     <div class="bar">
-      <select id="fBook" aria-label="도서"><option value="침묵의 봄">🌱 『침묵의 봄』</option><option value="나는 나로 살기로 했다">📗 『나는 나로 살기로 했다』</option></select>
+      <select id="fBook" aria-label="도서"><option value="침묵의 봄">🌱 『침묵의 봄』</option><option value="평균의 종말">📏 『평균의 종말』</option><option value="사피엔스">🧬 『사피엔스』</option><option value="생명이 있는 것은 다 아름답다">🐜 『생명이 있는 것은 다 아름답다』</option><option value="나는 나로 살기로 했다">📗 『나는 나로 살기로 했다』</option></select>
       <select id="fClass"><option value="">전체 반</option></select>
       <input type="search" id="fSearch" placeholder="이름·팀·질문 검색">
       <label><input type="checkbox" id="fStar"> ⭐만 보기</label>
@@ -211,6 +211,9 @@
 
 <div id="printArea"></div>
 <script src="question-festival-spring-data.js"></script>
+<script src="question-festival-average-data.js"></script>
+<script src="question-festival-sapiens-data.js"></script>
+<script src="question-festival-life-data.js"></script>
 <script>
 // code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfB37iEFnaX7xN8iwzPqxsbD6Tz68Ij8DUUr62aB6LJrzyY32Y-JWpi53bMsiGhoEF/exec";
@@ -264,7 +267,9 @@ const whoText = r => `<span class="nm">${esc(r['반'])}반 ${esc(r['번호'])}�
 const timeOf = r => r['제출시각'] || r['시각'] || r['저장시각'] || '';
 // 도서: 예전 기록(도서 칸 없음)은 『나는 나로 살기로 했다』, AI 기록은 '주제' 칸의 책 이름으로 구분
 const NARO = '나는 나로 살기로 했다';
-const bookOf = r => r['도서'] || (String(r['주제'] || '').includes('침묵의 봄') ? '침묵의 봄' : NARO);
+const BOOK_IDS = { '침묵의 봄':'spring', '평균의 종말':'average', '사피엔스':'sapiens', '생명이 있는 것은 다 아름답다':'life', [NARO]:'naro' };
+// 예전 기록(도서 칸 없음)은 『나는 나로』, AI 기록은 '주제' 칸의 『책 이름』으로 구분
+const bookOf = r => r['도서'] || Object.keys(BOOK_IDS).find(t => String(r['주제'] || '').includes('『' + t + '』')) || NARO;
 const BK = arr => { const b = $('fBook').value; return (arr || []).filter(r => bookOf(r) === b); };   // 책마다 따로 본다 (같은 학생이 두 책을 할 수 있어서)
 
 const isFinal = r => r['저장종류'] === '최종 제출';
@@ -286,17 +291,25 @@ function latestWorksheets(){
 /* ---------- 학생이 쓴 글 전체 (자동 저장된 상태 또는 중간·최종 저장 기록) ---------- */
 const RATE = { 'mb-rate':['거의 안 해 봤어요', '조금 해 봤어요', '자주 생각해요', '내 생각을 설명할 수 있어요'], 'ma-rate':['거의 몰라요', '조금 알아요', '대부분 알아요', '설명할 수 있어요'] };
 const META_Q = {
-  'mb-rate':     { naro:"[학습 전] '나답게 산다는 것'에 대해 얼마나 생각해 보았나?", spring:'[학습 전] 생활 속 화학 물질(농약, 살충제, 모기약, 세제…)과 자연의 관계에 대해 얼마나 생각해 보았나?' },
-  'mb-prior':    { naro:"[학습 전] 책을 읽기 전, 내가 생각하는 '나로 산다'는 것은?", spring:'[학습 전] 책을 읽기 전, 농약이나 살충제는 꼭 필요한 것일까, 위험한 것일까?' },
+  'mb-rate':     { naro:"[학습 전] '나답게 산다는 것'에 대해 얼마나 생각해 보았나?", spring:'[학습 전] 생활 속 화학 물질(농약, 살충제, 모기약, 세제…)과 자연의 관계에 대해 얼마나 생각해 보았나?',
+                   average:'[학습 전] 성적, 등수, 평균처럼 사람을 숫자로 비교하는 것에 대해 얼마나 생각해 보았나?', sapiens:'[학습 전] 인류가 어떻게 지금처럼 살게 되었는지(농사, 돈, 나라, 과학)에 대해 얼마나 생각해 보았나?',
+                   life:'[학습 전] 동물의 행동과 사람의 행동(사랑, 경쟁, 협동, 따돌림)을 비교해 얼마나 생각해 보았나?' },
+  'mb-prior':    { naro:"[학습 전] 책을 읽기 전, 내가 생각하는 '나로 산다'는 것은?", spring:'[학습 전] 책을 읽기 전, 농약이나 살충제는 꼭 필요한 것일까, 위험한 것일까?',
+                   average:'[학습 전] 책을 읽기 전, "평균"이나 "등수"는 나를 잘 보여 줄까?', sapiens:'[학습 전] 책을 읽기 전, 사람이 다른 동물과 다른 가장 큰 점은? 인류는 옛날보다 더 행복해졌을까?',
+                   life:'[학습 전] 책을 읽기 전, 사람은 다른 동물과 얼마나 비슷하고 다를까? 동물에게서 배울 점이 있을까?' },
   'md-question': "[학습 중] 검색하면 바로 답이 나오는 내 질문은? 우리 삶과 이어지는 '생각이 필요한 질문'으로 바꾸면?",
   'md-select':   '[학습 중] 질문 2개를 고를 때 나는 어떤 기준으로 판단했나? 받아들인 친구 의견은?',
   'md-evidence': '[학습 중] 우리 팀의 잠정적인 답을 뒷받침하는 근거는 충분한가? AI·인터넷의 답을 어떻게 확인했나?',
   'ma-rate':     '[학습 후] 우리 팀의 탐구 질문에 대해 얼마나 설명할 수 있나?',
-  'ma-change':   { naro:"[학습 후] 처음의 '나로 산다는 것'에 대한 생각과 지금 생각은 어떻게 달라졌나?", spring:"[학습 후] 처음의 '농약·살충제와 자연'에 대한 생각과 지금 생각은 어떻게 달라졌나?" },
+  'ma-change':   { naro:"[학습 후] 처음의 '나로 산다는 것'에 대한 생각과 지금 생각은 어떻게 달라졌나?", spring:"[학습 후] 처음의 '농약·살충제와 자연'에 대한 생각과 지금 생각은 어떻게 달라졌나?",
+                   average:"[학습 후] 처음의 '평균과 등수가 나를 보여 주는가'에 대한 생각과 지금 생각은 어떻게 달라졌나?", sapiens:"[학습 후] 처음의 '사람과 다른 동물의 차이, 인류의 행복'에 대한 생각과 지금 생각은 어떻게 달라졌나?",
+                   life:"[학습 후] 처음의 '사람과 동물은 얼마나 비슷하고 다른가'에 대한 생각과 지금 생각은 어떻게 달라졌나?" },
   'ma-strategy': '[학습 후] 다음 탐구에서 바꾸고 싶은 나의 질문 방법·탐구 방법은?',
   'me-career':   '[다음 질문] 이번 질문탐구는 나의 관심 분야나 진로와 어떻게 이어질까?'
 };
-const curBook = () => $('fBook').value === NARO ? 'naro' : 'spring';
+const curBook = () => BOOK_IDS[$('fBook').value] || 'naro';
+const chaps = () => ((window.BOOKDATA || {})[curBook()] || {}).CHAPTERS || [];
+const chLabel = c => `${c.lab || c.n + '장'} · ${c.ko}`;
 const metaQ = k => { const q = META_Q[k]; return typeof q === 'string' ? q : q[curBook()]; };
 const rateText = (k, v) => { v = String(v || '').trim(); return RATE[k] && RATE[k][+v - 1] ? `${v}. ${RATE[k][+v - 1]}` : v; };
 const plain = h => String(h || '').replace(/<[^>]+>/g, '');
@@ -305,7 +318,7 @@ function writingItems(){
   const g = [];
   g.push(['🧠 메타질문', [['metaAll', '메타질문 전체 (표로 한눈에)'], ...Object.keys(META_Q).map(k => ['meta:' + k, metaQ(k)]), ['revisit', '[다음 질문] 처음 만든 질문 다시 보기 — 해결된 질문과 남은 질문'], ['next', '[다음 질문] 탐구하면서 새로 생긴 질문']]]);
   g.push(['📖 책 읽기 · 지문', [['where', '읽은 부분'], ['quote', '인상 깊은 문장'], ['summary', '지문의 핵심 내용을 내 말로 정리하기'], ['thought', '읽고 난 내 생각']]]);
-  if(curBook() === 'spring') g.push(['🧑‍🏫 튜터의 질문에 대한 내 생각 (장별)', [['chAll', '모든 장 메모 모아 보기'], ...CHAPTERS.map(c => ['ch:' + c.n, `${c.n}장 · ${c.ko}`]), ['read', '다 읽었다고 표시한 장']]]);
+  if(chaps().length) g.push(['🧑‍🏫 튜터의 질문에 대한 내 생각 (장별)', [['chAll', '모든 장 메모 모아 보기'], ...chaps().map(c => ['ch:' + c.n, chLabel(c)]), ['read', '다 읽었다고 표시한 장']]]);
   g.push(['🔍 탐색 · 생성', [['kws', '관심어와 관심을 갖게 된 이유'], ['questions', '만든 질문'], ['genProcess', '질문을 만든 과정이나 이유']]]);
   g.push(['🎯 선정 · 탐구', [['picks', '선정하고 다듬은 질문'], ['inqs', '질문별 탐구 정리'], ['aiLog', 'AI 활용 기록']]]);
   g.push(['🎤 발표', [['expqa', '예상 질문과 1분 즉답'], ['toOthers', "다른 팀에게 할 '좋은 질문'의 조건"], ['checks', '체크리스트 스스로 점검']]]);
@@ -359,7 +372,7 @@ function studentDocs(){
   return [...m.values()].filter(x => passes(x.r, Object.values(x.doc).join(' '))).sort((a, b) => (a.r['반'] - b.r['반']) || (a.r['번호'] - b.r['번호']));
 }
 const srcChip = x => `<span class="chip" title="학생이 쓴 글 가운데 가장 최근 것을 보여 줘요">${x.src === 'save' ? '💾 ' + esc(x.kind || '자동 저장') : '📝 워크시트 기록'} ${esc(fmtT(x.at))} 기준</span>`;
-const chTitle = n => { const c = (typeof CHAPTERS !== 'undefined' ? CHAPTERS : []).find(c => String(c.n) === String(n)); return c ? `${c.n}장 · ${c.ko}` : `${n}장`; };
+const chTitle = n => { const c = chaps().find(c => String(c.n) === String(n)); return c ? chLabel(c) : `${n}장`; };
 function renderWsCards(docs){
   const box = (t, v) => String(v || '').trim() ? `<div class="box"><b>${t}</b>${esc(v)}</div>` : '';
   const empty = (t, v) => String(v || '').trim() ? '' : t;
@@ -399,7 +412,7 @@ function renderItemView(docs){
   }
   const label = (all.find(i => i[0] === itemKey) || [, ''])[1];
   let head = `<b>${esc(label)}</b>`;
-  if(itemKey.startsWith('ch:')){ const c = CHAPTERS.find(c => 'ch:' + c.n === itemKey); if(c) head = `<b>${esc(c.n + '장 · ' + c.ko)}</b> <span style="color:var(--soft)">${esc(c.en)}</span><ol>${c.qs.map(q => `<li>${esc(plain(q))}</li>`).join('')}</ol>`; }
+  if(itemKey.startsWith('ch:')){ const c = chaps().find(c => 'ch:' + c.n === itemKey); if(c) head = `<b>${esc(chLabel(c))}</b> <span style="color:var(--soft)">${esc(c.en)}</span><ol>${c.qs.map(q => `<li>${esc(plain(q))}</li>`).join('')}</ol>`; }
   const done = docs.filter(x => String(x.doc[itemKey] || '').trim());
   $('itemHead').innerHTML = `${head}<div class="cnt">쓴 학생 <b>${done.length}</b> / ${docs.length}명</div>`;
   const list = hideEmpty ? done : docs;

@@ -1908,6 +1908,9 @@ const DOC_TOOLS_URL = "doc-tools.html";
 const SANGJEOM_MARKET_URL = "sangjeom-market.html";
 const QUESTION_FESTIVAL_URL = "question-festival.html";
 const QUESTION_FESTIVAL_SPRING_URL = "question-festival-spring.html";
+const QUESTION_FESTIVAL_AVERAGE_URL = "question-festival-average.html";
+const QUESTION_FESTIVAL_SAPIENS_URL = "question-festival-sapiens.html";
+const QUESTION_FESTIVAL_LIFE_URL = "question-festival-life.html";
 const QUESTION_FESTIVAL_DASH_URL = "question-festival-dashboard.html";
 
 const topicsData = {
@@ -2097,6 +2100,24 @@ const topicsData = {
         ready: true
       },
       {
+        title: "📏 질문탐구한마당 — 『평균의 종말』 튜터와 함께 읽는 워크시트",
+        desc: "토드 로즈 『평균의 종말』을 들어가며와 9개 장의 튜터 카드로 읽어요. 장마다 책 속 사례 요약(조종사 4,063명 조사, 케틀레와 골턴, 테일러의 표준화, 들쭉날쭉·맥락·경로의 원칙), 튜터의 질문, 관심어 후보가 있고, '평균적인 조종사는 몇 %일까?' 그래프도 있어요. 읽은 뒤 탐색 → 생성 → 선정 → 탐구 → 발표 순서로 연습하고, AI 튜터에게 책 내용을 15번까지 물어볼 수 있어요.",
+        url: QUESTION_FESTIVAL_AVERAGE_URL,
+        ready: true
+      },
+      {
+        title: "🧬 질문탐구한마당 — 『사피엔스』 튜터와 함께 읽는 워크시트",
+        desc: "유발 하라리 『사피엔스』 4부 20장과 후기를 튜터 카드로 읽어요. 장마다 핵심 주장 요약(인지혁명과 상상의 실재, 농업혁명과 사치의 덫, 돈·제국·종교, 무지의 발견), 튜터의 질문, 관심어 후보가 있고, '얼마나 오래전 일일까?' 역사 연대표 그래프도 있어요. 읽은 뒤 탐색 → 생성 → 선정 → 탐구 → 발표 순서로 연습하고, AI 튜터에게 15번까지 물어볼 수 있어요.",
+        url: QUESTION_FESTIVAL_SAPIENS_URL,
+        ready: true
+      },
+      {
+        title: "🐜 질문탐구한마당 — 『생명이 있는 것은 다 아름답다』 튜터와 함께 읽는 워크시트",
+        desc: "최재천 『생명이 있는 것은 다 아름답다』의 네 부를 글·주제별 튜터 카드 15장으로 읽어요. 개미의 협동, 꿀벌의 8자 춤과 집 고르기, 반딧불이의 빛, 거미와 갈매기, 서열과 따돌림, 공생까지 이어지는 과학 이야기와 튜터의 질문, '책에서 찾아보기' 과제가 들어 있어요. 읽은 뒤 탐색 → 생성 → 선정 → 탐구 → 발표 순서로 연습하고, AI 튜터에게 15번까지 물어볼 수 있어요.",
+        url: QUESTION_FESTIVAL_LIFE_URL,
+        ready: true
+      },
+      {
         title: "🎤 질문탐구한마당 — 『나는 나로 살기로 했다』 연습 워크시트",
         desc: "2026 경주·영천 중학생 질문·탐구 궁금한마당(12. 4.) 대비 3학년 워크시트입니다. 지정 도서 지문을 읽고 탐색(관심어) → 생성(질문 만들기) → 선정(2가지 고르고 다듬기) → 탐구 → 발표 순서로 연습해요. 선정·탐구 단계에서는 AI 조사 도우미에게 10번까지 질문할 수 있고, AI 활용 기록·메타질문·대회 체크리스트도 들어 있어요.",
         url: QUESTION_FESTIVAL_URL,
@@ -2104,7 +2125,7 @@ const topicsData = {
       },
       {
         title: "📊 질문탐구한마당 교사 대시보드",
-        desc: "학생들이 [질문 보내기]로 만든 질문, AI 조사 도우미에게 한 질문과 답, 제출한 워크시트와 메타질문 응답을 교사 코드로 모아 봅니다(위에서 『침묵의 봄』 / 『나는 나로』 선택). 질문 유형 분포, 관심어 모아 보기, 좋은 질문 ⭐ 표시, 이름 가리고 화면 띄우기, CSV 내려받기를 할 수 있어요.",
+        desc: "학생들이 [질문 보내기]로 만든 질문, AI 조사 도우미에게 한 질문과 답, 제출한 워크시트와 메타질문 응답을 교사 코드로 모아 봅니다(위에서 책 선택: 침묵의 봄 · 평균의 종말 · 사피엔스 · 생명이 있는 것은 다 아름답다 · 나는 나로). 질문 유형 분포, 관심어 모아 보기, 좋은 질문 ⭐ 표시, 이름 가리고 화면 띄우기, CSV 내려받기를 할 수 있어요.",
         url: QUESTION_FESTIVAL_DASH_URL,
         ready: true
       }
