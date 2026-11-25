@@ -83,6 +83,24 @@
   .kind{ font-size:11.5px; font-weight:800; border-radius:999px; padding:2px 9px; }
   .kind.final{ background:#1B1A3A; color:#F2C46B; } .kind.mid{ background:#EDE9FE; color:#5b21b6; } .kind.qonly{ background:#F0F0F0; color:#666; }
   tr.stale td{ background:#FFF8F3; }
+  .kind.auto{ background:#E6F0FF; color:#1E4FA8; } .kind.none{ background:#F4F1EA; color:#9A927E; }
+  .roster-in{ display:grid; grid-template-columns:1fr 280px; gap:14px; align-items:start; }
+  .roster-in textarea{ width:100%; min-height:190px; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid #C9C3B0; border-radius:10px; line-height:1.7; }
+  table.roster{ width:100%; border-collapse:collapse; font-size:14px; }
+  table.roster th{ background:#F3F0E6; padding:8px; text-align:left; }
+  table.roster td{ border-bottom:1px solid var(--line); padding:7px 8px; }
+  table.roster .cd{ font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:800; letter-spacing:3px; font-size:15px; }
+  #printArea{ display:none; }
+  @media print{
+    body > header, body > main{ display:none !important; }
+    #printArea{ display:block; }
+    .slips{ display:grid; grid-template-columns:1fr 1fr; }
+    .slip{ border:1px dashed #999; padding:14px 16px; page-break-inside:avoid; font-family:'Noto Sans KR',sans-serif; }
+    .slip .t{ font-size:12px; color:#555; } .slip .n{ font-size:17px; font-weight:900; margin:4px 0; }
+    .slip .c{ font-size:30px; font-weight:900; letter-spacing:8px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+    .slip .h{ font-size:11px; color:#555; margin-top:4px; }
+  }
+  @media (max-width:860px){ .roster-in{ grid-template-columns:1fr; } }
   .ago{ font-size:12px; color:var(--soft); }
   .note{ background:#FFF8E5; border:1px solid #F5E2A8; border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.7; }
   .note code{ background:#fff; border:1px solid #EADBAE; border-radius:6px; padding:1px 6px; }
@@ -121,6 +139,20 @@
     <div class="kpis" id="kpis"></div>
     <div class="tabs" id="tabs"></div>
 
+    <div class="card" data-pane="roster" hidden>
+      <h3>👥 학생 명단 · 로그인 코드</h3>
+      <p style="font-size:13px;color:var(--soft);margin:0 0 10px">명단을 붙여넣고 저장하면 학생마다 겹치지 않는 <b>4자리 코드</b>가 만들어져요. 학생은 워크시트에서 <b>반·번호·코드</b>로 로그인해 쓰던 내용을 이어서 해요. 이름과 코드는 선생님 구글 시트("학생명단" 탭)에만 저장돼요.</p>
+      <div class="roster-in">
+        <div>
+          <div class="bar" style="margin-bottom:8px"><label>반 <input type="text" id="rCls" value="1" style="width:56px" inputmode="numeric"></label><span style="font-size:12.5px;color:var(--soft)">한 줄에 한 명씩: <b>번호 이름</b> (예: <code>1 김상환</code> 또는 <code>1. 김상환</code>)</span></div>
+          <textarea id="rText" placeholder="1 김상환&#10;2 김서빈&#10;3 김서현"></textarea>
+          <div class="bar" style="margin-top:8px"><button type="button" class="btn" id="rSave">명단 저장 · 코드 만들기</button><span class="msg" id="rMsg" style="margin:0"></span></div>
+        </div>
+        <div class="note" style="margin:0">💡 같은 반·번호를 다시 저장하면 <b>이름만 고치고 코드는 그대로</b>예요. 코드를 잃어버린 학생은 표에서 [새 코드]를 눌러 다시 만들어 주세요.<br><br>🖨 [코드표 인쇄]로 학생에게 나눠 줄 쪽지를 뽑을 수 있어요.</div>
+      </div>
+      <div class="bar" style="margin:14px 0 8px"><label><input type="checkbox" id="rShow"> 코드 보기</label><span class="grow"></span><button type="button" class="btn ghost sm" id="rPrint">🖨 코드표 인쇄</button></div>
+      <div class="scroll"><table class="roster" id="rTable"></table></div>
+    </div>
     <div class="card" data-pane="prog" hidden>
       <h3>📈 진행 현황 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생이 💾 중간 저장 · ✅ 최종 제출을 누를 때마다 갱신돼요 (✓ 완료 · … 하는 중 · ○ 아직)</span></h3>
       <div class="scroll"><table class="prog" id="progTable"></table></div>
@@ -157,6 +189,7 @@
   </div>
 </main>
 
+<div id="printArea"></div>
 <script>
 // code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfB37iEFnaX7xN8iwzPqxsbD6Tz68Ij8DUUr62aB6LJrzyY32Y-JWpi53bMsiGhoEF/exec";
@@ -205,7 +238,7 @@ $('fProject').addEventListener('change', () => document.body.classList.toggle('p
 /* ---------- 자료 정리 ---------- */
 const sid = r => `${r['반']}-${r['번호']}-${r['이름']}`;
 const whoText = r => `<span class="nm">${esc(r['반'])}반 ${esc(r['번호'])}번 ${esc(r['이름'])}</span>`;
-const timeOf = r => r['제출시각'] || r['시각'] || '';
+const timeOf = r => r['제출시각'] || r['시각'] || r['저장시각'] || '';
 const isFinal = r => r['저장종류'] === '최종 제출';
 const kindChip = r => !r ? '<span class="kind qonly">질문만 보냄</span>' : isFinal(r) ? '<span class="kind final">✅ 최종 제출</span>' : `<span class="kind mid">💾 중간 저장${r['저장위치'] && /^STEP/.test(r['저장위치']) ? ' · ' + esc(r['저장위치']) : ''}</span>`;
 const ago = v => { const m = Math.floor((Date.now() - new Date(v)) / 60000); return isNaN(m) ? '' : m < 1 ? '방금' : m < 60 ? `${m}분 전` : `${Math.floor(m / 60)}시간 ${m % 60}분 전`; };
@@ -238,7 +271,8 @@ function render(){
     ['👥 참여 학생', people.size, '명'], ['❓ 만든 질문', Q.length, '개'], ['💡 1인당 질문', people.size ? (Q.length / Math.max(1, new Set(Q.map(sid)).size)).toFixed(1) : '0', '개'],
     ['🤖 AI 질문', aiAsk.length, '개'], ['📝 저장 · 최종 제출', `${WS.length}<small>명 ·</small> ${WS.filter(isFinal).length}`, '명']
   ].map(([k, v, u]) => `<div class="kpi"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div></div>`).join('');
-  const TABS = [['prog', '📈 진행 현황', people.size], ['q', '❓ 학생 질문', Q.length], ['kw', '🔑 관심어', null], ['ai', '🤖 AI 질문', AIQ.length], ['ws', '📝 워크시트', WS.length], ['meta', '🧠 메타질문', WS.length]];
+  const roster = D.roster || [];
+  const TABS = [['prog', '📈 진행 현황', Math.max(people.size, roster.length)], ['q', '❓ 학생 질문', Q.length], ['kw', '🔑 관심어', null], ['ai', '🤖 AI 질문', AIQ.length], ['ws', '📝 워크시트', WS.length], ['meta', '🧠 메타질문', WS.length], ['roster', '👥 명단·코드', roster.length]];
   $('tabs').innerHTML = TABS.map(([k, t, n]) => `<button type="button" class="tab ${tab === k ? 'on' : ''}" data-t="${k}">${t}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
   document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== tab);
   $('upd').textContent = demo ? '예시 데이터' : `마지막 새로고침 ${fmtT(new Date())}`;
@@ -280,14 +314,25 @@ function render(){
   Q.forEach(r => { const o = byStu.get(sid(r)); o.q++; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); });
   AIQ.filter(r => r['종류'] === '질문').forEach(r => { const o = byStu.get(sid(r)); o.ai++; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); });
   WS.forEach(r => { const k = sid(r); const o = byStu.get(k) || { r, q:0, ai:0, last:timeOf(r) }; o.ws = r; o.r = r; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); byStu.set(k, o); });
+  // 자동 저장(질문탐구_저장): 학생마다 한 줄, 가장 최근 진행 상태
+  (D.saves || []).forEach(r => { const k = sid(r); const o = byStu.get(k) || { r, q:0, ai:0, last:timeOf(r) }; o.sv = r; if(!o.ws) o.r = r; if(new Date(timeOf(r)) > new Date(o.last)) o.last = timeOf(r); byStu.set(k, o); });
+  // 명단에 있지만 아직 시작하지 않은 학생
+  roster.forEach(r => { const k = sid(r); if(!byStu.has(k)) byStu.set(k, { r, q:0, ai:0, last:'', none:true }); });
   const stCell = v => `<span class="st ${v === 'O' ? 'done' : v === '△' ? 'half' : ''}">${v === 'O' ? '✓' : v === '△' ? '…' : '○'}</span>`;
   const prog = [...byStu.values()].filter(o => passes(o.r, Object.values(o.ws || o.r).join(' '))).sort((a, b) => (a.r['반'] - b.r['반']) || (a.r['번호'] - b.r['번호']));
   $('progTable').innerHTML = `<thead><tr><th>학생</th><th>팀</th><th>상태</th><th>탐색</th><th>생성</th><th>선정</th><th>탐구</th><th>발표</th><th>메타</th><th>보낸 질문</th><th>AI</th><th>마지막 활동</th></tr></thead><tbody>` +
-    (prog.length ? prog.map(o => { const w = o.ws || {}; const stale = !isFinal(w) && (Date.now() - new Date(o.last)) > 15 * 60000;
-      return `<tr class="${stale ? 'stale' : ''}"><td><a href="#" data-goto="${esc(sid(o.r))}" style="color:inherit">${whoText(o.r)}</a></td><td>${esc(w['팀'] || o.r['팀'] || '')}</td><td>${kindChip(o.ws)}</td>
+    (prog.length ? prog.map(o => {
+      // 진행 칸은 워크시트 기록과 자동 저장 중 더 최근 것
+      const w = o.sv && (!o.ws || new Date(timeOf(o.sv)) >= new Date(timeOf(o.ws))) ? o.sv : (o.ws || {});
+      const stale = !o.none && !isFinal(o.ws || {}) && o.last && (Date.now() - new Date(o.last)) > 15 * 60000;
+      const chip = o.none ? '<span class="kind none">아직 시작 안 함</span>' : o.ws && isFinal(o.ws) ? kindChip(o.ws)
+        : o.sv && (!o.ws || new Date(timeOf(o.sv)) > new Date(timeOf(o.ws))) ? `<span class="kind auto">💾 ${esc(o.sv['저장종류'] || '자동 저장')}</span>` : kindChip(o.ws);
+      return `<tr class="${stale ? 'stale' : ''}"><td><a href="#" data-goto="${esc(sid(o.r))}" style="color:inherit">${whoText(o.r)}</a></td><td>${esc((o.ws || {})['팀'] || o.r['팀'] || '')}</td><td>${chip}</td>
         ${['탐색', '생성', '선정', '탐구', '발표'].map(k => `<td>${stCell(w['진행-' + k])}</td>`).join('')}
-        <td>${w['메타응답수'] !== undefined && w['메타응답수'] !== '' ? esc(w['메타응답수']) + '/9' : '-'}</td><td>${o.q}</td><td>${o.ai}</td><td><span class="ago">${ago(o.last)}</span></td></tr>`; }).join('')
+        <td>${w['메타응답수'] !== undefined && w['메타응답수'] !== '' ? esc(w['메타응답수']) + '/9' : '-'}</td><td>${o.q}</td><td>${o.ai}</td><td><span class="ago">${o.last ? ago(o.last) : '-'}</span></td></tr>`; }).join('')
       : '<tr><td colspan="12" class="empty">아직 활동한 학생이 없어요.</td></tr>') + '</tbody>';
+
+  renderRoster();
 
   // 워크시트
   const ws = WS.filter(r => passes(r, Object.values(r).join(' '))).sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
@@ -315,6 +360,64 @@ function render(){
       <td>${esc([r['메타-생각변화'], r['메타-전략수정'] && '전략: ' + r['메타-전략수정']].filter(Boolean).join('\n'))}</td>
       <td>${esc([r['메타-다음질문'], r['메타-진로연결'] && '진로: ' + r['메타-진로연결']].filter(Boolean).join('\n'))}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">아직 제출된 워크시트가 없어요.</td></tr>') + '</tbody>';
 }
+/* ---------- 명단 · 코드 ---------- */
+function renderRoster(){
+  const list = (D.roster || []).slice().sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
+  const show = $('rShow').checked;
+  $('rTable').innerHTML = `<thead><tr><th>반</th><th>번호</th><th>이름</th><th>코드</th><th>마지막 로그인</th><th></th></tr></thead><tbody>` +
+    (list.length ? list.map(r => `<tr><td>${esc(r['반'])}</td><td>${esc(r['번호'])}</td><td><span class="nm">${esc(r['이름'])}</span></td>
+      <td class="cd">${show ? esc(r['코드']) : '••••'}</td><td class="ago">${r['마지막로그인'] ? fmtT(r['마지막로그인']) : '-'}</td>
+      <td style="white-space:nowrap"><button type="button" class="btn ghost sm" data-newcode="${esc(r['반'] + '-' + r['번호'])}">새 코드</button> <button type="button" class="btn ghost sm" data-remove="${esc(r['반'] + '-' + r['번호'])}">빼기</button></td></tr>`).join('')
+      : '<tr><td colspan="6" class="empty">아직 명단이 없어요. 위에 붙여넣고 저장해 주세요.</td></tr>') + '</tbody>';
+}
+async function rosterCall(extra){
+  if(demo){
+    // 예시 모드: 이 화면에서만 바뀜
+    const r = D.roster = D.roster || [];
+    (extra.rows || []).forEach(x => { const o = r.find(y => String(y['반']) === x.cls && String(y['번호']) === x.num); if(o) o['이름'] = x.name; else r.push({ '반':x.cls, '번호':x.num, '이름':x.name, '코드':String(1000 + Math.floor(Math.random() * 9000)) }); });
+    if(extra.newCodeFor){ const o = r.find(y => y['반'] + '-' + y['번호'] === extra.newCodeFor); if(o) o['코드'] = String(1000 + Math.floor(Math.random() * 9000)); }
+    if(extra.remove) D.roster = r.filter(y => y['반'] + '-' + y['번호'] !== extra.remove);
+    render(); return;
+  }
+  const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'roster_save', code, ...extra }) });
+  const r = await res.json();
+  if(r.result !== 'success') throw new Error(r.message || '저장하지 못했어요.');
+  D.roster = r.roster; render();
+}
+function parseRoster(text, cls){
+  return text.split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^(\d{1,2})\s*[.)번]?\s*(?:번\s*)?([가-힣A-Za-z][가-힣A-Za-z\s]{0,18})$/);
+    return m ? { cls, num:String(+m[1]), name:m[2].trim() } : { bad:l };
+  });
+}
+$('rSave').addEventListener('click', async () => {
+  const cls = $('rCls').value.trim(), msg = $('rMsg');
+  msg.style.color = '';
+  if(!/^\d{1,2}$/.test(cls)){ msg.textContent = '반을 숫자로 적어 주세요.'; return; }
+  const rows = parseRoster($('rText').value, cls), bad = rows.filter(r => r.bad);
+  if(!rows.length){ msg.textContent = '명단을 붙여넣어 주세요.'; return; }
+  if(bad.length){ msg.textContent = `읽지 못한 줄: ${bad.slice(0, 3).map(b => b.bad).join(', ')} — "번호 이름" 모양으로 적어 주세요.`; return; }
+  msg.textContent = '저장하는 중…';
+  try{ await rosterCall({ rows }); msg.textContent = `${rows.length}명 저장했어요. 코드가 만들어졌어요.`; msg.style.color = 'var(--ok)'; $('rText').value = ''; }
+  catch(e){ msg.textContent = e.message; }
+});
+$('rShow').addEventListener('change', renderRoster);
+$('rTable').addEventListener('click', async e => {
+  const nb = e.target.closest('[data-newcode]'), rb = e.target.closest('[data-remove]');
+  try{
+    if(nb && confirm(`${nb.dataset.newcode.replace('-', '반 ')}번 학생의 코드를 새로 만들까요? 예전 코드로는 로그인할 수 없게 돼요.`)) await rosterCall({ newCodeFor: nb.dataset.newcode });
+    if(rb && confirm(`${rb.dataset.remove.replace('-', '반 ')}번 학생을 명단에서 뺄까요? (저장된 내용은 시트에 남아요)`)) await rosterCall({ remove: rb.dataset.remove });
+  }catch(err){ alert(err.message); }
+});
+$('rPrint').addEventListener('click', () => {
+  const list = (D.roster || []).slice().sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
+  if(!list.length) return alert('인쇄할 명단이 없어요.');
+  $('printArea').innerHTML = '<div class="slips">' + list.map(r => `<div class="slip"><div class="t">🎤 질문탐구한마당 연습 워크시트 · 로그인 코드</div>
+    <div class="n">3학년 ${esc(r['반'])}반 ${esc(r['번호'])}번 ${esc(r['이름'])}</div><div class="c">${esc(r['코드'])}</div>
+    <div class="h">워크시트 맨 위 [로그인]에 반·번호·코드를 넣으면 쓰던 내용을 이어서 할 수 있어요. 코드는 친구에게 알려 주지 마세요!</div></div>`).join('') + '</div>';
+  window.print();
+});
+
 $('tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if(b){ tab = b.dataset.t; render(); } });
 $('progTable').addEventListener('click', e => {
   const a = e.target.closest('[data-goto]'); if(!a) return;
@@ -344,6 +447,8 @@ function demoData(){
   ];
   return {
     result:'success',
+    roster: S.map(([c, n, nm], i) => ({ '반':c, '번호':n, '이름':nm, '코드':String(4821 + i * 1137), '마지막로그인':t(30 - i) })).concat([{ '반':3, '번호':1, '이름':'예시학생마', '코드':'7702' }]),
+    saves: [{ '반':2, '번호':11, '이름':'예시학생라', '저장시각':t(3), '저장종류':'자동 저장', '진행-탐색':'O', '진행-생성':'△', '진행-선정':'', '진행-탐구':'', '진행-발표':'', '메타응답수':2 }],
     questions: qs.map(([i, kw, q], n) => ({ '제출시각':t(60 - n * 5), '반':S[i][0], '번호':S[i][1], '이름':S[i][2], '팀':S[i][3], '관심어':kw, '질문':q, '질문유형':qType(q) })),
     ai: [
       { '시각':t(20), '반':1, '번호':3, '이름':'예시학생가', '종류':'질문', '주제':'질문탐구한마당 — 『나는 나로 살기로 했다』(김수현) · 선정 · 질문 다듬기', '질문/정리한 글':'이 질문이 너무 넓은지 봐 줘: 사람들은 왜 남과 비교할까?', 'AI 답변':'- 대상이 "사람들"이라 범위가 넓어요. "중학생"처럼 대상을 좁혀 보세요.\n- 장면을 정하면 탐구가 쉬워져요(예: SNS).\n이어진 질문: 비교를 줄이려면 무엇이 필요할까?' },

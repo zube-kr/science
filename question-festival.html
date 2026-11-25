@@ -218,6 +218,17 @@
   .progress span.done{ background:#E6F4EC; color:#2E7D52; }
   main{ padding-bottom:110px; }
   .save-note{ font-size:12px; color:var(--ink-soft); }
+  .login-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .login-row .field{ flex:0 1 96px; min-width:80px; }
+  .login-row .field.code{ flex:0 1 150px; }
+  .login-row input#loginCode{ letter-spacing:6px; font-weight:800; text-align:center; }
+  .me-line{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:#F3F0FA; border:1px solid #DCD2F5; border-radius:12px; padding:10px 14px; margin-bottom:12px; font-size:14.5px; }
+  .me-line .grow{ flex:1; }
+  .me-line small{ color:var(--ink-soft); font-size:12.5px; }
+  body:not(.in) main > .locked{ opacity:.45; pointer-events:none; filter:grayscale(.3); user-select:none; }
+  body:not(.in) .savebar{ display:none; }
+  .lock-tip{ background:#FFF8E5; border:1px solid #F5E2A8; border-radius:12px; padding:10px 14px; font-size:13.5px; margin:-6px 0 18px; }
+  body.in .lock-tip{ display:none; }
 
   @media (max-width:700px){
     .savebar{ left:12px; right:12px; bottom:10px; justify-content:space-between; }
@@ -266,20 +277,30 @@
     </div>
   </section>
 
-  <section>
-    <h2><span class="num">✎</span>우리 팀 정보</h2>
-    <div class="id-row">
-      <div class="field narrow"><label class="lb" for="grade">학년</label><input type="text" id="grade" value="3" readonly></div>
-      <div class="field narrow"><label class="lb" for="stuClass">반</label><input type="text" id="stuClass" inputmode="numeric" placeholder="반"></div>
-      <div class="field narrow"><label class="lb" for="stuNumber">번호</label><input type="text" id="stuNumber" inputmode="numeric" placeholder="번호"></div>
-      <div class="field"><label class="lb" for="stuName">이름</label><input type="text" id="stuName" placeholder="이름"></div>
+  <section id="loginSec">
+    <h2><span class="num">🔑</span>로그인 · 우리 팀 정보</h2>
+    <div id="loginBox">
+      <p class="hint">선생님께 받은 <b>나만의 코드 4자리</b>로 로그인해요. 쓰던 내용이 선생님 시트에 저장되어서, <b>내일 다른 컴퓨터에서 로그인해도 이어서</b> 할 수 있어요.</p>
+      <form class="login-row" id="loginForm" autocomplete="off">
+        <div class="field"><label class="lb" for="grade">학년</label><input type="text" id="grade" value="3" readonly></div>
+        <div class="field"><label class="lb" for="loginCls">반</label><input type="text" id="loginCls" inputmode="numeric" value="1" maxlength="2"></div>
+        <div class="field"><label class="lb" for="loginNum">번호</label><input type="text" id="loginNum" inputmode="numeric" maxlength="2" placeholder="번호"></div>
+        <div class="field code"><label class="lb" for="loginCode">나의 코드</label><input type="password" id="loginCode" inputmode="numeric" maxlength="4" placeholder="••••"></div>
+        <button type="submit" class="btn" id="loginBtn">로그인 · 불러오기</button>
+      </form>
+      <div class="msg" id="loginMsg"></div>
     </div>
-    <div class="id-row" style="margin-top:10px">
-      <div class="field"><label class="lb" for="team">팀 이름</label><input type="text" id="team" placeholder="예) 나로서기 팀"></div>
-      <div class="field"><label class="lb" for="mates">함께하는 팀원</label><input type="text" id="mates" placeholder="예) 김OO, 이OO, 박OO"></div>
+    <div id="meBox" hidden>
+      <div class="me-line">👋 <span><b id="meName"></b> 학생, 반가워요!</span><small id="meSaved"></small><span class="grow"></span><button type="button" class="btn ghost sm" id="logoutBtn">저장하고 로그아웃</button></div>
+      <div class="id-row">
+        <div class="field"><label class="lb" for="team">팀 이름</label><input type="text" id="team" placeholder="예) 나로서기 팀"></div>
+        <div class="field"><label class="lb" for="mates">함께하는 팀원</label><input type="text" id="mates" placeholder="예) 김OO, 이OO, 박OO"></div>
+      </div>
+      <p class="save-note" style="margin:10px 0 0">💾 쓰는 내용은 <b>1분마다 자동으로 저장</b>돼요. 선생님께 진행 상황을 보여 주려면 STEP 끝의 <b>중간 저장</b>을, 모두 마치면 <b>최종 제출</b>을 눌러요. 함께 쓰는 컴퓨터에서는 끝나고 꼭 <b>로그아웃</b>해요.</p>
     </div>
-    <p class="save-note" style="margin:10px 0 0">✍️ 적는 내용은 이 기기에 자동으로 임시 저장돼요. 마지막에 <b>제출하기</b>를 눌러야 선생님께 전달돼요.</p>
+    <input type="hidden" id="stuClass"><input type="hidden" id="stuNumber"><input type="hidden" id="stuName">
   </section>
+  <div class="lock-tip">🔒 위에서 로그인하면 아래 활동을 시작할 수 있어요.</div>
 
   <!-- 학습 전 메타질문 -->
   <div class="meta" data-stage="before">
@@ -504,7 +525,7 @@
     <div class="progress" id="progress"></div>
     <div class="submit-row">
       <button type="button" class="btn" id="submitBtn">✅ 최종 제출하기</button>
-      <button type="button" class="btn ghost sm" id="clearBtn">새로 시작(지우기)</button>
+      <button type="button" class="btn ghost sm" id="logoutBtn2">저장하고 로그아웃</button>
     </div>
     <div class="msg" id="submitMsg"></div>
   </section>
@@ -521,7 +542,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
 /* ---------- 상태 ---------- */
-const S = {
+const freshS = () => ({
   kws: [{ w:'', why:'' }, { w:'', why:'' }, { w:'', why:'' }],
   questions: [],            // { id, kw, text, type, sent }
   picks: [ { from:'', to:'', reason:'', methods:[], minutes:'' }, { from:'', to:'', reason:'', methods:[], minutes:'' } ],
@@ -532,7 +553,10 @@ const S = {
   next: [],
   checks: {},
   aiUsed: 0
-};
+});
+let S = freshS();
+let LOGIN = null;           // { cls, num, code, name }
+let dirty = false;          // 마지막 서버 저장 뒤에 바뀐 내용이 있나
 
 /* ---------- 질문 유형 (대시보드와 같은 규칙) ---------- */
 function qType(t){
@@ -546,23 +570,21 @@ function qType(t){
 const meLinked = t => /나는|내가|나의|나를|나에게|나와|나라면|우리|학교|친구|반에서|중학생|청소년/.test(t);
 
 /* ---------- 임시 저장 ---------- */
-const FIELDS = ['stuClass','stuNumber','stuName','team','mates','passageWhere','passageQuote','passageSummary','passageThought','genProcess','expQ1','expA1','expQ2','expA2','toOthers'];
+// 로그인한 학생의 내용은 이 기기에도(학생별로) 잠깐 보관하고, 1분마다 선생님 시트에 저장한다
+const FIELDS = ['team','mates','passageWhere','passageQuote','passageSummary','passageThought','genProcess','expQ1','expA1','expQ2','expA2','toOthers'];
+const draftKey = () => LOGIN ? `${DRAFT_KEY}:${LOGIN.cls}-${LOGIN.num}` : null;
+const snapshot = () => { const f = {}; FIELDS.forEach(id => f[id] = $(id).value); return { S, f, savedAt: Date.now() }; };
 let saveTimer = null;
 function saveDraft(){
+  if(!LOGIN) return;
+  dirty = true;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    const d = { S, f:{} };
-    FIELDS.forEach(id => d.f[id] = $(id).value);
-    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }catch(e){}
-  }, 300);
+  saveTimer = setTimeout(() => { try{ localStorage.setItem(draftKey(), JSON.stringify(snapshot())); }catch(e){} }, 300);
 }
-function loadDraft(){
-  try{
-    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-    if(!d) return;
-    Object.assign(S, d.S || {});
-    FIELDS.forEach(id => { if(d.f && d.f[id] != null) $(id).value = d.f[id]; });
-  }catch(e){}
+function applyState(st){
+  S = Object.assign(freshS(), (st && st.S) || {});
+  FIELDS.forEach(id => { $(id).value = (st && st.f && st.f[id] != null) ? st.f[id] : ''; });
+  renderAll();
 }
 FIELDS.forEach(id => $(id).addEventListener('input', saveDraft));
 
@@ -605,9 +627,8 @@ $('stems').addEventListener('click', e => {
 });
 function student(){ return { stuClass:$('stuClass').value.trim(), stuNumber:$('stuNumber').value.trim(), name:$('stuName').value.trim() }; }
 function needStudent(msgEl){
-  const s = student();
-  if(!s.stuClass || !s.stuNumber || !s.name){ msgEl.textContent = '맨 위 "우리 팀 정보"에 반·번호·이름을 먼저 적어 주세요.'; msgEl.className = 'msg err'; $('stuClass').focus(); return null; }
-  return s;
+  if(!LOGIN){ msgEl.textContent = '먼저 맨 위에서 로그인해 주세요.'; msgEl.className = 'msg err'; $('loginNum').focus(); return null; }
+  return student();
 }
 async function post(payload){
   if(!APPS_SCRIPT_URL) throw new Error('no server');
@@ -761,7 +782,7 @@ const AI = (function(){
   async function ask(q){
     q = q.trim();
     if(!q || busy) return;
-    if(!needStudent($('qMsg'))){ bubble('bot err', '맨 위 "우리 팀 정보"에 반·번호·이름을 먼저 적어 주세요.'); return; }
+    if(!needStudent($('qMsg'))){ bubble('bot err', '먼저 맨 위에서 로그인해 주세요.'); return; }
     if(!ready){ bubble('bot err', 'AI 조사 도우미가 아직 준비되지 않았어요. 책과 믿을 만한 누리집으로 탐구해 보세요.'); return; }
     if(S.aiUsed >= MAX_Q){ bubble('bot err', `이 화면에서는 질문을 ${MAX_Q}번까지 할 수 있어요. 이제 팀이 찾은 내용을 내 말로 정리해 볼까요?`); return; }
     busy = true; $('aiSend').disabled = true;
@@ -950,21 +971,33 @@ function showLastSaved(){
 // 안내 글자: 제출 칸은 .msg, 나머지(STEP 끝·화면 아래)는 ok/err 색만
 function setState(el, text, state){ el.textContent = text; el.className = (el.id === 'submitMsg' ? 'msg ' : '') + (state || ''); }
 let sending = false;
+// 선생님 시트에 저장: 내 상태(불러오기용) + 중간·최종일 때는 워크시트 기록 한 줄
+async function serverSave(kind, row){
+  if(!APPS_SCRIPT_URL || !LOGIN) throw new Error('no server');
+  const body = { action:'student_save', cls:LOGIN.cls, num:LOGIN.num, stuCode:LOGIN.code, kind, progress:progress(), state:JSON.stringify(snapshot()) };
+  if(row) body.row = row;
+  const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body) });
+  const r = await res.json();
+  if(r.result !== 'success') throw Object.assign(new Error(r.message || '저장 실패'), { server:true });
+  dirty = false;
+  $('meSaved').textContent = `· ${kind} ${hhmm(new Date())} ✓`;
+  return r;
+}
 async function sendWorksheet(kind, where, msgEl, btn){
-  const st = student();
-  if(!st.stuClass || !st.stuNumber || !st.name){ setState(msgEl, '맨 위 "우리 팀 정보"에 반·번호·이름을 먼저 적어 주세요.', 'err'); $('stuClass').focus(); return false; }
+  if(!LOGIN){ setState(msgEl, '먼저 맨 위에서 로그인해 주세요.', 'err'); $('loginNum').focus(); return false; }
   if(sending) return false;
   sending = true; if(btn) btn.disabled = true; $('floatSave').disabled = true;
   setState(msgEl, kind === '최종 제출' ? '제출하는 중…' : '저장하는 중…', '');
   try{
     for(const q of S.questions) if(!q.sent) await sendQuestion(q);   // 아직 못 보낸 질문도 함께
     renderQuestions();
-    await post(buildPayload(kind, where));
-    S.lastSaved = { kind, time: hhmm(new Date()) }; showLastSaved();
+    S.lastSaved = { kind, time: hhmm(new Date()) };
+    await serverSave(kind, buildPayload(kind, where));
+    showLastSaved();
     if(msgEl.id !== 'lastSaved') setState(msgEl, kind === '최종 제출' ? '최종 제출했어요! 선생님 화면에 전달되었어요. 고친 뒤 다시 제출해도 돼요.' : `💾 ${S.lastSaved.time} 중간 저장했어요. 선생님이 진행 상황을 볼 수 있어요.`, 'ok');
     return true;
   }catch(e){
-    setState(msgEl, APPS_SCRIPT_URL ? '저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.' : '선생님이 아직 서버를 연결하지 않았어요. 적은 내용은 이 기기에 저장되어 있어요.', 'err');
+    setState(msgEl, e.server ? e.message : APPS_SCRIPT_URL ? '저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.' : '선생님이 아직 서버를 연결하지 않았어요. 적은 내용은 이 기기에 저장되어 있어요.', 'err');
     return false;
   }finally{ sending = false; if(btn) btn.disabled = false; $('floatSave').disabled = false; saveDraft(); renderProgress(); }
 }
@@ -979,8 +1012,7 @@ $('floatSave').addEventListener('click', async () => {
 // 최종 제출
 $('submitBtn').addEventListener('click', async () => {
   const msg = $('submitMsg');
-  const st = student();
-  if(!st.stuClass || !st.stuNumber || !st.name){ setState(msg, '맨 위 "우리 팀 정보"에 반·번호·이름을 먼저 적어 주세요.', 'err'); return; }
+  if(!LOGIN){ setState(msg, '먼저 맨 위에서 로그인해 주세요.', 'err'); return; }
   if(!S.kws.some(k => k.w.trim())){ msg.textContent = 'STEP 1에서 관심어를 하나 이상 적어 주세요.'; msg.className = 'msg err'; return; }
   if(S.questions.length < 1){ msg.textContent = 'STEP 2에서 질문을 하나 이상 만들어 주세요.'; msg.className = 'msg err'; return; }
   const pr = progress(), left = ['탐색', '생성', '선정', '탐구', '발표'].filter(k => pr[k] !== 'O');
@@ -990,15 +1022,77 @@ $('submitBtn').addEventListener('click', async () => {
 document.addEventListener('input', () => { clearTimeout(window.__prT); window.__prT = setTimeout(renderProgress, 400); });
 document.addEventListener('click', e => { if(e.target.closest('.rate, #qAdd, #nextAdd, .x, [data-ni]')) setTimeout(renderProgress, 50); });
 
-$('clearBtn').addEventListener('click', () => {
-  if(!confirm('이 기기에 저장된 내용을 모두 지우고 새로 시작할까요? (이미 선생님께 보낸 질문과 제출은 남아 있어요)')) return;
-  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
-  location.reload();
+/* ---------- 로그인 · 불러오기 · 자동 저장 · 로그아웃 ---------- */
+const LOGIN_KEY = 'qf-naro-login';     // 같은 창을 새로고침해도 로그인 유지 (창을 닫으면 사라짐)
+function renderAll(){
+  renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); AI.refresh(); renderProgress();
+  $('lastSaved').textContent = '아직 선생님께 저장하지 않았어요'; $('lastSaved').className = ''; showLastSaved();
+}
+const fmtAt = v => { const d = new Date(v); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${hhmm(d)}`; };
+async function doLogin(cls, num, code, silent){
+  const msg = $('loginMsg');
+  if(!APPS_SCRIPT_URL){ msg.textContent = '선생님이 아직 서버를 연결하지 않았어요.'; msg.className = 'msg err'; return; }
+  if(!/^\d{1,2}$/.test(cls) || !/^\d{1,2}$/.test(num) || !/^\d{4}$/.test(code)){ msg.textContent = '반·번호와 4자리 코드를 확인해 주세요.'; msg.className = 'msg err'; return; }
+  msg.textContent = '불러오는 중…'; msg.className = 'msg'; $('loginBtn').disabled = true;
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'student_login', cls, num, stuCode:code }) });
+    const r = await res.json();
+    if(r.result !== 'success'){ msg.textContent = r.message || '로그인하지 못했어요.'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
+    LOGIN = { cls:String(r.student.cls), num:String(r.student.num), code, name:r.student.name };
+    $('stuClass').value = LOGIN.cls; $('stuNumber').value = LOGIN.num; $('stuName').value = LOGIN.name;
+    try{ sessionStorage.setItem(LOGIN_KEY, JSON.stringify({ cls, num, code })); }catch(e){}
+    // 어떤 내용으로 이어서 할지: 선생님 시트에 저장된 것 vs 이 기기에 남은 것 중 더 최근 것
+    let server = null, local = null, anon = null;
+    try{ server = r.saved && r.saved.state ? JSON.parse(r.saved.state) : null; }catch(e){}
+    const serverAt = r.saved ? Date.parse(r.saved.at) || 0 : 0;
+    try{ local = JSON.parse(localStorage.getItem(draftKey()) || 'null'); }catch(e){}
+    try{ anon = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); }catch(e){}
+    let note = '';
+    if(local && local.savedAt > serverAt + 5000){ applyState(local); dirty = true; note = '이 기기에 남아 있던 최근 내용으로 이어서 해요.'; }
+    else if(server){ applyState(server); note = `${fmtAt(r.saved.at)}에 저장한 내용을 불러왔어요.`; }
+    else if(anon && confirm('이 기기에 로그인 전에 쓰던 내용이 있어요. 그 내용으로 이어서 할까요?')){ applyState(anon); dirty = true; try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} note = '로그인 전에 쓰던 내용을 가져왔어요.'; }
+    else { applyState(null); note = '처음 시작해요. 쓰는 내용은 자동으로 저장돼요.'; }
+    $('meName').textContent = `${LOGIN.cls}반 ${LOGIN.num}번 ${LOGIN.name}`;
+    $('meSaved').textContent = '· ' + note;
+    $('loginBox').hidden = true; $('meBox').hidden = false; $('loginCode').value = ''; msg.textContent = '';
+    document.body.classList.add('in');
+    if(dirty) autoSave();
+  }catch(err){
+    msg.textContent = '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'; msg.className = 'msg err';
+  }finally{ $('loginBtn').disabled = false; }
+}
+$('loginForm').addEventListener('submit', e => { e.preventDefault(); doLogin($('loginCls').value.trim(), $('loginNum').value.trim(), $('loginCode').value.trim()); });
+['loginCls', 'loginNum', 'loginCode'].forEach(id => $(id).addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); }));
+async function autoSave(){
+  if(!LOGIN || !dirty || sending) return;
+  try{ await serverSave('자동 저장'); }catch(e){ $('meSaved').textContent = '· 자동 저장 실패 — 인터넷 연결을 확인해 주세요 (이 기기에는 보관돼요)'; }
+}
+setInterval(autoSave, 60000);
+// 창을 닫거나 다른 탭으로 갈 때 바로 저장
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState !== 'hidden' || !LOGIN || !dirty || !APPS_SCRIPT_URL) return;
+  try{
+    fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', keepalive:true, headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body:JSON.stringify({ action:'student_save', cls:LOGIN.cls, num:LOGIN.num, stuCode:LOGIN.code, kind:'자동 저장', progress:progress(), state:JSON.stringify(snapshot()) }) });
+  }catch(e){}
 });
+async function logout(){
+  if(!LOGIN) return;
+  if(dirty){
+    try{ await serverSave('자동 저장'); }
+    catch(e){ if(!confirm('저장하지 못했어요. 그래도 로그아웃할까요? (마지막 저장 뒤에 쓴 내용은 사라질 수 있어요)')) return; }
+  }
+  try{ localStorage.removeItem(draftKey()); sessionStorage.removeItem(LOGIN_KEY); }catch(e){}
+  location.reload();
+}
+$('logoutBtn').addEventListener('click', logout);
+$('logoutBtn2').addEventListener('click', logout);
 
 /* ---------- 시작 ---------- */
-loadDraft();
-renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); AI.refresh(); renderProgress(); showLastSaved();
+// 로그인 섹션 뒤의 활동은 로그인 전에는 흐리게
+(function(){ let after = false; document.querySelectorAll('main > *').forEach(el => { if(after && !el.classList.contains('lock-tip')) el.classList.add('locked'); if(el.id === 'loginSec') after = true; }); })();
+renderAll();
+try{ const saved = JSON.parse(sessionStorage.getItem(LOGIN_KEY) || 'null'); if(saved) doLogin(saved.cls, saved.num, saved.code, true); }catch(e){}
 </script>
 </body>
 </html>

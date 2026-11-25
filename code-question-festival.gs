@@ -24,12 +24,23 @@
  *    - 액세스 권한이 있는 사용자: 모든 사용자
  * 6. 발급된 웹 앱 URL(…/exec)을 두 HTML 파일의  const APPS_SCRIPT_URL = "";  에 넣는다.
  *
+ * ▣ 학생 로그인(고유코드)
+ *   교사 대시보드의 [👥 학생 명단·코드]에 명단을 붙여넣고 저장하면 "학생명단" 탭에
+ *   학생마다 겹치지 않는 4자리 코드가 만들어진다. 학생은 워크시트에서 반·번호·코드로
+ *   로그인해서, 저장해 둔 내용을 다른 날·다른 기기에서도 이어서 할 수 있다.
+ *   학생이 쓰던 내용은 "질문탐구_저장" 탭에 학생마다 한 줄로 저장된다(자동 저장 포함).
+ *   ※ 학생 이름과 코드는 이 시트에만 저장되고 웹페이지 파일에는 들어가지 않는다.
+ *
  * ▣ 코드를 고쳤을 때: [배포] > [배포 관리] > 연필 > 버전: "새 버전" > [배포]  (URL은 그대로)
  */
 
 const INQUIRY_TEACHER_CODE = "여기에_교사코드";   // 교사 대시보드 접속 코드
 const DEFAULT_UNIT = "질문탐구한마당 — 『나는 나로 살기로 했다』(김수현)";
 const ALLOWED_FORMS = ["질문탐구_질문", "질문탐구_워크시트"];
+const ROSTER_SHEET = "학생명단";
+const SAVE_SHEET = "질문탐구_저장";
+const ROSTER_HEAD = ["반", "번호", "이름", "코드", "마지막로그인"];
+const SAVE_HEAD = ["반", "번호", "이름", "저장시각", "저장종류", "진행-탐색", "진행-생성", "진행-선정", "진행-탐구", "진행-발표", "메타응답수", "상태"];
 
 /* ==========================================================
  * 기록 저장: payload 의 키를 그대로 열 제목으로 쓴다
@@ -282,7 +293,8 @@ function logAi_(data, kind, topic, input, output) {
 /* ==========================================================
  * 교사 대시보드: { action:"inquiry_dashboard", code } (POST)
  * ========================================================== */
-function inquiryDashboard_(data) {
+// 교사 코드 확인: 맞으면 null, 틀리면 오류 응답을 돌려준다
+function teacherCheck_(data) {
   const cache = CacheService.getScriptCache();
   const fails = Number(cache.get("inq_fail") || 0);
   if (!/^\S{4,}$/.test(INQUIRY_TEACHER_CODE) || INQUIRY_TEACHER_CODE.indexOf("여기에") === 0) {
@@ -294,24 +306,145 @@ function inquiryDashboard_(data) {
     return json_({ result: "error", message: "교사 코드가 맞지 않아요." });
   }
   cache.remove("inq_fail");
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const read = function (name, filter, limit) {
-    const sh = ss.getSheetByName(name);
-    if (!sh || sh.getLastRow() < 2) return [];
-    const v = sh.getDataRange().getValues(), head = v[0].map(String), out = [];
-    for (let i = 1; i < v.length; i++) {
-      const o = {};
-      head.forEach(function (h, j) { const c = v[i][j]; o[h] = c instanceof Date ? c.toISOString() : c; });
-      if (!filter || filter(o)) out.push(o);
-    }
-    return out.slice(-(limit || 1000));
-  };
+  return null;
+}
+
+function readRows_(name, filter, limit) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const v = sh.getDataRange().getValues(), head = v[0].map(String), out = [];
+  for (let i = 1; i < v.length; i++) {
+    const o = {};
+    head.forEach(function (h, j) { const c = v[i][j]; o[h] = c instanceof Date ? c.toISOString() : c; });
+    if (!filter || filter(o)) out.push(o);
+  }
+  return out.slice(-(limit || 1000));
+}
+
+function inquiryDashboard_(data) {
+  const bad = teacherCheck_(data);
+  if (bad) return bad;
   return json_({
     result: "success",
-    questions: read("질문탐구_질문"),
-    worksheets: read("질문탐구_워크시트"),
-    ai: read(AI_LOG_SHEET, function (o) { return true; }, 1500)
+    questions: readRows_("질문탐구_질문"),
+    worksheets: readRows_("질문탐구_워크시트"),
+    ai: readRows_(AI_LOG_SHEET, null, 1500),
+    roster: readRows_(ROSTER_SHEET),
+    saves: readRows_(SAVE_SHEET).map(function (o) { delete o["상태"]; return o; })   // 진행 요약만 (긴 상태 글은 빼고)
   });
+}
+
+/* ==========================================================
+ * 학생 명단 · 고유코드 (교사)
+ * ========================================================== */
+function sheetWithHead_(name, head) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(name);
+  if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }
+  return sh;
+}
+function rosterAll_() {
+  const sh = sheetWithHead_(ROSTER_SHEET, ROSTER_HEAD);
+  const n = sh.getLastRow() - 1;
+  if (n < 1) return [];
+  return sh.getRange(2, 1, n, ROSTER_HEAD.length).getValues().map(function (r, i) {
+    return { row: i + 2, cls: String(r[0]).trim(), num: String(r[1]).trim(), name: String(r[2]).trim(), code: String(r[3]).trim() };
+  }).filter(function (x) { return x.name; });
+}
+function newCode_(taken) {
+  for (let i = 0; i < 5000; i++) {
+    const c = String(1000 + Math.floor(Math.random() * 9000));
+    if (!taken[c]) { taken[c] = true; return c; }
+  }
+  throw new Error("코드를 만들지 못했어요.");
+}
+// { action:"roster_save", code, rows:[{cls,num,name}] } — 같은 반·번호는 이름만 고치고 코드는 그대로 둔다
+function rosterSave_(data) {
+  const bad = teacherCheck_(data);
+  if (bad) return bad;
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const sh = sheetWithHead_(ROSTER_SHEET, ROSTER_HEAD), list = rosterAll_(), taken = {}, byKey = {};
+    list.forEach(function (x) { taken[x.code] = true; byKey[x.cls + "-" + x.num] = x; });
+    (Array.isArray(data.rows) ? data.rows : []).slice(0, 200).forEach(function (r) {
+      const cls = String(r.cls || "").trim(), num = String(r.num || "").trim(), name = String(r.name || "").trim().slice(0, 20);
+      if (!cls || !num || !name) return;
+      const old = byKey[cls + "-" + num];
+      if (old) { if (old.name !== name) sh.getRange(old.row, 3).setValue(name); }
+      else { sh.appendRow([cls, num, name, newCode_(taken), ""]); byKey[cls + "-" + num] = { cls: cls, num: num, name: name }; }
+    });
+    if (data.newCodeFor) {   // 코드 다시 만들기 { newCodeFor: "1-3" }
+      const x = rosterAll_().filter(function (y) { return y.cls + "-" + y.num === String(data.newCodeFor); })[0];
+      if (x) sh.getRange(x.row, 4).setValue(newCode_(taken));
+    }
+    if (data.remove) {       // 명단에서 빼기 { remove: "1-3" }
+      const y = rosterAll_().filter(function (z) { return z.cls + "-" + z.num === String(data.remove); })[0];
+      if (y) sh.deleteRow(y.row);
+    }
+  } finally { lock.releaseLock(); }
+  return json_({ result: "success", roster: readRows_(ROSTER_SHEET) });
+}
+
+/* ==========================================================
+ * 학생 로그인 · 저장 · 불러오기
+ * ========================================================== */
+// 코드 맞히기 막기: 같은 반·번호 5번 → 5분, 전체 10분에 30번 → 10분 잠금 (서버에서 센다)
+function studentCheck_(data) {
+  const cache = CacheService.getScriptCache();
+  const cls = String(data.cls || "").trim(), num = String(data.num || "").trim(), code = String(data.stuCode || "").trim();
+  const kOne = "lf_" + cls + "-" + num, nOne = Number(cache.get(kOne) || 0), nAll = Number(cache.get("lf_all") || 0);
+  if (nAll >= 30) return { error: "틀린 코드가 너무 많아서 10분 동안 로그인을 막았어요. 잠시 후 다시 해 주세요." };
+  if (nOne >= 5) return { error: "이 번호는 코드를 여러 번 틀려서 5분 동안 로그인할 수 없어요." };
+  const me = rosterAll_().filter(function (x) { return x.cls === cls && x.num === num && x.code === code; })[0];
+  if (!me) {
+    cache.put(kOne, String(nOne + 1), 300); cache.put("lf_all", String(nAll + 1), 600);
+    return { error: "반·번호 또는 코드가 맞지 않아요." };
+  }
+  cache.remove(kOne);
+  return { me: me };
+}
+function saveRowOf_(me) {
+  const sh = sheetWithHead_(SAVE_SHEET, SAVE_HEAD), n = sh.getLastRow() - 1;
+  if (n < 1) return { sh: sh, row: 0, values: null };
+  const v = sh.getRange(2, 1, n, SAVE_HEAD.length).getValues();
+  for (let i = 0; i < v.length; i++) if (String(v[i][0]) === me.cls && String(v[i][1]) === me.num) return { sh: sh, row: i + 2, values: v[i] };
+  return { sh: sh, row: 0, values: null };
+}
+// { action:"student_login", cls, num, stuCode }
+function studentLogin_(data) {
+  const c = studentCheck_(data);
+  if (c.error) return json_({ result: "error", message: c.error });
+  const me = c.me;
+  try { SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ROSTER_SHEET).getRange(me.row, 5).setValue(new Date()); } catch (e) {}
+  const s = saveRowOf_(me);
+  let saved = null;
+  if (s.values) {
+    const at = s.values[3];
+    saved = { at: at instanceof Date ? at.toISOString() : String(at), kind: String(s.values[4]), state: String(s.values[11] || "") };
+  }
+  return json_({ result: "success", student: { cls: me.cls, num: me.num, name: me.name }, saved: saved });
+}
+// { action:"student_save", cls, num, stuCode, kind, progress:{...}, state:"JSON", row:{...워크시트 한 줄(중간·최종일 때)} }
+function studentSave_(data) {
+  const c = studentCheck_(data);
+  if (c.error) return json_({ result: "error", message: c.error });
+  const me = c.me, state = String(data.state || "");
+  if (state.length > 45000) return json_({ result: "error", message: "저장할 내용이 너무 길어요. 긴 글을 조금 줄여 주세요." });
+  const pr = data.progress || {}, now = new Date(), kind = String(data.kind || "자동 저장").slice(0, 20);
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const s = saveRowOf_(me);
+    const line = [me.cls, me.num, me.name, now, kind, pr["탐색"] || "", pr["생성"] || "", pr["선정"] || "", pr["탐구"] || "", pr["발표"] || "", pr["메타"] || 0, state];
+    if (s.row) s.sh.getRange(s.row, 1, 1, SAVE_HEAD.length).setValues([line]);
+    else s.sh.appendRow(line);
+    if (data.row && typeof data.row === "object") {   // 중간 저장·최종 제출은 워크시트 기록에도 한 줄 남긴다
+      const row = data.row;
+      row.stuClass = me.cls; row.stuNumber = me.num; row.name = me.name;   // 이름은 명단 기준
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      appendDynamicRow_(ss.getSheetByName("질문탐구_워크시트") || ss.insertSheet("질문탐구_워크시트"), row);
+    }
+  } finally { lock.releaseLock(); }
+  return json_({ result: "success", savedAt: now.toISOString() });
 }
 
 function doPost(e) {
@@ -319,6 +452,9 @@ function doPost(e) {
     const data = JSON.parse(e.postData.contents);
     if (data.action === "ai") return handleAi_(data);
     if (data.action === "inquiry_dashboard") return inquiryDashboard_(data);
+    if (data.action === "roster_save") return rosterSave_(data);
+    if (data.action === "student_login") return studentLogin_(data);
+    if (data.action === "student_save") return studentSave_(data);
     // 학생 기록: 정해진 탭에만 저장한다
     if (ALLOWED_FORMS.indexOf(data.form) === -1) return json_({ result: "error", message: "알 수 없는 기록 종류예요." });
     const ss = SpreadsheetApp.getActiveSpreadsheet();
