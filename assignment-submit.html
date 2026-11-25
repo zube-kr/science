@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📮 1학년 과제제출방</title>
+<title>📮 과제제출방</title>
 <style>
   :root{
     --bg:#F5F3EE; --card:#FFFFFF; --ink:#232A35; --ink-soft:#626A78; --line:#DCD6C7;
@@ -35,6 +35,7 @@
   .msg{font-size:14px;margin-top:8px;min-height:1px}
   .msg.err{color:var(--red)} .msg.ok{color:var(--green)}
   .who{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .who.many{grid-template-columns:repeat(4,1fr)}
   .who button,.task{background:#FAF8F3;border:1.5px solid var(--line);color:var(--ink);padding:12px 8px;text-align:center}
   .who button b{display:block;font-size:17px}
   .who button span{font-size:12px;color:var(--ink-soft)}
@@ -87,7 +88,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><span class="mail">📮</span><h1>1학년 과제제출방</h1></header>
+  <header><span class="mail">📮</span><h1 id="room-title">1학년 과제제출방</h1></header>
   <p class="sub">사진·문서 파일을 선생님께 바로 제출해요. 올린 파일은 선생님만 볼 수 있어요.</p>
 
   <div class="notice hidden" id="not-ready">🛠️ 과제제출방을 준비하고 있어요. 선생님이 설정을 마치면 바로 쓸 수 있어요.</div>
@@ -105,7 +106,7 @@
 
   <!-- ② 학생 선택 -->
   <section class="card locked" id="card-who">
-    <div class="step"><span class="n">2</span>나는 누구인가요? <small style="font-weight:500;color:var(--ink-soft)">(1학년 1반)</small></div>
+    <div class="step"><span class="n">2</span>나는 누구인가요? <small id="who-class" style="font-weight:500;color:var(--ink-soft)">(1학년 1반)</small></div>
     <div class="who" id="who"></div>
   </section>
 
@@ -159,8 +160,20 @@
 /* 웹 앱 주소: code-submit.gs 를 배포한 뒤 발급된 …/exec 주소를 넣는다 */
 const SUBMIT_API = "https://script.google.com/macros/s/AKfycbybvxe19sp0KMoIi2qKmE-q-RTG8MiBrF46XF6qP-hQysdk9dXs8HVUyCiiwB2tFiZg/exec";
 
-const GRADE = "1", CLS = "1";
-const ROSTER = [ { num: "1", name: "유민석" }, { num: "2", name: "이예인" }, { num: "3", name: "이원근" } ];
+/* 학년별 명단 — 주소 뒤에 ?grade=2 처럼 붙여 학년을 고른다(없으면 1학년).
+   code-submit.gs 의 ROSTER 와 이름·번호가 같아야 제출된다. */
+const ROSTERS = {
+  "1": ["유민석", "이예인", "이원근"],
+  "2": ["김민지", "김수현", "김진영", "박제민", "손현정", "이재경", "전아라"],
+  "3": ["김서빈", "김서현", "김상환", "이시우", "신윤호", "이준", "이정호", "방시현"]
+};
+const GRADE = (() => { const g = new URLSearchParams(location.search).get("grade"); return ROSTERS[g] ? g : "1"; })();
+const CLS = "1";
+const ROSTER = ROSTERS[GRADE].map((name, i) => ({ num: String(i + 1), name }));
+document.title = `📮 ${GRADE}학년 과제제출방`;
+document.getElementById("room-title").textContent = `${GRADE}학년 과제제출방`;
+document.getElementById("who-class").textContent = `(${GRADE}학년 ${CLS}반)`;
+if (ROSTER.length > 6) document.getElementById("who").classList.add("many");
 const ALLOWED = ["jpg","jpeg","png","pdf","doc","docx","hwp","hwpx","ino","py","txt","html","htm"];
 const CODE_EXT = ["ino","py","txt","html","htm"];
 const MAX_BYTES = 10 * 1024 * 1024, MAX_FILES = 5;
@@ -170,7 +183,7 @@ const MIME = { jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", pdf:"applic
   hwp:"application/x-hwp", hwpx:"application/haansofthwpx",
   // 코드 파일은 모두 일반 텍스트로 저장(드라이브에서 실행되지 않고 내용만 보이게)
   ino:"text/plain", py:"text/plain", txt:"text/plain", html:"text/plain", htm:"text/plain" };
-const LS_CODE = "science-submit-code", LS_WHO = "science-submit-who";
+const LS_CODE = "science-submit-code", LS_WHO = "science-submit-who" + (GRADE === "1" ? "" : "-g" + GRADE);
 
 const $ = id => document.getElementById(id);
 const st = { code: "", who: null, task: null, tasks: [], files: [], busy: false };

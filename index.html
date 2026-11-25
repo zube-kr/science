@@ -1396,6 +1396,7 @@ body.frame-mode .frameview-header{
       <li onclick="openSubject('dongmul-energy')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/><path d="M3.5 12h4l1.5-2.5 2 5 1.5-2.5h2"/></svg><span class="unum">6</span>동물과 에너지</li>
       <li onclick="openSubject('jeongi-jagi')"><svg class="ico" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg><span class="unum">7</span>전기와 자기</li>
       <li onclick="openSubject('byeol-uju')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg><span class="unum">8</span>별과 우주</li>
+      <li onclick="openQuickLink('j2-submit', {title:'📮 2학년 과제제출방', url: SUBMIT_ROOM_URL + '?grade=2', ready:true})"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16v12H4z"/><path d="m4 7 8 6 8-6"/><path d="M12 3v6"/></svg>2학년 과제제출방</li>
       <li onclick="openSubject('j2-student-home')"><svg class="ico" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>2학년 학생홈페이지</li>
     </ul>
   </details>
@@ -1410,6 +1411,7 @@ body.frame-mode .frameview-header{
       <li onclick="openSubject('saengsik-yujeon')"><svg class="ico" viewBox="0 0 24 24"><path d="M7 3c0 6 10 6 10 12s-10 6-10 6"/><path d="M17 3c0 6-10 6-10 12s10 6 10 6"/><path d="M8.5 7h7M8.5 17h7"/></svg><span class="unum">5</span>생식과 유전</li>
       <li onclick="openSubject('energy-jeonhwan')"><svg class="ico" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.3 4.9"/><path d="M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/></svg><span class="unum">6</span>에너지 전환</li>
       <li onclick="openSubject('uju-tamsa')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg><span class="unum">7</span>별과 우주</li>
+      <li onclick="openQuickLink('j3-submit', {title:'📮 3학년 과제제출방', url: SUBMIT_ROOM_URL + '?grade=3', ready:true})"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16v12H4z"/><path d="m4 7 8 6 8-6"/><path d="M12 3v6"/></svg>3학년 과제제출방</li>
     </ul>
   </details>
 
@@ -2632,8 +2634,30 @@ const topicsData = {
     posts: [
       {
         title: "📮 1학년 과제제출방",
-        desc: "사진(jpg·png)·pdf·doc·hwp 파일을 선생님께 바로 제출하는 곳입니다. 제출코드를 입력하고 이름과 과제를 고른 뒤 파일을 올려 주세요. (파일 1개 최대 10MB)",
+        desc: "사진(jpg·png)·pdf·doc·hwp, 코드(ino·py·txt·html) 파일을 선생님께 바로 제출하는 곳입니다. 제출코드를 입력하고 이름과 과제를 고른 뒤 파일을 올려 주세요. (파일 1개 최대 10MB)",
         url: SUBMIT_ROOM_URL,
+        ready: true
+      }
+    ]
+  },
+  "j2-submit": {
+    title: "📮 2학년 과제제출방",
+    posts: [
+      {
+        title: "📮 2학년 과제제출방",
+        desc: "사진(jpg·png)·pdf·doc·hwp, 코드(ino·py·txt·html) 파일을 선생님께 바로 제출하는 곳입니다. 제출코드를 입력하고 이름과 과제를 고른 뒤 파일을 올려 주세요. (파일 1개 최대 10MB)",
+        url: SUBMIT_ROOM_URL + "?grade=2",
+        ready: true
+      }
+    ]
+  },
+  "j3-submit": {
+    title: "📮 3학년 과제제출방",
+    posts: [
+      {
+        title: "📮 3학년 과제제출방",
+        desc: "사진(jpg·png)·pdf·doc·hwp, 코드(ino·py·txt·html) 파일을 선생님께 바로 제출하는 곳입니다. 제출코드를 입력하고 이름과 과제를 고른 뒤 파일을 올려 주세요. (파일 1개 최대 10MB)",
+        url: SUBMIT_ROOM_URL + "?grade=3",
         ready: true
       }
     ]
