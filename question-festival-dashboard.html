@@ -69,6 +69,23 @@
   .ws .grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .ws .box{ background:#F7F5EE; border-radius:10px; padding:9px 11px; font-size:13px; white-space:pre-wrap; }
   .ws .box b{ display:block; font-size:12px; color:var(--violet); margin-bottom:2px; white-space:normal; }
+  .ws .box.wide{ grid-column:1 / -1; }
+  .chn{ margin-top:6px; white-space:pre-wrap; } .chn i{ display:block; font-style:normal; font-weight:800; font-size:12px; color:#2E5A3A; }
+  .ws .miss{ margin:-2px 0 8px; font-size:12.5px; color:#B0522F; }
+  .item-bar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .item-bar select{ flex:1; min-width:240px; max-width:100%; font:inherit; font-size:14px; padding:8px 10px; border:1.5px solid var(--line); border-radius:10px; background:#fff; }
+  #itemHead{ background:#F3F0FF; border-radius:12px; padding:10px 13px; font-size:14px; margin-bottom:10px; }
+  #itemHead:empty{ display:none; }
+  #itemHead ol{ margin:6px 0 0; padding-left:20px; font-size:13px; }
+  #itemHead .cnt{ font-size:12.5px; color:var(--soft); margin-top:4px; }
+  #itemView{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; }
+  #itemView > .scroll, #itemView > .empty{ grid-column:1 / -1; }
+  .ans{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#FFFEFB; font-size:13.5px; }
+  .ans .who{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:4px; }
+  .ans .who .ago{ margin-left:auto; font-size:11.5px; color:var(--soft); }
+  .ans .txt{ white-space:pre-wrap; line-height:1.6; }
+  .ans.blank{ opacity:.55; } .ans .none{ color:var(--soft); font-size:12.5px; }
+  body.project .ans .who .nm{ filter:blur(5px); }
   table.meta{ width:100%; border-collapse:collapse; font-size:13px; }
   table.meta th{ background:#F3F0E6; padding:8px; text-align:left; position:sticky; top:0; }
   table.meta td{ border-bottom:1px solid var(--line); padding:8px; vertical-align:top; white-space:pre-wrap; }
@@ -157,7 +174,7 @@
     <div class="card" data-pane="prog" hidden>
       <h3>📈 진행 현황 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생이 💾 중간 저장 · ✅ 최종 제출을 누를 때마다 갱신돼요 (✓ 완료 · … 하는 중 · ○ 아직)</span></h3>
       <div class="scroll"><table class="prog" id="progTable"></table></div>
-      <p style="font-size:12.5px;color:var(--soft);margin:10px 0 0">💡 마지막 저장이 15분 넘게 지난 학생은 옅은 주황색으로 표시돼요. 학생 이름을 누르면 '워크시트' 탭에서 그 학생의 내용을 볼 수 있어요.</p>
+      <p style="font-size:12.5px;color:var(--soft);margin:10px 0 0">💡 마지막 저장이 15분 넘게 지난 학생은 옅은 주황색으로 표시돼요. 학생 이름을 누르면 '워크시트' 탭에서 그 학생이 쓴 글 전체를 볼 수 있어요.</p>
     </div>
     <div class="card" data-pane="q">
       <h3>❓ 학생들이 만든 질문 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생이 [질문 보내기]를 누를 때마다 모여요 (최신순)</span></h3>
@@ -176,12 +193,14 @@
       <div class="feed" id="aiFeed"></div>
     </div>
     <div class="card" data-pane="ws" hidden>
-      <h3>📝 제출된 워크시트 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생별 가장 최근 제출</span></h3>
+      <h3>📝 학생별 워크시트 <span style="font-size:12px;color:var(--soft);font-weight:500">— 학생이 쓴 모든 글 · 1분마다 자동 저장된 내용과 중간·최종 저장 중 가장 최근 것</span></h3>
       <div id="wsList"></div>
     </div>
     <div class="card" data-pane="meta" hidden>
-      <h3>🧠 메타질문 응답</h3>
-      <div class="scroll"><table class="meta" id="metaTable"></table></div>
+      <h3>✍️ 항목별 모아 보기 <span style="font-size:12px;color:var(--soft);font-weight:500">— 질문 하나를 골라 모든 학생의 글을 나란히 봐요 (자동 저장된 글까지 포함)</span></h3>
+      <div class="item-bar"><select id="itemSel" aria-label="볼 항목"></select><label style="font-size:13px"><input type="checkbox" id="itemHide"> 안 쓴 학생 숨기기</label></div>
+      <div id="itemHead"></div>
+      <div id="itemView"></div>
     </div>
   </div>
 
@@ -191,6 +210,7 @@
 </main>
 
 <div id="printArea"></div>
+<script src="question-festival-spring-data.js"></script>
 <script>
 // code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfB37iEFnaX7xN8iwzPqxsbD6Tz68Ij8DUUr62aB6LJrzyY32Y-JWpi53bMsiGhoEF/exec";
@@ -263,16 +283,142 @@ function latestWorksheets(){
   return [...m.values()];
 }
 
+/* ---------- 학생이 쓴 글 전체 (자동 저장된 상태 또는 중간·최종 저장 기록) ---------- */
+const RATE = { 'mb-rate':['거의 안 해 봤어요', '조금 해 봤어요', '자주 생각해요', '내 생각을 설명할 수 있어요'], 'ma-rate':['거의 몰라요', '조금 알아요', '대부분 알아요', '설명할 수 있어요'] };
+const META_Q = {
+  'mb-rate':     { naro:"[학습 전] '나답게 산다는 것'에 대해 얼마나 생각해 보았나?", spring:'[학습 전] 생활 속 화학 물질(농약, 살충제, 모기약, 세제…)과 자연의 관계에 대해 얼마나 생각해 보았나?' },
+  'mb-prior':    { naro:"[학습 전] 책을 읽기 전, 내가 생각하는 '나로 산다'는 것은?", spring:'[학습 전] 책을 읽기 전, 농약이나 살충제는 꼭 필요한 것일까, 위험한 것일까?' },
+  'md-question': "[학습 중] 검색하면 바로 답이 나오는 내 질문은? 우리 삶과 이어지는 '생각이 필요한 질문'으로 바꾸면?",
+  'md-select':   '[학습 중] 질문 2개를 고를 때 나는 어떤 기준으로 판단했나? 받아들인 친구 의견은?',
+  'md-evidence': '[학습 중] 우리 팀의 잠정적인 답을 뒷받침하는 근거는 충분한가? AI·인터넷의 답을 어떻게 확인했나?',
+  'ma-rate':     '[학습 후] 우리 팀의 탐구 질문에 대해 얼마나 설명할 수 있나?',
+  'ma-change':   { naro:"[학습 후] 처음의 '나로 산다는 것'에 대한 생각과 지금 생각은 어떻게 달라졌나?", spring:"[학습 후] 처음의 '농약·살충제와 자연'에 대한 생각과 지금 생각은 어떻게 달라졌나?" },
+  'ma-strategy': '[학습 후] 다음 탐구에서 바꾸고 싶은 나의 질문 방법·탐구 방법은?',
+  'me-career':   '[다음 질문] 이번 질문탐구는 나의 관심 분야나 진로와 어떻게 이어질까?'
+};
+const curBook = () => $('fBook').value === NARO ? 'naro' : 'spring';
+const metaQ = k => { const q = META_Q[k]; return typeof q === 'string' ? q : q[curBook()]; };
+const rateText = (k, v) => { v = String(v || '').trim(); return RATE[k] && RATE[k][+v - 1] ? `${v}. ${RATE[k][+v - 1]}` : v; };
+const plain = h => String(h || '').replace(/<[^>]+>/g, '');
+// 고를 수 있는 항목 (그룹, 키, 이름)
+function writingItems(){
+  const g = [];
+  g.push(['🧠 메타질문', [['metaAll', '메타질문 전체 (표로 한눈에)'], ...Object.keys(META_Q).map(k => ['meta:' + k, metaQ(k)]), ['revisit', '[다음 질문] 처음 만든 질문 다시 보기 — 해결된 질문과 남은 질문'], ['next', '[다음 질문] 탐구하면서 새로 생긴 질문']]]);
+  g.push(['📖 책 읽기 · 지문', [['where', '읽은 부분'], ['quote', '인상 깊은 문장'], ['summary', '지문의 핵심 내용을 내 말로 정리하기'], ['thought', '읽고 난 내 생각']]]);
+  if(curBook() === 'spring') g.push(['🧑‍🏫 튜터의 질문에 대한 내 생각 (장별)', [['chAll', '모든 장 메모 모아 보기'], ...CHAPTERS.map(c => ['ch:' + c.n, `${c.n}장 · ${c.ko}`]), ['read', '다 읽었다고 표시한 장']]]);
+  g.push(['🔍 탐색 · 생성', [['kws', '관심어와 관심을 갖게 된 이유'], ['questions', '만든 질문'], ['genProcess', '질문을 만든 과정이나 이유']]]);
+  g.push(['🎯 선정 · 탐구', [['picks', '선정하고 다듬은 질문'], ['inqs', '질문별 탐구 정리'], ['aiLog', 'AI 활용 기록']]]);
+  g.push(['🎤 발표', [['expqa', '예상 질문과 1분 즉답'], ['toOthers', "다른 팀에게 할 '좋은 질문'의 조건"], ['checks', '체크리스트 스스로 점검']]]);
+  return g;
+}
+function fromState(st){
+  const S = st.S || {}, f = st.f || {}, m = S.meta || {}, o = {};
+  Object.assign(o, { team:f.team, mates:f.mates, where:f.passageWhere, quote:f.passageQuote, summary:f.passageSummary, thought:f.passageThought, genProcess:f.genProcess, toOthers:f.toOthers });
+  Object.keys(META_Q).forEach(k => { o['meta:' + k] = RATE[k] ? rateText(k, m[k]) : (m[k] || ''); });
+  o.kws = (S.kws || []).filter(k => String(k.w || '').trim()).map(k => `${k.w.trim()}: ${String(k.why || '').trim()}`).join('\n');
+  o.questions = (S.questions || []).map((q, i) => `${i + 1}. ${q.text}${q.type ? ` (${q.type})` : ''}`).join('\n');
+  o.qCount = (S.questions || []).length;
+  o.picks = (S.picks || []).map((p, i) => (p.from || p.to) ? `질문 ${i + 1}: ${p.from || ''} → ${p.to || ''}\n이유: ${p.reason || ''}\n방법: ${(p.methods || []).join(', ') || '-'} (${p.minutes || '-'}분)` : '').filter(Boolean).join('\n\n');
+  o.inqs = (S.inqs || []).map((q, i) => { const t = [q.process && '과정: ' + q.process, q.answer && '잠정적인 답: ' + q.answer, q.next && '이어진 질문: ' + q.next].filter(Boolean); return t.length ? `탐구 ${i + 1}\n` + t.join('\n') : ''; }).filter(Boolean).join('\n\n');
+  o.aiLog = (S.aiLog || []).filter(r => String(r.prompt || '').trim() || String(r.use || '').trim()).map((r, i) => `${i + 1}) 입력: ${r.prompt} | 활용: ${r.use} | 수정·보완: ${r.fix}`).join('\n');
+  o.aiUsed = S.aiUsed || 0;
+  o.expqa = [1, 2].map(n => f['expQ' + n] ? `Q${n}. ${f['expQ' + n]} → ${f['expA' + n] || ''}` : '').filter(Boolean).join('\n');
+  o.revisit = (S.questions || []).map(q => S.revisit && S.revisit[q.id] ? `${q.text} → ${S.revisit[q.id]}` : '').filter(Boolean).join('\n');
+  o.next = (S.next || []).join('\n');
+  Object.entries(S.chNotes || {}).forEach(([n, t]) => { o['ch:' + n] = t; });
+  o.read = Object.keys(S.read || {}).filter(k => S.read[k]).sort((a, b) => a - b).map(n => n + '장').join(', ');
+  o.checks = Object.keys(S.checks || {}).length ? Array.from({ length:10 }, (_, i) => `${i + 1}.${(S.checks || {})['c' + (i + 1)] || '-'}`).join(' ') : '';
+  return o;
+}
+function fromRow(r){
+  const g = k => r[k] == null ? '' : String(r[k]);
+  const o = { team:g('팀'), mates:g('팀원'), where:g('읽은부분'), quote:g('인상깊은문장'), summary:g('지문요약'), thought:g('내생각'), genProcess:g('질문생성과정'), toOthers:g('좋은질문조건'),
+    kws:g('관심어-이유'), questions:g('생성질문'), qCount:+r['생성질문수'] || 0, aiLog:g('AI활용기록'), aiUsed:+r['AI질문수'] || 0, expqa:g('예상질문-즉답'),
+    revisit:g('메타-질문다시보기').split('\n').filter(l => l && !/→ -$/.test(l)).join('\n'), next:g('메타-다음질문').split(' / ').filter(Boolean).join('\n'), checks:g('체크리스트'),
+    read:g('읽은장') ? g('읽은장').split(/,\s*/).filter(Boolean).map(n => n + '장').join(', ') : '' };
+  o.picks = [1, 2].map(i => g(`선정${i}-처음`) || g(`선정${i}-다듬은질문`) ? `질문 ${i}: ${g(`선정${i}-처음`)} → ${g(`선정${i}-다듬은질문`)}\n이유: ${g(`선정${i}-이유`)}\n방법: ${g(`선정${i}-방법`) || '-'} (${g(`선정${i}-시간(분)`) || '-'}분)` : '').filter(Boolean).join('\n\n');
+  o.inqs = [1, 2].map(i => { const t = [g(`탐구${i}-과정`) && '과정: ' + g(`탐구${i}-과정`), g(`탐구${i}-잠정답`) && '잠정적인 답: ' + g(`탐구${i}-잠정답`), g(`탐구${i}-이어진질문`) && '이어진 질문: ' + g(`탐구${i}-이어진질문`)].filter(Boolean); return t.length ? `탐구 ${i}\n` + t.join('\n') : ''; }).filter(Boolean).join('\n\n');
+  const M = { 'mb-rate':'메타-학습전-생각정도', 'md-question':'메타-생성점검', 'md-select':'메타-선정점검', 'md-evidence':'메타-근거점검', 'ma-rate':'메타-학습후-설명정도', 'ma-change':'메타-생각변화', 'ma-strategy':'메타-전략수정', 'me-career':'메타-진로연결' };
+  Object.entries(M).forEach(([k, col]) => { o['meta:' + k] = RATE[k] ? rateText(k, r[col]) : g(col); });
+  o['meta:mb-prior'] = g('메타-학습전-나로산다는것') || g('메타-학습전-생각');
+  // "3장: 글…" 줄로 이어 붙인 장별 메모를 다시 나눈다
+  let cur = null;
+  g('튜터질문-내생각').split('\n').forEach(l => { const m = l.match(/^(\d{1,2})장: ?(.*)$/); if(m){ cur = 'ch:' + m[1]; o[cur] = m[2]; } else if(cur) o[cur] += '\n' + l; });
+  return o;
+}
+// 학생마다 가장 최근 글: 자동 저장(상태)과 중간·최종 저장 기록 중 더 최근 것
+function studentDocs(){
+  const m = new Map();
+  latestWorksheets().forEach(r => m.set(sid(r), { r, at:timeOf(r), src:'ws', doc:fromRow(r), ws:r }));
+  BK(D.saves).forEach(r => {
+    let st = null; try{ st = r['상태'] ? JSON.parse(r['상태']) : null; }catch(e){}
+    if(!st || !st.S) return;
+    const k = sid(r), p = m.get(k);
+    if(!p || new Date(timeOf(r)) >= new Date(p.at)) m.set(k, { r, at:timeOf(r), src:'save', doc:fromState(st), ws:p && p.ws, kind:r['저장종류'] });
+  });
+  return [...m.values()].filter(x => passes(x.r, Object.values(x.doc).join(' '))).sort((a, b) => (a.r['반'] - b.r['반']) || (a.r['번호'] - b.r['번호']));
+}
+const srcChip = x => `<span class="chip" title="학생이 쓴 글 가운데 가장 최근 것을 보여 줘요">${x.src === 'save' ? '💾 ' + esc(x.kind || '자동 저장') : '📝 워크시트 기록'} ${esc(fmtT(x.at))} 기준</span>`;
+const chTitle = n => { const c = (typeof CHAPTERS !== 'undefined' ? CHAPTERS : []).find(c => String(c.n) === String(n)); return c ? `${c.n}장 · ${c.ko}` : `${n}장`; };
+function renderWsCards(docs){
+  const box = (t, v) => String(v || '').trim() ? `<div class="box"><b>${t}</b>${esc(v)}</div>` : '';
+  const empty = (t, v) => String(v || '').trim() ? '' : t;
+  $('wsList').innerHTML = docs.length ? docs.map(x => { const d = x.doc;
+    const chs = Object.keys(d).filter(k => /^ch:\d+$/.test(k) && String(d[k]).trim()).sort((a, b) => a.slice(3) - b.slice(3));
+    const missing = [empty('메타질문', Object.keys(META_Q).map(k => d['meta:' + k]).join('')), empty('지문 정리', d.summary + d.thought), empty('관심어', d.kws), empty('질문', d.questions)].filter(Boolean);
+    return `<div class="ws" id="ws-${esc(sid(x.r))}"><h4>${whoText(x.r)}${x.ws ? kindChip(x.ws) : ''}${d.team ? `<span class="chip">${esc(d.team)}</span>` : ''}<span class="chip">질문 ${esc(d.qCount || 0)}개 · AI ${esc(d.aiUsed || 0)}회</span>${srcChip(x)}</h4>
+      ${missing.length ? `<p class="miss">아직 안 쓴 것: ${missing.join(', ')}</p>` : ''}
+      <div class="grid">
+        ${Object.keys(META_Q).map(k => box('🧠 ' + esc(metaQ(k)), d['meta:' + k])).join('')}
+        ${box('🧠 [다음 질문] 처음 만든 질문 다시 보기', d.revisit)}${box('🧠 [다음 질문] 새로 생긴 질문', d.next)}
+        ${box('📖 읽은 부분 · 인상 깊은 문장', [d.where, d.quote && '“' + d.quote + '”'].filter(Boolean).join('\n'))}
+        ${box('📖 지문 요약', d.summary)}${box('📖 읽고 난 내 생각', d.thought)}
+        ${chs.length || d.read ? `<div class="box wide"><b>🧑‍🏫 튜터의 질문에 대한 내 생각${d.read ? ` <span style="color:var(--soft);font-weight:500">(다 읽음: ${esc(d.read)})</span>` : ''}</b>${chs.map(k => `<div class="chn"><i>${esc(chTitle(k.slice(3)))}</i>${esc(d[k])}</div>`).join('')}</div>` : ''}
+        ${box('🔑 관심어와 이유', d.kws)}${box('❓ 만든 질문', d.questions)}${box('🛠 질문 생성 과정', d.genProcess)}
+        ${box('🎯 선정 질문', d.picks)}${box('🔬 탐구 정리', d.inqs)}${box('🗂 AI 활용 기록', d.aiLog)}
+        ${box('🎤 예상 질문 · 즉답', d.expqa)}${box('🎤 좋은 질문의 조건', d.toOthers)}${box('✓ 체크리스트 (1~10번)', d.checks)}
+      </div></div>`; }).join('') : '<div class="empty">아직 저장된 학생 글이 없어요.</div>';
+}
+let itemKey = 'meta:mb-prior';
+function renderItemView(docs){
+  const groups = writingItems(), all = groups.flatMap(g => g[1]);
+  if(!all.some(i => i[0] === itemKey)) itemKey = 'meta:mb-prior';
+  $('itemSel').innerHTML = groups.map(([g, items]) => `<optgroup label="${esc(g)}">${items.map(([k, t]) => `<option value="${esc(k)}"${k === itemKey ? ' selected' : ''}>${esc(t)}</option>`).join('')}</optgroup>`).join('');
+  const hideEmpty = $('itemHide').checked;
+  if(itemKey === 'metaAll'){
+    const ks = Object.keys(META_Q);
+    $('itemHead').innerHTML = '';
+    $('itemView').innerHTML = docs.length ? `<div class="scroll"><table class="meta"><thead><tr><th>학생</th>${ks.map(k => `<th>${esc(metaQ(k))}</th>`).join('')}<th>새로 생긴 질문</th></tr></thead><tbody>${docs.map(x => `<tr><td>${whoText(x.r)}</td>${ks.map(k => `<td>${esc(x.doc['meta:' + k] || '')}</td>`).join('')}<td>${esc(x.doc.next || '')}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">아직 저장된 학생 글이 없어요.</div>';
+    return;
+  }
+  if(itemKey === 'chAll'){
+    $('itemHead').innerHTML = '';
+    const rows = docs.map(x => { const chs = Object.keys(x.doc).filter(k => /^ch:\d+$/.test(k) && String(x.doc[k]).trim()).sort((a, b) => a.slice(3) - b.slice(3)); return { x, chs }; }).filter(o => !hideEmpty || o.chs.length);
+    $('itemView').innerHTML = rows.length ? rows.map(({ x, chs }) => `<div class="ans"><div class="who">${whoText(x.r)}${x.doc.read ? `<span class="chip">다 읽음: ${esc(x.doc.read)}</span>` : ''}</div>${chs.length ? chs.map(k => `<div class="chn"><i>${esc(chTitle(k.slice(3)))}</i>${esc(x.doc[k])}</div>`).join('') : '<div class="none">아직 안 썼어요</div>'}</div>`).join('') : '<div class="empty">아직 쓴 학생이 없어요.</div>';
+    return;
+  }
+  const label = (all.find(i => i[0] === itemKey) || [, ''])[1];
+  let head = `<b>${esc(label)}</b>`;
+  if(itemKey.startsWith('ch:')){ const c = CHAPTERS.find(c => 'ch:' + c.n === itemKey); if(c) head = `<b>${esc(c.n + '장 · ' + c.ko)}</b> <span style="color:var(--soft)">${esc(c.en)}</span><ol>${c.qs.map(q => `<li>${esc(plain(q))}</li>`).join('')}</ol>`; }
+  const done = docs.filter(x => String(x.doc[itemKey] || '').trim());
+  $('itemHead').innerHTML = `${head}<div class="cnt">쓴 학생 <b>${done.length}</b> / ${docs.length}명</div>`;
+  const list = hideEmpty ? done : docs;
+  $('itemView').innerHTML = list.length ? list.map(x => { const v = String(x.doc[itemKey] || '').trim();
+    return `<div class="ans${v ? '' : ' blank'}"><div class="who">${whoText(x.r)}${x.doc.team ? `<span class="chip">${esc(x.doc.team)}</span>` : ''}<span class="ago">${esc(fmtT(x.at))}</span></div>${v ? `<div class="txt">${esc(v)}</div>` : '<div class="none">아직 안 썼어요</div>'}</div>`; }).join('')
+    : '<div class="empty">아직 쓴 학생이 없어요.</div>';
+}
+
 function render(){
   if(!D) return;
   const Q = BK(D.questions).map(r => ({ ...r, _type: r['질문유형'] || qType(String(r['질문'] || '')) }));
   const AIQ = BK(D.ai).filter(r => r['종류'] === '질문' || r['종류'] === '피드백');
   const WS = latestWorksheets();
   // 반 목록
-  const classes = [...new Set([...Q, ...AIQ, ...WS].map(r => String(r['반'])).filter(Boolean))].sort((a, b) => a - b);
+  const classes = [...new Set([...Q, ...AIQ, ...WS, ...BK(D.saves)].map(r => String(r['반'])).filter(Boolean))].sort((a, b) => a - b);
   const curC = $('fClass').value;
   $('fClass').innerHTML = '<option value="">전체 반</option>' + classes.map(c => `<option value="${esc(c)}">${esc(c)}반</option>`).join('');
   $('fClass').value = classes.includes(curC) ? curC : '';
+  const DOCS = studentDocs();
   const people = new Set([...Q, ...AIQ, ...WS].map(sid));
   const aiAsk = AIQ.filter(r => r['종류'] === '질문');
   $('kpis').innerHTML = [
@@ -280,7 +426,7 @@ function render(){
     ['🤖 AI 질문', aiAsk.length, '개'], ['📝 저장 · 최종 제출', `${WS.length}<small>명 ·</small> ${WS.filter(isFinal).length}`, '명']
   ].map(([k, v, u]) => `<div class="kpi"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div></div>`).join('');
   const roster = D.roster || [];
-  const TABS = [['prog', '📈 진행 현황', Math.max(people.size, roster.length)], ['q', '❓ 학생 질문', Q.length], ['kw', '🔑 관심어', null], ['ai', '🤖 AI 질문', AIQ.length], ['ws', '📝 워크시트', WS.length], ['meta', '🧠 메타질문', WS.length], ['roster', '👥 명단·코드', roster.length]];
+  const TABS = [['prog', '📈 진행 현황', Math.max(people.size, roster.length)], ['q', '❓ 학생 질문', Q.length], ['kw', '🔑 관심어', null], ['ai', '🤖 AI 질문', AIQ.length], ['ws', '📝 워크시트', DOCS.length], ['meta', '✍️ 항목별 모아 보기', DOCS.length], ['roster', '👥 명단·코드', roster.length]];
   $('tabs').innerHTML = TABS.map(([k, t, n]) => `<button type="button" class="tab ${tab === k ? 'on' : ''}" data-t="${k}">${t}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
   document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== tab);
   $('upd').textContent = demo ? '예시 데이터' : `마지막 새로고침 ${fmtT(new Date())}`;
@@ -342,31 +488,9 @@ function render(){
 
   renderRoster();
 
-  // 워크시트
-  const ws = WS.filter(r => passes(r, Object.values(r).join(' '))).sort((a, b) => (a['반'] - b['반']) || (a['번호'] - b['번호']));
-  const box = (t, v) => v ? `<div class="box"><b>${t}</b>${esc(v)}</div>` : '';
-  $('wsList').innerHTML = ws.length ? ws.map(r => `
-    <div class="ws" id="ws-${esc(sid(r))}"><h4>${whoText(r)}${kindChip(r)}${r['팀'] ? `<span class="chip">${esc(r['팀'])}</span>` : ''}<span class="chip">질문 ${esc(r['생성질문수'] || 0)}개 · AI ${esc(r['AI질문수'] || 0)}회</span><span style="font-size:12px;color:var(--soft);font-weight:500">${fmtT(timeOf(r))}</span></h4>
-      <div class="grid">
-        ${box('🔑 관심어와 이유', r['관심어-이유'])}
-        ${box('📖 지문 요약 · 내 생각', [r['읽은부분'], r['지문요약'], r['내생각']].filter(Boolean).join('\n'))}
-        ${box('❓ 생성한 질문', r['생성질문'])}
-        ${box('🛠 질문 생성 과정', r['질문생성과정'])}
-        ${box('🎯 선정 질문 1', r['선정1-처음'] || r['선정1-다듬은질문'] ? `${r['선정1-처음']} → ${r['선정1-다듬은질문']}\n이유: ${r['선정1-이유']}\n방법: ${r['선정1-방법']} (${r['선정1-시간(분)'] || '-'}분)` : '')}
-        ${box('🎯 선정 질문 2', r['선정2-처음'] || r['선정2-다듬은질문'] ? `${r['선정2-처음']} → ${r['선정2-다듬은질문']}\n이유: ${r['선정2-이유']}\n방법: ${r['선정2-방법']} (${r['선정2-시간(분)'] || '-'}분)` : '')}
-        ${box('🔬 탐구 1', [r['탐구1-과정'] && '과정: ' + r['탐구1-과정'], r['탐구1-잠정답'] && '잠정적인 답: ' + r['탐구1-잠정답'], r['탐구1-이어진질문'] && '이어진 질문: ' + r['탐구1-이어진질문']].filter(Boolean).join('\n'))}
-        ${box('🔬 탐구 2', [r['탐구2-과정'] && '과정: ' + r['탐구2-과정'], r['탐구2-잠정답'] && '잠정적인 답: ' + r['탐구2-잠정답'], r['탐구2-이어진질문'] && '이어진 질문: ' + r['탐구2-이어진질문']].filter(Boolean).join('\n'))}
-        ${box('🗂 AI 활용 기록', r['AI활용기록'])}
-        ${box('🎤 예상 질문 · 즉답', r['예상질문-즉답'])}
-        ${box('✓ 체크리스트 (1~10번)', r['체크리스트'])}
-      </div></div>`).join('') : '<div class="empty">아직 제출된 워크시트가 없어요.</div>';
-
-  // 메타
-  $('metaTable').innerHTML = `<thead><tr><th>학생</th><th>학습 전 → 후<br>(생각·설명 정도)</th><th>학습 전 생각</th><th>생성·선정·근거 점검</th><th>생각 변화 · 전략 수정</th><th>다음 질문 · 진로 연결</th></tr></thead><tbody>` +
-    (ws.length ? ws.map(r => `<tr><td>${whoText(r)}</td><td>${esc(r['메타-학습전-생각정도'] || '-')} → ${esc(r['메타-학습후-설명정도'] || '-')}</td><td>${esc(r['메타-학습전-나로산다는것'] || r['메타-학습전-생각'])}</td>
-      <td>${esc([r['메타-생성점검'] && '생성: ' + r['메타-생성점검'], r['메타-선정점검'] && '선정: ' + r['메타-선정점검'], r['메타-근거점검'] && '근거: ' + r['메타-근거점검']].filter(Boolean).join('\n'))}</td>
-      <td>${esc([r['메타-생각변화'], r['메타-전략수정'] && '전략: ' + r['메타-전략수정']].filter(Boolean).join('\n'))}</td>
-      <td>${esc([r['메타-다음질문'], r['메타-진로연결'] && '진로: ' + r['메타-진로연결']].filter(Boolean).join('\n'))}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">아직 제출된 워크시트가 없어요.</td></tr>') + '</tbody>';
+  // 워크시트 · 항목별 모아 보기 (학생이 쓴 글 전체)
+  renderWsCards(DOCS);
+  renderItemView(DOCS);
 }
 /* ---------- 명단 · 코드 ---------- */
 const code4 = v => { const t = String(v ?? '').trim(); return /^\d{1,4}$/.test(t) ? t.padStart(4, '0') : t.replace(/^'/, ''); };
@@ -442,13 +566,15 @@ $('rPrint').addEventListener('click', () => {
   window.print();
 });
 
+$('itemSel').addEventListener('change', () => { itemKey = $('itemSel').value; render(); });
+$('itemHide').addEventListener('change', render);
 $('tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if(b){ tab = b.dataset.t; render(); } });
 $('progTable').addEventListener('click', e => {
   const a = e.target.closest('[data-goto]'); if(!a) return;
   e.preventDefault(); tab = 'ws'; render();
   const el = document.getElementById('ws-' + a.dataset.goto);
   if(el){ el.scrollIntoView({ behavior:'smooth', block:'start' }); el.style.outline = '3px solid #C4B5FD'; setTimeout(() => el.style.outline = '', 2000); }
-  else alert('이 학생은 아직 워크시트를 저장하지 않았어요. (질문만 보냈어요)');
+  else alert('이 학생은 아직 저장된 글이 없어요. (질문만 보냈어요)');
 });
 $('qFeed').addEventListener('click', e => { const b = e.target.closest('[data-star]'); if(!b) return; const k = b.dataset.star; stars.has(k) ? stars.delete(k) : stars.add(k); saveStars(); render(); });
 $('csvBtn').addEventListener('click', () => {
