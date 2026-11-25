@@ -29,6 +29,14 @@
  *   - 마감일이 지나도 제출은 되지만 "지각"으로 표시됩니다.
  *   - 공개 칸을 FALSE(체크 해제)로 바꾸면 학생 화면에서 사라집니다.
  *
+ * ▣ 학생 개발자료 게시판 (student-dev/board.html)
+ *   학생이 만든 HTML 파일(게임·시뮬레이션 등)을 올리고, 다른 학생이 실행해 보거나 내려받는 게시판입니다.
+ *   같은 웹 앱 주소·같은 제출코드를 씁니다. 파일은 드라이브 "아화중_과제제출/개발자료게시판" 폴더에,
+ *   목록은 이 스프레드시트의 "개발자료게시판" 탭에 저장됩니다(처음 올릴 때 자동으로 만들어짐).
+ *   - GALLERY_NEED_APPROVAL = true 이면 선생님이 '공개'를 체크해야 게시판에 보입니다.
+ *     (게시판 페이지 아래 '선생님용 관리'에서 교사 코드로 공개/숨김을 바꾸거나, 시트의 '공개' 칸을 체크)
+ *   - GALLERY_NAME_STYLE: "mask"(유○석) / "full"(유민석) / "none"(이름 숨김)
+ *
  * ▣ 코드를 수정했을 때
  *   배포 → 배포 관리 → (연필) → 버전: 새 버전 → 배포  (주소는 그대로 유지)
  */
@@ -184,6 +192,19 @@ function doGet(e) {
         folder: getRootFolder_().getUrl()
       });
     }
+    if (p.action === "gallery") return json_({ ok: true, items: galleryList_(false) });
+    if (p.action === "gallery_file") return galleryFile_(p);
+    if (p.action === "gallery_mine") {
+      if (String(p.code) !== SUBMIT_CODE) return json_({ ok: false, error: "제출코드가 맞지 않아요." });
+      return json_({ ok: true, items: galleryRows_().filter(function (r) {
+        return r.grade === String(p.grade) && r.cls === String(p.cls) && r.num === String(p.num);
+      }).map(function (r) { return galleryOut_(r, true); }) });
+    }
+    if (p.action === "gallery_admin") {
+      if (String(p.tcode) !== TEACHER_CODE) return json_({ ok: false, error: "교사 코드가 맞지 않아요." });
+      return json_({ ok: true, needApproval: GALLERY_NEED_APPROVAL, items: galleryRows_().map(function (r) {
+        var o = galleryOut_(r, true); o.url = r.url; return o; }) });
+    }
     return json_({ ok: true, msg: "아화중 과제제출방 API" });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
@@ -195,6 +216,8 @@ function doPost(e) {
   var lock = null;
   try {
     var d = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    if (d.action === "gallery_upload") return galleryUpload_(d);
+    if (d.action === "gallery_set") return gallerySet_(d);
     if (String(d.code) !== SUBMIT_CODE) return json_({ ok: false, error: "제출코드가 맞지 않아요." });
 
     var grade = String(d.grade), cls = String(d.cls), num = String(d.num);
@@ -240,4 +263,130 @@ function doPost(e) {
   } finally {
     if (lock) try { lock.releaseLock(); } catch (x) {}
   }
+}
+
+/* =================== 학생 개발자료 게시판 =================== */
+var GALLERY_NEED_APPROVAL = true;      // true: 선생님이 공개해야 보임 / false: 올리면 바로 공개
+var GALLERY_NAME_STYLE = "mask";       // "mask" 유○석 / "full" 유민석 / "none" 이름 숨김
+var GALLERY_MAX_BYTES = 5 * 1024 * 1024;
+var GALLERY_FOLDER = "개발자료게시판";
+var GALLERY_SHEET = "개발자료게시판";
+var GALLERY_HEADER = ["게시ID", "등록시각", "학년", "반", "번호", "이름", "제목", "설명", "파일명", "크기(KB)", "공개", "다운로드", "파일 링크", "파일ID"];
+var G_OPEN_COL = 11, G_DL_COL = 12;
+
+function gallerySheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(GALLERY_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(GALLERY_SHEET);
+    sh.appendRow(GALLERY_HEADER);
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(7, 220); sh.setColumnWidth(8, 320);
+  }
+  return sh;
+}
+
+function galleryRows_() {
+  var sh = gallerySheet_();
+  if (sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, GALLERY_HEADER.length).getValues().map(function (r, i) {
+    return {
+      row: i + 2, id: String(r[0]), time: r[1] instanceof Date ? fmtDate_(r[1]) : String(r[1]),
+      grade: String(r[2]), cls: String(r[3]), num: String(r[4]), name: String(r[5]),
+      title: String(r[6]), desc: String(r[7]), file: String(r[8]), kb: Number(r[9]) || 0,
+      open: r[10] === true || String(r[10]).toUpperCase() === "TRUE",
+      dl: Number(r[11]) || 0, url: String(r[12]), fileId: String(r[13])
+    };
+  }).filter(function (r) { return r.id; });
+}
+
+function galleryName_(name) {
+  name = String(name || "");
+  if (GALLERY_NAME_STYLE === "full") return name;
+  if (GALLERY_NAME_STYLE === "none" || !name) return "";
+  if (name.length <= 2) return name.charAt(0) + "○";
+  return name.charAt(0) + new Array(name.length - 1).join("○") + name.charAt(name.length - 1);
+}
+
+function galleryOut_(r, full) {
+  return {
+    id: r.id, time: r.time, grade: r.grade, who: full ? r.name : galleryName_(r.name),
+    title: r.title, desc: r.desc, file: r.file, kb: r.kb, dl: r.dl, open: r.open
+  };
+}
+
+function galleryList_() {
+  return galleryRows_().filter(function (r) { return r.open; }).map(function (r) { return galleryOut_(r, false); }).reverse();
+}
+
+// GET ?action=gallery_file&id=게시ID[&dl=1][&tcode=교사코드]  → HTML 원문
+function galleryFile_(p) {
+  var rows = galleryRows_(), r = null;
+  rows.forEach(function (x) { if (x.id === String(p.id)) r = x; });
+  var teacher = p.tcode && String(p.tcode) === TEACHER_CODE;
+  if (!r || (!r.open && !teacher)) return json_({ ok: false, error: "공개된 자료가 아니에요." });
+  var content = DriveApp.getFileById(r.fileId).getBlob().getDataAsString("UTF-8");
+  if (String(p.dl) === "1" && !teacher) {
+    var lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(10000);
+      var sh = gallerySheet_();
+      var cur = Number(sh.getRange(r.row, G_DL_COL).getValue()) || 0;
+      sh.getRange(r.row, G_DL_COL).setValue(cur + 1);
+    } catch (x) {} finally { try { lock.releaseLock(); } catch (y) {} }
+  }
+  return json_({ ok: true, fileName: r.file, content: content });
+}
+
+// POST {action:"gallery_upload", code, grade, cls, num, name, title, desc, fileName, data(base64)}
+function galleryUpload_(d) {
+  var lock = null;
+  try {
+    if (String(d.code) !== SUBMIT_CODE) return json_({ ok: false, error: "제출코드가 맞지 않아요." });
+    var grade = String(d.grade), cls = String(d.cls), num = String(d.num);
+    var name = ROSTER[grade] && ROSTER[grade][cls] && ROSTER[grade][cls][num];
+    if (!name || name !== String(d.name)) return json_({ ok: false, error: "명단에 없는 학생이에요." });
+    var title = String(d.title || "").replace(/[\r\n]+/g, " ").trim().slice(0, 60);
+    var desc = String(d.desc || "").trim().slice(0, 500);
+    if (!title) return json_({ ok: false, error: "작품 제목을 적어 주세요." });
+    var orig = safeName_(d.fileName || "work.html");
+    var ext = (orig.split(".").pop() || "").toLowerCase();
+    if (orig.indexOf(".") < 0 || (ext !== "html" && ext !== "htm")) return json_({ ok: false, error: "html 파일만 올릴 수 있어요." });
+    var bytes = Utilities.base64Decode(String(d.data || ""));
+    if (!bytes.length) return json_({ ok: false, error: "빈 파일이에요." });
+    if (bytes.length > GALLERY_MAX_BYTES) return json_({ ok: false, error: "파일이 5MB보다 커요." });
+
+    var now = new Date();
+    var folder = getSubFolder_(getSubFolder_(getRootFolder_(), GALLERY_FOLDER), grade + "학년");
+    var base = grade + "-" + cls + "_" + pad2_(num) + "_" + name + "_" + orig.replace(/\.[^.]+$/, "");
+    var fileName = base + "." + ext, k = 2;
+    while (folder.getFilesByName(fileName).hasNext()) fileName = base + "(" + (k++) + ")." + ext;
+    // 드라이브에서 실행되지 않도록 일반 텍스트로 저장
+    var file = folder.createFile(Utilities.newBlob(bytes, "text/plain", fileName));
+
+    lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    var sh = gallerySheet_();
+    var id = "G" + now.getTime().toString(36);
+    var open = !GALLERY_NEED_APPROVAL;
+    // 수식으로 해석되지 않도록 학생이 적은 글 앞에 ' 를 붙임
+    var safe = function (t) { return /^[=+\-@]/.test(t) ? "'" + t : t; };
+    sh.appendRow([id, now, grade, cls, num, name, safe(title), safe(desc), orig, Math.round(bytes.length / 1024), open, 0, file.getUrl(), file.getId()]);
+    sh.getRange(sh.getLastRow(), G_OPEN_COL).insertCheckboxes().setValue(open);
+    return json_({ ok: true, id: id, open: open, time: fmtDate_(now) });
+  } catch (err) {
+    return json_({ ok: false, error: "저장 중 오류: " + String(err) });
+  } finally {
+    if (lock) try { lock.releaseLock(); } catch (x) {}
+  }
+}
+
+// POST {action:"gallery_set", tcode, id, open:true|false}
+function gallerySet_(d) {
+  if (String(d.tcode) !== TEACHER_CODE) return json_({ ok: false, error: "교사 코드가 맞지 않아요." });
+  var r = null;
+  galleryRows_().forEach(function (x) { if (x.id === String(d.id)) r = x; });
+  if (!r) return json_({ ok: false, error: "게시물을 찾지 못했어요." });
+  gallerySheet_().getRange(r.row, G_OPEN_COL).setValue(!!d.open);
+  return json_({ ok: true, id: r.id, open: !!d.open });
 }

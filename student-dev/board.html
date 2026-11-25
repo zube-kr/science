@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학생 개발자료 게시판</title>
+<style>
+  :root{
+    --bg:#F6F4FD; --card:#FFFFFF; --ink:#24213A; --ink-soft:#67637E; --line:#E2DEF2;
+    --pri:#6246EA; --pri-soft:#EEEAFD; --green:#1F9D61; --green-soft:#E3F5EC;
+    --red:#D8493B; --red-soft:#FDEAE7; --amber:#B86E0C; --amber-soft:#FFF3DC;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header .ic{font-size:34px}
+  h1{font-size:24px;margin:0}
+  .sub{color:var(--ink-soft);font-size:14px;margin:4px 0 16px}
+  .top-actions{margin-left:auto;display:flex;gap:8px}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:0}
+  .btn{background:var(--pri);color:#fff;font-weight:700;padding:9px 16px;font-size:15px}
+  .btn.ghost{background:#fff;color:var(--pri);border:1.5px solid var(--pri)}
+  .btn.sm{padding:6px 12px;font-size:13px}
+  .btn:disabled{background:#BDB9CF;border-color:#BDB9CF;color:#fff;cursor:not-allowed}
+  .link{background:none;color:var(--pri);padding:0;font-size:13px;text-decoration:underline}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(40,20,120,.04)}
+  .notice{background:var(--amber-soft);border:1px solid #F0D49A;color:#7A4B07;border-radius:14px;padding:12px 16px;margin-bottom:14px;font-size:14px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{background:#fff;border:1.5px solid var(--line);color:var(--ink);padding:6px 12px;font-size:14px;border-radius:999px}
+  .chip.sel{background:var(--pri-soft);border-color:var(--pri);color:var(--pri);font-weight:700}
+  .search{flex:1;min-width:160px;font:inherit;font-size:15px;padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+  select{font:inherit;font-size:14px;padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);outline-offset:1px;border-color:transparent}
+  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .post{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px}
+  .post .t{font-size:17px;font-weight:800;word-break:keep-all;overflow-wrap:anywhere}
+  .post .d{font-size:14px;color:var(--ink-soft);white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .post .d.full{display:block}
+  .post .m{font-size:12px;color:var(--ink-soft);margin-top:auto;padding-top:6px}
+  .post .acts{display:flex;gap:8px}
+  .post .acts button{flex:1}
+  .badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px;vertical-align:2px}
+  .badge.g{background:var(--pri-soft);color:var(--pri)}
+  .badge.wait{background:var(--amber-soft);color:var(--amber)}
+  .badge.open{background:var(--green-soft);color:var(--green)}
+  .empty{text-align:center;color:var(--ink-soft);padding:30px 10px;font-size:15px}
+  .msg{font-size:14px;margin-top:8px}
+  .msg.err{color:var(--red)} .msg.ok{color:var(--green)}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hidden{display:none!important}
+  /* 올리기 */
+  .up h2,.mine h2{font-size:18px;margin:0 0 10px}
+  .field{margin-bottom:12px}
+  .field label.l{display:block;font-weight:700;font-size:14px;margin-bottom:5px}
+  .field input[type=text],.field input[type=password],.field textarea{width:100%;font:inherit;font-size:16px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+  .field textarea{min-height:84px;resize:vertical}
+  .who{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+  .who button{background:#FAF9FF;border:1.5px solid var(--line);color:var(--ink);padding:9px 4px;font-size:14px}
+  .who button span{display:block;font-size:11px;color:var(--ink-soft)}
+  .who button.sel{border-color:var(--pri);background:var(--pri-soft);box-shadow:0 0 0 1px var(--pri) inset;font-weight:700}
+  .drop{display:block;border:2px dashed #C6BEEA;border-radius:14px;padding:18px 12px;text-align:center;background:#FBFAFF;cursor:pointer}
+  .drop.over{border-color:var(--pri);background:var(--pri-soft)}
+  .drop b{display:block;font-size:15px}
+  .drop small{color:var(--ink-soft);font-size:13px}
+  .rules{font-size:13px;color:var(--ink-soft);margin:8px 0 0;padding-left:18px}
+  .result{border-radius:12px;padding:12px 14px;margin-top:12px;font-size:15px}
+  .result.ok{background:var(--green-soft);color:#11603A}
+  .result.err{background:var(--red-soft);color:#8A2A20}
+  .rows{list-style:none;padding:0;margin:0}
+  .rows li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #EEEAF8;font-size:14px;flex-wrap:wrap}
+  .rows li:last-child{border:0}
+  .rows .info{flex:1;min-width:180px}
+  .rows .tm{color:var(--ink-soft);font-size:12px}
+  details.teacher{margin-top:24px}
+  details.teacher summary{cursor:pointer;color:var(--ink-soft);font-size:14px}
+  /* 실행 창 */
+  .modal{position:fixed;inset:0;background:rgba(20,14,50,.94);z-index:50;display:flex;flex-direction:column;padding:12px}
+  .modal .mh{display:flex;align-items:center;gap:10px;color:#fff;padding:0 4px 10px;flex-wrap:wrap}
+  .modal .mh b{font-size:16px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .modal .mh small{opacity:.8;font-size:12px;width:100%}
+  .modal iframe{flex:1;width:100%;border:0;border-radius:12px;background:#fff}
+  @media (max-width:560px){ .who{grid-template-columns:repeat(3,1fr)} h1{font-size:21px} .top-actions{margin-left:0;width:100%} .top-actions .btn{flex:1} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="ic">📤</span>
+    <div><h1>학생 개발자료 게시판</h1></div>
+    <div class="top-actions">
+      <button class="btn" id="open-up" type="button">＋ 내 작품 올리기</button>
+    </div>
+  </header>
+  <p class="sub">친구들이 만든 HTML 게임·시뮬레이션·도구를 실행해 보고 내려받아요. 내가 만든 작품도 올릴 수 있어요.</p>
+
+  <div class="notice hidden" id="not-ready">🛠️ 게시판을 준비하고 있어요. 선생님이 설정을 마치면 바로 쓸 수 있어요.</div>
+
+  <!-- 올리기 -->
+  <section class="card up hidden" id="up">
+    <h2>📤 내 작품 올리기</h2>
+    <div class="field">
+      <label class="l" for="code">① 제출코드</label>
+      <input type="password" id="code" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="선생님이 알려준 코드 (과제제출방과 같아요)">
+    </div>
+    <div class="field">
+      <label class="l">② 나는 누구인가요?</label>
+      <div class="chips" id="grade-pick"></div>
+      <div class="who" id="who"></div>
+    </div>
+    <div class="field">
+      <label class="l" for="title">③ 작품 제목</label>
+      <input type="text" id="title" maxlength="60" placeholder="예: 행성 궤도 시뮬레이터">
+    </div>
+    <div class="field">
+      <label class="l" for="desc">④ 작품 소개 <small style="font-weight:500;color:var(--ink-soft)">(어떤 작품인지, 조작 방법 등)</small></label>
+      <textarea id="desc" maxlength="500" placeholder="예: 방향키로 우주선을 움직여 행성을 탐사해요. 중력 세기를 바꿔 볼 수 있어요."></textarea>
+    </div>
+    <div class="field">
+      <label class="l">⑤ HTML 파일</label>
+      <label class="drop" id="drop">
+        <b id="drop-b">📎 html 파일 고르기</b>
+        <small id="drop-s">여기에 파일을 끌어다 놓아도 돼요</small>
+        <input type="file" id="file" class="hidden" accept=".html,.htm,text/html">
+      </label>
+      <ul class="rules">
+        <li><b>.html</b> 파일 1개, 최대 <b>5MB</b> (그림·소리가 파일 안에 모두 들어 있어야 다른 사람 컴퓨터에서도 돌아가요)</li>
+        <li id="rule-approve">선생님이 확인한 뒤 게시판에 공개돼요.</li>
+      </ul>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="submit" type="button" style="flex:1;padding:12px;font-size:17px">올리기</button>
+      <button class="btn ghost" id="close-up" type="button">닫기</button>
+    </div>
+    <div id="result"></div>
+  </section>
+
+  <!-- 내가 올린 자료 -->
+  <section class="card mine hidden" id="mine-card">
+    <h2>📋 <span id="mine-title">내가 올린 작품</span> <button class="link" id="mine-refresh" type="button">새로고침</button></h2>
+    <ul class="rows" id="mine"></ul>
+  </section>
+
+  <!-- 목록 -->
+  <div class="bar">
+    <div class="chips" id="filter"></div>
+    <input class="search" id="q" type="search" placeholder="🔍 제목·소개 검색">
+    <select id="sort"><option value="new">최신순</option><option value="dl">다운로드 많은 순</option></select>
+  </div>
+  <div id="list"><div class="empty"><span class="spin"></span> 작품을 불러오는 중…</div></div>
+
+  <!-- 교사용 -->
+  <details class="teacher" id="teacher">
+    <summary>👩‍🏫 선생님용 관리 (공개·숨김)</summary>
+    <div class="card" style="margin-top:10px">
+      <div style="display:flex;gap:8px">
+        <input type="password" id="tcode" class="search" inputmode="numeric" autocomplete="off" placeholder="교사 확인 코드">
+        <button class="btn" id="tcode-btn" type="button">불러오기</button>
+      </div>
+      <div class="msg" id="t-msg"></div>
+      <ul class="rows" id="t-out"></ul>
+    </div>
+  </details>
+</div>
+
+<!-- 실행 창 -->
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true">
+  <div class="mh">
+    <b id="m-title"></b>
+    <button class="btn sm" id="m-dl" type="button">⬇ 다운로드</button>
+    <button class="btn sm ghost" id="m-close" type="button">✕ 닫기</button>
+    <small>안전을 위해 제한된 창에서 실행돼요. 기록 저장·전체 화면 같은 기능이 안 되면 내려받아서 실행해 보세요.</small>
+  </div>
+  <iframe id="m-frame" title="작품 실행" sandbox="allow-scripts allow-modals allow-pointer-lock allow-forms allow-popups" allow="fullscreen; autoplay"></iframe>
+</div>
+
+<script>
+/* 과제제출방과 같은 웹 앱(code-submit.gs) 주소 */
+const API = "https://script.google.com/macros/s/AKfycbybvxe19sp0KMoIi2qKmE-q-RTG8MiBrF46XF6qP-hQysdk9dXs8HVUyCiiwB2tFiZg/exec";
+/* code-submit.gs 의 ROSTER 와 같아야 올릴 수 있어요 (모두 1반) */
+const ROSTERS = {
+  "1": ["유민석", "이예인", "이원근"],
+  "2": ["김민지", "김수현", "김진영", "박제민", "손현정", "이재경", "전아라"],
+  "3": ["김서빈", "김서현", "김상환", "이시우", "신윤호", "이준", "이정호", "방시현"]
+};
+const CLS = "1", MAX_BYTES = 5 * 1024 * 1024;
+const LS_CODE = "science-submit-code", LS_WHO = "science-board-who";
+
+const $ = id => document.getElementById(id);
+const st = { items: [], grade: "all", q: "", sort: "new", code: "", who: null, pickGrade: "1", file: null, busy: false, cache: {}, tcode: "" };
+function store(k, v){ try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} }
+function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtKB(kb){ kb = Number(kb) || 0; return kb >= 1024 ? (kb / 1024).toFixed(1) + "MB" : Math.max(1, kb) + "KB"; }
+function day(t){ return String(t || "").slice(0, 10); }
+
+async function api(params){
+  const u = new URL(API);
+  Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
+  const r = await fetch(u.toString(), { cache: "no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+async function apiPost(body){
+  const r = await fetch(API, { method: "POST", body: JSON.stringify(body) });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+/* ---------- 목록 ---------- */
+function renderFilter(){
+  const opts = [["all", "전체"], ["1", "1학년"], ["2", "2학년"], ["3", "3학년"]];
+  $("filter").innerHTML = opts.map(([v, t]) => `<button type="button" class="chip ${st.grade === v ? "sel" : ""}" data-v="${v}">${t}</button>`).join("");
+  $("filter").querySelectorAll("button").forEach(b => b.onclick = () => { st.grade = b.dataset.v; renderFilter(); renderList(); });
+}
+async function loadList(){
+  $("list").innerHTML = '<div class="empty"><span class="spin"></span> 작품을 불러오는 중…</div>';
+  try{
+    const res = await api({ action: "gallery" });
+    if (!res.ok) throw new Error(res.error || "fail");
+    st.items = res.items || [];
+    renderList();
+  }catch(e){
+    $("list").innerHTML = '<div class="empty">작품 목록을 불러오지 못했어요. <button class="link" type="button" onclick="loadList()">다시 시도</button></div>';
+  }
+}
+function renderList(){
+  const q = st.q.trim().toLowerCase();
+  let arr = st.items.filter(x => (st.grade === "all" || x.grade === st.grade) &&
+    (!q || (x.title + " " + x.desc).toLowerCase().includes(q)));
+  if (st.sort === "dl") arr = arr.slice().sort((a, b) => (b.dl || 0) - (a.dl || 0));
+  if (!arr.length){
+    $("list").innerHTML = `<div class="empty">${st.items.length ? "조건에 맞는 작품이 없어요." : "아직 공개된 작품이 없어요. 첫 번째 작품을 올려 보세요! 🚀"}</div>`;
+    return;
+  }
+  $("list").innerHTML = '<div class="list">' + arr.map(x => `
+    <article class="post" data-id="${esc(x.id)}">
+      <div><span class="badge g">${esc(x.grade)}학년</span></div>
+      <div class="t">${esc(x.title)}</div>
+      ${x.desc ? `<div class="d" title="눌러서 전체 보기">${esc(x.desc)}</div>` : ""}
+      <div class="m">${x.who ? "👤 " + esc(x.who) + " · " : ""}${esc(day(x.time))} · ${fmtKB(x.kb)} · ⬇ ${x.dl || 0}회</div>
+      <div class="acts">
+        <button class="btn sm" type="button" data-act="run">▶ 실행해 보기</button>
+        <button class="btn sm ghost" type="button" data-act="dl">⬇ 다운로드</button>
+      </div>
+    </article>`).join("") + "</div>";
+  $("list").querySelectorAll(".post").forEach(el => {
+    const it = st.items.find(x => x.id === el.dataset.id);
+    el.querySelector("[data-act=run]").onclick = e => runItem(it, e.currentTarget);
+    el.querySelector("[data-act=dl]").onclick = e => downloadItem(it, e.currentTarget);
+    const d = el.querySelector(".d"); if (d) d.onclick = () => d.classList.toggle("full");
+  });
+}
+$("q").addEventListener("input", e => { st.q = e.target.value; renderList(); });
+$("sort").onchange = e => { st.sort = e.target.value; renderList(); };
+
+/* ---------- 실행 · 다운로드 ---------- */
+async function getContent(it, dl, btn){
+  const key = it.id;
+  if (!dl && st.cache[key]) return st.cache[key];
+  const old = btn ? btn.innerHTML : "";
+  if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spin"></span>'; }
+  try{
+    const p = { action: "gallery_file", id: it.id };
+    if (dl) p.dl = "1";
+    if (st.tcode && it._admin) p.tcode = st.tcode;
+    const res = await api(p);
+    if (!res.ok) throw new Error(res.error || "불러오지 못했어요.");
+    st.cache[key] = res;
+    return res;
+  }catch(e){
+    alert("파일을 불러오지 못했어요. " + (e.message || ""));
+    return null;
+  }finally{ if (btn){ btn.disabled = false; btn.innerHTML = old; } }
+}
+let curItem = null;
+async function runItem(it, btn){
+  const res = await getContent(it, false, btn);
+  if (!res) return;
+  curItem = it;
+  $("m-title").textContent = "▶ " + it.title;
+  $("m-frame").srcdoc = res.content;
+  $("modal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeModal(){
+  $("modal").classList.add("hidden");
+  $("m-frame").srcdoc = "";
+  document.body.style.overflow = "";
+}
+$("m-close").onclick = closeModal;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
+$("m-dl").onclick = e => curItem && downloadItem(curItem, e.currentTarget);
+async function downloadItem(it, btn){
+  const res = await getContent(it, !it._admin, btn);
+  if (!res) return;
+  const blob = new Blob([res.content], { type: "text/html;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = res.fileName || (it.title + ".html");
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  if (!it._admin){ it.dl = (it.dl || 0) + 1; renderList(); }
+}
+
+/* ---------- 올리기 ---------- */
+function renderWho(){
+  $("grade-pick").innerHTML = ["1", "2", "3"].map(g => `<button type="button" class="chip ${st.pickGrade === g ? "sel" : ""}" data-g="${g}">${g}학년</button>`).join("");
+  $("grade-pick").querySelectorAll("button").forEach(b => b.onclick = () => { st.pickGrade = b.dataset.g; if (st.who && st.who.grade !== st.pickGrade) st.who = null; renderWho(); });
+  $("who").innerHTML = ROSTERS[st.pickGrade].map((n, i) => {
+    const num = String(i + 1), sel = st.who && st.who.grade === st.pickGrade && st.who.num === num;
+    return `<button type="button" data-num="${num}" class="${sel ? "sel" : ""}">${esc(n)}<span>${num}번</span></button>`;
+  }).join("");
+  $("who").querySelectorAll("button").forEach(b => b.onclick = () => {
+    const num = b.dataset.num;
+    st.who = { grade: st.pickGrade, num, name: ROSTERS[st.pickGrade][+num - 1] };
+    store(LS_WHO, st.who.grade + "-" + num);
+    renderWho(); loadMine();
+  });
+}
+function setFile(f){
+  $("result").innerHTML = "";
+  if (!f) return;
+  const ext = (/\.([^.]+)$/.exec(f.name) || [])[1];
+  if (!ext || !/^html?$/i.test(ext)){ showResult(false, "html 파일만 올릴 수 있어요."); return; }
+  if (f.size > MAX_BYTES){ showResult(false, `파일이 너무 커요 (${(f.size / 1048576).toFixed(1)}MB). 5MB 이하만 올릴 수 있어요.`); return; }
+  if (!f.size){ showResult(false, "빈 파일이에요."); return; }
+  st.file = f;
+  $("drop-b").textContent = "📄 " + f.name;
+  $("drop-s").textContent = fmtKB(Math.round(f.size / 1024)) + " · 다른 파일을 고르려면 다시 누르세요";
+  if (!$("title").value.trim()){
+    const m = /<title[^>]*>([^<]{1,60})<\/title>/i;
+    f.text().then(t => { const x = m.exec(t); if (x && !$("title").value.trim()) $("title").value = x[1].trim(); }).catch(() => {});
+  }
+}
+function showResult(ok, html){ $("result").innerHTML = `<div class="result ${ok ? "ok" : "err"}">${html}</div>`; }
+$("file").addEventListener("change", e => { setFile(e.target.files[0]); e.target.value = ""; });
+const drop = $("drop");
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
+
+function toBase64(blob){
+  return new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] || ""); r.onerror = () => bad(r.error); r.readAsDataURL(blob); });
+}
+$("submit").onclick = async () => {
+  if (st.busy) return;
+  const code = $("code").value.trim(), title = $("title").value.trim(), desc = $("desc").value.trim();
+  if (!code) return showResult(false, "① 제출코드를 입력해 주세요.");
+  if (!st.who) return showResult(false, "② 내 이름을 골라 주세요.");
+  if (!title) return showResult(false, "③ 작품 제목을 적어 주세요.");
+  if (!st.file) return showResult(false, "⑤ html 파일을 골라 주세요.");
+  st.busy = true; $("submit").disabled = true; $("submit").innerHTML = '<span class="spin"></span> 올리는 중…';
+  try{
+    const data = await toBase64(st.file);
+    const res = await apiPost({ action: "gallery_upload", code, grade: st.who.grade, cls: CLS, num: st.who.num, name: st.who.name,
+      title, desc, fileName: st.file.name, data });
+    if (res && res.ok){
+      store(LS_CODE, code); st.code = code;
+      showResult(true, `🎉 <b>${esc(title)}</b> 작품을 올렸어요! ${res.open ? "게시판에 바로 공개됐어요." : "선생님이 확인하면 게시판에 공개돼요."}`);
+      st.file = null; $("title").value = ""; $("desc").value = "";
+      $("drop-b").textContent = "📎 html 파일 고르기"; $("drop-s").textContent = "여기에 파일을 끌어다 놓아도 돼요";
+      loadMine(); if (res.open) loadList();
+    } else {
+      showResult(false, esc((res && res.error) || "올리지 못했어요."));
+      if (res && /제출코드/.test(res.error || "")) store(LS_CODE, null);
+    }
+  }catch(e){
+    showResult(false, "연결이 끊겼어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+  }finally{
+    st.busy = false; $("submit").disabled = false; $("submit").textContent = "올리기";
+  }
+};
+function openUp(show){
+  $("up").classList.toggle("hidden", !show);
+  if (show){ $("up").scrollIntoView({ behavior: "smooth", block: "start" }); loadMine(); }
+  else $("mine-card").classList.add("hidden");
+}
+$("open-up").onclick = () => openUp(true);
+$("close-up").onclick = () => openUp(false);
+
+async function loadMine(){
+  const code = $("code").value.trim() || st.code;
+  if (!code || !st.who || $("up").classList.contains("hidden")){ $("mine-card").classList.add("hidden"); return; }
+  $("mine-card").classList.remove("hidden");
+  $("mine-title").textContent = `${st.who.name} 학생이 올린 작품`;
+  $("mine").innerHTML = '<li><span class="spin"></span> 불러오는 중…</li>';
+  try{
+    const res = await api({ action: "gallery_mine", code, grade: st.who.grade, cls: CLS, num: st.who.num });
+    if (!res.ok){ $("mine").innerHTML = `<li>${esc(res.error || "불러오지 못했어요.")}</li>`; return; }
+    const items = (res.items || []).slice().reverse();
+    $("mine").innerHTML = items.length ? items.map(x =>
+      `<li><div class="info"><b>${esc(x.title)}</b> ${x.open ? '<span class="badge open">공개 중</span>' : '<span class="badge wait">선생님 확인 대기</span>'}<br><span class="tm">📄 ${esc(x.file)} · ${esc(x.time)} · ⬇ ${x.dl || 0}회</span></div></li>`).join("")
+      : "<li>아직 올린 작품이 없어요.</li>";
+  }catch(e){ $("mine").innerHTML = "<li>기록을 불러오지 못했어요.</li>"; }
+}
+$("mine-refresh").onclick = loadMine;
+$("code").addEventListener("change", loadMine);
+
+/* ---------- 교사용 ---------- */
+async function loadAdmin(){
+  const tcode = $("tcode").value.trim(), m = $("t-msg");
+  if (!tcode){ m.className = "msg err"; m.textContent = "교사 확인 코드를 입력해 주세요."; return; }
+  m.className = "msg"; m.innerHTML = '<span class="spin"></span> 불러오는 중…'; $("t-out").innerHTML = "";
+  try{
+    const res = await api({ action: "gallery_admin", tcode });
+    if (!res.ok){ m.className = "msg err"; m.textContent = res.error || "확인하지 못했어요."; return; }
+    st.tcode = tcode;
+    const items = (res.items || []).slice().reverse();
+    const wait = items.filter(x => !x.open).length;
+    m.className = "msg ok"; m.textContent = `전체 ${items.length}개 · 확인 대기 ${wait}개` + (res.needApproval ? "" : " (지금은 올리면 바로 공개되는 설정이에요)");
+    $("t-out").innerHTML = items.map(x => `
+      <li data-id="${esc(x.id)}"><div class="info"><b>${esc(x.title)}</b> ${x.open ? '<span class="badge open">공개</span>' : '<span class="badge wait">대기·숨김</span>'}<br>
+        <span class="tm">${esc(x.grade)}학년 ${esc(x.who)} · ${esc(x.time)} · ${fmtKB(x.kb)} · ⬇ ${x.dl || 0}회${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">드라이브</a>` : ""}</span>
+        ${x.desc ? `<br><span class="tm">${esc(x.desc)}</span>` : ""}</div>
+        <button class="btn sm ghost" type="button" data-act="run">▶ 실행</button>
+        <button class="btn sm ${x.open ? "ghost" : ""}" type="button" data-act="toggle">${x.open ? "숨기기" : "공개하기"}</button></li>`).join("") || "<li>아직 올라온 작품이 없어요.</li>";
+    $("t-out").querySelectorAll("li[data-id]").forEach(li => {
+      const it = Object.assign(items.find(x => x.id === li.dataset.id), { _admin: true });
+      li.querySelector("[data-act=run]").onclick = e => runItem(it, e.currentTarget);
+      li.querySelector("[data-act=toggle]").onclick = async e => {
+        const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spin"></span>';
+        try{
+          const r = await apiPost({ action: "gallery_set", tcode: st.tcode, id: it.id, open: !it.open });
+          if (!r.ok) throw new Error(r.error);
+          await loadAdmin(); loadList();
+        }catch(err){ alert("바꾸지 못했어요. " + (err.message || "")); b.disabled = false; b.textContent = it.open ? "숨기기" : "공개하기"; }
+      };
+    });
+  }catch(e){ m.className = "msg err"; m.textContent = "연결이 안 돼요. 잠시 후 다시 시도해 주세요."; }
+}
+$("tcode-btn").onclick = loadAdmin;
+$("tcode").addEventListener("keydown", e => { if (e.key === "Enter") loadAdmin(); });
+
+/* ---------- 시작 ---------- */
+(function init(){
+  const saved = load(LS_CODE); if (saved){ $("code").value = saved; st.code = saved; }
+  const w = (load(LS_WHO) || "").split("-");
+  if (ROSTERS[w[0]] && ROSTERS[w[0]][+w[1] - 1]){ st.pickGrade = w[0]; st.who = { grade: w[0], num: w[1], name: ROSTERS[w[0]][+w[1] - 1] }; }
+  renderFilter(); renderWho();
+  if (!API){ $("not-ready").classList.remove("hidden"); $("list").innerHTML = ""; return; }
+  loadList();
+})();
+</script>
+</body>
+</html>
