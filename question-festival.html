@@ -1191,12 +1191,24 @@ function showLastSaved(){
 function setState(el, text, state){ el.textContent = text; el.className = (el.id === 'submitMsg' ? 'msg ' : '') + (state || ''); }
 let sending = false;
 // 선생님 시트에 저장: 내 상태(불러오기용) + 중간·최종일 때는 워크시트 기록 한 줄
-async function serverSave(kind, row){
+/* 서버가 늦을 때: 15초가 지나면 안내하고, 60초가 지나면 멈춘다 */
+const SLOW_MS = 15000, GIVE_UP_MS = 60000;
+async function slowFetch(body, onSlow){
+  const ctrl = new AbortController();
+  const slow = setTimeout(() => onSlow && onSlow(), SLOW_MS), stop = setTimeout(() => ctrl.abort(), GIVE_UP_MS);
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body), signal:ctrl.signal });
+    return await res.json();
+  }catch(err){
+    if(err.name === 'AbortError') throw Object.assign(new Error('서버가 1분 동안 답하지 않았어요. 잠시 뒤 다시 눌러 주세요.'), { server:true });
+    throw err;
+  }finally{ clearTimeout(slow); clearTimeout(stop); }
+}
+async function serverSave(kind, row, onSlow){
   if(!APPS_SCRIPT_URL || !LOGIN) throw new Error('no server');
   const body = { action:'student_save', book:BOOK.id, cls:LOGIN.cls, num:LOGIN.num, stuCode:LOGIN.code, kind, progress:progress(), state:JSON.stringify(snapshot()) };
   if(row) body.row = row;
-  const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body) });
-  const r = await res.json();
+  const r = await slowFetch(body, onSlow);
   if(r.result !== 'success') throw Object.assign(new Error(r.message || '저장 실패'), { server:true });
   dirty = false;
   $('meSaved').textContent = `· ${kind} ${hhmm(new Date())} ✓`;
@@ -1211,7 +1223,7 @@ async function sendWorksheet(kind, where, msgEl, btn){
     for(const q of S.questions) if(!q.sent) await sendQuestion(q);   // 아직 못 보낸 질문도 함께
     renderQuestions();
     S.lastSaved = { kind, time: hhmm(new Date()) };
-    await serverSave(kind, buildPayload(kind, where));
+    await serverSave(kind, buildPayload(kind, where), () => setState(msgEl, '⏳ 서버가 느려요. 조금만 더 기다려 주세요. (창을 닫지 마세요)', ''));
     showLastSaved();
     if(msgEl.id !== 'lastSaved') setState(msgEl, kind === '최종 제출' ? '최종 제출했어요! 선생님 화면에 전달되었어요. 고친 뒤 다시 제출해도 돼요.' : `💾 ${S.lastSaved.time} 중간 저장했어요. 선생님이 진행 상황을 볼 수 있어요.`, 'ok');
     return true;
@@ -1248,14 +1260,20 @@ function renderAll(){
   $('lastSaved').textContent = '아직 선생님께 저장하지 않았어요'; $('lastSaved').className = ''; showLastSaved();
 }
 const fmtAt = v => { const d = new Date(v); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${hhmm(d)}`; };
+let loginAttempt = 0;
 async function doLogin(cls, num, code, silent){
   const msg = $('loginMsg');
   if(!APPS_SCRIPT_URL){ msg.textContent = '선생님이 아직 서버를 연결하지 않았어요.'; msg.className = 'msg err'; return; }
   if(!/^\d{1,2}$/.test(cls) || !/^\d{1,2}$/.test(num) || !/^\d{4}$/.test(code)){ msg.textContent = '반·번호와 4자리 코드를 확인해 주세요.'; msg.className = 'msg err'; return; }
   msg.textContent = '불러오는 중…'; msg.className = 'msg'; $('loginBtn').disabled = true;
+  const attempt = ++loginAttempt;   // 다시 누르면 가장 먼저 끝난 시도로 로그인하고 나머지는 버린다
   try{
-    const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'student_login', book:BOOK.id, cls, num, stuCode:code }) });
-    const r = await res.json();
+    const r = await slowFetch({ action:'student_login', book:BOOK.id, cls, num, stuCode:code }, () => {
+      if(attempt !== loginAttempt || LOGIN) return;
+      msg.textContent = '⏳ 서버가 느려요. 조금 더 기다리거나, 잠시 뒤 [로그인 · 불러오기]를 다시 눌러 주세요.'; msg.className = 'msg';
+      $('loginBtn').disabled = false;
+    });
+    if(LOGIN) return;   // 다른 시도로 이미 로그인됨
     if(r.result !== 'success'){ msg.textContent = r.message || '로그인하지 못했어요.'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
     // 예전 서버는 책을 구분하지 못해 『나는 나로』 저장을 덮어쓸 수 있으므로 막는다
     if(r.book !== BOOK.id){ msg.textContent = '선생님이 Apps Script를 새 버전으로 업데이트하면 이 책 워크시트를 쓸 수 있어요. (지금은 튜터 카드 읽기만 가능해요)'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
@@ -1279,7 +1297,8 @@ async function doLogin(cls, num, code, silent){
     document.body.classList.add('in');
     if(dirty) autoSave();
   }catch(err){
-    msg.textContent = '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'; msg.className = 'msg err';
+    if(LOGIN || attempt !== loginAttempt) return;   // 다른 시도가 이미 끝났거나 아직 기다리는 중
+    msg.textContent = err.server ? err.message : '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'; msg.className = 'msg err';
   }finally{ $('loginBtn').disabled = false; }
 }
 $('loginForm').addEventListener('submit', e => { e.preventDefault(); doLogin($('loginCls').value.trim(), $('loginNum').value.trim(), $('loginCode').value.trim()); });
