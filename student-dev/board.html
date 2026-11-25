@@ -96,7 +96,8 @@
     <span class="ic">📤</span>
     <div><h1>학생 개발자료 게시판</h1></div>
     <div class="top-actions">
-      <button class="btn" id="open-up" type="button">＋ 내 작품 올리기</button>
+      <button class="btn hidden" id="open-up" type="button">＋ 내 작품 올리기</button>
+      <button class="btn ghost hidden" id="lock-btn" type="button" title="이 컴퓨터에 저장된 코드를 지우고 잠가요">🔒 잠그기</button>
     </div>
   </header>
   <p class="sub">친구들이 만든 HTML 게임·시뮬레이션·도구와 📌 선생님 자료를 실행해 보고 내려받아요. 내가 만든 작품도 올릴 수 있어요.</p>
@@ -148,13 +149,26 @@
     <ul class="rows" id="mine"></ul>
   </section>
 
+  <!-- 입장 -->
+  <section class="card hidden" id="gate">
+    <h2 style="font-size:19px;margin:0 0 6px">🔒 게시판 입장</h2>
+    <p class="sub" style="margin:0 0 12px">선생님이 알려 준 코드를 입력해야 작품과 자료를 보고 내려받을 수 있어요. (과제제출방 제출코드와 같아요)</p>
+    <div style="display:flex;gap:8px">
+      <input type="password" id="gcode" class="search" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="입장 코드">
+      <button class="btn" id="gbtn" type="button">입장</button>
+    </div>
+    <div class="msg err" id="gmsg"></div>
+  </section>
+
   <!-- 목록 -->
+  <div id="board-area" class="hidden">
   <div class="bar">
     <div class="chips" id="filter"></div>
     <input class="search" id="q" type="search" placeholder="🔍 제목·소개 검색">
     <select id="sort"><option value="new">최신순</option><option value="dl">다운로드 많은 순</option></select>
   </div>
   <div id="list"><div class="empty"><span class="spin"></span> 작품을 불러오는 중…</div></div>
+  </div>
 
   <!-- 교사용 -->
   <details class="teacher" id="teacher">
@@ -212,7 +226,7 @@ const CLS = "1", MAX_BYTES = 5 * 1024 * 1024;
 const LS_CODE = "science-submit-code", LS_WHO = "science-board-who";
 
 const $ = id => document.getElementById(id);
-const st = { items: [], grade: "all", q: "", sort: "new", code: "", who: null, pickGrade: "1", file: null, busy: false, cache: {}, tcode: "" };
+const st = { items: [], grade: "all", q: "", sort: "new", code: "", who: null, pickGrade: "1", file: null, busy: false, cache: {}, tcode: "", view: "", viewTeacher: false };
 function store(k, v){ try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} }
 function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -244,14 +258,49 @@ function renderFilter(){
   $("filter").innerHTML = opts.map(([v, t]) => `<button type="button" class="chip ${st.grade === v ? "sel" : ""}" data-v="${v}">${t}</button>`).join("");
   $("filter").querySelectorAll("button").forEach(b => b.onclick = () => { st.grade = b.dataset.v; renderFilter(); renderList(); });
 }
+/* ---------- 입장 코드 ---------- */
+function setLocked(locked, msg){
+  $("gate").classList.toggle("hidden", !locked);
+  $("board-area").classList.toggle("hidden", locked);
+  $("open-up").classList.toggle("hidden", locked);
+  $("lock-btn").classList.toggle("hidden", locked || st.viewTeacher);
+  $("gmsg").textContent = msg || "";
+  if (locked){ $("up").classList.add("hidden"); $("mine-card").classList.add("hidden"); closeModal(); }
+}
+async function enter(code, silent){
+  code = String(code || "").trim();
+  if (!code){ $("gmsg").textContent = "코드를 입력해 주세요."; return; }
+  st.view = code;
+  const b = $("gbtn"); b.disabled = true; if (!silent) $("gmsg").innerHTML = '<span class="spin"></span> 확인 중…';
+  await loadList();
+  b.disabled = false;
+}
+$("gbtn").onclick = () => { st.viewTeacher = false; enter($("gcode").value); };
+$("gcode").addEventListener("keydown", e => { if (e.key === "Enter"){ st.viewTeacher = false; enter($("gcode").value); } });
+$("lock-btn").onclick = () => {
+  st.view = ""; st.items = []; st.cache = {}; store(LS_CODE, null);
+  $("gcode").value = ""; $("code").value = ""; st.code = "";
+  setLocked(true, "");
+};
+
 async function loadList(){
+  if (!st.view){ setLocked(true); return; }
   $("list").innerHTML = '<div class="empty"><span class="spin"></span> 작품을 불러오는 중…</div>';
   try{
-    const res = await api({ action: "gallery" });
+    const res = await api({ action: "gallery", code: st.view });
+    if (res && res.locked){
+      if (!st.viewTeacher && load(LS_CODE) === st.view) store(LS_CODE, null);
+      st.view = ""; st.items = [];
+      setLocked(true, "코드가 맞지 않아요. 선생님께 다시 확인해 주세요.");
+      return;
+    }
     if (!res.ok) throw new Error(res.error || "fail");
+    if (!st.viewTeacher){ store(LS_CODE, st.view); if (!$("code").value) $("code").value = st.view; }
+    setLocked(false);
     st.items = res.items || [];
     renderList();
   }catch(e){
+    setLocked(false);
     $("list").innerHTML = '<div class="empty">작품 목록을 불러오지 못했어요. <button class="link" type="button" onclick="loadList()">다시 시도</button></div>';
   }
 }
@@ -293,7 +342,7 @@ async function getContent(it, dl, btn){
   const old = btn ? btn.innerHTML : "";
   if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spin"></span>'; }
   try{
-    const p = { action: "gallery_file", id: it.id };
+    const p = { action: "gallery_file", id: it.id, code: st.view };
     if (dl) p.dl = "1";
     if (st.tcode && it._admin) p.tcode = st.tcode;
     const res = await api(p);
@@ -443,6 +492,7 @@ async function loadAdmin(){
     const res = await api({ action: "gallery_admin", tcode });
     if (!res.ok){ m.className = "msg err"; m.textContent = res.error || "확인하지 못했어요."; return; }
     st.tcode = tcode;
+    if (!st.view){ st.view = tcode; st.viewTeacher = true; loadList(); }
     $("tup").classList.remove("hidden");
     const items = (res.items || []).slice().reverse();
     const wait = items.filter(x => !x.open).length;
@@ -527,7 +577,8 @@ renderTGrade();
   if (ROSTERS[w[0]] && ROSTERS[w[0]][+w[1] - 1]){ st.pickGrade = w[0]; st.who = { grade: w[0], num: w[1], name: ROSTERS[w[0]][+w[1] - 1] }; }
   renderFilter(); renderWho();
   if (!API){ $("not-ready").classList.remove("hidden"); $("list").innerHTML = ""; return; }
-  loadList();
+  if (saved){ $("gcode").value = saved; enter(saved, true); }
+  else setLocked(true);
 })();
 </script>
 </body>
