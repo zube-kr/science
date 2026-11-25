@@ -246,6 +246,87 @@
     table.ailog td{ border:none; }
     table.ailog td::before{ content:attr(data-h); display:block; font-size:11.5px; font-weight:800; color:#3b3f8f; margin-bottom:2px; }
   }
+  /* 책 튜터 읽기 */
+  .cover.bookcover{ background:linear-gradient(150deg,#FFE9C7,#F7C9B6 55%,#D9C7F2); }
+  .cover.bookcover b{ color:#3B2A5A; font-size:15px; }
+  .cover.bookcover small{ color:#5E4A7E; }
+  .tutor-hello{ display:flex; gap:12px; align-items:flex-start; background:#F2F7EE; border:1px solid #D5E6CB; border-radius:14px; padding:12px 14px; margin:14px 0 4px; font-size:14px; line-height:1.7; }
+  .tutor-hello .th{ display:block; color:#2E5A3A; font-weight:800; }
+  .tutor-face{ font-size:26px; line-height:1; }
+  .epi{ background:#FBFAF6; border:1px solid var(--paper-line); border-left:4px solid #8FB59A; border-radius:10px; padding:10px 13px; font-size:13.5px; }
+  .epi small{ color:var(--ink-soft); font-size:12px; }
+  .epi .en{ font-family:'Noto Serif KR',serif; font-style:italic; margin:4px 0 2px; color:#2E3B33; }
+  .epi .ko{ margin:0; }
+  .epi .why{ display:block; margin-top:4px; font-size:12.5px; color:#3F7D5C; }
+  details.timeline{ margin:12px 0; border:1px solid var(--paper-line); border-radius:12px; padding:10px 14px; background:#fff; }
+  details.timeline summary{ cursor:pointer; font-weight:700; font-size:14px; }
+  details.timeline ol{ list-style:none; padding:0; margin:10px 0 0; border-left:2px solid #D5E6CB; }
+  details.timeline li{ padding:3px 0 3px 12px; font-size:13.5px; position:relative; }
+  details.timeline li::before{ content:""; position:absolute; left:-5px; top:11px; width:8px; height:8px; border-radius:50%; background:#8FB59A; }
+  details.timeline li b{ color:#2E5A3A; margin-right:4px; }
+  .trans-note{ background:#FFFDF7; border:1.5px dashed #C9C3B0; border-radius:12px; padding:10px 13px; font-size:13px; margin:12px 0; }
+  .en-badge{ display:inline-block; background:#EEF0FA; color:#3b3f8f; border-radius:6px; padding:0 6px; font-size:11.5px; font-weight:800; }
+  .read-bar{ display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; color:#2E5A3A; margin:14px 0 8px; }
+  .read-track{ flex:1; height:8px; border-radius:99px; background:#E8EEE3; overflow:hidden; }
+  .read-track i{ display:block; height:100%; width:0; background:#5E9A6E; border-radius:99px; transition:width .3s; }
+  .part-title{ font-size:12.5px; letter-spacing:.06em; color:#3F7D5C; font-weight:800; margin:14px 0 6px; }
+  details.ch{ border:1px solid var(--paper-line); border-radius:12px; margin-bottom:8px; background:#fff; }
+  details.ch[open]{ border-color:#BFD8B0; box-shadow:0 4px 14px rgba(46,90,58,.08); }
+  details.ch > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; padding:10px 13px; }
+  details.ch > summary::-webkit-details-marker{ display:none; }
+  .ch-n{ flex:none; width:30px; height:30px; border-radius:9px; background:#E8EEE3; color:#2E5A3A; display:grid; place-items:center; font-weight:800; font-size:13px; }
+  details.ch.read .ch-n{ background:#5E9A6E; color:#fff; }
+  .ch-t{ flex:1; line-height:1.35; }
+  .ch-t b{ font-size:14.5px; color:var(--ink); }
+  .ch-t small{ display:block; font-size:11.5px; color:var(--ink-soft); font-style:italic; }
+  .ch-flag{ font-size:11.5px; color:#3F7D5C; font-weight:700; white-space:nowrap; }
+  .ch-body{ padding:2px 14px 14px; font-size:14px; line-height:1.75; }
+  .ch-body .lbl{ display:inline-block; font-size:11.5px; font-weight:800; color:#2E5A3A; background:#E8EEE3; border-radius:6px; padding:0 7px; margin:10px 0 4px; }
+  .ch-body p.sum{ margin:0; }
+  blockquote.q{ margin:8px 0; padding:9px 13px; background:#F7F8FC; border-left:4px solid #7D86C9; border-radius:0 10px 10px 0; }
+  blockquote.q .en{ font-family:'Noto Serif KR',serif; font-style:italic; color:#2D3266; font-size:13.5px; }
+  blockquote.q .ko{ margin-top:4px; }
+  blockquote.q small{ display:block; font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .ch-qs{ margin:4px 0 0; padding-left:0; list-style:none; counter-reset:tq; }
+  .ch-qs li{ counter-increment:tq; position:relative; padding:7px 10px 7px 34px; background:#FFF8E8; border-radius:10px; margin-bottom:6px; }
+  .ch-qs li::before{ content:"Q" counter(tq); position:absolute; left:9px; top:7px; font-weight:800; color:#B07A1F; font-size:12.5px; }
+  .ch-find{ background:#F2F7EE; border-radius:10px; padding:8px 11px; margin-top:6px; font-size:13.5px; }
+  .ch-sci{ font-size:13px; color:#2F6FDB; margin-top:6px; }
+  .ch-kws{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+  .ch-kws button{ border:1.5px solid #CFE3C3; background:#F4FAF0; color:#2E5A3A; border-radius:999px; padding:3px 11px; font-size:13px; cursor:pointer; }
+  .ch-kws button:hover{ background:#E6F2DE; }
+  .ch-body textarea{ min-height:64px; }
+  .ch-acts{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .ch-acts .btn.done{ background:#5E9A6E; border-color:#5E9A6E; color:#fff; }
+  .ch-msg{ font-size:12.5px; color:#3F7D5C; min-height:1em; margin-top:4px; }
+  /* 생물 농축 그래프 */
+  .bio{ border:1px solid #D5E6CB; border-radius:12px; padding:12px 14px; margin:10px 0 4px; background:#FBFDF9; }
+  .bio h4{ margin:0 0 2px; font-size:14px; color:#2E5A3A; }
+  .bio .sub{ font-size:12px; color:var(--ink-soft); margin:0 0 10px; }
+  .bio-row{ display:grid; grid-template-columns:128px 1fr; gap:10px; align-items:center; margin:6px 0; cursor:default; }
+  .bio-row .nm{ font-size:13px; line-height:1.3; }
+  .bio-row .nm small{ display:block; color:var(--ink-soft); font-size:11px; }
+  .bio-bar{ position:relative; height:22px; }
+  .bio-bar i{ position:absolute; left:0; top:3px; height:16px; background:#5E9A6E; border-radius:0 4px 4px 0; transition:width .5s; }
+  .bio-bar i.rng{ background:#A9CBAF; }
+  .bio-bar span{ position:absolute; top:1px; font-size:12.5px; font-weight:700; color:var(--ink); white-space:nowrap; }
+  .bio-row:hover i:not(.rng), .bio-row:focus i:not(.rng){ background:#3F7D5C; }
+  .bio-axis{ display:grid; grid-template-columns:128px 1fr; gap:10px; font-size:11px; color:var(--ink-soft); }
+  .bio-axis div{ display:flex; justify-content:space-between; border-top:1px solid #DCE5D6; padding-top:2px; }
+  .bio-tip{ min-height:2.6em; font-size:13px; background:#F2F7EE; border-radius:8px; padding:6px 10px; margin-top:8px; }
+  .bio details{ margin-top:6px; font-size:12.5px; }
+  .bio table{ border-collapse:collapse; margin-top:4px; }
+  .bio td, .bio th{ border:1px solid #DCE5D6; padding:3px 8px; text-align:left; }
+  .today{ background:#F7F5EE; border-radius:12px; padding:12px 14px; margin:14px 0 4px; font-size:13.5px; }
+  .today ul{ margin:6px 0 0; padding-left:18px; }
+  .today li{ margin-bottom:4px; }
+  @media (max-width:640px){
+    .bio-row, .bio-axis{ grid-template-columns:92px 1fr; }
+    .ch-body{ padding:2px 11px 12px; }
+  }
+  body:not(.in) .needs-login{ opacity:.5; pointer-events:none; }
+  .login-only{ font-size:12.5px; color:#B0522F; margin:6px 0 0; }
+  body.in .login-only{ display:none; }
 </style>
 </head>
 <body>
@@ -254,7 +335,7 @@
   <div class="hero-inner">
     <div class="eyebrow">각종행사운영 · 질문탐구한마당 연습</div>
     <h1>질문·탐구 궁금한마당<small>지정 도서 『나는 나로 살기로 했다』 (김수현)</small></h1>
-    <p>책 속의 한 부분을 읽고 관심어를 찾고, 나만의 질문을 만들고, 팀과 함께 질문을 골라 다듬고, 탐구해서 발표하는 대회의 전 과정을 미리 연습해 봐요.</p>
+    <p>여섯 개의 "to do list"를 튜터와 함께 읽고, 관심어를 찾고, 나만의 질문을 만들고, 팀과 함께 질문을 골라 다듬고, 탐구해서 발표하는 대회의 전 과정을 미리 연습해 봐요.</p>
     <span class="slogan">「질문, 생각을 만나 진로를 열다」 · 2026 경주·영천 예선 12. 4.(금) 13:00</span>
   </div>
 </header>
@@ -314,27 +395,70 @@
   </div>
 
   <!-- 지정 도서 -->
-  <section>
-    <h2><span class="num">📖</span>지정 도서와 읽기 자료(지문)</h2>
+  <section class="open-read" id="bookSec">
+    <h2><span class="num">📖</span>지정 도서 『나는 나로 살기로 했다』 — 튜터와 함께 읽기</h2>
     <div class="book">
-      <div class="cover"><b>나는<br>나로 살기로<br>했다</b><small>김수현 글·그림</small></div>
+      <div class="cover bookcover"><b>나는<br>나로 살기로<br>했다</b><small>김수현 글·그림<br>2016</small></div>
       <div>
-        <p style="margin:0 0 6px;font-size:14.5px">『나는 나로 살기로 했다』는 <b>김수현</b> 작가가 글과 그림으로 쓴 <b>에세이</b>예요. 남과 비교하고 남의 시선에 흔들리는 대신, <b>나 자신을 존중하며 살아가는 방법</b>에 대해 이야기해요.</p>
-        <p class="hint" style="margin:0">대회 당일에는 이 책에서 뽑은 <b>지문</b>이 팀별로 주어져요. 연습할 때는 선생님이 나눠 준 부분이나 내가 고른 부분을 읽어요.</p>
+        <p style="margin:0 0 6px;font-size:14.5px">『나는 나로 살기로 했다』는 <b>김수현</b> 작가가 글과 그림으로 쓴 <b>에세이</b>예요. 부제는 <b>"냉담한 현실에서 어른살이를 위한 to do list"</b>. 남과 비교하고 남의 시선에 흔들리는 대신 <b>나 자신을 존중하며 살아가는 방법</b>을, 짧은 글 여러 편으로 여섯 개의 "할 일 목록(to do list)"에 담았어요.</p>
+        <p class="hint" style="margin:0">대회 당일에는 이 책에서 뽑은 <b>지문</b>(짧은 글 한두 편)이 팀별로 주어져요. 아래 <b>튜터 카드</b>로 여섯 Part의 흐름을 먼저 잡고, 내가 가진 책에서 그 글을 찾아 읽어요.</p>
       </div>
     </div>
-    <p style="margin:14px 0 2px;font-size:13.5px;font-weight:700">💬 이 책을 읽으며 떠올려 볼 만한 이야기 <span class="hint" style="font-weight:400">— 누르면 아래 '내 생각' 칸에 넣어져요</span></p>
-    <div class="themes" id="themes">
+
+    <div class="tutor-hello">
+      <span class="tutor-face">🧑‍🏫</span>
+      <div><span class="th">튜터의 한마디</span>
+        이 책은 정답을 알려 주는 책이 아니라 <b>"나는 어떻게 살고 싶은가"</b>를 함께 생각하자고 말을 거는 책이에요. 그러니 읽을 때 두 가지를 해 보세요. ① 작가의 말에 <b>공감하는 부분과 동의하지 않는 부분</b>을 나누기 ② 그 이야기를 <b>나와 우리 반, 우리 사회</b>에 비추어 보기. 카드마다 <b>이어지는 이야기</b>(심리학 개념 포함)와 <b>튜터의 질문</b>, <b>책에서 찾아보기</b> 과제를 준비했어요.
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div class="epi"><small>책의 여섯 Part — 어른살이를 위한 to do list</small>
+        <p class="ko">1 나의 삶을 존중하며 살아가기 위한<br>2 나답게 살아가기 위한<br>3 불안에 붙잡히지 않기 위한<br>4 함께 살아가기 위한<br>5 더 나은 세상을 위한<br>6 좋은 삶, 그리고 의미 있는 삶을 위한</p>
+        <span class="why">→ Part 제목만 이어 읽어도 "나 → 관계 → 세상 → 삶의 의미"로 넓어지는 흐름이 보여요.</span></div>
+      <div class="epi"><small>책 제목을 다시 읽어 보기</small>
+        <p class="ko" style="font-size:16px;font-family:'Noto Serif KR',serif"><b>"나는 나로 살기로 했다"</b></p>
+        <span class="why">→ "살았다"가 아니라 "살기로 했다". 왜 <b>결심</b>의 말로 썼을까요? 책을 다 읽은 뒤 다시 생각해 보세요.</span></div>
+    </div>
+
+    <details class="timeline">
+      <summary>📚 이 책에 대해 (펼치기)</summary>
+      <ol>
+        <li><b>2016</b> 『나는 나로 살기로 했다』 출간 (마음의숲) — 작가가 직접 그린 그림과 함께 실린 짧은 글 모음</li>
+        <li><b>이후</b> 오랫동안 많은 사람에게 읽히며 일본·대만 등 여러 나라에도 번역 출간</li>
+        <li><b>2022</b> 개정증보판 출간 — 글 6편과 그림 19컷이 더해짐 (판본에 따라 글 구성이 조금 달라요)</li>
+      </ol>
+      <p class="hint" style="margin:6px 0 0">🔎 찾아보기 — 작가가 이 책을 쓴 까닭은 무엇일까요? 책의 머리말(들어가는 글)에서 찾아 한 문장으로 옮겨 보세요.</p>
+    </details>
+
+    <div class="trans-note">📘 <b>카드 읽는 법</b> — 이 책은 짧은 글이 많아서, 카드는 목차에서 확인한 <b>Part 제목과 글 제목</b>으로 만들었어요. 카드의 설명은 그 주제와 이어지는 이야기(심리학 개념 포함)를 <b>AI 튜터가 정리</b>한 것이고, 작가가 실제로 무엇을 말하는지는 <b>🔎 책에서 찾아보기</b>로 직접 확인해요. 찾은 글의 제목과 쪽수를 메모 칸에 적어 두면 지문 찾기가 쉬워요.</div>
+
+    <div class="read-bar"><span id="readCount">읽은 장 0 / 17</span><span class="read-track"><i id="readFill"></i></span></div>
+    <div id="chapters"></div>
+
+    <div class="today">
+      <b>🌍 오늘로 이어지는 질문들</b> <span class="hint" style="font-weight:400">— 탐구 질문을 만들 때 참고해요 (여러 관점이 있는 주제예요)</span>
+      <ul>
+        <li><b>SNS와 비교</b> SNS를 오래 할수록 나를 남과 더 비교하게 될까요? 비교를 줄이는 방법은 무엇일까요?</li>
+        <li><b>"정상"의 기준</b> 나이에 맞춰 해야 하는 일(대학, 취업, 결혼)은 누가 정했을까요? 그 기준은 바뀌고 있을까요?</li>
+        <li><b>청소년의 마음 건강</b> 우리나라 청소년의 스트레스와 행복은 어느 정도일까요? 믿을 만한 조사 자료로 확인해 보세요.</li>
+        <li><b>무례함과 표현의 자유</b> 농담과 무례함의 경계는 어디일까요? 온라인에서는 어떻게 달라질까요?</li>
+      </ul>
+    </div>
+
+    <p style="margin:16px 0 2px;font-size:13.5px;font-weight:700">💬 이 책을 읽으며 떠올려 볼 만한 이야기 <span class="hint" style="font-weight:400">— 누르면 아래 '내 생각' 칸에 넣어져요</span></p>
+    <div class="themes needs-login" id="themes">
       <button type="button">자존감</button><button type="button">남의 시선</button><button type="button">비교와 열등감</button><button type="button">관계와 거리 두기</button>
       <button type="button">무례함에 대처하기</button><button type="button">사회가 정한 정답</button><button type="button">불안과 행복</button><button type="button">함께 사는 사회</button>
     </div>
-    <div class="fact">📌 <b>읽기 팁</b> — 대회는 책 내용을 외우는 시험이 아니에요. 지문의 <b>맥락</b>을 이해하고, 그 속에서 <b>깊이 생각해 볼 단어(관심어)</b>를 찾는 것이 첫걸음이에요.</div>
-    <div class="stack">
+    <div class="fact">📌 <b>읽기 팁</b> — 대회는 책 내용을 외우는 시험이 아니에요. 지문의 <b>맥락</b>(어떤 사건, 어떤 주장, 어떤 근거)을 이해하고, 그 속에서 <b>깊이 생각해 볼 단어(관심어)</b>를 찾는 것이 첫걸음이에요. 튜터 카드의 <b>관심어 후보</b>를 눌러 STEP 1에 바로 넣을 수도 있어요.</div>
+    <p class="login-only">🔒 튜터 카드는 로그인하지 않아도 읽을 수 있어요. 메모·관심어 넣기·지문 정리는 로그인한 뒤에 할 수 있어요.</p>
+    <div class="stack needs-login" id="passageBox">
       <div class="grid2">
-        <div><label class="lb" for="passageWhere">읽은 부분 (쪽수 또는 소제목)</label><input type="text" id="passageWhere" placeholder="예) 52~55쪽, ○○○○ 부분"></div>
-        <div><label class="lb" for="passageQuote">인상 깊은 문장 (한두 문장만 옮겨 적기)</label><input type="text" id="passageQuote" placeholder="책을 보고 직접 옮겨 적어요"></div>
+        <div><label class="lb" for="passageWhere">읽은 부분 (장·쪽수)</label><input type="text" id="passageWhere" placeholder="예) Part 2 '단단한 자존감 다지기', 52~55쪽"></div>
+        <div><label class="lb" for="passageQuote">인상 깊은 문장 (내가 가진 책에서 한두 문장만 옮겨 적기)</label><input type="text" id="passageQuote" placeholder="내가 가진 책을 보고 직접 옮겨 적어요"></div>
       </div>
-      <div><label class="lb" for="passageSummary">지문의 핵심 내용을 내 말로 정리하기 (2~3문장)</label><textarea id="passageSummary" placeholder="이 부분에서 작가가 말하고 싶은 것은…"></textarea></div>
+      <div><label class="lb" for="passageSummary">지문의 핵심 내용을 내 말로 정리하기 (2~3문장)</label><textarea id="passageSummary" placeholder="이 글에서 작가가 말하고 싶은 것은…"></textarea></div>
       <div><label class="lb" for="passageThought">읽고 난 내 생각</label><textarea id="passageThought" placeholder="공감한 점, 동의하지 않는 점, 떠오른 경험…"></textarea></div>
     </div>
   </section>
@@ -411,6 +535,7 @@
     <p class="hint"><b>목표</b> 선정한 질문의 답을 찾기 위해 자료를 모으고, 비교·분석해서 우리 팀의 잠정적인 답을 세울 수 있다.</p>
     <div class="topic-row" id="topicRow">
       <span class="tlabel">무엇을 도와줄까?</span>
+      <button type="button" class="topic" data-topic="책 읽기 · 튜터에게 묻기">📖 책 읽기 · 튜터에게 묻기</button>
       <button type="button" class="topic" data-topic="선정 · 질문 다듬기">선정 · 질문 다듬기</button>
       <button type="button" class="topic" data-topic="탐구 · 용어와 개념">탐구 · 용어와 개념</button>
       <button type="button" class="topic" data-topic="탐구 · 자료와 사례 찾기">탐구 · 자료와 사례 찾기</button>
@@ -425,7 +550,7 @@
       </div>
       <div class="ai-starters" id="aiStarters"></div>
       <div class="ai-log" id="aiLog">
-        <div class="ai-msg bot">안녕하세요! 우리 팀이 고른 질문을 탐구하는 데 필요한 것을 물어보세요. 위에서 도움 종류를 고르면 질문 예시가 나타나요.<br><small>AI는 답을 정해 주지 않고 탐구의 방향을 알려 줘요. AI의 답에도 틀린 내용이 있을 수 있으니 출처를 확인하고 내 말로 정리해요. 이름·연락처 같은 개인 정보는 입력하지 마세요.</small></div>
+        <div class="ai-msg bot">안녕하세요! 저는 『나는 나로 살기로 했다』를 함께 읽는 <b>AI 튜터</b>예요. 책의 주제가 어렵거나 관련된 마음의 개념(자존감, 비교, 불안, 관계)을 더 알고 싶으면 물어보세요. 저는 답을 정해 주기보다 생각할 거리와 다른 관점을 보여 주고 <b>튜터의 질문</b>을 되돌려 드려요. 위에서 도움 종류를 고르면 질문 예시가 나타나요.<br><small>📖 '책 읽기'는 연습용이에요. 대회 당일 탐색·생성 단계에서는 AI를 쓸 수 없어요.</small></div>
       </div>
       <div class="ai-input">
         <input type="text" id="aiQ" maxlength="300" placeholder="예) '비교'와 '열등감'의 관계를 다룬 연구나 통계를 찾으려면 어떤 검색어를 써야 해?">
@@ -533,10 +658,12 @@
 
 <div class="savebar" id="savebar"><small id="lastSaved">아직 선생님께 저장하지 않았어요</small><button type="button" class="btn sm" id="floatSave">💾 중간 저장</button></div>
 
+<script src="question-festival-naro-data.js"></script>
 <script>
 // code-question-festival.gs 를 새 구글 시트에 붙여넣고 웹 앱으로 배포한 주소(…/exec)를 넣으세요. (3학년 과학 워크시트와 따로 동작)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfB37iEFnaX7xN8iwzPqxsbD6Tz68Ij8DUUr62aB6LJrzyY32Y-JWpi53bMsiGhoEF/exec";
 const BOOK = { id:'naro', title:'나는 나로 살기로 했다' };   // 서버가 책마다 따로 저장
+const BOOKD = BOOKDATA[BOOK.id], { PARTS, CHAPTERS } = BOOKD;   // 책 자료 (question-festival-○○-data.js)   // 서버가 책마다 따로 저장
 const AI_UNIT = '질문탐구한마당 — 『나는 나로 살기로 했다』(김수현)';
 const DRAFT_KEY = 'qf-naro-draft-v1';
 const $ = id => document.getElementById(id);
@@ -553,7 +680,9 @@ const freshS = () => ({
   revisit: {},              // question id → 해결/진행 중/아직
   next: [],
   checks: {},
-  aiUsed: 0
+  aiUsed: 0,
+  read: {},                 // 장 번호 → 다 읽음
+  chNotes: {}               // 장 번호 → 튜터의 질문에 대한 내 생각
 });
 let S = freshS();
 let LOGIN = null;           // { cls, num, code, name }
@@ -597,11 +726,98 @@ $('themes').addEventListener('click', e => {
   ta.focus(); saveDraft();
 });
 
+/* ---------- 장 속 그래프 (책마다 데이터 파일의 CHARTS) ---------- */
+const CHARTS = BOOKD.CHARTS || {};
+function chartX(cf, v){
+  const lg = cf.scale === 'log', a = lg ? Math.log10(cf.min) : cf.min, b = lg ? Math.log10(cf.max) : cf.max, x = lg ? Math.log10(v) : v;
+  return +Math.max(0, Math.min(100, (x - a) / (b - a) * 100)).toFixed(1);
+}
+function bookChart(key){
+  const cf = CHARTS[key]; if(!cf) return '';
+  return `<div class="bio" data-chart="${key}"><h4>${cf.title}</h4><p class="sub">${cf.sub}</p>
+    ${cf.rows.map((r, i) => { const hi = r.hi ?? r.lo, xl = chartX(cf, r.lo), xh = chartX(cf, hi), rng = hi !== r.lo;
+      return `<div class="bio-row" tabindex="0" data-bar="${i}"><div class="nm">${r.nm}<small>${r.sub || ''}</small></div>
+        <div class="bio-bar">${rng ? `<i class="rng" style="width:${xh}%"></i>` : ''}<i style="width:${xl}%"></i>
+        <span style="${xh > 60 ? `right:calc(${(100 - xh).toFixed(1)}% + 6px);color:${rng ? 'var(--ink)' : '#fff'}` : `left:calc(${xh}% + 6px)`}">${r.v}</span></div></div>`; }).join('')}
+    <div class="bio-axis"><span></span><div>${cf.ticks.map(t => `<span>${t}</span>`).join('')}</div></div>
+    <div class="bio-tip" data-biotip>${cf.first}</div>
+    <details><summary>표로 보기</summary><table><tr>${cf.table.head.map(h => `<th>${h}</th>`).join('')}</tr>${cf.table.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</table>${cf.note ? `<p class="hint" style="margin:4px 0 0">${cf.note}</p>` : ''}</details>
+  </div>`;
+}
+const barTip = el => { const bar = el.closest('[data-bar]'); if(!bar) return false; const box = bar.closest('[data-chart]'); box.querySelector('[data-biotip]').textContent = CHARTS[box.dataset.chart].rows[+bar.dataset.bar].tip; return true; };
+
+/* ---------- 장별 튜터 카드 ---------- */
+function renderChapters(){
+  const openNow = [...document.querySelectorAll('details.ch[open]')].map(d => d.dataset.ch);
+  $('chapters').innerHTML = PARTS.map(p => `<div class="part-title">${p.t}</div>` + CHAPTERS.filter(c => c.n >= p.from && c.n <= p.to).map(c => {
+    const read = !!S.read[c.n], note = S.chNotes[c.n] || '';
+    return `<details class="ch${read ? ' read' : ''}" data-ch="${c.n}"${openNow.includes(String(c.n)) ? ' open' : ''}>
+      <summary><span class="ch-n">${read ? '✓' : (c.mark || c.n)}</span><span class="ch-t"><b>${c.lab || c.n + '장'} · ${c.ko}</b><small>${c.en}</small></span><span class="ch-flag">${note.trim() ? '✏️ 메모' : ''}</span></summary>
+      <div class="ch-body">
+        <span class="lbl">${c.sumLabel || BOOKD.SUM_LABEL || '📖 이 장에서는'}</span><p class="sum">${c.sum}</p>
+        ${c.chart ? bookChart(c.chart) : ''}
+        ${c.quotes.length ? `<span class="lbl">❝ 책 속 문장</span>` + c.quotes.map(q => `<blockquote class="q">${q.en ? `<div class="en"><span class="en-badge">원문</span> ${esc(q.en)}</div>` : ''}<div class="ko">${esc(q.ko)}</div><small>${esc(q.note || 'AI 튜터 번역 — 번역본에서 같은 문장을 찾아 비교해 보세요')}</small></blockquote>`).join('') : ''}
+        <span class="lbl">🧑‍🏫 튜터의 질문</span><ol class="ch-qs">${c.qs.map(q => `<li>${q}</li>`).join('')}</ol>
+        ${c.find ? `<div class="ch-find">🔎 <b>책에서 찾아보기</b> — ${c.find}</div>` : ''}
+        <div class="ch-sci">🔬 과학과 이어지는 개념: ${c.sci}</div>
+        <span class="lbl">🔑 관심어 후보 — 누르면 STEP 1에 넣어져요</span>
+        <div class="ch-kws needs-login">${c.kws.map(k => `<button type="button" data-addkw="${esc(k)}">＋ ${esc(k)}</button>`).join('')}</div>
+        <span class="lbl">✏️ 튜터의 질문에 대한 내 생각 (책 쪽수도 적어 두면 좋아요)</span>
+        <textarea class="needs-login" data-chnote="${c.n}" placeholder="Q1: … / Q2: … / 책 ○○쪽">${esc(note)}</textarea>
+        <div class="ch-acts needs-login">
+          <button type="button" class="btn sm ${read ? 'done' : 'ghost'}" data-read="${c.n}">${read ? '✓ 읽었어요' : '☐ 다 읽었어요'}</button>
+          <button type="button" class="btn ghost sm" data-passage="${c.n}">📌 이 장을 오늘의 지문으로</button>
+          <button type="button" class="btn ghost sm" data-tutor="${c.n}">✦ AI 튜터에게 더 묻기</button>
+        </div>
+        <div class="ch-msg" data-chmsg="${c.n}"></div>
+      </div>
+    </details>`;
+  }).join('')).join('');
+  const n = Object.values(S.read).filter(Boolean).length;
+  $('readCount').textContent = `읽은 장 ${n} / ${CHAPTERS.length}`;
+  $('readFill').style.width = (n / CHAPTERS.length * 100) + '%';
+}
+const chMsg = (n, t) => { const el = document.querySelector(`[data-chmsg="${n}"]`); if(el){ el.textContent = t; clearTimeout(el._t); el._t = setTimeout(() => { el.textContent = ''; }, 4000); } };
+$('chapters').addEventListener('click', e => {
+  if(barTip(e.target)) return;
+  const b = e.target.closest('button'); if(!b) return;
+  const card = b.closest('details.ch'), n = card && +card.dataset.ch, c = CHAPTERS.find(x => x.n === n);
+  if(!c) return;
+  if(!LOGIN){ chMsg(n, '로그인하면 쓸 수 있어요.'); return; }
+  if(b.dataset.addkw){
+    const w = b.dataset.addkw;
+    if(S.kws.some(k => k.w.trim() === w)){ chMsg(n, `"${w}"은(는) 이미 관심어에 있어요.`); return; }
+    const slot = S.kws.find(k => !k.w.trim());
+    if(slot) slot.w = w; else if(S.kws.length < 6) S.kws.push({ w, why:'' }); else { chMsg(n, '관심어 칸이 가득 찼어요. STEP 1에서 하나를 지우고 다시 눌러요.'); return; }
+    renderKws(); renderKwSelect(); saveDraft(); renderProgress();
+    chMsg(n, `"${w}"을(를) STEP 1 관심어에 넣었어요. 관심을 갖게 된 이유도 적어 주세요.`);
+  } else if(b.dataset.read){
+    S.read[n] = !S.read[n]; saveDraft(); renderChapters();
+  } else if(b.dataset.passage){
+    $('passageWhere').value = `${c.lab || n + '장'} 「${c.ko}」` + (c.en && !/^「|목차에서/.test(c.en) ? ` (${c.en})` : '');
+    saveDraft();
+    $('passageBox').scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => $('passageQuote').focus({ preventScroll:true }), 400);
+  } else if(b.dataset.tutor){
+    AI.setTopic('책 읽기 · 튜터에게 묻기');
+    $('aiQ').value = `${c.lab || n + '장'} 「${c.ko}」에서 `;
+    document.querySelector('.ai-box').scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => { $('aiQ').focus({ preventScroll:true }); const L = $('aiQ').value.length; $('aiQ').setSelectionRange(L, L); }, 400);
+  }
+});
+$('chapters').addEventListener('mouseover', e => barTip(e.target));
+$('chapters').addEventListener('focusin', e => barTip(e.target));
+$('chapters').addEventListener('input', e => {
+  const el = e.target; if(el.dataset.chnote == null) return;
+  S.chNotes[el.dataset.chnote] = el.value; saveDraft();
+  const flag = el.closest('details.ch').querySelector('.ch-flag'); flag.textContent = el.value.trim() ? '✏️ 메모' : '';
+});
+
 /* ---------- STEP 1 관심어 ---------- */
 function renderKws(){
   $('kwRows').innerHTML = S.kws.map((k, i) => `
     <div class="kw-row">
-      <div><div class="kw-num">관심어 ${i + 1}</div><input type="text" data-kw="${i}" data-f="w" maxlength="20" value="${esc(k.w)}" placeholder="${['예) 비교', '예) 기준', '예) 눈치'][i]}"></div>
+      <div><div class="kw-num">관심어 ${i + 1}</div><input type="text" data-kw="${i}" data-f="w" maxlength="20" value="${esc(k.w)}" placeholder="${['예) 비교', '예) 기준', '예) 눈치'][i] || '관심어'}"></div>
       <div><div class="kw-num">관심을 갖게 된 이유 (우리 삶과 관련 짓기)</div><textarea data-kw="${i}" data-f="why" style="min-height:60px" placeholder="이 단어가 나·우리 반·우리 사회와 어떤 관련이 있나?">${esc(k.why)}</textarea></div>
     </div>`).join('');
 }
@@ -743,12 +959,13 @@ $('addLogRow').addEventListener('click', () => { S.aiLog.push({ prompt:'', use:'
 
 /* ---------- AI 조사 도우미 ---------- */
 const AI = (function(){
-  const MAX_Q = 10;
+  const MAX_Q = 15;
   let ready = false, busy = false, topic = '';
   const STARTERS = {
     '': ['질문탐구에서 좋은 질문의 조건은 뭐야?', '우리 팀 질문을 90분 안에 탐구하려면 어떻게 범위를 좁혀야 해?'],
+    '책 읽기 · 튜터에게 묻기': ['이 책의 여섯 Part는 각각 어떤 이야기를 담고 있어?', '자존감과 자존심은 어떻게 달라?', '"행복을 삶의 목적이라 부르지 않을 것"은 무슨 뜻일까?', '건강한 관계에서 "경계"가 왜 중요해?'],
     '선정 · 질문 다듬기': ['이 질문이 너무 넓은지 봐 줘: 사람들은 왜 남과 비교할까?', '질문을 우리 삶과 연결되게 다듬는 방법을 알려 줘', '두 질문 중 어떤 기준으로 고르면 좋을까?'],
-    '탐구 · 용어와 개념': ['자존감과 자존심은 어떻게 달라?', '사회적 비교 이론이 뭐야?', "'타인의 시선'을 심리학에서는 어떻게 설명해?"],
+    '탐구 · 용어와 개념': ['사회적 비교 이론이 뭐야?', '스포트라이트 효과가 뭐야?', "'타인의 시선'을 심리학에서는 어떻게 설명해?"],
     '탐구 · 자료와 사례 찾기': ['청소년의 SNS 사용과 비교에 관한 통계를 찾으려면 어디를 봐야 해?', '우리 질문에 맞는 자료를 찾을 검색어를 추천해 줘', '믿을 만한 자료인지 확인하는 방법은?'],
     '탐구 · 다른 관점 살펴보기': ['비교가 오히려 도움이 되는 경우도 있을까?', "'나답게 살기'와 '함께 살기'는 부딪힐까?", '우리 잠정적인 답에 반대하는 사람은 뭐라고 할까?']
   };
@@ -838,7 +1055,7 @@ const AI = (function(){
     else { $('aiState').textContent = '선생님이 Apps Script를 업데이트하면 사용할 수 있어요'; }
     updateCount();
   }).catch(() => { $('aiState').textContent = '연결할 수 없어요 — 인터넷 연결을 확인해 주세요'; });
-  return { refresh: updateCount };
+  return { refresh: updateCount, setTopic };
 })();
 
 /* ---------- 발표 개요 ---------- */
@@ -946,6 +1163,7 @@ function buildPayload(kind, where){
     '진행-탐색':pr['탐색'], '진행-생성':pr['생성'], '진행-선정':pr['선정'], '진행-탐구':pr['탐구'], '진행-발표':pr['발표'], '메타응답수':pr['메타'],
     '팀':$('team').value.trim(), '팀원':$('mates').value.trim(),
     '읽은부분':$('passageWhere').value.trim(), '인상깊은문장':$('passageQuote').value.trim(), '지문요약':$('passageSummary').value.trim(), '내생각':$('passageThought').value.trim(),
+    '읽은장':CHAPTERS.filter(c => S.read[c.n]).map(c => c.n).join(', '), '튜터질문-내생각':CHAPTERS.filter(c => String(S.chNotes[c.n] || '').trim()).map(c => `${c.n}장: ${S.chNotes[c.n].trim()}`).join('\n'),
     '관심어':S.kws.map(k => k.w.trim()).filter(Boolean).join(', '), '관심어-이유':kwText,
     '생성질문':S.questions.map((q, i) => `${i + 1}. ${q.text} (${q.type})`).join('\n'), '생성질문수':S.questions.length, '질문생성과정':$('genProcess').value.trim(),
     '선정1-처음':S.picks[0].from, '선정1-다듬은질문':S.picks[0].to, '선정1-이유':S.picks[0].reason, '선정1-방법':S.picks[0].methods.join(', '), '선정1-시간(분)':S.picks[0].minutes,
@@ -956,7 +1174,7 @@ function buildPayload(kind, where){
     'AI질문수':S.aiUsed,
     '예상질문-즉답':[1, 2].map(n => $('expQ' + n).value.trim() ? `Q${n}. ${$('expQ' + n).value.trim()} → ${$('expA' + n).value.trim()}` : '').filter(Boolean).join('\n'),
     '좋은질문조건':$('toOthers').value.trim(),
-    '메타-학습전-생각정도':S.meta['mb-rate'] || '', '메타-학습전-나로산다는것':S.meta['mb-prior'] || '',
+    '메타-학습전-생각정도':S.meta['mb-rate'] || '', '메타-학습전-생각':S.meta['mb-prior'] || '',
     '메타-생성점검':S.meta['md-question'] || '', '메타-선정점검':S.meta['md-select'] || '', '메타-근거점검':S.meta['md-evidence'] || '',
     '메타-학습후-설명정도':S.meta['ma-rate'] || '', '메타-생각변화':S.meta['ma-change'] || '', '메타-전략수정':S.meta['ma-strategy'] || '',
     '메타-질문다시보기':S.questions.map(q => `${q.text} → ${S.revisit[q.id] || '-'}`).join('\n'),
@@ -1026,7 +1244,7 @@ document.addEventListener('click', e => { if(e.target.closest('.rate, #qAdd, #ne
 /* ---------- 로그인 · 불러오기 · 자동 저장 · 로그아웃 ---------- */
 const LOGIN_KEY = 'qf-naro-login';     // 같은 창을 새로고침해도 로그인 유지 (창을 닫으면 사라짐)
 function renderAll(){
-  renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); AI.refresh(); renderProgress();
+  renderKws(); renderKwSelect(); renderQuestions(); renderPicks(); renderInqs(); renderAiLog(); renderMeta(); renderNext(); renderChecks(); renderChapters(); AI.refresh(); renderProgress();
   $('lastSaved').textContent = '아직 선생님께 저장하지 않았어요'; $('lastSaved').className = ''; showLastSaved();
 }
 const fmtAt = v => { const d = new Date(v); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${hhmm(d)}`; };
@@ -1039,6 +1257,8 @@ async function doLogin(cls, num, code, silent){
     const res = await fetch(APPS_SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify({ action:'student_login', book:BOOK.id, cls, num, stuCode:code }) });
     const r = await res.json();
     if(r.result !== 'success'){ msg.textContent = r.message || '로그인하지 못했어요.'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
+    // 예전 서버는 책을 구분하지 못해 『나는 나로』 저장을 덮어쓸 수 있으므로 막는다
+    if(r.book !== BOOK.id){ msg.textContent = '선생님이 Apps Script를 새 버전으로 업데이트하면 이 책 워크시트를 쓸 수 있어요. (지금은 튜터 카드 읽기만 가능해요)'; msg.className = 'msg err'; try{ sessionStorage.removeItem(LOGIN_KEY); }catch(e){} return; }
     LOGIN = { cls:String(r.student.cls), num:String(r.student.num), code, name:r.student.name };
     $('stuClass').value = LOGIN.cls; $('stuNumber').value = LOGIN.num; $('stuName').value = LOGIN.name;
     try{ sessionStorage.setItem(LOGIN_KEY, JSON.stringify({ cls, num, code })); }catch(e){}
@@ -1091,7 +1311,7 @@ $('logoutBtn2').addEventListener('click', logout);
 
 /* ---------- 시작 ---------- */
 // 로그인 섹션 뒤의 활동은 로그인 전에는 흐리게
-(function(){ let after = false; document.querySelectorAll('main > *').forEach(el => { if(after && !el.classList.contains('lock-tip')) el.classList.add('locked'); if(el.id === 'loginSec') after = true; }); })();
+(function(){ let after = false; document.querySelectorAll('main > *').forEach(el => { if(after && !el.classList.contains('lock-tip') && !el.classList.contains('open-read')) el.classList.add('locked'); if(el.id === 'loginSec') after = true; }); })();
 renderAll();
 try{ const saved = JSON.parse(sessionStorage.getItem(LOGIN_KEY) || 'null'); if(saved) doLogin(saved.cls, saved.num, saved.code, true); }catch(e){}
 </script>
