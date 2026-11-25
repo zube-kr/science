@@ -36,6 +36,8 @@
  *   - GALLERY_NEED_APPROVAL = true 이면 선생님이 '공개'를 체크해야 게시판에 보입니다.
  *     (게시판 페이지 아래 '선생님용 관리'에서 교사 코드로 공개/숨김을 바꾸거나, 시트의 '공개' 칸을 체크)
  *   - GALLERY_NAME_STYLE: "mask"(유○석) / "full"(유민석) / "none"(이름 숨김)
+ *   - 선생님 자료: 게시판의 '선생님용 관리'에서 교사 코드로 올리면 바로 공개되고 목록 맨 위에 고정됩니다.
+ *     html·pdf·hwp·ppt·엑셀·zip·사진 등 20MB까지 (드라이브 "개발자료게시판/선생님" 폴더)
  *
  * ▣ 코드를 수정했을 때
  *   배포 → 배포 관리 → (연필) → 버전: 새 버전 → 배포  (주소는 그대로 유지)
@@ -271,8 +273,12 @@ var GALLERY_NAME_STYLE = "mask";       // "mask" 유○석 / "full" 유민석 / 
 var GALLERY_MAX_BYTES = 5 * 1024 * 1024;
 var GALLERY_FOLDER = "개발자료게시판";
 var GALLERY_SHEET = "개발자료게시판";
-var GALLERY_HEADER = ["게시ID", "등록시각", "학년", "반", "번호", "이름", "제목", "설명", "파일명", "크기(KB)", "공개", "다운로드", "파일 링크", "파일ID"];
+var GALLERY_HEADER = ["게시ID", "등록시각", "학년", "반", "번호", "이름", "제목", "설명", "파일명", "크기(KB)", "공개", "다운로드", "파일 링크", "파일ID", "구분"];
 var G_OPEN_COL = 11, G_DL_COL = 12;
+// 선생님 자료: 교사 코드로 올리면 바로 공개, 여러 형식 가능
+var TEACHER_MAX_BYTES = 20 * 1024 * 1024;
+var TEACHER_EXT = ["html", "htm", "pdf", "hwp", "hwpx", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "zip", "jpg", "jpeg", "png", "gif", "txt", "py", "ino", "csv", "mp3", "mp4"];
+var TEXT_EXT = ["html", "htm", "txt", "py", "ino", "csv"];
 
 function gallerySheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -282,6 +288,8 @@ function gallerySheet_() {
     sh.appendRow(GALLERY_HEADER);
     sh.setFrozenRows(1);
     sh.setColumnWidth(7, 220); sh.setColumnWidth(8, 320);
+  } else if (sh.getLastColumn() < GALLERY_HEADER.length) {
+    sh.getRange(1, 1, 1, GALLERY_HEADER.length).setValues([GALLERY_HEADER]); // 새 열(구분) 추가
   }
   return sh;
 }
@@ -295,7 +303,8 @@ function galleryRows_() {
       grade: String(r[2]), cls: String(r[3]), num: String(r[4]), name: String(r[5]),
       title: String(r[6]), desc: String(r[7]), file: String(r[8]), kb: Number(r[9]) || 0,
       open: r[10] === true || String(r[10]).toUpperCase() === "TRUE",
-      dl: Number(r[11]) || 0, url: String(r[12]), fileId: String(r[13])
+      dl: Number(r[11]) || 0, url: String(r[12]), fileId: String(r[13]),
+      teacher: String(r[14]) === "선생님"
     };
   }).filter(function (r) { return r.id; });
 }
@@ -310,8 +319,8 @@ function galleryName_(name) {
 
 function galleryOut_(r, full) {
   return {
-    id: r.id, time: r.time, grade: r.grade, who: full ? r.name : galleryName_(r.name),
-    title: r.title, desc: r.desc, file: r.file, kb: r.kb, dl: r.dl, open: r.open
+    id: r.id, time: r.time, grade: r.grade, who: r.teacher ? "선생님" : (full ? r.name : galleryName_(r.name)),
+    title: r.title, desc: r.desc, file: r.file, kb: r.kb, dl: r.dl, open: r.open, teacher: r.teacher
   };
 }
 
@@ -319,13 +328,18 @@ function galleryList_() {
   return galleryRows_().filter(function (r) { return r.open; }).map(function (r) { return galleryOut_(r, false); }).reverse();
 }
 
-// GET ?action=gallery_file&id=게시ID[&dl=1][&tcode=교사코드]  → HTML 원문
+// GET ?action=gallery_file&id=게시ID[&dl=1][&tcode=교사코드]
+//   → 글자 파일(html 등)은 content, 그 밖의 파일은 b64(base64) + mime
 function galleryFile_(p) {
   var rows = galleryRows_(), r = null;
   rows.forEach(function (x) { if (x.id === String(p.id)) r = x; });
   var teacher = p.tcode && String(p.tcode) === TEACHER_CODE;
   if (!r || (!r.open && !teacher)) return json_({ ok: false, error: "공개된 자료가 아니에요." });
-  var content = DriveApp.getFileById(r.fileId).getBlob().getDataAsString("UTF-8");
+  var blob = DriveApp.getFileById(r.fileId).getBlob();
+  var ext = (r.file.split(".").pop() || "").toLowerCase();
+  var out = { ok: true, fileName: r.file };
+  if (TEXT_EXT.indexOf(ext) >= 0) out.content = blob.getDataAsString("UTF-8");
+  else { out.b64 = Utilities.base64Encode(blob.getBytes()); out.mime = blob.getContentType() || "application/octet-stream"; }
   if (String(p.dl) === "1" && !teacher) {
     var lock = LockService.getScriptLock();
     try {
@@ -335,11 +349,12 @@ function galleryFile_(p) {
       sh.getRange(r.row, G_DL_COL).setValue(cur + 1);
     } catch (x) {} finally { try { lock.releaseLock(); } catch (y) {} }
   }
-  return json_({ ok: true, fileName: r.file, content: content });
+  return json_(out);
 }
 
 // POST {action:"gallery_upload", code, grade, cls, num, name, title, desc, fileName, data(base64)}
 function galleryUpload_(d) {
+  if (d.tcode) return galleryTeacherUpload_(d);
   var lock = null;
   try {
     if (String(d.code) !== SUBMIT_CODE) return json_({ ok: false, error: "제출코드가 맞지 않아요." });
@@ -371,7 +386,7 @@ function galleryUpload_(d) {
     var open = !GALLERY_NEED_APPROVAL;
     // 수식으로 해석되지 않도록 학생이 적은 글 앞에 ' 를 붙임
     var safe = function (t) { return /^[=+\-@]/.test(t) ? "'" + t : t; };
-    sh.appendRow([id, now, grade, cls, num, name, safe(title), safe(desc), orig, Math.round(bytes.length / 1024), open, 0, file.getUrl(), file.getId()]);
+    sh.appendRow([id, now, grade, cls, num, name, safe(title), safe(desc), orig, Math.round(bytes.length / 1024), open, 0, file.getUrl(), file.getId(), "학생"]);
     sh.getRange(sh.getLastRow(), G_OPEN_COL).insertCheckboxes().setValue(open);
     return json_({ ok: true, id: id, open: open, time: fmtDate_(now) });
   } catch (err) {
@@ -389,4 +404,43 @@ function gallerySet_(d) {
   if (!r) return json_({ ok: false, error: "게시물을 찾지 못했어요." });
   gallerySheet_().getRange(r.row, G_OPEN_COL).setValue(!!d.open);
   return json_({ ok: true, id: r.id, open: !!d.open });
+}
+
+// POST {action:"gallery_upload", tcode, grade:"all"|"1"|"2"|"3", title, desc, fileName, mimeType, data(base64)}
+// 선생님 자료: 바로 공개, 목록 맨 위에 고정
+function galleryTeacherUpload_(d) {
+  var lock = null;
+  try {
+    if (String(d.tcode) !== TEACHER_CODE) return json_({ ok: false, error: "교사 코드가 맞지 않아요." });
+    var grade = ["all", "1", "2", "3"].indexOf(String(d.grade)) >= 0 ? String(d.grade) : "all";
+    var title = String(d.title || "").replace(/[\r\n]+/g, " ").trim().slice(0, 80);
+    var desc = String(d.desc || "").trim().slice(0, 1000);
+    if (!title) return json_({ ok: false, error: "자료 제목을 적어 주세요." });
+    var orig = safeName_(d.fileName || "file");
+    var ext = (orig.split(".").pop() || "").toLowerCase();
+    if (orig.indexOf(".") < 0 || TEACHER_EXT.indexOf(ext) < 0) return json_({ ok: false, error: "올릴 수 없는 파일 형식이에요: " + ext });
+    var bytes = Utilities.base64Decode(String(d.data || ""));
+    if (!bytes.length) return json_({ ok: false, error: "빈 파일이에요." });
+    if (bytes.length > TEACHER_MAX_BYTES) return json_({ ok: false, error: "파일이 20MB보다 커요." });
+
+    var now = new Date();
+    var folder = getSubFolder_(getSubFolder_(getRootFolder_(), GALLERY_FOLDER), "선생님");
+    var base = orig.replace(/\.[^.]+$/, ""), fileName = orig, k = 2;
+    while (folder.getFilesByName(fileName).hasNext()) fileName = base + "(" + (k++) + ")." + ext;
+    var mime = TEXT_EXT.indexOf(ext) >= 0 ? "text/plain" : (String(d.mimeType || "") || "application/octet-stream");
+    var file = folder.createFile(Utilities.newBlob(bytes, mime, fileName));
+
+    lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    var sh = gallerySheet_();
+    var id = "T" + now.getTime().toString(36);
+    var safe = function (t) { return /^[=+\-@]/.test(t) ? "'" + t : t; };
+    sh.appendRow([id, now, grade, "", "", "선생님", safe(title), safe(desc), orig, Math.round(bytes.length / 1024), true, 0, file.getUrl(), file.getId(), "선생님"]);
+    sh.getRange(sh.getLastRow(), G_OPEN_COL).insertCheckboxes().setValue(true);
+    return json_({ ok: true, id: id, open: true, time: fmtDate_(now) });
+  } catch (err) {
+    return json_({ ok: false, error: "저장 중 오류: " + String(err) });
+  } finally {
+    if (lock) try { lock.releaseLock(); } catch (x) {}
+  }
 }
