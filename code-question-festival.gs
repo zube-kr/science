@@ -356,8 +356,8 @@ function inquiryDashboard_(data) {
     worksheets: readRows_("질문탐구_워크시트"),
     ai: readRows_(AI_LOG_SHEET, null, 1500),
     roster: readRows_(ROSTER_SHEET),
-    saves: Object.keys(BOOKS).reduce(function (all, k) {   // 진행 요약만 (긴 상태 글은 빼고), 책 이름 표시
-      return all.concat(readRows_(BOOKS[k].save).map(function (o) { delete o["상태"]; o["도서"] = BOOKS[k].title; return o; }));
+    saves: Object.keys(BOOKS).reduce(function (all, k) {   // 자동 저장된 학생 글 전체(상태) + 책 이름
+      return all.concat(readRows_(BOOKS[k].save).map(function (o) { o["도서"] = BOOKS[k].title; return o; }));
     }, [])
   });
 }
