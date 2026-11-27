@@ -460,6 +460,7 @@ function doPost(e) {
  * 별도의 "피드백 조회 페이지"를 만들 때 fetch(GET)로 호출하면 된다.
  */
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === "dash") return dash_(e.parameter); // 교사 대시보드
   // 워크시트가 AI 조사 도우미를 쓸 수 있는지 확인할 때 사용
   if (e.parameter.action === "ai_status") {
     const cfg = aiConfig_();
@@ -490,4 +491,42 @@ function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify(found || { result: "not_found" }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ===================== 교사 대시보드(워크시트 답안 보기) =====================
+ * worksheet-dashboard.html 이 GET ?action=dash&key=교사코드 로 탭 목록을,
+ * ?action=dash&key=교사코드&sheet=탭이름 으로 그 탭의 답안을 읽어 갑니다.
+ * 아래 DASHBOARD_KEY 를 정해 적은 뒤 "새 버전"으로 배포해야 대시보드가 열려요.
+ * ※ 이 저장소에 올라간 파일에는 실제 코드를 적지 않습니다.
+ */
+var DASHBOARD_KEY = "여기에_교사_확인코드";   // 예: "482915"
+var DASH_SKIP_ = { "AI조사_기록": true };      // 대시보드 목록에서 뺄 탭
+
+function dashOut_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+}
+function dashCell_(v) { return v instanceof Date ? v.toISOString() : v; }
+
+function dash_(p) {
+  if (!DASHBOARD_KEY || DASHBOARD_KEY.indexOf("여기에") === 0) return dashOut_({ ok: false, error: "setup" });
+  if (String(p.key || "") !== DASHBOARD_KEY) return dashOut_({ ok: false, error: "key" });
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!p.sheet) {
+    var list = ss.getSheets().filter(function (sh) { return !DASH_SKIP_[sh.getName()]; }).map(function (sh) {
+      var n = sh.getLastRow();
+      var last = n >= 2 ? dashCell_(sh.getRange(n, 1).getValue()) : "";
+      return { name: sh.getName(), rows: Math.max(n - 1, 0), last: last };
+    });
+    return dashOut_({ ok: true, sheets: list });
+  }
+  var sheet = ss.getSheetByName(String(p.sheet));
+  if (!sheet) return dashOut_({ ok: false, error: "nosheet" });
+  if (sheet.getLastRow() < 1) return dashOut_({ ok: true, sheet: sheet.getName(), header: [], rows: [] });
+  var values = sheet.getDataRange().getValues();
+  return dashOut_({
+    ok: true,
+    sheet: sheet.getName(),
+    header: values[0].map(String),
+    rows: values.slice(1).map(function (r) { return r.map(dashCell_); })
+  });
 }
