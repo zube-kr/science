@@ -78,24 +78,30 @@ function setup() {
     t.getRange("D2:D200").setNumberFormat("yyyy-mm-dd");
     t.setColumnWidth(2, 260); t.setColumnWidth(3, 360);
   }
-  // 기본 과제: "과제목록"에 같은 과제명이 없을 때만 맨 아래에 추가합니다.
+  // 기본 과제: "과제목록"에 같은 학년·과제명이 없을 때만 빈 줄에 추가합니다.
   // (setup 을 다시 실행해도 이미 있는 과제는 중복으로 추가되지 않아요.)
   var DEFAULT_TASKS = [
     ["1", "2026.11.9. 4컷만화 (기체의 성질)", "기체의 성질을 4컷만화로 그려 사진이나 파일로 올려 주세요.", "", true],
-    ["1", "코드제출(학생제작)", "본인이 제작한 코드를 올려주세요(html형식).", "", true]
+    ["1", "코드제출(학생제작)", "본인이 제작한 코드를 올려주세요(html형식).", "", true],
+    ["2", "학교방탈출제작", "직접 만든 학교 방탈출 파일(html·사진·문서)을 올려 주세요.", "", true]
   ];
   // 공개 칸 체크박스가 200행까지 미리 깔려 있어서 appendRow를 쓰면 201행으로 내려가요.
   // 그래서 과제명(B열)이 비어 있는 첫 줄을 찾아 그 자리에 적습니다.
   var lastRow = Math.max(t.getLastRow(), 1);
-  var titles = lastRow > 1 ? t.getRange(2, 2, lastRow - 1, 1).getValues().map(function (r) { return String(r[0]).trim(); }) : [];
+  // 이미 있는지는 "학년|과제명"으로 비교해요(같은 과제명을 다른 학년에 써도 따로 추가돼요).
+  var keys = lastRow > 1 ? t.getRange(2, 1, lastRow - 1, 2).getValues().map(function (r) {
+    var title = String(r[1]).trim();
+    return title ? String(r[0]).replace(/[^0-9]/g, "") + "|" + title : "";
+  }) : [];
   DEFAULT_TASKS.forEach(function (row) {
-    if (titles.indexOf(row[1]) >= 0) return;
-    var idx = titles.indexOf("");
-    if (idx < 0) { idx = titles.length; titles.push(""); }
+    var key = row[0] + "|" + row[1];
+    if (keys.indexOf(key) >= 0) return;
+    var idx = keys.indexOf("");
+    if (idx < 0) { idx = keys.length; keys.push(""); }
     var r = idx + 2;
     t.getRange(r, 1, 1, 4).setValues([row.slice(0, 4)]);
     t.getRange(r, 5).insertCheckboxes().setValue(row[4]);
-    titles[idx] = row[1];
+    keys[idx] = key;
   });
   var l = ss.getSheetByName(LOG_SHEET);
   if (!l) {
