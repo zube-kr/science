@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>워크시트 답안 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{ --night:#1B1A3A; --paper:#FAF8F3; --line:#E4DFD2; --ink:#1F2430; --soft:#5B6172; --violet:#6d5bd0;
+         --ok:#2F7D52; --ok-bg:#E5F4EA; --bad:#B0412F; --bad-bg:#FBE9E5; --sel:#EEEAFE; }
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Noto Sans KR',sans-serif; line-height:1.5; }
+  button, input, select{ font-family:inherit; }
+  header{ background:linear-gradient(120deg,#2A2560,var(--night)); color:#fff; padding:18px 20px; }
+  .hin{ max-width:1400px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  header h1{ margin:0; font-size:clamp(19px,2.6vw,24px); font-weight:900; }
+  header p{ margin:3px 0 0; color:#D3D0E8; font-size:13px; }
+  .src{ display:flex; gap:6px; flex-wrap:wrap; }
+  .src button{ border:1.5px solid rgba(255,255,255,.35); background:transparent; color:#fff; border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:700; cursor:pointer; }
+  .src button.on{ background:#fff; color:var(--night); border-color:#fff; }
+  main{ max-width:1400px; margin:0 auto; padding:18px 16px 60px; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .login{ max-width:460px; margin:40px auto; text-align:center; padding:28px 22px; }
+  .login h2{ margin:4px 0 6px; font-size:20px; }
+  .login p{ color:var(--soft); font-size:13.5px; margin:0; }
+  .login form{ display:flex; gap:8px; margin-top:16px; }
+  .login input[type=password]{ flex:1; min-width:0; font-size:18px; letter-spacing:4px; text-align:center; }
+  .login label{ display:flex; gap:6px; justify-content:center; align-items:center; font-size:13px; color:var(--soft); margin-top:10px; }
+  input[type=text], input[type=password], input[type=search], select{ font-size:14px; padding:8px 11px; border:1px solid #C9C3B0; border-radius:9px; background:#fff; color:var(--ink); }
+  .btn{ border:none; border-radius:10px; padding:9px 15px; font-size:14px; font-weight:700; cursor:pointer; background:var(--night); color:#fff; white-space:nowrap; }
+  .btn.ghost{ background:#EFECE3; color:var(--ink); }
+  .btn.sm{ padding:6px 11px; font-size:12.5px; border-radius:8px; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .msg{ min-height:20px; margin-top:10px; font-size:13.5px; font-weight:700; color:var(--bad); text-align:left; white-space:pre-line; }
+  .help{ margin-top:14px; text-align:left; font-size:13px; color:var(--soft); background:#F6F4EE; border-radius:10px; padding:10px 12px; }
+  .help code{ background:#fff; border:1px solid var(--line); border-radius:5px; padding:0 4px; font-size:12px; }
+
+  .layout{ display:grid; grid-template-columns:300px 1fr; gap:16px; align-items:start; }
+  .side{ position:sticky; top:12px; max-height:calc(100vh - 24px); display:flex; flex-direction:column; padding:12px; }
+  .side .tools{ display:flex; gap:6px; margin-bottom:8px; }
+  .side .tools input{ flex:1; min-width:0; }
+  .side .sort{ display:flex; gap:4px; margin-bottom:8px; }
+  .side .sort button{ flex:1; border:1px solid var(--line); background:#fff; border-radius:8px; padding:5px 0; font-size:12.5px; font-weight:700; color:var(--soft); cursor:pointer; }
+  .side .sort button.on{ background:var(--sel); color:var(--violet); border-color:#CFC6FA; }
+  .list{ overflow:auto; flex:1; margin:0 -4px; padding:0 4px; }
+  .grp{ font-size:12px; font-weight:900; color:var(--violet); margin:10px 2px 4px; letter-spacing:.04em; }
+  .ws{ display:block; width:100%; text-align:left; border:1px solid transparent; background:none; border-radius:9px; padding:7px 9px; cursor:pointer; color:var(--ink); }
+  .ws:hover{ background:#F6F4EE; }
+  .ws.on{ background:var(--sel); border-color:#CFC6FA; }
+  .ws .n{ font-size:13.5px; font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ws .m{ font-size:11.5px; color:var(--soft); }
+  .ws .m b{ color:var(--night); }
+  .ws.empty .n{ color:#9A9FAB; font-weight:500; }
+  .new{ display:inline-block; background:#FFE9A8; color:#7A5300; font-size:10.5px; font-weight:900; border-radius:5px; padding:0 5px; margin-left:4px; vertical-align:1px; }
+
+  .head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .head h2{ margin:0; font-size:20px; }
+  .head .sub{ font-size:12.5px; color:var(--soft); }
+  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:12px; }
+  .kpi{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 13px; }
+  .kpi .k{ font-size:12px; color:var(--soft); font-weight:700; }
+  .kpi .v{ font-size:23px; font-weight:900; color:var(--night); }
+  .kpi .v small{ font-size:12.5px; color:var(--soft); margin-left:3px; font-weight:700; }
+  .bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .bar .grow{ flex:1; }
+  .bar label{ font-size:13px; color:var(--soft); display:flex; gap:5px; align-items:center; cursor:pointer; }
+  .seg{ display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; }
+  .seg button{ border:none; background:#fff; padding:7px 12px; font-size:13px; font-weight:700; color:var(--soft); cursor:pointer; }
+  .seg button.on{ background:var(--night); color:#fff; }
+
+  .tbl-wrap{ overflow:auto; border:1px solid var(--line); border-radius:12px; background:#fff; max-height:70vh; }
+  table{ border-collapse:separate; border-spacing:0; width:100%; font-size:13.5px; }
+  th, td{ border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th{ position:sticky; top:0; background:#F6F4EE; font-size:12.5px; color:var(--soft); z-index:2; white-space:nowrap; }
+  tr.rate th{ top:35px; background:#FBFAF6; font-weight:700; }
+  td.nm, th.nm{ position:sticky; left:0; background:#fff; z-index:1; white-space:nowrap; font-weight:700; }
+  th.nm{ background:#F6F4EE; z-index:3; }
+  tr.rate th.nm{ background:#FBFAF6; }
+  td.t{ white-space:nowrap; color:var(--soft); font-size:12.5px; }
+  td.ans{ min-width:120px; max-width:320px; white-space:pre-wrap; word-break:break-word; }
+  .o{ background:var(--ok-bg); color:var(--ok); }
+  .x{ background:var(--bad-bg); color:var(--bad); }
+  .score{ font-weight:900; white-space:nowrap; }
+  .pct{ display:inline-block; min-width:42px; text-align:center; border-radius:6px; padding:1px 6px; font-size:12px; font-weight:900; }
+  .pct.hi{ background:var(--ok-bg); color:var(--ok); } .pct.mid{ background:#FFF3D6; color:#8A5A00; } .pct.lo{ background:var(--bad-bg); color:var(--bad); }
+  tbody tr:hover td{ background:#FCFBF7; }
+  tbody tr:hover td.nm{ background:#FCFBF7; }
+  tr.older td{ opacity:.55; }
+
+  .cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:12px; }
+  .stu{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .stu h3{ margin:0 0 2px; font-size:15.5px; display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .stu .when{ font-size:12px; color:var(--soft); margin-bottom:8px; }
+  .qa{ border-top:1px dashed var(--line); padding:6px 0; font-size:13.5px; }
+  .qa .q{ font-size:12px; color:var(--soft); font-weight:700; }
+  .qa .a{ white-space:pre-wrap; word-break:break-word; }
+  .qa .a.o, .qa .a.x{ border-radius:6px; padding:1px 6px; display:inline-block; }
+  .empty-state{ text-align:center; color:var(--soft); padding:40px 10px; }
+  .loading{ color:var(--soft); font-size:13.5px; padding:16px 4px; }
+  .blur .nmv{ filter:blur(5px); }
+
+  @media (max-width:900px){
+    .layout{ grid-template-columns:1fr; }
+    .side{ position:static; max-height:340px; }
+    .kpis{ grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="hin">
+    <div>
+      <h1>📋 워크시트 답안 대시보드</h1>
+      <p>학생들이 제출한 워크시트 답안을 스프레드시트를 열지 않고 바로 확인해요. (교사용)</p>
+    </div>
+    <div class="src" id="src"></div>
+  </div>
+</header>
+
+<main>
+  <!-- 로그인 -->
+  <section class="card login" id="loginCard">
+    <div style="font-size:34px">🔐</div>
+    <h2>교사 코드 입력</h2>
+    <p id="loginSub">Apps Script에 정한 <b>DASHBOARD_KEY</b>를 넣어 주세요.</p>
+    <form id="loginForm" autocomplete="off">
+      <input type="password" id="key" placeholder="교사 코드" aria-label="교사 코드" inputmode="numeric">
+      <button class="btn" type="submit" id="loginBtn">열기</button>
+    </form>
+    <label><input type="checkbox" id="remember"> 이 기기에서 기억하기 (학생이 쓰는 기기에서는 체크하지 마세요)</label>
+    <div class="msg" id="loginMsg"></div>
+    <div class="help" id="setupHelp" hidden></div>
+  </section>
+
+  <!-- 대시보드 -->
+  <section id="dash" hidden>
+    <div class="layout">
+      <aside class="card side">
+        <div class="tools">
+          <input type="search" id="q" placeholder="워크시트 찾기">
+          <button class="btn ghost sm" id="reloadList" title="목록 새로고침">새로고침</button>
+        </div>
+        <div class="sort" id="sortBar">
+          <button data-sort="recent" class="on">최근 제출순</button>
+          <button data-sort="name">이름순</button>
+        </div>
+        <label style="font-size:12.5px;color:var(--soft);display:flex;gap:5px;align-items:center;margin:0 2px 4px">
+          <input type="checkbox" id="hideEmpty" checked> 제출 없는 탭 숨기기
+        </label>
+        <div class="list" id="list"><div class="loading">불러오는 중…</div></div>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <span class="upd" id="listInfo" style="font-size:12px;color:var(--soft)"></span>
+          <button class="btn ghost sm" id="logout">잠그기</button>
+        </div>
+      </aside>
+
+      <div>
+        <div class="card empty-state" id="pick">← 왼쪽에서 워크시트를 골라 주세요.</div>
+        <div id="view" hidden>
+          <div class="head">
+            <div>
+              <h2 id="vTitle"></h2>
+              <div class="sub" id="vSub"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn ghost sm" id="refresh">답안 새로고침</button>
+              <button class="btn ghost sm" id="csv">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="kpis" id="kpis"></div>
+          <div class="bar">
+            <div class="seg" id="mode">
+              <button data-mode="table" class="on">문항별 표</button>
+              <button data-mode="cards">학생별 카드</button>
+            </div>
+            <select id="cls" aria-label="반"></select>
+            <input type="search" id="nameQ" placeholder="이름 찾기" style="width:130px">
+            <span class="grow"></span>
+            <label><input type="checkbox" id="latestOnly" checked> 학생별 마지막 제출만</label>
+            <label><input type="checkbox" id="blurNames"> 이름 가리기</label>
+          </div>
+          <div id="out"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* 답안이 저장되는 웹 앱(Apps Script) — 워크시트들이 쓰는 주소와 같아요. */
+const SOURCES = [
+  { id: "ws",  label: "중1·중2 워크시트", gs: "code.gs",
+    url: "https://script.google.com/macros/s/AKfycbyGI9pOFAtmqsAjjA-jC0tQgg6jcJwzb1N0ZQw9JcZ9p_52RJOIROQr50nhqToK_X6t5Q/exec" },
+  { id: "g3",  label: "중3 워크시트", gs: "code-3rd.gs",
+    url: "https://script.google.com/macros/s/AKfycbzwRey-af1BoWs7MKBSDzUsB5aM6zMV04YnDZiTCLasXkCFnGG17kZ_KVmnUx-uMxY1ZA/exec" }
+];
+
+/* 열 이름 → 보기 좋은 이름 / 역할 */
+const ROLE = {
+  timestamp: "time", "제출시각": "time", submittedAt: "skip",
+  grade: "grade", "학년": "grade",
+  classNum: "cls", stuClass: "cls", "반": "cls",
+  number: "num", stuNumber: "num", "번호": "num",
+  name: "name", "이름": "name",
+  score: "score", "점수": "score", total: "total", "만점": "total",
+  worksheet: "skip", form: "skip"
+};
+const LABEL = { time: "제출 시각", grade: "학년", cls: "반", num: "번호", name: "이름", score: "점수", total: "만점" };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const store = {
+  get(k){ try{ return sessionStorage.getItem(k) || localStorage.getItem(k); }catch(e){ return null; } },
+  set(k, v, keep){ try{ sessionStorage.setItem(k, v); if (keep) localStorage.setItem(k, v); }catch(e){} },
+  del(k){ try{ sessionStorage.removeItem(k); localStorage.removeItem(k); }catch(e){} },
+  pref(k, v){ try{ if (v === undefined) return localStorage.getItem("wsdash-pref-" + k); localStorage.setItem("wsdash-pref-" + k, v); }catch(e){ return null; } }
+};
+
+const st = { src: SOURCES[0], key: "", sheets: [], sort: "recent", sel: null, data: null, mode: "table" };
+
+/* ---------- 데이터 읽기 ---------- */
+async function call(params){
+  const u = new URL(st.src.url);
+  u.searchParams.set("action", "dash");
+  u.searchParams.set("key", st.key);
+  Object.entries(params || {}).forEach(([k, v]) => u.searchParams.set(k, v));
+  const r = await fetch(u.toString());
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const text = await r.text();
+  try{ return JSON.parse(text); }catch(e){ return { ok: false, error: "old" }; }
+}
+
+function errText(code){
+  const gs = st.src.gs;
+  if (code === "key") return "교사 코드가 맞지 않아요.";
+  if (code === "setup") return `${gs}의 DASHBOARD_KEY가 아직 정해지지 않았어요.`;
+  if (code === "old") return `${st.src.label} Apps Script가 아직 대시보드 기능이 없는 예전 버전이에요.`;
+  if (code === "nosheet") return "그 탭을 찾지 못했어요. 목록을 새로고침해 보세요.";
+  return "연결이 안 돼요. 잠시 후 다시 시도해 주세요.";
+}
+function showSetupHelp(code){
+  const box = $("setupHelp");
+  if (code !== "setup" && code !== "old"){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<b>처음 한 번만 설정해 주세요</b><br>
+    ① 답안 스프레드시트에서 <b>확장 프로그램 → Apps Script</b>를 열고, 저장소의 <code>${st.src.gs}</code> 내용으로 바꿔 붙여 넣어요.<br>
+    ② 맨 아래 <code>DASHBOARD_KEY = "…"</code>에 교사 코드를 정해 적어요.<br>
+    ③ <b>배포 → 배포 관리 → 연필 → 버전: 새 버전 → 배포</b> (주소는 그대로예요).`;
+}
+
+/* ---------- 출처(스프레드시트) 고르기 ---------- */
+function renderSources(){
+  $("src").innerHTML = SOURCES.map(s => `<button type="button" data-src="${s.id}" class="${s === st.src ? "on" : ""}">${esc(s.label)}</button>`).join("");
+}
+$("src").addEventListener("click", e => {
+  const b = e.target.closest("[data-src]"); if (!b) return;
+  const s = SOURCES.find(x => x.id === b.dataset.src); if (!s || s === st.src) return;
+  st.src = s; store.pref("src", s.id); renderSources();
+  st.sel = null; st.data = null;
+  tryAuto();
+});
+
+/* ---------- 로그인 ---------- */
+async function openWith(key, silent){
+  st.key = key;
+  $("loginBtn").disabled = true; $("loginMsg").textContent = silent ? "" : "확인하는 중…";
+  try{
+    const res = await call();
+    if (!res.ok){
+      if (silent && res.error === "key"){ store.del("wsdash-key-" + st.src.id); showLogin(); return; }
+      showLogin(); $("loginMsg").textContent = errText(res.error); showSetupHelp(res.error); return;
+    }
+    store.set("wsdash-key-" + st.src.id, key, $("remember").checked || !!localStorageHas("wsdash-key-" + st.src.id));
+    st.sheets = res.sheets || [];
+    $("loginCard").hidden = true; $("dash").hidden = false;
+    renderList();
+    $("listInfo").textContent = "목록 " + new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+    const want = store.pref("sheet-" + st.src.id);
+    if (want && st.sheets.some(s => s.name === want)) selectSheet(want);
+    else { $("pick").hidden = false; $("view").hidden = true; }
+  }catch(e){
+    showLogin(); $("loginMsg").textContent = errText("net");
+  }finally{ $("loginBtn").disabled = false; }
+}
+function localStorageHas(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function showLogin(){
+  $("dash").hidden = true; $("loginCard").hidden = false;
+  $("loginSub").innerHTML = `<b>${esc(st.src.label)}</b> 답안을 봐요. Apps Script(<code>${esc(st.src.gs)}</code>)에 정한 <b>DASHBOARD_KEY</b>를 넣어 주세요.`;
+  $("setupHelp").hidden = true;
+}
+function tryAuto(){
+  const saved = store.get("wsdash-key-" + st.src.id);
+  if (saved) openWith(saved, true);
+  else { showLogin(); $("loginMsg").textContent = ""; $("key").value = ""; $("key").focus(); }
+}
+$("loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const k = $("key").value.trim();
+  if (!k){ $("loginMsg").textContent = "교사 코드를 입력해 주세요."; return; }
+  openWith(k, false);
+});
+$("logout").onclick = () => { store.del("wsdash-key-" + st.src.id); st.key = ""; st.data = null; $("key").value = ""; showLogin(); $("loginMsg").textContent = ""; };
+
+/* ---------- 왼쪽 목록 ---------- */
+function groupOf(name){
+  const m = /^중\s?([123])/.exec(name);
+  if (m) return "중학교 " + m[1] + "학년";
+  if (st.src.id === "g3") return "중학교 3학년";
+  return "기타 워크시트";
+}
+function ago(iso){
+  if (!iso) return "";
+  const d = new Date(iso); if (isNaN(d)) return "";
+  const s = (Date.now() - d.getTime()) / 1000;
+  if (s < 60) return "방금";
+  if (s < 3600) return Math.floor(s / 60) + "분 전";
+  if (s < 86400) return Math.floor(s / 3600) + "시간 전";
+  if (s < 86400 * 7) return Math.floor(s / 86400) + "일 전";
+  return d.toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
+}
+function renderList(){
+  const q = $("q").value.trim().toLowerCase();
+  const hide = $("hideEmpty").checked;
+  let items = st.sheets.filter(s => (!hide || s.rows > 0) && (!q || s.name.toLowerCase().includes(q)));
+  const t = s => { const d = new Date(s.last); return isNaN(d) ? 0 : d.getTime(); };
+  if (st.sort === "recent") items.sort((a, b) => t(b) - t(a) || a.name.localeCompare(b.name, "ko"));
+  else items.sort((a, b) => a.name.localeCompare(b.name, "ko", { numeric: true }));
+  if (!items.length){ $("list").innerHTML = `<div class="loading">${st.sheets.length ? "조건에 맞는 워크시트가 없어요." : "아직 제출된 워크시트가 없어요."}</div>`; return; }
+  let html = "", lastGrp = null;
+  const byGroup = st.sort === "name";
+  items.forEach(s => {
+    if (byGroup){ const g = groupOf(s.name); if (g !== lastGrp){ html += `<div class="grp">${esc(g)}</div>`; lastGrp = g; } }
+    const fresh = t(s) && Date.now() - t(s) < 86400000;
+    html += `<button type="button" class="ws ${s.rows ? "" : "empty"} ${st.sel === s.name ? "on" : ""}" data-name="${esc(s.name)}">
+      <span class="n" title="${esc(s.name)}">${esc(s.name)}${fresh ? '<span class="new">오늘</span>' : ""}</span>
+      <span class="m"><b>${s.rows}</b>건${s.last ? " · " + esc(ago(s.last)) : ""}</span></button>`;
+  });
+  $("list").innerHTML = html;
+}
+$("list").addEventListener("click", e => { const b = e.target.closest("[data-name]"); if (b) selectSheet(b.dataset.name); });
+$("q").addEventListener("input", renderList);
+$("hideEmpty").addEventListener("change", renderList);
+$("sortBar").addEventListener("click", e => {
+  const b = e.target.closest("[data-sort]"); if (!b) return;
+  st.sort = b.dataset.sort;
+  $("sortBar").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  renderList();
+});
+$("reloadList").onclick = () => openWith(st.key, true);
+
+/* ---------- 탭 하나 읽기 ---------- */
+async function selectSheet(name){
+  st.sel = name; store.pref("sheet-" + st.src.id, name); renderList();
+  $("pick").hidden = true; $("view").hidden = false;
+  $("vTitle").textContent = name; $("vSub").textContent = "";
+  $("kpis").innerHTML = ""; $("out").innerHTML = '<div class="loading">답안을 불러오는 중…</div>';
+  try{
+    const res = await call({ sheet: name });
+    if (st.sel !== name) return;
+    if (!res.ok){ $("out").innerHTML = `<div class="card empty-state">${esc(errText(res.error))}</div>`; if (res.error === "key") tryAuto(); return; }
+    st.data = prepare(res.header || [], res.rows || []);
+    fillClassSelect();
+    render();
+  }catch(e){
+    $("out").innerHTML = `<div class="card empty-state">${esc(errText("net"))}</div>`;
+  }
+}
+$("refresh").onclick = () => st.sel && selectSheet(st.sel);
+
+function prepare(header, rows){
+  const cols = header.map((h, i) => ({ i, key: h, role: ROLE[h] || (h === "교사피드백" ? "feedback" : "ans") }));
+  const idx = r => { const o = {}; cols.forEach(c => { if (c.role !== "ans" && c.role !== "skip" && o[c.role] === undefined) o[c.role] = c.i; }); return o; }
+  const at = idx();
+  const ansCols = cols.filter(c => c.role === "ans" || c.role === "feedback");
+  const recs = rows.map((r, n) => {
+    const g = k => at[k] === undefined ? "" : r[at[k]];
+    const t = new Date(g("time"));
+    const scoreRaw = g("score"), totalRaw = g("total");
+    let score = null, total = null;
+    if (scoreRaw !== "" && scoreRaw != null){
+      const m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(String(scoreRaw));
+      if (m){ score = +m[1]; total = +m[2]; }
+      else if (!isNaN(+scoreRaw)){ score = +scoreRaw; total = totalRaw !== "" && !isNaN(+totalRaw) ? +totalRaw : null; }
+    }
+    return { n, row: r, time: isNaN(t) ? null : t, timeRaw: g("time"), grade: String(g("grade")), cls: String(g("cls")).trim(),
+             num: String(g("num")).trim(), name: String(g("name")).trim(), score, total };
+  });
+  // 학생별 마지막 제출 표시
+  const lastOf = {};
+  recs.forEach(r => { const k = r.cls + "|" + r.num + "|" + r.name; const cur = lastOf[k]; if (!cur || (r.time && cur.time && r.time >= cur.time) || (!r.time)) lastOf[k] = r; });
+  recs.forEach(r => { r.latest = lastOf[r.cls + "|" + r.num + "|" + r.name] === r; });
+  return { header, cols, ansCols, recs };
+}
+
+function fillClassSelect(){
+  const set = [...new Set(st.data.recs.map(r => r.cls).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko", { numeric: true }));
+  const sel = $("cls"), cur = sel.value;
+  sel.innerHTML = `<option value="">전체 반</option>` + set.map(c => `<option value="${esc(c)}">${esc(c)}반</option>`).join("");
+  sel.value = set.includes(cur) ? cur : "";
+  sel.hidden = set.length <= 1;
+}
+
+function filtered(){
+  const cls = $("cls").value, q = $("nameQ").value.trim(), latest = $("latestOnly").checked;
+  return st.data.recs.filter(r => (!cls || r.cls === cls) && (!q || r.name.includes(q)) && (!latest || r.latest))
+    .sort((a, b) => (a.cls.localeCompare(b.cls, "ko", { numeric: true })) || ((+a.num || 0) - (+b.num || 0)) || ((b.time || 0) - (a.time || 0)));
+}
+
+/* 답 값의 맞음/틀림 표시 — ws-kit 워크시트는 답 뒤에 " (O)" / " (X)"가 붙어 와요 */
+function mark(v){
+  const s = String(v == null ? "" : v);
+  const m = /\s*\((O|X)\)\s*$/.exec(s);
+  if (!m) return { text: s, cls: "" };
+  return { text: s.slice(0, m.index), cls: m[1] === "O" ? "o" : "x" };
+}
+function fmtTime(r){
+  if (!r.time) return esc(r.timeRaw || "");
+  return r.time.toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function who(r){ return `<span class="nmv">${esc(r.name || "(이름 없음)")}</span>`; }
+function scoreText(r){ return r.score == null ? "" : r.total ? `${r.score}/${r.total}` : String(r.score); }
+
+function render(){
+  const D = st.data, list = filtered();
+  const all = D.recs;
+  const students = new Set(all.map(r => r.cls + "|" + r.num + "|" + r.name)).size;
+  const scored = list.filter(r => r.score != null && r.total);
+  const avg = scored.length ? Math.round(scored.reduce((s, r) => s + r.score / r.total, 0) / scored.length * 100) : null;
+  const lastT = all.reduce((m, r) => r.time && (!m || r.time > m) ? r.time : m, null);
+  $("vSub").textContent = `문항 ${D.ansCols.length}개 · 스프레드시트 탭 "${st.sel}"`;
+  $("kpis").innerHTML = [
+    ["제출", all.length, "건"], ["제출한 학생", students, "명"],
+    ["평균 점수(보이는 학생)", avg == null ? "–" : avg, avg == null ? "" : "%"],
+    ["마지막 제출", lastT ? ago(lastT.toISOString()) : "–", ""]
+  ].map(([k, v, u]) => `<div class="kpi"><div class="k">${k}</div><div class="v">${esc(v)}<small>${u}</small></div></div>`).join("");
+
+  document.body.classList.toggle("blur", $("blurNames").checked);
+  if (!list.length){ $("out").innerHTML = `<div class="card empty-state">${all.length ? "조건에 맞는 제출이 없어요." : "아직 이 워크시트에 제출한 학생이 없어요."}</div>`; return; }
+  if (st.mode === "cards") renderCards(list); else renderTable(list);
+}
+
+function renderTable(list){
+  const D = st.data;
+  const hasScore = list.some(r => r.score != null);
+  // 문항별 정답률 (O/X 표시가 있는 열만)
+  const rate = D.ansCols.map(c => {
+    let o = 0, x = 0;
+    list.forEach(r => { const k = mark(r.row[c.i]).cls; if (k === "o") o++; else if (k === "x") x++; });
+    return o + x ? Math.round(o / (o + x) * 100) : null;
+  });
+  const anyRate = rate.some(v => v != null);
+  const pct = v => v == null ? "" : `<span class="pct ${v >= 80 ? "hi" : v >= 50 ? "mid" : "lo"}">${v}%</span>`;
+  let h = `<div class="tbl-wrap"><table><thead><tr>
+    <th class="nm">이름</th><th>반</th><th>번호</th><th>제출 시각</th>${hasScore ? "<th>점수</th>" : ""}
+    ${D.ansCols.map(c => `<th title="${esc(c.key)}">${esc(c.key)}</th>`).join("")}</tr>`;
+  if (anyRate) h += `<tr class="rate"><th class="nm">정답률</th><th></th><th></th><th></th>${hasScore ? "<th></th>" : ""}${rate.map(v => `<th>${pct(v)}</th>`).join("")}</tr>`;
+  h += `</thead><tbody>`;
+  list.forEach(r => {
+    h += `<tr class="${r.latest ? "" : "older"}"><td class="nm">${who(r)}</td><td>${esc(r.cls)}</td><td>${esc(r.num)}</td><td class="t">${fmtTime(r)}</td>
+      ${hasScore ? `<td class="score">${esc(scoreText(r))}</td>` : ""}
+      ${D.ansCols.map(c => { const m = mark(r.row[c.i]); return `<td class="ans ${m.cls}">${esc(m.text)}</td>`; }).join("")}</tr>`;
+  });
+  h += `</tbody></table></div>`;
+  $("out").innerHTML = h;
+}
+
+function renderCards(list){
+  const D = st.data;
+  $("out").innerHTML = `<div class="cards">${list.map(r => `
+    <div class="stu">
+      <h3><span>${esc(r.cls ? r.cls + "반 " : "")}${esc(r.num ? r.num + "번 " : "")}${who(r)}</span><span class="score">${esc(scoreText(r))}</span></h3>
+      <div class="when">${fmtTime(r)}${r.latest ? "" : " · 예전 제출"}</div>
+      ${D.ansCols.map(c => { const m = mark(r.row[c.i]); if (m.text === "" && !m.cls) return "";
+        return `<div class="qa"><div class="q">${esc(c.key)}</div><div class="a ${m.cls}">${esc(m.text) || "(빈칸)"}${m.cls ? (m.cls === "o" ? " ✓" : " ✗") : ""}</div></div>`; }).join("")}
+    </div>`).join("")}</div>`;
+}
+
+["cls", "nameQ", "latestOnly", "blurNames"].forEach(id => $(id).addEventListener(id === "nameQ" ? "input" : "change", () => st.data && render()));
+$("mode").addEventListener("click", e => {
+  const b = e.target.closest("[data-mode]"); if (!b) return;
+  st.mode = b.dataset.mode; store.pref("mode", st.mode);
+  $("mode").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  if (st.data) render();
+});
+
+/* ---------- CSV ---------- */
+$("csv").onclick = () => {
+  if (!st.data) return;
+  const D = st.data, list = filtered();
+  const q = v => { const s = String(v == null ? "" : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const lines = [["반", "번호", "이름", "제출 시각", "점수", ...D.ansCols.map(c => c.key)].map(q).join(",")];
+  list.forEach(r => lines.push([r.cls, r.num, r.name, r.time ? r.time.toLocaleString("ko-KR") : r.timeRaw, scoreText(r), ...D.ansCols.map(c => r.row[c.i])].map(q).join(",")));
+  const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = st.sel.replace(/[\\/:*?"<>|]/g, "_") + ".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+
+/* ---------- 시작 ---------- */
+(function init(){
+  const s = SOURCES.find(x => x.id === store.pref("src")); if (s) st.src = s;
+  const m = store.pref("mode"); if (m === "cards" || m === "table"){ st.mode = m; $("mode").querySelectorAll("button").forEach(x => x.classList.toggle("on", x.dataset.mode === m)); }
+  renderSources();
+  tryAuto();
+})();
+</script>
+</body>
+</html>

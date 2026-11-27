@@ -36,6 +36,11 @@
  *   배포 → 배포 관리 → (연필 아이콘) 수정 → 버전: 새 버전 → 배포
  * 새로 설치하는 경우에는 위 1~4번 설치 방법을 그대로 따르면 됩니다.
  *
+ * ▣ 교사 대시보드(worksheet-dashboard.html)
+ * 맨 아래 DASHBOARD_KEY 에 교사 코드를 정해 적고 "새 버전"으로 배포하면,
+ * 스프레드시트를 열지 않고도 대시보드에서 학생 답안을 볼 수 있어요.
+ * (교사 코드가 맞아야만 답안을 돌려줍니다.)
+ *
  * ▣ 파티게임방(student-dev/party-games.html) 온라인 방
  * 같은 웹 앱 주소로 pg=… 요청이 오면 파티게임방의 방 상태를 주고받습니다.
  * 방 데이터는 시트가 아니라 Apps Script 캐시(CacheService)에 저장되어
@@ -103,6 +108,7 @@ function doPost(e) {
  */
 function doGet(e) {
   if (e && e.parameter && e.parameter.pg) return pgGet_(e.parameter);
+  if (e && e.parameter && e.parameter.action === "dash") return dash_(e.parameter);
   var worksheet = (e && e.parameter && e.parameter.worksheet) || "";
   if (!worksheet) {
     return ContentService.createTextOutput(
@@ -213,4 +219,42 @@ function pgPost_(p) {
   } catch (err) {
     return pgOut_({ ok: false, error: String(err && err.message || err) });
   }
+}
+
+/* ===================== 교사 대시보드(워크시트 답안 보기) =====================
+ * worksheet-dashboard.html 이 GET ?action=dash&key=교사코드 로 탭 목록을,
+ * ?action=dash&key=교사코드&sheet=탭이름 으로 그 탭의 답안을 읽어 갑니다.
+ * 아래 DASHBOARD_KEY 를 정해 적은 뒤 "새 버전"으로 배포해야 대시보드가 열려요.
+ * ※ 이 저장소에 올라간 파일에는 실제 코드를 적지 않습니다.
+ */
+var DASHBOARD_KEY = "여기에_교사_확인코드";   // 예: "482915"
+var DASH_SKIP_ = { "AI조사_기록": true };      // 대시보드 목록에서 뺄 탭
+
+function dashOut_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+}
+function dashCell_(v) { return v instanceof Date ? v.toISOString() : v; }
+
+function dash_(p) {
+  if (!DASHBOARD_KEY || DASHBOARD_KEY.indexOf("여기에") === 0) return dashOut_({ ok: false, error: "setup" });
+  if (String(p.key || "") !== DASHBOARD_KEY) return dashOut_({ ok: false, error: "key" });
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!p.sheet) {
+    var list = ss.getSheets().filter(function (sh) { return !DASH_SKIP_[sh.getName()]; }).map(function (sh) {
+      var n = sh.getLastRow();
+      var last = n >= 2 ? dashCell_(sh.getRange(n, 1).getValue()) : "";
+      return { name: sh.getName(), rows: Math.max(n - 1, 0), last: last };
+    });
+    return dashOut_({ ok: true, sheets: list });
+  }
+  var sheet = ss.getSheetByName(String(p.sheet));
+  if (!sheet) return dashOut_({ ok: false, error: "nosheet" });
+  if (sheet.getLastRow() < 1) return dashOut_({ ok: true, sheet: sheet.getName(), header: [], rows: [] });
+  var values = sheet.getDataRange().getValues();
+  return dashOut_({
+    ok: true,
+    sheet: sheet.getName(),
+    header: values[0].map(String),
+    rows: values.slice(1).map(function (r) { return r.map(dashCell_); })
+  });
 }
